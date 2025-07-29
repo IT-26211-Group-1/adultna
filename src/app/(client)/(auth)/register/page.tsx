@@ -1,10 +1,11 @@
-import React from "react";
-import { RegisterForm } from "./_components/registerForm";
+import React, { Suspense } from "react";
+import { RegisterForm } from "./_components/RegisterForm";
+import Loading from "./Loading";
 
-export default function page() {
+export default function Page() {
   return (
-    <div>
+    <Suspense fallback={<Loading />}>
       <RegisterForm />
-    </div>
+    </Suspense>
   );
 }

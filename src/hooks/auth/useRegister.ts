@@ -29,6 +29,9 @@ export const useRegister = () => {
 
       if (!res.ok) {
         setError(result.message || "Registration failed");
+        if (result.message === "Email is already registered") {
+          alert("Email is already registered!");
+        }
       } else {
         // router.push("/dashboard");
         alert("Success");
