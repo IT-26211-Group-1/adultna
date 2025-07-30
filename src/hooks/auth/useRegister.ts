@@ -8,7 +8,6 @@ import { registerSchema } from "@/validators/auth/registerSchema";
 export const useRegister = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const register = async (data: z.infer<typeof registerSchema>) => {
     setLoading(true);
