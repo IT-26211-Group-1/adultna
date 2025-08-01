@@ -9,6 +9,7 @@ import { registerUser } from "@/actions/auth/register";
 export const useRegister = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const register = async (form: z.infer<typeof registerSchema>) => {
@@ -17,20 +18,15 @@ export const useRegister = () => {
     const result = await registerUser(form);
 
     if (!result.success) {
-      setError(result.message);
-
-      if (result.message === "Email is already registered") {
-        alert("Email is already registered");
-      }
-
+      setError(result.message || "Registration Failed");
       setLoading(false);
       return;
     }
 
-    alert("Registration Successful");
-    // router.push("/dashboard");
+    setSuccess(true);
+    // router.push("/");
     setLoading(false);
   };
 
-  return { register, error, loading };
+  return { register, error, loading, success };
 };

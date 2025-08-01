@@ -7,7 +7,7 @@ import { useRegister } from "@/hooks/auth/useRegister";
 import { z } from "zod";
 
 export const RegisterForm = () => {
-  const { register: registerUser, loading } = useRegister();
+  const { register: registerUser, loading, error } = useRegister();
 
   const {
     register,
@@ -121,6 +121,9 @@ export const RegisterForm = () => {
           )}
           <span>Register</span>
         </button>
+
+        {/* Error Message */}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
       </form>
     </div>
   );

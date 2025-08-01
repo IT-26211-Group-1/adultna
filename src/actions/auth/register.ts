@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { registerSchema } from "@/validators/auth/registerSchema";
 import { revalidatePath } from "next/cache";
+import { apiFetch } from "@/utils/apiClient/apiClient";
 
 export const registerUser = async (form: z.infer<typeof registerSchema>) => {
   const parsed = registerSchema.safeParse(form);
@@ -11,30 +12,24 @@ export const registerUser = async (form: z.infer<typeof registerSchema>) => {
     throw new Error("Invalid registration data");
   }
 
-  const res = await fetch(
+  const payload = {
+    ...parsed.data,
+    acceptedTerms: true,
+  };
+
+  const res = await apiFetch<{ message: string }>(
     "https://67qnvnqw6i.execute-api.ap-southeast-2.amazonaws.com/register",
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...parsed.data, acceptedTerms: true }),
+      body: JSON.stringify(payload),
     }
   );
 
-  const result = await res.json();
-
-  if (!res.ok) {
-    return {
-      success: false,
-      message: result?.message || "Registration failed",
-    };
+  if (!res.success) {
+    return { success: false, message: res.message };
   }
 
   revalidatePath("/");
 
-  return {
-    success: true,
-    data: result,
-  };
+  return { success: true };
 };
