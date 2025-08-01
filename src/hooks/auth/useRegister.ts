@@ -14,12 +14,14 @@ export const useRegister = () => {
     setError("");
 
     try {
-      console.log("Registering user with:", data);
       const res = await fetch(
-        "https://s4xhwjy4m1.execute-api.ap-southeast-2.amazonaws.com/register",
+        "https://67qnvnqw6i.execute-api.ap-southeast-2.amazonaws.com/register",
         {
           method: "POST",
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            ...data,
+            acceptedTerms: true,
+          }),
           headers: { "Content-Type": "application/json" },
         }
       );
