@@ -4,44 +4,32 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { registerSchema } from "@/validators/auth/registerSchema";
+import { registerUser } from "@/actions/auth/register";
 
 export const useRegister = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const register = async (data: z.infer<typeof registerSchema>) => {
+  const register = async (form: z.infer<typeof registerSchema>) => {
     setLoading(true);
     setError("");
+    const result = await registerUser(form);
 
-    try {
-      const res = await fetch(
-        "https://67qnvnqw6i.execute-api.ap-southeast-2.amazonaws.com/register",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            ...data,
-            acceptedTerms: true,
-          }),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+    if (!result.success) {
+      setError(result.message);
 
-      const result = await res.json();
-
-      if (!res.ok) {
-        setError(result.message || "Registration failed");
-        if (result.message === "Email is already registered") {
-          alert("Email is already registered!");
-        }
-      } else {
-        // router.push("/dashboard");
-        alert("Success");
+      if (result.message === "Email is already registered") {
+        alert("Email is already registered");
       }
-    } catch (err) {
-      setError("Something went wrong");
-    } finally {
+
       setLoading(false);
+      return;
     }
+
+    alert("Registration Successful");
+    // router.push("/dashboard");
+    setLoading(false);
   };
 
   return { register, error, loading };
