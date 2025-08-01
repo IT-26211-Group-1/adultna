@@ -13,9 +13,21 @@ export const useRegister = () => {
   const router = useRouter();
 
   const register = async (form: z.infer<typeof registerSchema>) => {
+    const parsed = registerSchema.safeParse(form);
+    if (!parsed.success) {
+      setError("Invalid registration data");
+      return;
+    }
+
     setLoading(true);
     setError("");
-    const result = await registerUser(form);
+
+    const payload = {
+      ...parsed.data,
+      acceptedTerms: true,
+    };
+
+    const result = await registerUser(payload);
 
     if (!result.success) {
       setError(result.message || "Registration Failed");
