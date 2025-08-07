@@ -30,7 +30,7 @@ export const RegisterForm = () => {
       >
         <h2 className="text-2xl font-semibold text-center mb-4">Register</h2>
 
-        {/* First + Last Name */}
+        {/* First and Last Name */}
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1">
             <input

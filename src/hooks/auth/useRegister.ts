@@ -1,44 +1,40 @@
+// services/auth/useRegister.ts
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { registerUser } from "@/services/auth/registerService"; // Import the pure service function
 import { z } from "zod";
 import { registerSchema } from "@/validators/auth/registerSchema";
-import { registerUser } from "@/actions/auth/register";
+
+type RegisterData = z.infer<typeof registerSchema>;
 
 export const useRegister = () => {
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const register = async (form: z.infer<typeof registerSchema>) => {
-    const parsed = registerSchema.safeParse(form);
-    if (!parsed.success) {
-      setError("Invalid registration data");
-      return;
-    }
-
+  const register = async (data: RegisterData) => {
     setLoading(true);
-    setError("");
+    setError(null);
 
-    const payload = {
-      ...parsed.data,
-      acceptedTerms: true,
-    };
+    try {
+      await registerUser({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+        acceptedTerms: true,
+      });
 
-    const result = await registerUser(payload);
-
-    if (!result.success) {
-      setError(result.message || "Registration Failed");
+      alert("Registration successful!");
+      //   router.push("/login");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setSuccess(true);
-    // router.push("/");
-    setLoading(false);
   };
 
-  return { register, error, loading, success };
+  return { register, loading, error };
 };
