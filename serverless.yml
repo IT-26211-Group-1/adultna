@@ -1,10 +1,12 @@
-component: "@sls-next/serverless-component@latest"
+# component: "@sls-next/serverless-component@latest"
 
-inputs:
-  domain:
-    - adultna.com
-  name:
-    defaultLambda: "next-default"
-    apiLambda: "next-api"
-    imageLambda: "next-image"
-  bucketName: "your-nextjs-bucket"
+# inputs:
+#   domain:
+#     - adultna.com
+#   bucketName: "your-nextjs-bucket"
+#   defaultLambda:
+#     name: "next-default"
+#   apiLambda:
+#     name: "next-api"
+#   imageLambda:
+#     name: "next-image"
