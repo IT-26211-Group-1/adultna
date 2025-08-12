@@ -25,13 +25,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
+    const nextResponse = NextResponse.json({
       success: true,
       message: data.message || "Login successful!",
       data: {
         token: data.token,
       },
     });
+
+    nextResponse.cookies.set("auth_token", data.token, {
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+      sameSite: "lax",
+    });
+
+    return nextResponse;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

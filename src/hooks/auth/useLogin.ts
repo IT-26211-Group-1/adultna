@@ -1,33 +1,29 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/services/auth/loginService";
-import { z } from "zod";
-import { loginSchema } from "@/validators/auth/loginSchema";
+import { LoginPayload } from "@/types/auth";
 
-// Derive the TypeScript type from the Zod schema for type safety
-type LoginData = z.infer<typeof loginSchema>;
-
-export const useLogin = () => {
+export function useLogin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const login = async (data: LoginData) => {
-    setLoading(true);
-    setError(null);
+  const login = useCallback(
+    async (data: LoginPayload) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await loginUser(data);
+        if (!res.success) throw new Error(res.message || "Login failed");
+        router.push("/home");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
 
-    try {
-      const res = await loginUser(data);
-
-      alert("Login Successful");
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
   return { login, loading, error };
-};
+}

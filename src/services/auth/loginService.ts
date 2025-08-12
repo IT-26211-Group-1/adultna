@@ -1,22 +1,16 @@
-import { LoginPayload } from "@/types/auth";
-import { ApiResponse } from "@/types/auth";
+import { ApiResponse, LoginPayload } from "@/types/auth";
+import { apiFetch } from "@/utils/api";
 
-export const loginUser = async (
+export async function loginUser(
   data: LoginPayload
-): Promise<ApiResponse<any>> => {
-  const response = await fetch("/api/auth/login", {
+): Promise<ApiResponse<LoginPayload>> {
+  const response = await apiFetch<LoginPayload>("/api/auth/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(data),
   });
 
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message || "Login failed.");
-  }
-
-  return result;
-};
+  return {
+    ...response,
+    message: response.message || "",
+  };
+}
