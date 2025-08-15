@@ -9,8 +9,12 @@ export async function registerUser(
     body: JSON.stringify(data),
   });
 
+  if (!response.success) {
+    throw new Error(response.message ?? "Registration failed");
+  }
+
   return {
     ...response,
-    message: response.message || "",
+    message: response.message ?? "",
   };
 }

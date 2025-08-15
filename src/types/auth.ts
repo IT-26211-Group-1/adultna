@@ -7,6 +7,7 @@ export type RegisterPayload = {
 };
 
 export type RegisterResponse = {
+  id: string;
   success: boolean;
   message?: string;
 };
