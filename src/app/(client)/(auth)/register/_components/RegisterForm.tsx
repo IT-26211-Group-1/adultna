@@ -13,13 +13,14 @@ export const RegisterForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<z.infer<typeof registerSchema>>({
+  } = useForm<z.infer<typeof registerSchema> & { emailVerified?: boolean }>({
     resolver: zodResolver(registerSchema),
     mode: "onBlur",
   });
 
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
     await registerUser(data);
+    console.log(data);
   };
 
   return (
@@ -91,6 +92,22 @@ export const RegisterForm = () => {
             {errors.confirmPassword?.message}
           </p>
         </div>
+
+        {/* Accepted Terms */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            {...register("acceptedTerms")}
+            id="acceptedTerms"
+            className="w-4 h-4"
+          />
+          <label htmlFor="acceptedTerms" className="text-sm">
+            I accept the terms and conditions
+          </label>
+        </div>
+        <p className="text-sm text-red-500 mt-1">
+          {errors.acceptedTerms?.message}
+        </p>
 
         {/* Submit Button */}
 
