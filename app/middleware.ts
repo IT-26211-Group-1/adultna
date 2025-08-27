@@ -9,17 +9,22 @@ export function middleware(req: NextRequest) {
 
   if (token && authPages.includes(pathname)) {
     const dashboardUrl = req.nextUrl.clone();
+
     dashboardUrl.pathname = "/dashboard";
+
     return dashboardUrl;
   }
 
   if (!token) {
     const loginUrl = req.nextUrl.clone();
+
     loginUrl.pathname = "/login";
+
     return NextResponse.redirect(loginUrl);
   }
 
   const requestHeaders = new Headers(req.headers);
+
   requestHeaders.set("Authorization", `Bearer ${token}`);
 
   return NextResponse.next({

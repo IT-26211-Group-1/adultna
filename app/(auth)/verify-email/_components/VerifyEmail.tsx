@@ -19,12 +19,14 @@ export default function VerifyEmail() {
       try {
         const res = await fetch(
           `/api/auth/verify-email?token=${encodeURIComponent(token)}`,
-          { method: "POST" }
+          { method: "POST" },
         );
 
         if (!res.ok) {
           const errorText = await res.text();
+
           setMessage(errorText || "Verification failed");
+
           return;
         }
 
