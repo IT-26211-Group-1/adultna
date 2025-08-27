@@ -1,7 +1,7 @@
 const { heroui } = require("@heroui/theme");
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -20,7 +20,7 @@ module.exports = {
         peachYellow: "#FCE2A9",
         periwinkle: "#CBCBE7",
         ultraViolet: "#595880",
-        ivory: "#FDFAE7"
+        ivory: "#FDFAE7",
       },
     },
   },

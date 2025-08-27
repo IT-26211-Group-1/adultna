@@ -21,7 +21,7 @@ export const Navbar = () => {
             className="flex justify-start items-center gap-2 stroke-background"
             href="/"
           >
-            <Image alt="Logo" src="/Logo.png" height={102} width={130} />
+            <Image alt="Logo" height={102} src="/Logo.png" width={130} />
           </NextLink>
         </NavbarBrand>
       </NavbarContent>
@@ -34,7 +34,7 @@ export const Navbar = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium"
+                  "data-[active=true]:text-primary data-[active=true]:font-medium",
                 )}
                 color="foreground"
                 href={item.href}
