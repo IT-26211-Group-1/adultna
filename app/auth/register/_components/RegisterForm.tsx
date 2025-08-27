@@ -49,6 +49,7 @@ export const RegisterForm = () => {
         timeout: 5000,
       });
       setLoading(false);
+
       return;
     }
 
@@ -76,7 +77,7 @@ export const RegisterForm = () => {
         title: "Registration Successful!",
         color: "success",
       });
-    } catch (err) {
+    } catch {
       setError("Please try again.");
     } finally {
       setLoading(false);
