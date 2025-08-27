@@ -54,13 +54,10 @@ export default function LoginForm() {
 
       addToast({ title: "Login Successful!", color: "success", timeout: 3000 });
 
-      // Optional: store token in localStorage or cookie
       localStorage.setItem("token", result.data?.token);
 
-      // Redirect to dashboard or homepage
       router.push("/dashboard");
-    } catch (err) {
-      console.error("Login error:", err);
+    } catch {
       addToast({ title: "Network error. Please try again.", color: "danger" });
     } finally {
       setLoading(false);
@@ -79,9 +76,9 @@ export default function LoginForm() {
         <div>
           <input
             {...register("email")}
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             type="email"
             placeholder="Email"
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.email && (
             <p role="alert" className="text-red-500 text-sm mt-1">{errors.email.message}</p>
