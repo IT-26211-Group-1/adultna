@@ -9,15 +9,15 @@ export async function POST(request: NextRequest) {
     if (!token) {
       return NextResponse.json(
         { success: false, message: "Token is required" },
-        { status: BAD_REQUEST }
+        { status: BAD_REQUEST },
       );
     }
 
     const response = await fetch(
       `https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/verify-email?token=${encodeURIComponent(
-        token
+        token,
       )}`,
-      { method: "POST" }
+      { method: "POST" },
     );
 
     const data: VerifyEmailResponse = await response.json();
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       return NextResponse.json(
         { success: false, message: data.message || "Verification failed" },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -39,9 +39,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error("Verify email error:", err);
+
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: INTERNAL_SERVER_ERROR }
+      { status: INTERNAL_SERVER_ERROR },
     );
   }
 }

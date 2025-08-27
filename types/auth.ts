@@ -1,5 +1,3 @@
-import { string } from "zod";
-
 export type RegisterPayload = {
   firstName: string;
   lastName: string;

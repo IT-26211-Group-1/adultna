@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
-      }
+      },
     );
 
     const data = await response;
@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
     return nextRes;
   } catch (error) {
     console.error("Login Failed: ", error);
+
     return NextResponse.json({
       success: false,
       message: "Internal Server Error",
