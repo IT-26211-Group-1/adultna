@@ -15,7 +15,6 @@ export const RegisterForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isVerified, setIsVerified] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
@@ -31,16 +30,13 @@ export const RegisterForm = () => {
   const handleCaptchaChange = (token: string | null) => {
     if (token) {
       setCaptchaToken(token);
-      setIsVerified(true);
     } else {
       setCaptchaToken(null);
-      setIsVerified(false);
     }
   };
 
   const handleCaptchaExpired = () => {
     setCaptchaToken(null);
-    setIsVerified(false);
   };
 
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
@@ -87,7 +83,6 @@ export const RegisterForm = () => {
       setLoading(false);
       recaptchaRef.current?.reset();
       setCaptchaToken(null);
-      setIsVerified(false);
     }
   };
 
