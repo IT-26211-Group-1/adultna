@@ -12,6 +12,11 @@ import { LoadingButton } from "@/components/ui/Button";
 
 export const RegisterForm = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+
   const {
     register,
     handleSubmit,
@@ -21,26 +26,64 @@ export const RegisterForm = () => {
     mode: "onBlur",
   });
 
-  const {
-    loading,
-    recaptchaRef,
-    handleCaptchaChange,
-    handleCaptchaExpired,
-    onSubmit,
-  } = useFormSubmit<z.infer<typeof registerSchema>>({
-    apiUrl: "/api/auth/register",
-    schema: registerSchema,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "Registration Successful!", color: "success" },
-      error: { title: "Registration Failed", color: "danger" },
-      captcha: { title: "Please verify captcha", color: "warning" },
-    },
-    onSuccess: (res) => {
-      localStorage.setItem("verificationToken", res.data.verificationToken);
-      router.push("/auth/verify-email");
-    },
-  });
+  const handleCaptchaChange = (token: string | null) => {
+    if (token) {
+      setCaptchaToken(token);
+    } else {
+      setCaptchaToken(null);
+    }
+  };
+
+  const handleCaptchaExpired = () => {
+    setCaptchaToken(null);
+  };
+
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+    setLoading(true);
+    setError(null);
+
+    if (!captchaToken) {
+      addToast({
+        title: "Please verify captcha before submitting",
+        color: "warning",
+        timeout: 5000,
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await apiFetch<RegisterPayload>(`/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, token: captchaToken }),
+      });
+
+      if (!response.success) {
+        addToast({
+          title: response.message || "Registration Failed",
+          color: "danger",
+          timeout: 5000,
+        });
+        setLoading(false);
+
+        return;
+      }
+      router.push("/check-inbox");
+
+      // Registration success
+      addToast({
+        title: "Registration Successful!",
+        color: "success",
+      });
+    } catch (err) {
+      setError("Please try again.");
+    } finally {
+      setLoading(false);
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4">

@@ -51,7 +51,7 @@ export default defineConfig([
         "plugin:prettier/recommended",
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
-        "plugin:@next/next/recommended" // Ensures Next.js plugin is used
+        "plugin:@next/next/recommended"
       )
     ),
 
@@ -85,7 +85,7 @@ export default defineConfig([
 
     settings: {
       react: {
-        version: "detect", // Detect React version automatically
+        version: "detect",
       },
     },
 
@@ -113,26 +113,7 @@ export default defineConfig([
         },
       ],
 
-      // Cleaned up duplicate rule
-      "padding-line-between-statements": [
-        "warn",
-        {
-          blankLine: "always",
-          prev: "*",
-          next: "return",
-        },
-        {
-          blankLine: "always",
-          prev: ["const", "let", "var"],
-          next: "*",
-        },
-        {
-          blankLine: "any",
-          prev: ["const", "let", "var"],
-          next: ["const", "let", "var"],
-        },
-      ],
-
+      "padding-line-between-statements": "warn",
       "react/jsx-sort-props": "off",
       "import/no-unresolved": "off",
       "import/order": [
