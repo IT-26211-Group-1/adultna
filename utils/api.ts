@@ -15,7 +15,6 @@ export async function apiFetch<T>(
         ? Object.fromEntries(init.headers.entries())
         : init?.headers || {}),
     });
-    const timeout = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(input, { ...init, headers });
 
