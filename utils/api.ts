@@ -6,7 +6,7 @@ export interface ApiResponse<T> {
 
 export async function apiFetch<T>(
   input: RequestInfo,
-  init?: RequestInit,
+  init?: RequestInit
 ): Promise<{ success: boolean; data?: T; message?: string }> {
   try {
     const headers = new Headers({
@@ -15,6 +15,7 @@ export async function apiFetch<T>(
         ? Object.fromEntries(init.headers.entries())
         : init?.headers || {}),
     });
+    const timeout = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(input, { ...init, headers });
 

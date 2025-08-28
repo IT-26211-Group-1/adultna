@@ -71,7 +71,7 @@ export const RegisterForm = () => {
 
         return;
       }
-      router.push("/check-inbox");
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
 
       // Registration success
       addToast({
