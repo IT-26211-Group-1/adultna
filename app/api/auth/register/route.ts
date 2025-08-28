@@ -28,7 +28,7 @@ const aj = arcjet({
 
 export async function POST(request: NextRequest) {
   try {
-    const body: RegisterPayload & { token?: string } = await request.json();
+    const body: RegisterPayload = await request.json();
 
     const decision = await aj.protect(request, { email: body.email });
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!body.token) {
       return NextResponse.json(
         { success: false, message: "Captcha token missing" },
-        { status: FORBIDDEN },
+        { status: FORBIDDEN }
       );
     }
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
           secret: process.env.RECAPTCHA_SECRET_KEY!,
           response: body.token,
         }),
-      },
+      }
     );
 
     const captchaData = await captchaRes.json();
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { success: false, message: "Captcha verification failed", captchaData },
-        { status: FORBIDDEN },
+        { status: FORBIDDEN }
       );
     }
 
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
           password,
           acceptedTerms,
         }),
-      },
+      }
     );
 
     const data = await response.json();
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       return NextResponse.json(
         { success: false, message: data.message },
-        { status: response.status },
+        { status: response.status }
       );
     }
 
@@ -111,7 +111,6 @@ export async function POST(request: NextRequest) {
       success: true,
       message: data.message || "Registration successful!",
       data: {
-        token: data.token,
         userId: data.userId,
         firstName: data.firstName,
         lastName: data.lastName,
@@ -125,7 +124,7 @@ export async function POST(request: NextRequest) {
         success: false,
         message: "Registration Failed",
       },
-      { status: INTERNAL_SERVER_ERROR },
+      { status: INTERNAL_SERVER_ERROR }
     );
   }
 }

@@ -4,20 +4,23 @@ import { VerifyEmailResponse } from "@/types/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.nextUrl.searchParams.get("token");
+    const body = await request.json();
+    const { email, otp } = body;
 
-    if (!token) {
+    if (!email || !otp) {
       return NextResponse.json(
-        { success: false, message: "Token is required" },
-        { status: BAD_REQUEST },
+        { success: false, message: "Email and OTP are required" },
+        { status: BAD_REQUEST }
       );
     }
 
     const response = await fetch(
-      `https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/verify-email?token=${encodeURIComponent(
-        token,
-      )}`,
-      { method: "POST" },
+      "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/verify-email",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      }
     );
 
     const data: VerifyEmailResponse = await response.json();
@@ -25,24 +28,21 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       return NextResponse.json(
         { success: false, message: data.message || "Verification failed" },
-        { status: response.status },
+        { status: response.status }
       );
     }
 
     return NextResponse.json({
       success: true,
-      data: {
-        token: data.token,
-        userId: data.userId,
-      },
       message: data.message || "Email verified successfully",
+      data,
     });
   } catch (err) {
     console.error("Verify email error:", err);
 
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: INTERNAL_SERVER_ERROR },
+      { status: INTERNAL_SERVER_ERROR }
     );
   }
 }
