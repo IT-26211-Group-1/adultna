@@ -113,7 +113,9 @@ export default function VerifyEmail() {
           {otp.map((digit, index) => (
             <input
               key={index}
-              ref={(el) => (inputsRef.current[index] = el)}
+              ref={(el) => {
+                inputsRef.current[index] = el;
+              }}
               type="text"
               inputMode="numeric"
               maxLength={1}
