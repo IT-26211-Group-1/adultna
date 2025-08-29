@@ -14,7 +14,7 @@ type VerifyEmailFormType = { otp: string };
 export default function VerifyEmailForm() {
   const router = useRouter();
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null,
+    null
   );
   const [resending, setResending] = useState(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
@@ -54,7 +54,7 @@ export default function VerifyEmailForm() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
+    index: number
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -168,11 +168,11 @@ export default function VerifyEmailForm() {
         </LoadingButton>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          Didn&apos;t receive a code?
+          Didn't receive a code?
           <button
             className="text-blue-600 underline cursor-pointer"
-            disabled={resending || !verificationToken}
             type="button"
+            disabled={resending || !verificationToken}
             onClick={handleResendOtp}
           >
             {resending ? "Resending..." : "Resend"}
