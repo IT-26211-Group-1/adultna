@@ -3,21 +3,14 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { registerSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
-import { apiFetch } from "@/utils/api";
-import { RegisterPayload } from "@/types/auth";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useFormSubmit } from "@/hooks/useForm";
+import { useRouter } from "next/navigation";
 
 export const RegisterForm = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
-
   const {
     register,
     handleSubmit,
@@ -27,65 +20,27 @@ export const RegisterForm = () => {
     mode: "onBlur",
   });
 
-  const handleCaptchaChange = (token: string | null) => {
-    if (token) {
-      setCaptchaToken(token);
-    } else {
-      setCaptchaToken(null);
-    }
-  };
+  const {
+    loading,
+    recaptchaRef,
+    handleCaptchaChange,
+    handleCaptchaExpired,
+    onSubmit,
+  } = useFormSubmit<z.infer<typeof registerSchema>>({
+    apiUrl: "/api/auth/register",
+    schema: registerSchema,
+    toastLib: { addToast },
+    toastMessages: {
+      success: { title: "Registration Successful!", color: "success" },
+      error: { title: "Registration Failed", color: "danger" },
+      captcha: { title: "Please verify captcha", color: "warning" },
+    },
 
-  const handleCaptchaExpired = () => {
-    setCaptchaToken(null);
-  };
-
-  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
-    setLoading(true);
-    setError(null);
-
-    if (!captchaToken) {
-      addToast({
-        title: "Please verify captcha before submitting",
-        color: "warning",
-        timeout: 5000,
-      });
-      setLoading(false);
-
-      return;
-    }
-
-    try {
-      const response = await apiFetch<RegisterPayload>(`/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, token: captchaToken }),
-      });
-
-      if (!response.success) {
-        addToast({
-          title: response.message || "Registration Failed",
-          color: "danger",
-          timeout: 5000,
-        });
-        setLoading(false);
-
-        return;
-      }
-      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
-
-      // Registration success
-      addToast({
-        title: "Registration Successful!",
-        color: "success",
-      });
-    } catch {
-      setError("Please try again.");
-    } finally {
-      setLoading(false);
-      recaptchaRef.current?.reset();
-      setCaptchaToken(null);
-    }
-  };
+    onSuccess: (res) => {
+      localStorage.setItem("verificationToken", res.data.verificationToken);
+      router.push("/verify-email");
+    },
+  });
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4">
@@ -212,9 +167,6 @@ export const RegisterForm = () => {
           )}
           <span>Register</span>
         </button>
-
-        {/* Error Message */}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
       </form>
     </div>
   );
