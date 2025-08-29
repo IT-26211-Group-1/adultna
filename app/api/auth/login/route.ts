@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Set JWT in HTTP-only cookie
     const nextRes = NextResponse.json({
       success: true,
       message: data.message || "Login successful",
