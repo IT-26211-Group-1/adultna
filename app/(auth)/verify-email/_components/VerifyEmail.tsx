@@ -15,6 +15,7 @@ export default function VerifyEmailForm() {
   const [verificationToken, setVerificationToken] = useState<string | null>(
     null
   );
+  const [resending, setResending] = useState(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
   const {
@@ -83,12 +84,37 @@ export default function VerifyEmailForm() {
     },
   });
 
+  const handleResendOtp = async () => {
+    if (!verificationToken) return;
+    try {
+      setResending(true);
+      const res = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ verificationToken }),
+      });
+
+      const data = await res.json();
+
+      addToast({
+        title:
+          data.message ||
+          (res.ok ? "OTP sent successfully" : "Failed to resend OTP"),
+        color: res.ok ? "success" : "danger",
+      });
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      addToast({ title: "Internal server error", color: "danger" });
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleFormSubmit = (data: VerifyEmailFormType) => {
     if (!verificationToken) {
       addToast({ title: "Verification token missing", color: "danger" });
       return;
     }
-    // Pass verificationToken separately
     onSubmit({ ...data, verificationToken } as any);
   };
 
@@ -161,9 +187,14 @@ export default function VerifyEmailForm() {
         </button>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          Didn't receive a code?{" "}
-          <button className="text-blue-600 underline" type="button">
-            Resend
+          Didn't receive a code?
+          <button
+            className="text-blue-600 underline cursor-pointer"
+            type="button"
+            disabled={resending || !verificationToken}
+            onClick={handleResendOtp}
+          >
+            {resending ? "Resending..." : "Resend"}
           </button>
         </p>
       </form>
