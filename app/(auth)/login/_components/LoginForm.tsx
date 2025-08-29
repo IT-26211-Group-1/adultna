@@ -13,7 +13,7 @@ interface LoginFormInputs {
 }
 
 const loginSchema = z.object({
-  email: z.email("Invalid email"),
+  email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -40,8 +40,29 @@ export default function LoginForm() {
         body: JSON.stringify(data),
       });
 
-      const result = await res.json();
+      const result = (await res.json()) as {
+        success: boolean;
+        message?: string;
+        needsVerification?: boolean;
+        verificationToken?: string;
+      };
 
+      // Email not verified
+      if (result.needsVerification) {
+        localStorage.setItem("verificationToken", result.verificationToken!);
+
+        addToast({
+          title: "Email not verified",
+          description: "Check your inbox for the OTP",
+          color: "warning",
+          timeout: 5000,
+        });
+
+        router.push("/verify-email");
+        return;
+      }
+
+      // Login failed
       if (!result.success) {
         addToast({
           title: result.message || "Login failed",
@@ -49,14 +70,11 @@ export default function LoginForm() {
           timeout: 5000,
         });
         setLoading(false);
-
         return;
       }
 
+      // Success
       addToast({ title: "Login Successful!", color: "success", timeout: 3000 });
-
-      localStorage.setItem("token", result.data?.token);
-
       router.push("/dashboard");
     } catch {
       addToast({ title: "Network error. Please try again.", color: "danger" });
@@ -73,7 +91,6 @@ export default function LoginForm() {
       >
         <h2 className="text-2xl font-semibold text-center">Login</h2>
 
-        {/* Email */}
         <div>
           <input
             {...register("email")}
@@ -86,7 +103,6 @@ export default function LoginForm() {
           )}
         </div>
 
-        {/* Password */}
         <div>
           <input
             {...register("password")}
@@ -101,7 +117,6 @@ export default function LoginForm() {
           )}
         </div>
 
-        {/* Submit Button */}
         <button
           className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-60 flex justify-center items-center gap-2"
           disabled={loading}
