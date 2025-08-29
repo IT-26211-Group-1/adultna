@@ -8,10 +8,24 @@ export type RegisterPayload = {
   verificationToken: string;
 };
 
-export type LoginPayload = Pick<RegisterPayload, "email" | "password"> & {
-  token: string;
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface LoginData {
   userId: string;
-};
+  token: string;
+  isVerified: boolean;
+}
+
+export interface LoginResponse {
+  needsVerification?: boolean;
+  verificationToken?: string;
+  data?: LoginData;
+  message?: string;
+  success: boolean;
+}
 
 export type RegisterResponse = {
   id: string;
@@ -25,8 +39,10 @@ export interface VerifyEmailResponse {
   message?: string;
 }
 
-export interface ApiResponse<T> {
+export type ApiResponse<T> = {
   success: boolean;
-  message: string;
   data?: T;
-}
+  message?: string;
+  needsVerification?: boolean;
+  verificationToken?: string;
+};
