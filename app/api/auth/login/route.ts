@@ -6,7 +6,6 @@ export async function POST(request: NextRequest) {
   try {
     const body: LoginPayload = await request.json();
 
-    // Call your backend login service
     const res = await fetch(
       "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/login",
       {
@@ -18,7 +17,6 @@ export async function POST(request: NextRequest) {
 
     const data: LoginResponse = await res.json();
 
-    // Email verification required
     if (data.needsVerification) {
       return NextResponse.json({
         success: false,
@@ -35,7 +33,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Set JWT in HTTP-only cookie
     const nextRes = NextResponse.json({
       success: true,
       message: data.message || "Login successful",
@@ -45,7 +42,7 @@ export async function POST(request: NextRequest) {
       name: "auth_token",
       value: data.data!.token,
       httpOnly: true,
-      path: "/",
+      path: "/dashboard",
       maxAge: 60 * 60,
       sameSite: "lax",
       secure: process.env.NODE_ENV !== "development",
