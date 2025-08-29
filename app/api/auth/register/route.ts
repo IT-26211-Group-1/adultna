@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
         lastName: data.lastName,
         email: data.email,
         password: data.password,
+        verificationToken: data.verificationToken,
       },
     });
   } catch {

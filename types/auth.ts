@@ -5,6 +5,7 @@ export type RegisterPayload = {
   password: string;
   acceptedTerms: boolean;
   token: string;
+  verificationToken: string;
 };
 
 export type LoginPayload = Pick<RegisterPayload, "email" | "password"> & {

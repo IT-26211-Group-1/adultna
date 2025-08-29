@@ -4,12 +4,18 @@ import { VerifyEmailResponse } from "@/types/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, otp } = body;
+    const { otp, verificationToken } = await request.json();
 
-    if (!email || !otp) {
+    if (!verificationToken) {
       return NextResponse.json(
-        { success: false, message: "Email and OTP are required" },
+        { success: false, message: "Verification token is required" },
+        { status: BAD_REQUEST }
+      );
+    }
+
+    if (!otp) {
+      return NextResponse.json(
+        { success: false, message: "OTP is required" },
         { status: BAD_REQUEST }
       );
     }
@@ -19,7 +25,7 @@ export async function POST(request: NextRequest) {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ otp, verificationToken }),
       }
     );
 

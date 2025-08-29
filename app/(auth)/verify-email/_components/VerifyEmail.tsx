@@ -1,36 +1,41 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/react";
-import { apiFetch } from "@/utils/api";
 import { verifyEmailSchema } from "@/validators/authSchema";
+import { useFormSubmit } from "@/hooks/useForm";
 
-type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+type VerifyEmailFormType = { otp: string };
 
-export default function VerifyEmail() {
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email");
+export default function VerifyEmailForm() {
   const router = useRouter();
-
-  const [loading, setLoading] = useState(false);
-  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const [verificationToken, setVerificationToken] = useState<string | null>(
+    null
+  );
+  const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
   const {
-    register,
     handleSubmit,
-    setValue,
     watch,
+    setValue,
     formState: { errors },
-  } = useForm<VerifyEmailInput>({
+  } = useForm<VerifyEmailFormType>({
     resolver: zodResolver(verifyEmailSchema),
     defaultValues: { otp: "" },
   });
 
-  if (!email) return router.push("/register");
+  // Load token from localStorage
+  useEffect(() => {
+    const storedToken = localStorage.getItem("verificationToken");
+    if (!storedToken) {
+      router.replace("/register");
+      return;
+    }
+    setVerificationToken(storedToken);
+  }, [router]);
 
   const otp = watch("otp").split("").concat(Array(6).fill("")).slice(0, 6);
 
@@ -51,96 +56,89 @@ export default function VerifyEmail() {
     }
   };
 
-  const onSubmit = async (data: VerifyEmailInput) => {
-    if (!email) {
-      addToast({
-        title: "Email is missing",
-        color: "danger",
-        timeout: 5000,
-      });
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasteData = e.clipboardData.getData("text").trim();
+    if (!/^\d{6}$/.test(pasteData)) return;
+
+    pasteData.split("").forEach((digit, index) => {
+      if (inputsRef.current[index]) {
+        inputsRef.current[index]!.value = digit;
+      }
+    });
+    setValue("otp", pasteData);
+  };
+
+  const { loading, onSubmit } = useFormSubmit<VerifyEmailFormType>({
+    apiUrl: "/api/auth/verify-email",
+    schema: verifyEmailSchema,
+    requireCaptcha: false,
+    toastLib: { addToast },
+    toastMessages: {
+      success: { title: "Email verified successfully", color: "success" },
+      error: { title: "Verification failed", color: "danger" },
+    },
+    onSuccess: () => {
+      localStorage.removeItem("verificationToken");
+      router.push("/login");
+    },
+  });
+
+  const handleFormSubmit = (data: VerifyEmailFormType) => {
+    if (!verificationToken) {
+      addToast({ title: "Verification token missing", color: "danger" });
       return;
     }
-
-    setLoading(true);
-
-    try {
-      const response = await apiFetch<{ success: boolean; message: string }>(
-        "/api/auth/verify-email",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, otp: data.otp }),
-        }
-      );
-
-      if (!response.success) {
-        addToast({
-          title: response.message || "Verification failed",
-          color: "danger",
-          timeout: 5000,
-        });
-        return;
-      }
-
-      addToast({
-        title: response.message || "Email verified successfully",
-        color: "success",
-      });
-
-      router.push("/login");
-    } catch {
-      addToast({
-        title: "Something went wrong. Please try again.",
-        color: "danger",
-        timeout: 5000,
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Pass verificationToken separately
+    onSubmit({ ...data, verificationToken } as any);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
       <form
-        className="space-y-4 w-full max-w-md bg-white p-6 rounded-2xl shadow-md"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(handleFormSubmit)}
+        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
       >
-        <h2 className="text-2xl font-semibold text-center mb-4">
-          Verify Email
+        <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
+          Verify Your Email
         </h2>
 
-        <div className="flex gap-2 justify-center">
+        <p className="text-center text-gray-600 mb-4">
+          Enter the 6-digit code sent to your email
+        </p>
+
+        <div className="flex gap-3 justify-center mb-4">
           {otp.map((digit, index) => (
             <input
               key={index}
-              ref={(el) => {
+              ref={(el: HTMLInputElement | null): void => {
                 inputsRef.current[index] = el;
               }}
               type="text"
               inputMode="numeric"
               maxLength={1}
               value={digit}
+              onPaste={handlePaste}
               onChange={(e) => handleChange(e.target.value, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              className="w-10 h-12 text-center border rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-12 h-12 text-center border rounded-md text-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
           ))}
         </div>
 
         {errors.otp && (
-          <p className="text-sm text-red-500 text-center">
+          <p className="text-sm text-red-500 text-center mb-3">
             {errors.otp.message}
           </p>
         )}
 
         <button
           type="submit"
-          className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-          disabled={loading}
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-60 transition"
+          disabled={loading || !verificationToken}
         >
           {loading && (
             <svg
-              className="w-4 h-4 animate-spin text-white"
+              className="w-5 h-5 animate-spin text-white"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -161,6 +159,13 @@ export default function VerifyEmail() {
           )}
           <span>Verify</span>
         </button>
+
+        <p className="text-center text-sm text-gray-500 mt-4">
+          Didn't receive a code?{" "}
+          <button className="text-blue-600 underline" type="button">
+            Resend
+          </button>
+        </p>
       </form>
     </div>
   );
