@@ -22,6 +22,7 @@ export interface LoginData {
 export interface LoginResponse {
   needsVerification?: boolean;
   verificationToken?: string;
+  token: string;
   data?: LoginData;
   message?: string;
   success: boolean;

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     nextRes.cookies.set({
       name: "auth_token",
-      value: data.data!.token,
+      value: data.token,
       httpOnly: true,
       path: "/dashboard",
       maxAge: 60 * 60,
