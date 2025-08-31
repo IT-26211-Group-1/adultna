@@ -168,11 +168,11 @@ export default function VerifyEmailForm() {
         </LoadingButton>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          Didn't receive a code?
+          Didn&apos;t receive a code?
           <button
             className="text-blue-600 underline cursor-pointer"
-            type="button"
             disabled={resending || !verificationToken}
+            type="button"
             onClick={handleResendOtp}
           >
             {resending ? "Resending..." : "Resend"}
