@@ -48,8 +48,10 @@ export const LoginForm = () => {
     },
   });
 
-  const handleGoogleLogin = () => {
-    // window.location.href = `/auth/google/callback`;
+  const handleGoogleLogin = async () => {
+    const res = await fetch("/api/auth/google");
+    const { url } = await res.json();
+    window.location.href = url;
   };
 
   return (

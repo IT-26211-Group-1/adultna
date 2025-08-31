@@ -12,7 +12,7 @@ export async function GET() {
   };
 
   const googleUrl = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams(
-    params,
+    params
   ).toString()}`;
 
   return NextResponse.json({ url: googleUrl });
