@@ -34,7 +34,7 @@ export const Navbar = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  "data-[active=true]:text-primary data-[active=true]:font-medium"
                 )}
                 color="foreground"
                 href={item.href}
@@ -54,7 +54,7 @@ export const Navbar = () => {
         <NavbarItem>
           <NextLink
             className="px-4 py-2 rounded-lg border-2 border-adult-green text-sm font-medium hover:bg-adult-green hover:text-white transition"
-            href="/register"
+            href="/auth/register"
           >
             Sign Up
           </NextLink>
@@ -63,7 +63,7 @@ export const Navbar = () => {
         <NavbarItem>
           <NextLink
             className="px-4 py-2 rounded-lg text-sm font-medium bg-crayola-orange border-2 border-orange-800 text-white hover:bg-orange-800 transition"
-            href="/login"
+            href="/auth/login"
           >
             Login
           </NextLink>
