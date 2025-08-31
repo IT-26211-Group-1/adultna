@@ -4,8 +4,8 @@ export const registerSchema = z
   .object({
     firstName: z.string().min(2, "First name is required"),
     lastName: z.string().min(2, "Last name is required"),
-    email: z.email("Invalid email format"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    email: z.email("Email is Required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
     acceptedTerms: z.boolean().refine((val) => val === true, {
       message: "You must accept the terms",
@@ -23,3 +23,8 @@ export const verifyEmailSchema = z.object({
     .regex(/^\d+$/, "OTP must be numeric"),
   verificationToken: z.string().optional(),
 });
+
+export const loginSchema = z.object({
+  email: z.email("Invalid Email Format"),
+   password: z.string().min(8, "Password must be at least 8 characters"),
+})

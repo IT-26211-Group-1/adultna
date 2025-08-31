@@ -35,7 +35,6 @@ export const RegisterForm = () => {
       error: { title: "Registration Failed", color: "danger" },
       captcha: { title: "Please verify captcha", color: "warning" },
     },
-
     onSuccess: (res) => {
       localStorage.setItem("verificationToken", res.data.verificationToken);
       router.push("/verify-email");
