@@ -20,7 +20,7 @@ export const LoadingButton = ({
       type={type}
       className={clsx(
         "w-full flex items-center justify-center gap-2 px-4 py-2 rounded text-white bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-60",
-        className
+        className,
       )}
       disabled={disabled || loading}
       aria-busy={loading}
