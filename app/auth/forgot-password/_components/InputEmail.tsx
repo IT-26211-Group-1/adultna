@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addToast } from "@heroui/react";
@@ -17,7 +16,7 @@ interface Props {
 
 type EmailFormType = { email: string };
 
-export default function InputEmail({ email, setStep, setToken }: Props) {
+export default function InputEmail({ setStep, setToken }: Props) {
   const {
     handleSubmit,
     register,
