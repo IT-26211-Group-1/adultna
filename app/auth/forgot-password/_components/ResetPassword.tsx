@@ -66,6 +66,9 @@ export default function ResetPassword({ token }: Props) {
 
   const handleFormSubmit = (data: ResetPasswordFormType) => {
     if (!token) return addToast({ title: "Missing token", color: "danger" });
+    sessionStorage.removeItem("forgotPasswordEmail");
+    sessionStorage.removeItem("forgotPasswordStep");
+    sessionStorage.removeItem("forgotPasswordToken");
     onSubmit({ ...data, verificationToken: token });
   };
 
