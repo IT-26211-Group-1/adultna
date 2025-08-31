@@ -19,7 +19,7 @@ export const LoadingButton = ({
     <button
       type={type}
       className={clsx(
-        "flex items-center justify-center gap-2 px-4 py-2 rounded text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60",
+        "w-full flex items-center justify-center gap-2 px-4 py-2 rounded text-white bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-60",
         className
       )}
       disabled={disabled || loading}
