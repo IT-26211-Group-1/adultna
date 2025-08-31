@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { LoadingButton } from "@/components/ui/Button";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { addToast } from "@heroui/react";
+import { LoadingButton } from "@/components/ui/Button";
+import { useFormSubmit } from "@/hooks/useForm";
+import { forgotPasswordSchema } from "@/validators/authSchema";
 
 interface Props {
   email: string;
@@ -11,50 +15,60 @@ interface Props {
   setToken: (token: string) => void;
 }
 
-export default function InputEmail({
-  email,
-  setEmail,
-  setStep,
-  setToken,
-}: Props) {
-  const [loading, setLoading] = useState(false);
+type EmailFormType = { email: string };
 
-  const handleSendEmail = async () => {
-    if (!email) return addToast({ title: "Enter your email", color: "danger" });
+export default function InputEmail({ email, setStep, setToken }: Props) {
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<EmailFormType>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email:
+        typeof window !== "undefined"
+          ? sessionStorage.getItem("forgotPasswordEmail") || ""
+          : "",
+    },
+    mode: "onBlur",
+  });
 
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/forgot-password/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to send OTP");
-
+  const { loading, onSubmit } = useFormSubmit<EmailFormType>({
+    apiUrl: "/api/auth/forgot-password/send-otp",
+    schema: forgotPasswordSchema,
+    requireCaptcha: false,
+    toastLib: { addToast },
+    toastMessages: {
+      success: { title: "OTP sent to your email", color: "success" },
+      error: { title: "Error sending OTP", color: "danger" },
+    },
+    onSuccess: (data) => {
       setToken(data.verificationToken);
       setStep("otp");
-      addToast({ title: "OTP sent to your email", color: "success" });
-    } catch (err: any) {
-      addToast({ title: err.message || "Error sending OTP", color: "danger" });
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  const handleFormSubmit = (data: EmailFormType) => {
+    sessionStorage.setItem("forgotPasswordEmail", data.email);
+    onSubmit(data);
   };
 
   return (
-    <>
+    <form
+      onSubmit={handleSubmit(handleFormSubmit)}
+      className="flex flex-col gap-4"
+    >
       <h2 className="text-2xl font-semibold text-center">Forgot Password</h2>
       <input
         type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        {...register("email")}
         placeholder="Enter your email"
         className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      <LoadingButton loading={loading} onClick={handleSendEmail}>
+      <p className="text-sm text-red-500 mt-1">{errors.email?.message}</p>
+      <LoadingButton type="submit" loading={loading}>
         Send OTP
       </LoadingButton>
-    </>
+    </form>
   );
 }
