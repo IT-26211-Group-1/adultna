@@ -25,10 +25,7 @@ export default function InputEmail({ email, setStep, setToken }: Props) {
   } = useForm<EmailFormType>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
-      email:
-        typeof window !== "undefined"
-          ? sessionStorage.getItem("forgotPasswordEmail") || ""
-          : "",
+      email: "",
     },
     mode: "onBlur",
   });

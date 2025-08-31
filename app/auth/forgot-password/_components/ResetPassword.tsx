@@ -19,7 +19,6 @@ type ResetPasswordFormType = {
   verificationToken: string;
 };
 
-// Zod schema includes verificationToken as required
 export const resetPasswordSchema = z
   .object({
     password: z.string().min(8, "Password must be at least 8 characters"),
@@ -40,6 +39,7 @@ export default function ResetPassword({ token, setStep }: Props) {
     formState: { errors },
   } = useForm<ResetPasswordFormType>({
     resolver: zodResolver(resetPasswordSchema),
+    mode: "onBlur",
     defaultValues: {
       password: "",
       confirmPassword: "",
@@ -57,15 +57,15 @@ export default function ResetPassword({ token, setStep }: Props) {
       error: { title: "Error resetting password", color: "danger" },
     },
     onSuccess: () => {
-      sessionStorage.removeItem("forgotPasswordEmail");
-      sessionStorage.removeItem("forgotPasswordStep");
-      sessionStorage.removeItem("otp");
       router.replace("/auth/login");
     },
   });
 
   const handleFormSubmit = (data: ResetPasswordFormType) => {
     if (!token) return addToast({ title: "Missing token", color: "danger" });
+    sessionStorage.removeItem("forgotPasswordEmail");
+    sessionStorage.removeItem("forgotPasswordStep");
+    sessionStorage.removeItem("forgotPasswordToken");
     onSubmit({ ...data, verificationToken: token });
   };
 

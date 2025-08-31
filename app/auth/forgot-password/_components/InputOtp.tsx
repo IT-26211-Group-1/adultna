@@ -94,8 +94,6 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
   };
 
   const handleFormSubmit = (data: OtpFormType) => {
-    sessionStorage.getItem("forgotPasswordEmail");
-    sessionStorage.setItem("forgotPasswordStep", "otp");
     onSubmit({ ...data, verificationToken: token } as unknown as OtpFormType & {
       verificationToken: string;
     });
