@@ -1,26 +1,32 @@
 import { INTERNAL_SERVER_ERROR } from "@/constants/http";
-import { LoginPayload } from "@/types/auth";
-import { apiFetch } from "@/utils/api";
+import { LoginPayload, LoginResponse } from "@/types/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
     const body: LoginPayload = await request.json();
 
-    const response = await apiFetch<LoginPayload>(
+    const res = await fetch(
       "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/login",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      }
+      },
     );
 
-    const data = await response;
+    const data: LoginResponse = await res.json();
 
-    if (!response.success) {
+    if (data.needsVerification) {
+      return NextResponse.json({
+        success: false,
+        message: data.message,
+        needsVerification: true,
+        verificationToken: data.verificationToken,
+      });
+    }
+
+    if (!data.success) {
       return NextResponse.json({
         success: false,
         message: data.message,
@@ -29,25 +35,23 @@ export async function POST(request: NextRequest) {
 
     const nextRes = NextResponse.json({
       success: true,
-      message: data.message || "Login Successful",
-      data: {
-        data: { userId: data.data?.userId },
-      },
+      message: data.message || "Login successful",
     });
 
     nextRes.cookies.set({
       name: "auth_token",
-      value: data.data?.token || "",
+      value: data.token,
       httpOnly: true,
-      path: "/",
+      path: "/dashboard",
       maxAge: 60 * 60,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV !== "development",
     });
 
     return nextRes;
   } catch (error) {
-    console.error("Login Failed: ", error);
+    console.error("Login Failed:", error);
+
     return NextResponse.json({
       success: false,
       message: "Internal Server Error",

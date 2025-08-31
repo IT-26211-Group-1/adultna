@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { INTERNAL_SERVER_ERROR, BAD_REQUEST } from "@/constants/http";
-import { VerifyEmailResponse } from "@/types/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const { otp, verificationToken } = await request.json();
+    const { verificationToken } = await request.json();
 
     if (!verificationToken) {
       return NextResponse.json(
@@ -13,38 +12,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!otp) {
-      return NextResponse.json(
-        { success: false, message: "OTP is required" },
-        { status: BAD_REQUEST },
-      );
-    }
-
     const response = await fetch(
-      "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/verify-email",
+      "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/resend-otp",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ otp, verificationToken }),
+        body: JSON.stringify({ verificationToken }),
       },
     );
 
-    const data: VerifyEmailResponse = await response.json();
+    const data = await response.json();
 
     if (!response.ok) {
       return NextResponse.json(
-        { success: false, message: data.message || "Verification failed" },
+        { success: false, message: data.message || "Resend OTP failed" },
         { status: response.status },
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: data.message || "Email verified successfully",
+      message: data.message || "OTP sent successfully",
       data,
     });
   } catch (err) {
-    console.error("Verify email error:", err);
+    console.error("Resend OTP error:", err);
 
     return NextResponse.json(
       { success: false, message: "Internal server error" },

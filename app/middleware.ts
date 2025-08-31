@@ -1,34 +1,27 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+const PROTECTED_FOLDERS = ["/dashboard"];
+
+const PUBLIC_ONLY_PAGES = ["/login", "/register", "/verify-email", "/"];
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("auth_token")?.value;
+  const token = req.cookies.get("authToken")?.value;
   const { pathname } = req.nextUrl;
 
-  const authPages = ["/login", "/register", "/check-inbox", "/verify-email"];
-
-  if (token && authPages.includes(pathname)) {
-    const dashboardUrl = req.nextUrl.clone();
-    dashboardUrl.pathname = "/dashboard";
-    return dashboardUrl;
+  if (
+    PROTECTED_FOLDERS.some((folder) => pathname.startsWith(folder)) &&
+    !token
+  ) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (!token) {
-    const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    return NextResponse.redirect(loginUrl);
+  if (PUBLIC_ONLY_PAGES.some((page) => pathname === page) && token) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  const requestHeaders = new Headers(req.headers);
-  requestHeaders.set("Authorization", `Bearer ${token}`);
-
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/login", "/register", "/verify-email"],
 };
