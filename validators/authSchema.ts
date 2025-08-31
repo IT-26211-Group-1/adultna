@@ -26,5 +26,24 @@ export const verifyEmailSchema = z.object({
 
 export const loginSchema = z.object({
   email: z.email("Invalid Email Format"),
-   password: z.string().min(8, "Password must be at least 8 characters"),
-})
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const forgotPasswordOtpSchema = z.object({
+  otp: z.string().length(6, "OTP must be 6 digits"),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.email("Email is Required"),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+    verificationToken: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });

@@ -1,75 +1,104 @@
 "use client";
 
-import { useState } from "react";
-import { LoadingButton } from "@/components/ui/Button";
-import { addToast } from "@heroui/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { addToast } from "@heroui/react";
+import { LoadingButton } from "@/components/ui/Button";
+import { useFormSubmit } from "@/hooks/useForm";
+import { z } from "zod";
 
 interface Props {
   token: string;
   setStep: (step: "email" | "otp" | "reset") => void;
 }
 
-export default function ResetPassword({ token, setStep }: Props) {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+type ResetPasswordFormType = {
+  password: string;
+  confirmPassword: string;
+  verificationToken: string;
+};
 
+// Zod schema includes verificationToken as required
+export const resetPasswordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+    verificationToken: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export default function ResetPassword({ token, setStep }: Props) {
   const router = useRouter();
 
-  const handleResetPassword = async () => {
-    if (!newPassword || !confirmPassword)
-      return addToast({ title: "Fill all fields", color: "danger" });
-    if (newPassword !== confirmPassword)
-      return addToast({ title: "Passwords do not match", color: "danger" });
-    if (!token) return addToast({ title: "Missing token", color: "danger" });
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<ResetPasswordFormType>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+      verificationToken: token,
+    },
+  });
 
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/forgot-password/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          verificationToken: token,
-          password: newPassword,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Reset password failed");
-
+  const { loading, onSubmit } = useFormSubmit<ResetPasswordFormType>({
+    apiUrl: "/api/auth/forgot-password/reset-password",
+    schema: resetPasswordSchema,
+    requireCaptcha: false,
+    toastLib: { addToast },
+    toastMessages: {
+      success: { title: "Password reset successful", color: "success" },
+      error: { title: "Error resetting password", color: "danger" },
+    },
+    onSuccess: () => {
+      sessionStorage.removeItem("forgotPasswordEmail");
+      sessionStorage.removeItem("forgotPasswordStep");
+      sessionStorage.removeItem("otp");
       router.replace("/auth/login");
+    },
+  });
 
-      addToast({ title: "Password reset successful", color: "success" });
-    } catch (err: any) {
-      addToast({
-        title: err.message || "Error resetting password",
-        color: "danger",
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleFormSubmit = (data: ResetPasswordFormType) => {
+    if (!token) return addToast({ title: "Missing token", color: "danger" });
+    onSubmit({ ...data, verificationToken: token });
   };
 
   return (
-    <>
+    <form
+      onSubmit={handleSubmit(handleFormSubmit)}
+      className="flex flex-col gap-4"
+    >
       <h2 className="text-2xl font-semibold text-center">Reset Password</h2>
+
       <input
         type="password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
+        {...register("password")}
         placeholder="New Password"
         className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
+      {errors.password && (
+        <p className="text-sm text-red-500">{errors.password.message}</p>
+      )}
+
       <input
         type="password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
+        {...register("confirmPassword")}
         placeholder="Retype New Password"
         className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      <LoadingButton loading={loading} onClick={handleResetPassword}>
+      {errors.confirmPassword && (
+        <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
+      )}
+
+      <LoadingButton type="submit" loading={loading}>
         Reset Password
       </LoadingButton>
-    </>
+    </form>
   );
 }
