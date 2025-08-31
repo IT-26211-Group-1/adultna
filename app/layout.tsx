@@ -6,7 +6,6 @@ import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/ui/navbar";
 import Script from "next/script";
 
 export const metadata: Metadata = {
@@ -42,8 +41,8 @@ export default function RootLayout({
         )}
       >
         <Script
-          src="https://02edb5380778.ap-southeast-1.captcha-sdk.awswaf.com/02edb5380778/jsapi.js"
           defer
+          src="https://02edb5380778.ap-southeast-1.captcha-sdk.awswaf.com/02edb5380778/jsapi.js"
         />
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <div className="relative flex flex-col h-screen">

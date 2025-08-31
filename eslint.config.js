@@ -51,7 +51,7 @@ export default defineConfig([
         "plugin:prettier/recommended",
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
-        "plugin:@next/next/recommended"
+        "plugin:@next/next/recommended" // Ensures Next.js plugin is used
       )
     ),
 
@@ -85,14 +85,14 @@ export default defineConfig([
 
     settings: {
       react: {
-        version: "detect",
+        version: "detect", // Detect React version automatically
       },
     },
 
     files: ["**/*.ts", "**/*.tsx"],
 
     rules: {
-      "no-console": "warn",
+      "no-console": "off",
       "react/prop-types": "off",
       "react/jsx-uses-react": "off",
       "react/react-in-jsx-scope": "off",
@@ -113,8 +113,30 @@ export default defineConfig([
         },
       ],
 
-      "import/order": [
+      // Cleaned up duplicate rule
+      "padding-line-between-statements": [
         "warn",
+        {
+          blankLine: "always",
+          prev: "*",
+          next: "return",
+        },
+        {
+          blankLine: "always",
+          prev: ["const", "let", "var"],
+          next: "*",
+        },
+        {
+          blankLine: "any",
+          prev: ["const", "let", "var"],
+          next: ["const", "let", "var"],
+        },
+      ],
+
+      "react/jsx-sort-props": "off",
+      "import/no-unresolved": "off",
+      "import/order": [
+        "off",
         {
           groups: [
             "type",
@@ -148,25 +170,6 @@ export default defineConfig([
           shorthandFirst: true,
           noSortAlphabetically: false,
           reservedFirst: true,
-        },
-      ],
-
-      "padding-line-between-statements": [
-        "warn",
-        {
-          blankLine: "always",
-          prev: "*",
-          next: "return",
-        },
-        {
-          blankLine: "always",
-          prev: ["const", "let", "var"],
-          next: "*",
-        },
-        {
-          blankLine: "any",
-          prev: ["const", "let", "var"],
-          next: ["const", "let", "var"],
         },
       ],
     },

@@ -3,22 +3,16 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { registerSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
-import { apiFetch } from "@/utils/api";
-import { RegisterPayload } from "@/types/auth";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useFormSubmit } from "@/hooks/useForm";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { LoadingButton } from "@/components/ui/Button";
 
 export const RegisterForm = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isVerified, setIsVerified] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
-
   const {
     register,
     handleSubmit,
@@ -28,68 +22,26 @@ export const RegisterForm = () => {
     mode: "onBlur",
   });
 
-  const handleCaptchaChange = (token: string | null) => {
-    if (token) {
-      setCaptchaToken(token);
-      setIsVerified(true);
-    } else {
-      setCaptchaToken(null);
-      setIsVerified(false);
-    }
-  };
-
-  const handleCaptchaExpired = () => {
-    setCaptchaToken(null);
-    setIsVerified(false);
-  };
-
-  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
-    setLoading(true);
-    setError(null);
-
-    if (!captchaToken) {
-      addToast({
-        title: "Please verify captcha before submitting",
-        color: "warning",
-        timeout: 5000,
-      });
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await apiFetch<RegisterPayload>(`/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, token: captchaToken }),
-      });
-
-      if (!response.success) {
-        addToast({
-          title: response.message || "Registration Failed",
-          color: "danger",
-          timeout: 5000,
-        });
-        setLoading(false);
-
-        return;
-      }
-      router.push("/check-inbox");
-
-      // Registration success
-      addToast({
-        title: "Registration Successful!",
-        color: "success",
-      });
-    } catch (err) {
-      setError("Please try again.");
-    } finally {
-      setLoading(false);
-      recaptchaRef.current?.reset();
-      setCaptchaToken(null);
-      setIsVerified(false);
-    }
-  };
+  const {
+    loading,
+    recaptchaRef,
+    handleCaptchaChange,
+    handleCaptchaExpired,
+    onSubmit,
+  } = useFormSubmit<z.infer<typeof registerSchema>>({
+    apiUrl: "/api/auth/register",
+    schema: registerSchema,
+    toastLib: { addToast },
+    toastMessages: {
+      success: { title: "Registration Successful!", color: "success" },
+      error: { title: "Registration Failed", color: "danger" },
+      captcha: { title: "Please verify captcha", color: "warning" },
+    },
+    onSuccess: (res) => {
+      localStorage.setItem("verificationToken", res.data.verificationToken);
+      router.push("/auth/verify-email");
+    },
+  });
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4">
@@ -180,45 +132,17 @@ export const RegisterForm = () => {
         {/* reCAPTCHA */}
         <div>
           <ReCAPTCHA
-            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
             ref={recaptchaRef}
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
             onChange={handleCaptchaChange}
             onExpired={handleCaptchaExpired}
           />
         </div>
 
         {/* Submit Button */}
-        <button
-          className="flex items-center gap-2 px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-          disabled={loading}
-        >
-          {/* Loading animation */}
-          {loading && (
-            <svg
-              className="w-4 h-4 animate-spin text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
-                fill="currentColor"
-              />
-            </svg>
-          )}
-          <span>Register</span>
-        </button>
-
-        {/* Error Message */}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        <LoadingButton type="submit" loading={loading}>
+          Register
+        </LoadingButton>
       </form>
     </div>
   );
