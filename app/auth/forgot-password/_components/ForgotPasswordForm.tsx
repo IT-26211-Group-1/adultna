@@ -47,10 +47,10 @@ export default function ForgotPassword() {
           />
         )}
 
-        {step === "otp" && <OtpStep token={token} setStep={setStep} />}
+        {step === "otp" && <OtpStep setStep={setStep} token={token} />}
 
         {step === "reset" && (
-          <ResetPasswordStep token={token} setStep={setStep} />
+          <ResetPasswordStep setStep={setStep} token={token} />
         )}
       </div>
     </div>

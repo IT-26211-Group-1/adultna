@@ -8,7 +8,6 @@ import { addToast } from "@heroui/react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useFormSubmit } from "@/hooks/useForm";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { LoadingButton } from "@/components/ui/Button";
 
 export const RegisterForm = () => {
@@ -140,7 +139,7 @@ export const RegisterForm = () => {
         </div>
 
         {/* Submit Button */}
-        <LoadingButton type="submit" loading={loading}>
+        <LoadingButton loading={loading} type="submit">
           Register
         </LoadingButton>
       </form>

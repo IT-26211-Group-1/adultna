@@ -47,9 +47,11 @@ export const useFormSubmit = <T extends object>({
 
   const onSubmit = async (data: T) => {
     const parsed = schema.safeParse(data);
+
     if (!parsed.success) {
       const firstErrorMessage =
         parsed.error.issues[0]?.message || "Invalid input";
+
       setError(firstErrorMessage);
       onError?.(firstErrorMessage);
 
@@ -70,6 +72,7 @@ export const useFormSubmit = <T extends object>({
           color: toastMessages.captcha?.color || "danger",
         });
       }
+
       return;
     }
 
@@ -88,6 +91,7 @@ export const useFormSubmit = <T extends object>({
       if (!res.ok || result?.success === false) {
         const message =
           result?.message || toastMessages.error?.title || "Request failed";
+
         setError(message);
         onError?.(message);
         if (showToast && toastLib) {
@@ -96,6 +100,7 @@ export const useFormSubmit = <T extends object>({
             color: toastMessages.error?.color || "danger",
           });
         }
+
         return;
       }
 
@@ -106,6 +111,7 @@ export const useFormSubmit = <T extends object>({
           typeof redirectOnSuccess === "function"
             ? redirectOnSuccess(result)
             : redirectOnSuccess;
+
         router.push(redirectUrl);
       }
 
@@ -118,8 +124,9 @@ export const useFormSubmit = <T extends object>({
           color: toastMessages.success?.color || "success",
         });
       }
-    } catch (err: any) {
+    } catch {
       const errorMessage = toastMessages.error?.title || "Something went wrong";
+
       setError(errorMessage);
       onError?.(errorMessage);
       if (showToast && toastLib) {

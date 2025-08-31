@@ -17,21 +17,21 @@ export const LoadingButton = ({
 }: LoadingButtonProps) => {
   return (
     <button
-      type={type}
+      aria-busy={loading}
       className={clsx(
         "w-full flex items-center justify-center gap-2 px-4 py-2 rounded text-white bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-60",
         className,
       )}
       disabled={disabled || loading}
-      aria-busy={loading}
+      type={type}
       {...rest}
     >
       {loading && (
         <svg
           className="mr-3 size-5 animate-spin text-white"
-          xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
         >
           <circle
             className="opacity-25"
@@ -43,8 +43,8 @@ export const LoadingButton = ({
           />
           <path
             className="opacity-75"
-            fill="currentColor"
             d="M12 2a10 10 0 00-3.16 19.48 1 1 0 01-.68-1.88A8 8 0 1112 4a1 1 0 010-2z"
+            fill="currentColor"
           />
         </svg>
       )}

@@ -30,7 +30,7 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
-export default function ResetPassword({ token, setStep }: Props) {
+export default function ResetPassword({ token }: Props) {
   const router = useRouter();
 
   const {
@@ -71,16 +71,16 @@ export default function ResetPassword({ token, setStep }: Props) {
 
   return (
     <form
-      onSubmit={handleSubmit(handleFormSubmit)}
       className="flex flex-col gap-4"
+      onSubmit={handleSubmit(handleFormSubmit)}
     >
       <h2 className="text-2xl font-semibold text-center">Reset Password</h2>
 
       <input
         type="password"
         {...register("password")}
-        placeholder="New Password"
         className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="New Password"
       />
       {errors.password && (
         <p className="text-sm text-red-500">{errors.password.message}</p>
@@ -89,14 +89,14 @@ export default function ResetPassword({ token, setStep }: Props) {
       <input
         type="password"
         {...register("confirmPassword")}
-        placeholder="Retype New Password"
         className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Retype New Password"
       />
       {errors.confirmPassword && (
         <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
       )}
 
-      <LoadingButton type="submit" loading={loading}>
+      <LoadingButton loading={loading} type="submit">
         Reset Password
       </LoadingButton>
     </form>
