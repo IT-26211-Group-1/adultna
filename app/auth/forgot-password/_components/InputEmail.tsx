@@ -51,18 +51,18 @@ export default function InputEmail({ setStep, setToken }: Props) {
 
   return (
     <form
-      onSubmit={handleSubmit(handleFormSubmit)}
       className="flex flex-col gap-4"
+      onSubmit={handleSubmit(handleFormSubmit)}
     >
       <h2 className="text-2xl font-semibold text-center">Forgot Password</h2>
       <input
         type="email"
         {...register("email")}
-        placeholder="Enter your email"
         className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Enter your email"
       />
       <p className="text-sm text-red-500 mt-1">{errors.email?.message}</p>
-      <LoadingButton type="submit" loading={loading}>
+      <LoadingButton loading={loading} type="submit">
         Send OTP
       </LoadingButton>
     </form>

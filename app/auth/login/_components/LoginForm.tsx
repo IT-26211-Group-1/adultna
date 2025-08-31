@@ -42,6 +42,7 @@ export const LoginForm = () => {
           color: "warning",
         });
         router.push("/verify-email");
+
         return;
       }
       router.push("/dashboard");
@@ -51,6 +52,7 @@ export const LoginForm = () => {
   const handleGoogleLogin = async () => {
     const res = await fetch("/api/auth/google");
     const { url } = await res.json();
+
     window.location.href = url;
   };
 
@@ -89,8 +91,8 @@ export const LoginForm = () => {
         {/* Forgot Password */}
         <div className="text-right">
           <Link
-            href="/auth/forgot-password"
             className="text-sm text-blue-600 hover:underline"
+            href="/auth/forgot-password"
           >
             Forgot Password?
           </Link>
@@ -110,16 +112,16 @@ export const LoginForm = () => {
 
         {/* Login using Google */}
         <button
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           type="button"
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
         >
           <Image
-            src="https://www.svgrepo.com/show/355037/google.svg"
             alt="Google logo"
-            width={20}
             height={20}
             priority={false}
+            src="https://www.svgrepo.com/show/355037/google.svg"
+            width={20}
           />
           <span>Continue with Google</span>
         </button>

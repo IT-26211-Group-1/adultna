@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/react";
 import { LoadingButton } from "@/components/ui/Button";
 import { useFormSubmit } from "@/hooks/useForm";
@@ -17,7 +16,6 @@ interface InputOtpProps {
 type OtpFormType = { otp: string };
 
 export default function InputOtp({ token, setStep }: InputOtpProps) {
-  const router = useRouter();
   const [resending, setResending] = useState(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -37,6 +35,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
   const handleChange = (value: string, index: number) => {
     if (!/^\d?$/.test(value)) return;
     const currentOtp = (watch("otp") as string).split("");
+
     currentOtp[index] = value;
     setValue("otp", currentOtp.join(""));
     if (value && index < 5) inputsRef.current[index + 1]?.focus();
@@ -44,7 +43,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
+    index: number
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -53,6 +52,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const pasteData = e.clipboardData.getData("text").trim();
+
     if (!/^\d{6}$/.test(pasteData)) return;
     pasteData.split("").forEach((digit, i) => {
       if (inputsRef.current[i]) inputsRef.current[i]!.value = digit;
@@ -81,6 +81,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
         body: JSON.stringify({ verificationToken: token }),
       });
       const data = await res.json();
+
       addToast({
         title: data.message || (res.ok ? "OTP sent" : "Failed to resend"),
         color: res.ok ? "success" : "danger",
@@ -101,8 +102,8 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
 
   return (
     <form
-      onSubmit={handleSubmit(handleFormSubmit)}
       className="w-full max-w-md mx-auto p-6 rounded-lg"
+      onSubmit={handleSubmit(handleFormSubmit)}
     >
       <h2 className="text-xl font-semibold text-center mb-4">Enter OTP</h2>
       <div className="flex gap-2 justify-center mb-4">
@@ -112,28 +113,28 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
             ref={(el) => {
               inputsRef.current[i] = el;
             }}
-            type="text"
+            className="w-12 h-12 text-center border rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             inputMode="numeric"
             maxLength={1}
+            type="text"
             value={digit}
             onChange={(e) => handleChange(e.target.value, i)}
             onKeyDown={(e) => handleKeyDown(e, i)}
             onPaste={handlePaste}
-            className="w-12 h-12 text-center border rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         ))}
       </div>
       {errors.otp && (
         <p className="text-red-500 text-center mb-2">{errors.otp.message}</p>
       )}
-      <LoadingButton type="submit" loading={loading} className="w-full mb-2">
+      <LoadingButton className="w-full mb-2" loading={loading} type="submit">
         Verify OTP
       </LoadingButton>
       <button
+        className="w-full text-center text-blue-600 underline"
+        disabled={resending}
         type="button"
         onClick={handleResendOtp}
-        disabled={resending}
-        className="w-full text-center text-blue-600 underline"
       >
         {resending ? "Resending..." : "Resend OTP"}
       </button>

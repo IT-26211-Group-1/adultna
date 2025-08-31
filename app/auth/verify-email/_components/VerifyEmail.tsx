@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/react";
 import { verifyEmailSchema } from "@/validators/authSchema";
 import { useFormSubmit } from "@/hooks/useForm";
-import Link from "next/link";
 import { LoadingButton } from "@/components/ui/Button";
 
 type VerifyEmailFormType = { otp: string };
@@ -33,8 +32,10 @@ export default function VerifyEmailForm() {
   // Load token from localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem("verificationToken");
+
     if (!storedToken) {
       router.replace("/register");
+
       return;
     }
     setVerificationToken(storedToken);
@@ -45,6 +46,7 @@ export default function VerifyEmailForm() {
   const handleChange = (value: string, index: number) => {
     if (!/^\d?$/.test(value)) return;
     const currentOtp = watch("otp").split("");
+
     currentOtp[index] = value;
     setValue("otp", currentOtp.join(""));
     if (value && index < 5) inputsRef.current[index + 1]?.focus();
@@ -61,6 +63,7 @@ export default function VerifyEmailForm() {
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const pasteData = e.clipboardData.getData("text").trim();
+
     if (!/^\d{6}$/.test(pasteData)) return;
 
     pasteData.split("").forEach((digit, index) => {
@@ -115,6 +118,7 @@ export default function VerifyEmailForm() {
   const handleFormSubmit = (data: VerifyEmailFormType) => {
     if (!verificationToken) {
       addToast({ title: "Verification token missing", color: "danger" });
+
       return;
     }
     onSubmit({ ...data, verificationToken } as any);
@@ -123,8 +127,8 @@ export default function VerifyEmailForm() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
       <form
-        onSubmit={handleSubmit(handleFormSubmit)}
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
+        onSubmit={handleSubmit(handleFormSubmit)}
       >
         <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
           Verify Your Email
@@ -141,14 +145,14 @@ export default function VerifyEmailForm() {
               ref={(el: HTMLInputElement | null): void => {
                 inputsRef.current[index] = el;
               }}
-              type="text"
+              className="w-12 h-12 text-center border rounded-md text-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               inputMode="numeric"
               maxLength={1}
+              type="text"
               value={digit}
-              onPaste={handlePaste}
               onChange={(e) => handleChange(e.target.value, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              className="w-12 h-12 text-center border rounded-md text-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              onPaste={handlePaste}
             />
           ))}
         </div>
@@ -159,16 +163,16 @@ export default function VerifyEmailForm() {
           </p>
         )}
 
-        <LoadingButton type="submit" loading={loading}>
+        <LoadingButton loading={loading} type="submit">
           Verify
         </LoadingButton>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          Didn't receive a code?
+          Didn&apos;t receive a code?
           <button
             className="text-blue-600 underline cursor-pointer"
-            type="button"
             disabled={resending || !verificationToken}
+            type="button"
             onClick={handleResendOtp}
           >
             {resending ? "Resending..." : "Resend"}
