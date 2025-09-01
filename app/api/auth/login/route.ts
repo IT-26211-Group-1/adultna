@@ -1,4 +1,4 @@
-import { INTERNAL_SERVER_ERROR } from "@/constants/http";
+import { INTERNAL_SERVER_ERROR, UNAUTHORIZED } from "@/constants/http";
 import { LoginPayload, LoginResponse } from "@/types/auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      },
+      }
     );
 
     const data: LoginResponse = await res.json();
@@ -22,7 +22,8 @@ export async function POST(request: NextRequest) {
         success: false,
         message: data.message,
         needsVerification: true,
-        verificationToken: data.verificationToken,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
       });
     }
 
@@ -33,22 +34,48 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const nextRes = NextResponse.json({
+    const { accessTokenExpiresAt, refreshTokenExpiresAt } = data;
+
+    if (!accessTokenExpiresAt || !refreshTokenExpiresAt) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid token expiration from backend",
+        },
+        { status: UNAUTHORIZED }
+      );
+    }
+
+    const response = NextResponse.json({
       success: true,
-      message: data.message || "Login successful",
+      message: data.message,
+      accessTokenExpiresAt,
+      refreshTokenExpiresAt,
     });
 
-    nextRes.cookies.set({
-      name: "auth_token",
-      value: data.token,
+    // Access token
+    response.cookies.set({
+      name: "access_token",
+      value: data.accessToken,
       httpOnly: true,
-      path: "/dashboard",
-      maxAge: 60 * 60,
+      path: "/",
+      maxAge: Math.floor((Number(accessTokenExpiresAt) - Date.now()) / 1000),
       sameSite: "lax",
       secure: process.env.NODE_ENV !== "development",
     });
 
-    return nextRes;
+    // Refresh token
+    response.cookies.set({
+      name: "refresh_token",
+      value: data.refreshToken,
+      httpOnly: true,
+      path: "/api/auth/refresh",
+      maxAge: Math.floor((Number(refreshTokenExpiresAt) - Date.now()) / 1000),
+      sameSite: "lax",
+      secure: process.env.NODE_ENV !== "development",
+    });
+
+    return response;
   } catch (error) {
     console.error("Login Failed:", error);
 

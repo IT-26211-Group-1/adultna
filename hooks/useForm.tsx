@@ -84,6 +84,7 @@ export const useFormSubmit = <T extends object>({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...data, token: captchaToken }),
+        credentials: "include",
       });
 
       const result = await res.json();

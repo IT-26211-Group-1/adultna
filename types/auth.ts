@@ -22,7 +22,10 @@ export interface LoginData {
 export interface LoginResponse {
   needsVerification?: boolean;
   verificationToken?: string;
-  token: string;
+  refreshTokenExpiresAt?: string;
+  accessTokenExpiresAt?: string;
+  accessToken: string;
+  refreshToken: string;
   data?: LoginData;
   message?: string;
   success: boolean;
