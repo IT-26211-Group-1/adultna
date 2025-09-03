@@ -16,7 +16,8 @@ test.describe("Login Form", () => {
 
     await page.getByRole("button", { name: "Login" }).click();
 
-    await expect(page.getByRole("alert")).toBeVisible();
+    const errorAlert = page.locator('p[role="alert"]').first();
+    await expect(errorAlert).toBeVisible();
   });
 
   test("should login with valid credentials", async ({ page }) => {
