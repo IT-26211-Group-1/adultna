@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { LoadingButton } from "@/components/ui/Button";
 import Link from "next/link";
 import Image from "next/image";
+import { LoginResponse } from "@/types/auth";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -23,29 +24,43 @@ export const LoginForm = () => {
     mode: "onBlur",
   });
 
-  const { loading, onSubmit } = useFormSubmit<z.infer<typeof loginSchema>>({
+  const { loading, onSubmit } = useFormSubmit<
+    z.infer<typeof loginSchema>,
+    LoginResponse
+  >({
     apiUrl: "/api/auth/login",
     schema: loginSchema,
     requireCaptcha: false,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "Login Successful!", color: "success" },
-      error: { title: "Login Failed", color: "danger" },
+    showToast: false,
+
+    onSuccess: async () => {
+      addToast({
+        title: "Login Successful!",
+        color: "success",
+      });
+      router.replace("/dashboard");
     },
 
-    onSuccess: (res) => {
-      if (res.data?.needsVerification) {
-        localStorage.setItem("verificationToken", res.data.verificationToken);
+    onError: async (error: string | LoginResponse) => {
+      if (typeof error !== "string" && error.needsVerification) {
+        console.log;
         addToast({
           title: "Email not verified",
           description: "Check your inbox for the OTP",
           color: "warning",
         });
-        router.push("/verify-email");
-
+        router.replace("/auth/verify-email");
         return;
       }
-      router.push("/dashboard");
+
+      addToast({
+        title: "Login Failed",
+        description:
+          typeof error === "string"
+            ? error
+            : error.message || "Something went wrong",
+        color: "danger",
+      });
     },
   });
 

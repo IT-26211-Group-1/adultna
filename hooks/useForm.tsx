@@ -10,12 +10,12 @@ export type ToastOptions = {
   timeout?: number;
 };
 
-interface UseFormOptions<T> {
+interface UseFormOptions<TForm, TResponse> {
   apiUrl: string;
-  schema: ZodType<T>;
-  redirectOnSuccess?: string | ((response: any) => string);
-  onSuccess?: (response: any) => void;
-  onError?: (error: string) => void;
+  schema: ZodType<TForm>;
+  redirectOnSuccess?: string | ((response: TResponse) => string);
+  onSuccess?: (response: TResponse) => void;
+  onError?: (error: TResponse | string) => void;
   showToast?: boolean;
   toastLib?: { addToast: (options: ToastOptions) => void };
   toastMessages?: {
@@ -23,9 +23,10 @@ interface UseFormOptions<T> {
     error?: ToastOptions;
     captcha?: ToastOptions;
   };
+  requireCaptcha?: boolean;
 }
 
-export const useFormSubmit = <T extends object>({
+export const useFormSubmit = <TForm extends object, TResponse = unknown>({
   apiUrl,
   schema,
   redirectOnSuccess,
@@ -35,7 +36,7 @@ export const useFormSubmit = <T extends object>({
   toastLib,
   toastMessages = {},
   requireCaptcha = true,
-}: UseFormOptions<T> & { requireCaptcha?: boolean }) => {
+}: UseFormOptions<TForm, TResponse>) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,23 +46,20 @@ export const useFormSubmit = <T extends object>({
   const handleCaptchaChange = (token: string | null) => setCaptchaToken(token);
   const handleCaptchaExpired = () => setCaptchaToken(null);
 
-  const onSubmit = async (data: T) => {
+  const onSubmit = async (data: TForm) => {
     const parsed = schema.safeParse(data);
 
     if (!parsed.success) {
       const firstErrorMessage =
         parsed.error.issues[0]?.message || "Invalid input";
-
       setError(firstErrorMessage);
       onError?.(firstErrorMessage);
-
       if (showToast && toastLib) {
         toastLib.addToast({
           title: firstErrorMessage,
           color: toastMessages.error?.color || "danger",
         });
       }
-
       return;
     }
 
@@ -72,7 +70,6 @@ export const useFormSubmit = <T extends object>({
           color: toastMessages.captcha?.color || "danger",
         });
       }
-
       return;
     }
 
@@ -87,14 +84,17 @@ export const useFormSubmit = <T extends object>({
         credentials: "include",
       });
 
-      const result = await res.json();
+      const result: TResponse = await res.json();
 
-      if (!res.ok || result?.success === false) {
+      if (!res.ok || (result as any)?.success === false) {
+        const apiError = result as any;
         const message =
-          result?.message || toastMessages.error?.title || "Request failed";
+          apiError.message || toastMessages.error?.title || "Request failed";
 
         setError(message);
-        onError?.(message);
+        onError?.(apiError.success === false ? apiError : message);
+
+        // Only show toast if explicitly allowed
         if (showToast && toastLib) {
           toastLib.addToast({
             title: message,
@@ -112,24 +112,23 @@ export const useFormSubmit = <T extends object>({
           typeof redirectOnSuccess === "function"
             ? redirectOnSuccess(result)
             : redirectOnSuccess;
-
         router.push(redirectUrl);
       }
 
       if (showToast && toastLib) {
         toastLib.addToast({
           title:
-            result?.message ||
+            (result as any)?.message ||
             toastMessages.success?.title ||
             "Request successful!",
           color: toastMessages.success?.color || "success",
         });
       }
-    } catch {
+    } catch (err: any) {
       const errorMessage = toastMessages.error?.title || "Something went wrong";
-
       setError(errorMessage);
       onError?.(errorMessage);
+
       if (showToast && toastLib) {
         toastLib.addToast({
           title: errorMessage,

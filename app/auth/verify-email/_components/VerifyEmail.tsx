@@ -14,7 +14,7 @@ type VerifyEmailFormType = { otp: string };
 export default function VerifyEmailForm() {
   const router = useRouter();
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null,
+    null
   );
   const [resending, setResending] = useState(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
@@ -34,7 +34,7 @@ export default function VerifyEmailForm() {
     const storedToken = localStorage.getItem("verificationToken");
 
     if (!storedToken) {
-      router.replace("/register");
+      router.replace("/auth/register");
 
       return;
     }
@@ -54,7 +54,7 @@ export default function VerifyEmailForm() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
+    index: number
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();

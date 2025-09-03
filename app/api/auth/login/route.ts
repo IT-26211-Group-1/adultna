@@ -18,13 +18,15 @@ export async function POST(request: NextRequest) {
     const data: LoginResponse = await res.json();
 
     if (data.needsVerification) {
-      return NextResponse.json({
-        success: false,
-        message: data.message,
-        needsVerification: true,
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: data.message ?? "Email not verified.",
+          needsVerification: true,
+          verificationToken: data.accessToken,
+        },
+        { status: UNAUTHORIZED }
+      );
     }
 
     if (!data.success) {
