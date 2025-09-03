@@ -1,29 +1,30 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Login Form', () => {
-	test('should display login form elements', async ({ page }) => {
-		await page.goto('http://localhost:3000/login');
-		await expect(page.locator('form')).toBeVisible();
-		await expect(page.locator('input[name="email"]')).toBeVisible();
-		await expect(page.locator('input[name="password"]')).toBeVisible();
-		await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
-	});
+test.describe("Login Form", () => {
+  test("should display login form elements", async ({ page }) => {
+    await page.goto("http://localhost:3000/auth/login");
+    await expect(page.locator("form")).toBeVisible();
+    await expect(page.locator('input[name="email"]')).toBeVisible();
+    await expect(page.locator('input[name="password"]')).toBeVisible();
+    await expect(page.getByRole("button", { name: "Login" })).toBeVisible();
+  });
 
-	test('should show error on invalid credentials', async ({ page }) => {
-		await page.goto('http://localhost:3000/login');
-		await page.fill('input[name="email"]', 'invalid@example.com');
-		await page.fill('input[name="password"]', 'wrongpassword');
+  test("should show error on invalid credentials", async ({ page }) => {
+    await page.goto("http://localhost:3000/auth/login");
+    await page.fill('input[name="email"]', "invalid@example.com");
+    await page.fill('input[name="password"]', "wrongpassword");
 
-        await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByRole("button", { name: "Login" }).click();
 
-        await expect(page.getByRole('alert')).toBeVisible();
-	});
+    const errorAlert = page.locator('p[role="alert"]').first();
+    await expect(errorAlert).toBeVisible();
+  });
 
-	test('should login with valid credentials', async ({ page }) => {
-		await page.goto('http://localhost:3000/login');
-		await page.fill('input[name="email"]', 'testuser@example.com');
-		await page.fill('input[name="password"]', 'correctpassword');
+  test("should login with valid credentials", async ({ page }) => {
+    await page.goto("http://localhost:3000/auth/login");
+    await page.fill('input[name="email"]', "testuser@example.com");
+    await page.fill('input[name="password"]', "correctpassword");
 
-		await page.getByRole('button', { name: 'Login' }).click();
-	});
+    await page.getByRole("button", { name: "Login" }).click();
+  });
 });

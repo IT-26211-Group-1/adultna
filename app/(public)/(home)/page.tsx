@@ -1,7 +1,11 @@
+"use client";
+
+import { Hero } from "@/app/(public)/(home)/_components/Hero";
+
 export default function Home() {
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-      Landing Page
+      <Hero />
     </section>
   );
 }
