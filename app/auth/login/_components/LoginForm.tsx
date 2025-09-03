@@ -73,6 +73,7 @@ export const LoginForm = () => {
             type="email"
           />
           <p role="alert" className="text-sm text-red-500 mt-1">
+          <p className="text-sm text-red-500 mt-1" role="alert">
             {errors.email?.message}
           </p>
         </div>
@@ -85,7 +86,7 @@ export const LoginForm = () => {
             placeholder="Password"
             type="password"
           />
-          <p role="alert" className="text-sm text-red-500 mt-1">
+          <p className="text-sm text-red-500 mt-1" role="alert">
             {errors.password?.message}
           </p>
         </div>
