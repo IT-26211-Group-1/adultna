@@ -38,7 +38,7 @@ export const RegisterForm = () => {
     },
     onSuccess: (res) => {
       localStorage.setItem("verificationToken", res.data.verificationToken);
-      router.push("/verify-email");
+      router.push("/auth/verify-email");
     },
   });
 
