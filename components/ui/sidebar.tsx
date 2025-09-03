@@ -61,7 +61,6 @@ export const Sidebar = () => {
             <div className="ml-8 flex flex-col space-y-3 text-gray-600">
               <NextLink href="/govguides">GovGuides</NextLink>
               <NextLink href="/filebox">Adulting Filebox</NextLink>
-              <NextLink href="/lifeskills">Life Skills Library</NextLink>
             </div>
           )}
 
