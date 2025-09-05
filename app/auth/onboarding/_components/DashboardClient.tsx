@@ -1,21 +1,25 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { OnboardingData } from "@/types/onboarding";
+import { saveOnboardingData } from "@/lib/api/onboarding/onboarding";
 
 const OnboardingModal = dynamic(() => import("./OnboardingModal"));
 
 export default function DashboardClient() {
-  const [showOnboarding, setShowOnboarding] = useState(
-    () => !localStorage.getItem("onboarding_completed")
-  );
+  const [showOnboarding, setShowOnboarding] = useState(true);
+
+  useEffect(() => {
+    const completed = localStorage.getItem("onboarding_completed");
+    setShowOnboarding(!completed);
+  }, []);
 
   const handleOnboardingComplete = useCallback(async (data: OnboardingData) => {
     try {
+      await saveOnboardingData(data);
       localStorage.setItem("onboarding_completed", "true");
       setShowOnboarding(false);
-      // await saveOnboardingData(data); // sync with backend if needed
     } catch (error) {
       console.error("Failed to save onboarding:", error);
     }

@@ -85,7 +85,7 @@ export default function VerifyEmailForm() {
     },
     onSuccess: () => {
       localStorage.removeItem("verificationToken");
-      router.push("/auth/login");
+      router.push("/auth/onboarding");
     },
   });
 
