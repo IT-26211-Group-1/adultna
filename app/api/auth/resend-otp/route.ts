@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = await fetch(
-      "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/resend-otp",
+      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/resend-otp",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
