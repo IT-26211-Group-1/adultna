@@ -40,6 +40,7 @@ export default function InputEmail({ setStep, setToken }: Props) {
     },
     onSuccess: (data) => {
       const { verificationToken } = data as { verificationToken: string };
+      sessionStorage.setItem("forgotPasswordEmail", (data as any).email);
       setToken(verificationToken);
       setStep("otp");
     },
