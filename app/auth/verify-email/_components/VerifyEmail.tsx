@@ -8,13 +8,14 @@ import { addToast } from "@heroui/react";
 import { verifyEmailSchema } from "@/validators/authSchema";
 import { useFormSubmit } from "@/hooks/useForm";
 import { LoadingButton } from "@/components/ui/Button";
+import { ResendTimer } from "@/components/ui/ResendTimer";
 
 type VerifyEmailFormType = { otp: string };
 
 export default function VerifyEmailForm() {
   const router = useRouter();
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null,
+    null
   );
   const [resending, setResending] = useState(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
@@ -34,7 +35,7 @@ export default function VerifyEmailForm() {
     const storedToken = localStorage.getItem("verificationToken");
 
     if (!storedToken) {
-      router.replace("/register");
+      router.replace("/auth/register");
 
       return;
     }
@@ -54,7 +55,7 @@ export default function VerifyEmailForm() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
+    index: number
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -85,7 +86,7 @@ export default function VerifyEmailForm() {
     },
     onSuccess: () => {
       localStorage.removeItem("verificationToken");
-      router.push("/auth/login");
+      router.push("/auth/onboarding");
     },
   });
 
@@ -107,6 +108,8 @@ export default function VerifyEmailForm() {
           (res.ok ? "OTP sent successfully" : "Failed to resend OTP"),
         color: res.ok ? "success" : "danger",
       });
+
+      return data.cooldownLeft ?? 120;
     } catch (err) {
       console.error("Resend OTP error:", err);
       addToast({ title: "Internal server error", color: "danger" });
@@ -167,17 +170,11 @@ export default function VerifyEmailForm() {
           Verify
         </LoadingButton>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Didn&apos;t receive a code?
-          <button
-            className="text-blue-600 underline cursor-pointer"
-            disabled={resending || !verificationToken}
-            type="button"
-            onClick={handleResendOtp}
-          >
-            {resending ? "Resending..." : "Resend"}
-          </button>
-        </p>
+        <ResendTimer
+          handleResendOtp={handleResendOtp}
+          resending={resending}
+          verificationToken={verificationToken}
+        />
       </form>
     </div>
   );

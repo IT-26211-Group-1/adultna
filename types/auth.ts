@@ -22,7 +22,10 @@ export interface LoginData {
 export interface LoginResponse {
   needsVerification?: boolean;
   verificationToken?: string;
-  token: string;
+  refreshTokenExpiresAt?: string;
+  accessTokenExpiresAt?: string;
+  accessToken: string;
+  refreshToken: string;
   data?: LoginData;
   message?: string;
   success: boolean;
@@ -38,6 +41,7 @@ export interface VerifyEmailResponse {
   token?: string;
   userId?: string;
   message?: string;
+  cooldownLeft?: number;
 }
 
 export type ApiResponse<T> = {

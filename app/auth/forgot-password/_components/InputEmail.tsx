@@ -39,7 +39,9 @@ export default function InputEmail({ setStep, setToken }: Props) {
       error: { title: "Error sending OTP", color: "danger" },
     },
     onSuccess: (data) => {
-      setToken(data.verificationToken);
+      const { verificationToken } = data as { verificationToken: string };
+
+      setToken(verificationToken);
       setStep("otp");
     },
   });

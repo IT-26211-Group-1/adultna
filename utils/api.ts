@@ -7,6 +7,7 @@ export interface ApiResponse<T> {
 export async function apiFetch<T>(
   input: RequestInfo,
   init?: RequestInit,
+  timeout: number = 10000
 ): Promise<{ success: boolean; data?: T; message?: string }> {
   try {
     const headers = new Headers({
@@ -16,7 +17,11 @@ export async function apiFetch<T>(
         : init?.headers || {}),
     });
 
-    const response = await fetch(input, { ...init, headers });
+    const signal = AbortSignal.timeout
+      ? AbortSignal.timeout(timeout)
+      : undefined;
+
+    const response = await fetch(input, { ...init, headers, signal });
 
     const contentType = response.headers.get("Content-Type") || "";
 
