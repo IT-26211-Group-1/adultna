@@ -11,6 +11,7 @@ import { ResendTimer } from "@/components/ui/ResendTimer";
 
 interface InputOtpProps {
   token: string;
+  email: string;
   setStep: React.Dispatch<React.SetStateAction<"email" | "otp" | "reset">>;
 }
 
@@ -95,6 +96,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
         title: data.message || (res.ok ? "OTP sent" : "Failed to resend"),
         color: res.ok ? "success" : "danger",
       });
+      return data.cooldownLeft ?? 120;
     } catch (err) {
       console.error("Resend OTP error:", err);
       addToast({ title: "Internal server error", color: "danger" });

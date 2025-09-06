@@ -108,6 +108,7 @@ export default function VerifyEmailForm() {
           (res.ok ? "OTP sent successfully" : "Failed to resend OTP"),
         color: res.ok ? "success" : "danger",
       });
+      return data.cooldownLeft ?? 120;
     } catch (err) {
       console.error("Resend OTP error:", err);
       addToast({ title: "Internal server error", color: "danger" });

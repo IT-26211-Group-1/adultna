@@ -41,6 +41,7 @@ export interface VerifyEmailResponse {
   token?: string;
   userId?: string;
   message?: string;
+  cooldownLeft?: number;
 }
 
 export type ApiResponse<T> = {

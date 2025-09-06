@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 type ResendTimerProps = {
-  handleResendOtp: () => void;
+  handleResendOtp: () => Promise<number>;
   verificationToken: string | null;
   resending: boolean;
 };
@@ -36,15 +36,14 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
     return () => clearInterval(timer);
   }, [time, resending]);
 
-  const handleClick = () => {
-    if (!resending && verificationToken) {
-      handleResendOtp();
-      setDisabled(true);
-      setTime(120);
-      sessionStorage.setItem("otpTimer", "120");
-    }
-  };
+  const handleClick = async () => {
+    if (!verificationToken || isDisabled) return;
 
+    setDisabled(true);
+    const cooldown = await handleResendOtp();
+    setTime(cooldown);
+    sessionStorage.setItem("otpTimer", cooldown.toString());
+  };
   return (
     <div className="text-center text-sm text-gray-500 mt-4">
       <span>

@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: data.message || "Email verified successfully",
+      cooldownLeft: data.cooldownLeft ?? 0,
       data,
     });
   } catch (err) {

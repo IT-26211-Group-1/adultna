@@ -29,9 +29,8 @@ export default function ForgotPassword() {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("forgotPasswordStep", step);
       sessionStorage.setItem("forgotPasswordToken", token);
-      sessionStorage.setItem("forgotPasswordEmail", email);
     }
-  }, [step, token, email]);
+  }, [step, token]);
 
   if (loading) {
     return null;
@@ -49,7 +48,7 @@ export default function ForgotPassword() {
           />
         );
       case "otp":
-        return <OtpStep token={token} setStep={setStep} />;
+        return <OtpStep token={token} email={email} setStep={setStep} />;
       case "reset":
         return <ResetPasswordStep token={token} setStep={setStep} />;
       default:
