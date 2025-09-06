@@ -1,28 +1,43 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import EmailStep from "./InputEmail";
 import OtpStep from "./InputOtp";
 import ResetPasswordStep from "./ResetPassword";
 
 export default function ForgotPassword() {
-  const [step, setStep] = useState<"email" | "otp" | "reset">(
-    () => (sessionStorage.getItem("forgotPasswordStep") as any) ?? "email"
-  );
-  const [token, setToken] = useState(
-    () => sessionStorage.getItem("forgotPasswordToken") || ""
-  );
-  const [email, setEmail] = useState(
-    () => sessionStorage.getItem("forgotPasswordEmail") || ""
-  );
+  const [step, setStep] = useState<"email" | "otp" | "reset">("email");
+  const [token, setToken] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    sessionStorage.setItem("forgotPasswordStep", step);
-    sessionStorage.setItem("forgotPasswordToken", token);
-    sessionStorage.setItem("forgotPasswordEmail", email);
+    if (typeof window !== "undefined") {
+      const storedStep = sessionStorage.getItem("forgotPasswordStep");
+      const storedToken = sessionStorage.getItem("forgotPasswordToken");
+      const storedEmail = sessionStorage.getItem("forgotPasswordEmail");
+
+      if (storedStep) setStep(storedStep as "email" | "otp" | "reset");
+      if (storedToken) setToken(storedToken);
+      if (storedEmail) setEmail(storedEmail);
+
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("forgotPasswordStep", step);
+      sessionStorage.setItem("forgotPasswordToken", token);
+      sessionStorage.setItem("forgotPasswordEmail", email);
+    }
   }, [step, token, email]);
 
-  const renderStep = useCallback(() => {
+  if (loading) {
+    return null;
+  }
+
+  const renderStep = () => {
     switch (step) {
       case "email":
         return (
@@ -40,7 +55,7 @@ export default function ForgotPassword() {
       default:
         return null;
     }
-  }, [step, email, token]);
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">

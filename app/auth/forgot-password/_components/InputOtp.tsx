@@ -7,6 +7,7 @@ import { addToast } from "@heroui/react";
 import { LoadingButton } from "@/components/ui/Button";
 import { useFormSubmit } from "@/hooks/useForm";
 import { forgotPasswordOtpSchema } from "@/validators/authSchema";
+import { ResendTimer } from "@/components/ui/ResendTimer";
 
 interface InputOtpProps {
   token: string;
@@ -138,14 +139,12 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
       <LoadingButton className="w-full mb-2" loading={loading} type="submit">
         Verify OTP
       </LoadingButton>
-      <button
-        className="w-full text-center text-blue-600 underline"
-        disabled={resending}
-        type="button"
-        onClick={handleResendOtp}
-      >
-        {resending ? "Resending..." : "Resend OTP"}
-      </button>
+
+      <ResendTimer
+        handleResendOtp={handleResendOtp}
+        resending={resending}
+        verificationToken={token}
+      />
     </form>
   );
 }

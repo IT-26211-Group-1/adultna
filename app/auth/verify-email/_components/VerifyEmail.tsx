@@ -8,6 +8,7 @@ import { addToast } from "@heroui/react";
 import { verifyEmailSchema } from "@/validators/authSchema";
 import { useFormSubmit } from "@/hooks/useForm";
 import { LoadingButton } from "@/components/ui/Button";
+import { ResendTimer } from "@/components/ui/ResendTimer";
 
 type VerifyEmailFormType = { otp: string };
 
@@ -167,17 +168,11 @@ export default function VerifyEmailForm() {
           Verify
         </LoadingButton>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Didn&apos;t receive a code?
-          <button
-            className="text-blue-600 underline cursor-pointer"
-            disabled={resending || !verificationToken}
-            type="button"
-            onClick={handleResendOtp}
-          >
-            {resending ? "Resending..." : "Resend"}
-          </button>
-        </p>
+        <ResendTimer
+          handleResendOtp={handleResendOtp}
+          resending={resending}
+          verificationToken={verificationToken}
+        />
       </form>
     </div>
   );
