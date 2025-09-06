@@ -11,10 +11,15 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
   verificationToken,
   resending,
 }) => {
-  const savedTime = parseInt(sessionStorage.getItem("otpTimer") || "120", 10);
-
-  const [time, setTime] = useState(savedTime);
+  const [time, setTime] = useState<number>(120);
   const [isDisabled, setDisabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = parseInt(sessionStorage.getItem("otpTimer") || "120", 10);
+      setTime(isNaN(saved) ? 120 : saved);
+    }
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
