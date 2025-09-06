@@ -7,7 +7,7 @@ export interface ApiResponse<T> {
 export async function apiFetch<T>(
   input: RequestInfo,
   init?: RequestInit,
-  timeout: number = 10000,
+  timeout: number = 10000
 ): Promise<{ success: boolean; data?: T; message?: string }> {
   try {
     const headers = new Headers({
