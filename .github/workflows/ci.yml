@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [development]
+  pull_request:
+    branches: [development]
+
+jobs:
+  lint-test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: |
+          if [ -f tsconfig.json ]; then
+            npm run typecheck
+          else
+            echo "No tsconfig.json found, skipping type check"
+          fi
+
+      - name: Run tests
+        run: |
+          if [ -f jest.config.js ] || [ -d __tests__ ]; then
+            npm test
+          else
+            echo "No tests found, skipping"
+          fi
+
+      - name: Build Next.js app
+        run: npm run build
