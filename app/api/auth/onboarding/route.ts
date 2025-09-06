@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { UNAUTHORIZED, INTERNAL_SERVER_ERROR } from "@/constants/http";
+import { INTERNAL_SERVER_ERROR } from "@/constants/http";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
-      }
+      },
     );
 
     const data = await res.json();
@@ -26,9 +26,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data);
   } catch (err) {
     console.error("Onboarding failed:", err);
+
     return NextResponse.json(
       { success: false, message: "Internal Server Error" },
-      { status: INTERNAL_SERVER_ERROR }
+      { status: INTERNAL_SERVER_ERROR },
     );
   }
 }

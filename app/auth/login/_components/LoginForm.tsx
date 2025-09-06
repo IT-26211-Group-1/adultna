@@ -50,6 +50,7 @@ export const LoginForm = () => {
           color: "warning",
         });
         router.replace("/auth/verify-email");
+
         return;
       }
 

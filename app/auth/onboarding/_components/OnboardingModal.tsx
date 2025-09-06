@@ -40,6 +40,7 @@ export default function OnboardingModal({
       priorities: selectedPriorities,
       completedAt: new Date().toISOString(),
     };
+
     onComplete(onboardingData);
   }, [displayName, selectedLifeStage, selectedPriorities, onComplete]);
 
@@ -94,8 +95,8 @@ export default function OnboardingModal({
             <h1 className="text-2xl font-bold text-teal-700">AdultNa.</h1>
             {currentStep !== STEPS.INTRODUCTION && (
               <button
-                onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
+                onClick={handleClose}
               >
                 <X size={24} />
               </button>

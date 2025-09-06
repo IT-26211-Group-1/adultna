@@ -41,9 +41,11 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
     setDisabled(true);
     const cooldown = await handleResendOtp();
+
     setTime(cooldown);
     sessionStorage.setItem("otpTimer", cooldown.toString());
   };
+
   return (
     <div className="text-center text-sm text-gray-500 mt-4">
       <span>

@@ -9,13 +9,16 @@ export function middleware(request: NextRequest) {
 
   const isProtected = PROTECTED_ROUTES.some((p) => url.pathname.startsWith(p));
   const isPublic = PUBLIC_ROUTES.some((p) => url.pathname.startsWith(p));
+
   if (isProtected && !accessToken) {
     url.pathname = "/auth/login";
+
     return NextResponse.redirect(url);
   }
 
   if (isPublic && accessToken) {
     url.pathname = "/dashboard";
+
     return NextResponse.redirect(url);
   }
 

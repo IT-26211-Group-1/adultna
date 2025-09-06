@@ -38,7 +38,8 @@ const ProgressIndicator = React.memo(
         ))}
       </div>
     );
-  }
+  },
 );
 
+ProgressIndicator.displayName = "Progress Indicator";
 export default ProgressIndicator;

@@ -45,7 +45,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -77,8 +77,10 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
   const handleResendOtp = async () => {
     try {
       const email = sessionStorage.getItem("forgotPasswordEmail");
+
       if (!email) {
         addToast({ title: "Email is missing", color: "danger" });
+
         return;
       }
 
@@ -96,6 +98,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
         title: data.message || (res.ok ? "OTP sent" : "Failed to resend"),
         color: res.ok ? "success" : "danger",
       });
+
       return data.cooldownLeft ?? 120;
     } catch (err) {
       console.error("Resend OTP error:", err);

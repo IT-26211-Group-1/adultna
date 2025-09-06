@@ -61,6 +61,7 @@ export const useFormSubmit = <TForm extends object, TResponse = unknown>({
           color: toastMessages.error?.color || "danger",
         });
       }
+
       return;
     }
 

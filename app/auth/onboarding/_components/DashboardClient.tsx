@@ -12,6 +12,7 @@ export default function DashboardClient() {
 
   useEffect(() => {
     const completed = localStorage.getItem("onboarding_completed");
+
     setShowOnboarding(!completed);
   }, []);
 
@@ -27,10 +28,6 @@ export default function DashboardClient() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="p-8">
-        <h1 className="text-3xl font-bold"></h1>
-      </div>
-
       {showOnboarding && (
         <OnboardingModal
           isOpen={showOnboarding}

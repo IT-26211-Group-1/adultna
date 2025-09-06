@@ -48,9 +48,9 @@ export default function ForgotPassword() {
           />
         );
       case "otp":
-        return <OtpStep token={token} email={email} setStep={setStep} />;
+        return <OtpStep email={email} setStep={setStep} token={token} />;
       case "reset":
-        return <ResetPasswordStep token={token} setStep={setStep} />;
+        return <ResetPasswordStep setStep={setStep} token={token} />;
       default:
         return null;
     }

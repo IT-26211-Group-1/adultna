@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   if (!refreshToken) {
     return NextResponse.json(
       { success: false, message: "No refresh token" },
-      { status: UNAUTHORIZED }
+      { status: UNAUTHORIZED },
     );
   }
 
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
-      }
+      },
     );
 
     const data = await backendRes.json();
@@ -26,10 +26,12 @@ export async function POST(req: NextRequest) {
     if (!data.success) {
       const resp = NextResponse.json(
         { success: false, message: "Session expired" },
-        { status: UNAUTHORIZED }
+        { status: UNAUTHORIZED },
       );
+
       resp.cookies.delete("access_token");
       resp.cookies.delete("refresh_token");
+
       return resp;
     }
 
@@ -53,13 +55,15 @@ export async function POST(req: NextRequest) {
     });
 
     return resp;
-  } catch (err) {
+  } catch {
     const resp = NextResponse.json(
       { success: false, message: "Invalid token" },
-      { status: UNAUTHORIZED }
+      { status: UNAUTHORIZED },
     );
+
     resp.cookies.delete("access_token");
     resp.cookies.delete("refresh_token");
+
     return resp;
   }
 }

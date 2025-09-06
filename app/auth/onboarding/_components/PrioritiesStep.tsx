@@ -29,7 +29,7 @@ export default function PrioritiesStep({
     setSelectedPriorities((prev) =>
       prev.includes(priority)
         ? prev.filter((p) => p !== priority)
-        : [...prev, priority]
+        : [...prev, priority],
     );
   };
 
@@ -54,10 +54,10 @@ export default function PrioritiesStep({
               }`}
             >
               <input
-                type="checkbox"
                 checked={selectedPriorities.includes(priority)}
-                onChange={() => togglePriority(priority)}
                 className="mr-3 text-teal-600"
+                type="checkbox"
+                onChange={() => togglePriority(priority)}
               />
               <span className="text-gray-900 text-sm">{priority}</span>
             </label>
@@ -66,14 +66,14 @@ export default function PrioritiesStep({
 
         <div className="flex justify-between">
           <button
-            onClick={onSkip}
             className="text-gray-500 hover:text-gray-700 px-6 py-2 font-medium transition-colors"
+            onClick={onSkip}
           >
             Skip
           </button>
           <button
-            onClick={onNext}
             className="bg-teal-700 hover:bg-teal-800 text-white px-6 py-2 rounded-lg font-medium transition-colors inline-flex items-center gap-2"
+            onClick={onNext}
           >
             Next <ChevronRight size={16} />
           </button>
