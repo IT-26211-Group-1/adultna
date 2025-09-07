@@ -1,5 +1,20 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
+
+type QuestionOption = {
+  id: number;
+  optionText: string;
+  outcomeId?: number;
+};
+
+type Question = {
+  id: number;
+  question: string;
+  category: string;
+  options: QuestionOption[];
+};
 
 type LifeStageStepProps = {
   selectedLifeStage: string;
@@ -8,26 +23,63 @@ type LifeStageStepProps = {
   onSkip: () => void;
 };
 
-const lifeStages = [
-  "Student",
-  "Early Career",
-  "Mid Career",
-  "Senior Professional",
-  "Entrepreneur",
-  "Retired",
-  "Other",
-];
-
 export default function LifeStageStep({
   selectedLifeStage,
   setSelectedLifeStage,
   onNext,
   onSkip,
 }: LifeStageStepProps) {
+  const [lifeStageQuestion, setLifeStageQuestion] = useState<Question | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLifeStageQuestion() {
+      try {
+        const res = await fetch("/api/auth/onboarding/view");
+        const data = await res.json();
+
+        if (data.success && data.data?.success) {
+          const questionsArray = Array.isArray(data.data.data)
+            ? data.data.data
+            : [];
+          const question = questionsArray.find(
+            (q: Question) => q.category === "Life Stage",
+          );
+
+          if (question) setLifeStageQuestion(question);
+        } else {
+          console.error("Failed to fetch questions:", data.message);
+        }
+      } catch (err) {
+        console.error("Error fetching questions:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLifeStageQuestion();
+  }, []);
+
+  {
+    /* TODO: Change the Loading animation into a skeletion animation */
+  }
+
+  if (loading) {
+    return <p className="text-center text-gray-600">Loading questions...</p>;
+  }
+
+  if (!lifeStageQuestion) {
+    return (
+      <p className="text-center text-gray-600">No life stage question found.</p>
+    );
+  }
+
   return (
     <div className="text-center">
       <h2 className="text-2xl font-bold text-gray-900 mb-2">
-        What&#39;s your current life stage?
+        {lifeStageQuestion.question}
       </h2>
       <p className="text-gray-600 mb-8">
         This helps us personalize your experience
@@ -35,20 +87,20 @@ export default function LifeStageStep({
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-3">
-          {lifeStages.map((stage) => (
+          {lifeStageQuestion.options.map((option) => (
             <label
-              key={stage}
+              key={option.id}
               className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <input
-                checked={selectedLifeStage === stage}
+                checked={selectedLifeStage === option.optionText}
                 className="mr-3 text-teal-600"
                 name="lifeStage"
                 type="radio"
-                value={stage}
+                value={option.optionText}
                 onChange={(e) => setSelectedLifeStage(e.target.value)}
               />
-              <span className="text-gray-900">{stage}</span>
+              <span className="text-gray-900">{option.optionText}</span>
             </label>
           ))}
         </div>

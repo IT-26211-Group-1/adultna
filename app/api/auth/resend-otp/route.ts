@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { INTERNAL_SERVER_ERROR, BAD_REQUEST } from "@/constants/http";
+import { apiFetch } from "@/utils/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,39 +9,35 @@ export async function POST(request: NextRequest) {
     if (!verificationToken) {
       return NextResponse.json(
         { success: false, message: "Verification token is required" },
-        { status: BAD_REQUEST }
+        { status: BAD_REQUEST },
       );
     }
 
-    const response = await fetch(
+    const apiResponse = await apiFetch<{ success: boolean; message?: string }>(
       "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/resend-otp",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ verificationToken }),
-      }
+      },
     );
 
-    const data = await response.json();
-
-    if (!response.ok || data.success === false) {
+    if (!apiResponse.success) {
       return NextResponse.json(
-        { success: false, message: data.message || "Resend OTP failed" },
-        { status: response.status }
+        { success: false, message: apiResponse.message || "Resend OTP failed" },
+        { status: BAD_REQUEST },
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: data.message || "OTP sent successfully",
-      data,
+      message: apiResponse.data?.message || "OTP resent successfully",
     });
   } catch (err) {
     console.error("Resend OTP error:", err);
 
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: INTERNAL_SERVER_ERROR }
+      { status: INTERNAL_SERVER_ERROR },
     );
   }
 }

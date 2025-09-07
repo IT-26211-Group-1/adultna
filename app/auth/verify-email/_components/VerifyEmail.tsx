@@ -9,6 +9,9 @@ import { verifyEmailSchema } from "@/validators/authSchema";
 import { useFormSubmit } from "@/hooks/useForm";
 import { LoadingButton } from "@/components/ui/Button";
 import { ResendTimer } from "@/components/ui/ResendTimer";
+import { ResendOtpResponse, VerifyEmailResponse } from "@/types/auth";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { apiFetch } from "@/utils/api";
 
 type VerifyEmailFormType = { otp: string };
 
@@ -17,6 +20,7 @@ export default function VerifyEmailForm() {
   const [verificationToken, setVerificationToken] = useState<string | null>(
     null
   );
+  const [, setUserId] = useLocalStorage<string | null>("userId", null);
   const [resending, setResending] = useState(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -30,7 +34,6 @@ export default function VerifyEmailForm() {
     defaultValues: { otp: "" },
   });
 
-  // Load token from localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem("verificationToken");
 
@@ -75,7 +78,10 @@ export default function VerifyEmailForm() {
     setValue("otp", pasteData);
   };
 
-  const { loading, onSubmit } = useFormSubmit<VerifyEmailFormType>({
+  const { loading, onSubmit } = useFormSubmit<
+    VerifyEmailFormType,
+    VerifyEmailResponse
+  >({
     apiUrl: "/api/auth/verify-email",
     schema: verifyEmailSchema,
     requireCaptcha: false,
@@ -84,35 +90,41 @@ export default function VerifyEmailForm() {
       success: { title: "Email verified successfully", color: "success" },
       error: { title: "Verification failed", color: "danger" },
     },
-    onSuccess: () => {
+    onSuccess: (responseData) => {
+      if (responseData.userId) {
+        setUserId(responseData.userId);
+      }
+
+      console.log(responseData);
+
       localStorage.removeItem("verificationToken");
       router.push("/auth/onboarding");
     },
   });
 
   const handleResendOtp = async () => {
-    if (!verificationToken) return;
+    if (!verificationToken) return 120;
     try {
       setResending(true);
-      const res = await fetch("/api/auth/resend-otp", {
+      const res = await apiFetch<ResendOtpResponse>("/api/auth/resend-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ verificationToken }),
       });
 
-      const data = await res.json();
-
       addToast({
         title:
-          data.message ||
-          (res.ok ? "OTP sent successfully" : "Failed to resend OTP"),
-        color: res.ok ? "success" : "danger",
+          res.message ||
+          (res.success ? "OTP sent successfully" : "Failed to resend OTP"),
+        color: res.success ? "success" : "danger",
       });
 
-      return data.cooldownLeft ?? 120;
+      return res.data?.cooldownLeft ?? 120;
     } catch (err) {
       console.error("Resend OTP error:", err);
       addToast({ title: "Internal server error", color: "danger" });
+
+      return 120;
     } finally {
       setResending(false);
     }

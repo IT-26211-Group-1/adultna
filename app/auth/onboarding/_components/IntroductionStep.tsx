@@ -1,17 +1,14 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { IntroductionStepProps } from "@/types/onboarding";
 
-interface IntroductionStepProps {
-  displayName: string;
-  setDisplayName: (name: string) => void;
-  onNext: () => void;
-}
+export default function IntroductionStep({ onNext }: IntroductionStepProps) {
+  const [displayName, setDisplayName] = useLocalStorage<string>(
+    "displayName",
+    "",
+  );
 
-export default function IntroductionStep({
-  displayName,
-  setDisplayName,
-  onNext,
-}: IntroductionStepProps) {
   const handleSubmit = () => {
     if (displayName.trim()) onNext();
   };

@@ -37,11 +37,15 @@ export const RegisterForm = () => {
       captcha: { title: "Please verify captcha", color: "warning" },
     },
     onSuccess: (res) => {
-      const response = res as { data: { verificationToken: string } };
+      const response = res as {
+        data: { verificationToken: string; userId: string };
+      };
+
       localStorage.setItem(
         "verificationToken",
-        response.data.verificationToken
+        response.data.verificationToken,
       );
+      localStorage.setItem("userId", response.data.userId);
       router.push("/auth/verify-email");
     },
   });
