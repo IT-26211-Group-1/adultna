@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
     );
 
     const data = await response.json();
+    console.log(data);
 
     if (!response.ok) {
       return NextResponse.json(
@@ -115,15 +116,15 @@ export async function POST(request: NextRequest) {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
-        password: data.password,
         verificationToken: data.verificationToken,
       },
     });
-  } catch {
+  } catch (err) {
     return NextResponse.json(
       {
         success: false,
         message: "Registration Failed",
+        err,
       },
       { status: INTERNAL_SERVER_ERROR }
     );

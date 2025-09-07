@@ -47,7 +47,6 @@ export type VerifyEmailResponse = {
   token?: string;
   userId?: string;
   message?: string;
-  user: User;
   cooldownLeft?: number;
   accessToken: string;
   refreshToken: string;
@@ -61,4 +60,9 @@ export type ApiResponse<T> = {
   message?: string;
   needsVerification?: boolean;
   verificationToken?: string;
+};
+
+export type ResendOtpResponse = {
+  cooldownLeft?: number;
+  message?: string;
 };

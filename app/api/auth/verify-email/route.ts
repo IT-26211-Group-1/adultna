@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { INTERNAL_SERVER_ERROR, BAD_REQUEST } from "@/constants/http";
 import { VerifyEmailResponse } from "@/types/auth";
+import { apiFetch } from "@/utils/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiResponse = await fetch(
+    const apiResponse = await apiFetch<VerifyEmailResponse>(
       "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/verify-email",
       {
         method: "POST",
@@ -29,25 +30,28 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const data: VerifyEmailResponse = await apiResponse.json();
-
-    if (!apiResponse.ok) {
+    if (!apiResponse.success) {
       return NextResponse.json(
-        { success: false, message: data.message || "Verification failed" },
-        { status: apiResponse.status }
+        {
+          success: false,
+          message: apiResponse.message || "Verification failed",
+        },
+        { status: BAD_REQUEST }
       );
     }
 
-    // Build NextResponse with JSON body
+    const data = apiResponse.data!;
+
     const response = NextResponse.json({
       success: true,
       message: data.message,
       cooldownLeft: data.cooldownLeft ?? 0,
-      user: data.user, // Make sure your Lambda returns the full user object
+      user: data.userId,
       accessTokenExpiresAt: data.accessTokenExpiresAt,
       refreshTokenExpiresAt: data.refreshTokenExpiresAt,
     });
 
+    console.log(response);
     // Set access token cookie
     if (data.accessToken && data.accessTokenExpiresAt) {
       const maxAge = Math.max(

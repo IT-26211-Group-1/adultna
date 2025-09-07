@@ -1,9 +1,10 @@
 import { INTERNAL_SERVER_ERROR } from "@/constants/http";
+import { apiFetch } from "@/utils/api";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const res = await fetch(
+    const res = await apiFetch(
       "https://c5w27vri7g.execute-api.ap-southeast-1.amazonaws.com/onboarding/view",
       {
         method: "GET",
@@ -11,21 +12,19 @@ export async function GET() {
       }
     );
 
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
+    if (!res.success || !res.success) {
       return NextResponse.json(
         {
           success: false,
-          message: data.message || "Failed to fetch questions",
+          message: res.message || "Failed to fetch questions",
         },
-        { status: res.status || INTERNAL_SERVER_ERROR }
+        { status: INTERNAL_SERVER_ERROR }
       );
     }
 
     return NextResponse.json({
       success: true,
-      data: data.data,
+      data: res.data,
     });
   } catch (error) {
     console.error("Fetching onboarding questions failed:", error);
