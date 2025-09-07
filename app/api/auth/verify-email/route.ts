@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const response = await fetch(
+    const apiResponse = await fetch(
       "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/verify-email",
       {
         method: "POST",
@@ -29,21 +29,62 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const data: VerifyEmailResponse = await response.json();
+    const data: VerifyEmailResponse = await apiResponse.json();
 
-    if (!response.ok) {
+    if (!apiResponse.ok) {
       return NextResponse.json(
         { success: false, message: data.message || "Verification failed" },
-        { status: response.status }
+        { status: apiResponse.status }
       );
     }
 
-    return NextResponse.json({
+    // Build NextResponse with JSON body
+    const response = NextResponse.json({
       success: true,
-      message: data.message || "Email verified successfully",
+      message: data.message,
       cooldownLeft: data.cooldownLeft ?? 0,
-      data,
+      user: data.user, // Make sure your Lambda returns the full user object
+      accessTokenExpiresAt: data.accessTokenExpiresAt,
+      refreshTokenExpiresAt: data.refreshTokenExpiresAt,
     });
+
+    // Set access token cookie
+    if (data.accessToken && data.accessTokenExpiresAt) {
+      const maxAge = Math.max(
+        0,
+        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000)
+      );
+      response.cookies.set({
+        name: "access_token",
+        value: data.accessToken,
+        httpOnly: true,
+        path: "/",
+        maxAge: maxAge,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV !== "development",
+      });
+    }
+
+    // Set refresh token cookie
+    if (data.refreshToken && data.refreshTokenExpiresAt) {
+      const maxAge = Math.max(
+        0,
+        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000)
+      );
+      response.cookies.set({
+        name: "refresh_token",
+        value: data.refreshToken,
+        httpOnly: true,
+        path: "/api/auth/refresh",
+        maxAge: maxAge,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV !== "development",
+      });
+    }
+
+    console.log(data);
+
+    return response;
   } catch (err) {
     console.error("Verify email error:", err);
 

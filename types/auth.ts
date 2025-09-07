@@ -37,12 +37,23 @@ export type RegisterResponse = {
   message?: string;
 };
 
-export interface VerifyEmailResponse {
+export type User = {
+  id: string;
+  email: string;
+  role: string;
+};
+
+export type VerifyEmailResponse = {
   token?: string;
   userId?: string;
   message?: string;
+  user: User;
   cooldownLeft?: number;
-}
+  accessToken: string;
+  refreshToken: string;
+  refreshTokenExpiresAt?: string;
+  accessTokenExpiresAt?: string;
+};
 
 export type ApiResponse<T> = {
   success: boolean;
