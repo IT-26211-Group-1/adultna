@@ -27,19 +27,19 @@ export default function OnboardingModal({
 
   const [currentStep, setCurrentStep] = useLocalStorage<number>(
     "onboarding-currentStep",
-    STEPS.INTRODUCTION,
+    STEPS.INTRODUCTION
   );
   const [displayName, setDisplayName] = useLocalStorage<string>(
     "onboarding-displayName",
-    "",
+    ""
   );
   const [selectedLifeStage, setSelectedLifeStage] = useLocalStorage<string>(
     "onboarding-lifeStage",
-    "",
+    ""
   );
   const [selectedPriorities, setSelectedPriorities] = useLocalStorage<string[]>(
     "onboarding-priorities",
-    [],
+    []
   );
 
   const nextStep = useCallback(() => {
@@ -105,8 +105,8 @@ export default function OnboardingModal({
             onSkip={skipStep}
           />
         );
-      case STEPS.YOUR_PATH:
-        return <YourPathStep onComplete={handleComplete} />;
+      // case STEPS.YOUR_PATH:
+      //   return <YourPathStep onComplete={handleComplete} />;
       default:
         return null;
     }
