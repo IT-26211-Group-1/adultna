@@ -40,13 +40,15 @@ export default function LifeStageStep({
         const res = await fetch("/api/auth/onboarding/view");
         const data = await res.json();
 
-        if (data.success) {
-          const question = data.data.find(
+        if (data.success && data.data?.success) {
+          const questionsArray = Array.isArray(data.data.data)
+            ? data.data.data
+            : [];
+          const question = questionsArray.find(
             (q: Question) => q.category === "Life Stage"
           );
-          if (question) {
-            setLifeStageQuestion(question);
-          }
+
+          if (question) setLifeStageQuestion(question);
         } else {
           console.error("Failed to fetch questions:", data.message);
         }

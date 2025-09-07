@@ -30,11 +30,13 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    console.log(apiResponse);
+
     if (!apiResponse.success) {
       return NextResponse.json(
         {
           success: false,
-          message: apiResponse.message || "Verification failed",
+          message: "Invalid OTP",
         },
         { status: BAD_REQUEST }
       );

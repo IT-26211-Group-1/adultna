@@ -2,26 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
-
-type QuestionOption = {
-  id: number;
-  optionText: string;
-  outcomeId?: number;
-};
-
-type Question = {
-  id: number;
-  question: string;
-  category: string;
-  options: QuestionOption[];
-};
-
-type PrioritiesStepProps = {
-  selectedPriorities: string[];
-  setSelectedPriorities: React.Dispatch<React.SetStateAction<string[]>>;
-  onNext: () => void;
-  onSkip: () => void;
-};
+import { PrioritiesStepProps, Question } from "@/types/onboarding";
 
 export default function PrioritiesStep({
   selectedPriorities,
@@ -36,20 +17,37 @@ export default function PrioritiesStep({
 
   useEffect(() => {
     async function fetchPrioritiesQuestion() {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
       try {
-        const res = await fetch("/api/auth/onboarding/view");
+        const res = await fetch("/api/auth/onboarding/view", {
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
         const data = await res.json();
 
-        if (data.success) {
-          const question = data.data.find(
+        if (data.success && data.data?.success) {
+          const questionsArray = Array.isArray(data.data.data)
+            ? data.data.data
+            : [];
+          const question = questionsArray.find(
             (q: Question) => q.category === "Priorities"
           );
-          if (question) setPrioritiesQuestion(question);
+          if (question) {
+            setPrioritiesQuestion(question);
+          } else {
+            console.error("No priorities question found.");
+          }
         } else {
-          console.error("Failed to fetch priorities:", data.message);
+          console.error(data.message || "Failed to fetch priorities.");
         }
-      } catch (err) {
-        console.error("Error fetching priorities:", err);
+      } catch (err: any) {
+        if (err.name === "AbortError") {
+          console.error("Request timed out. Please try again.");
+        } else {
+          console.error("Error fetching priorities.");
+        }
       } finally {
         setLoading(false);
       }
