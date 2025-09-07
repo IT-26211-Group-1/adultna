@@ -7,6 +7,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       if (typeof window === "undefined") return;
       const item = localStorage.getItem(key);
+
       if (item) setStoredValue(JSON.parse(item));
     } catch (error) {
       console.warn(`Error reading localStorage key "${key}":`, error);
@@ -18,6 +19,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       try {
         const valueToStore =
           value instanceof Function ? value(storedValue) : value;
+
         setStoredValue(valueToStore);
         if (typeof window !== "undefined") {
           localStorage.setItem(key, JSON.stringify(valueToStore));
@@ -26,7 +28,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         console.warn(`Error setting localStorage key "${key}":`, error);
       }
     },
-    [key, storedValue]
+    [key, storedValue],
   );
 
   const remove = useCallback(() => {

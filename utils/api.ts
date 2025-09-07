@@ -7,7 +7,7 @@ export interface ApiResponse<T> {
 export async function apiFetch<T>(
   input: RequestInfo,
   init?: RequestInit,
-  timeout = 10000
+  timeout = 10000,
 ): Promise<{ success: boolean; data?: T; message?: string }> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -49,6 +49,7 @@ export async function apiFetch<T>(
     return { success: true, data: data as T };
   } catch (error: unknown) {
     clearTimeout(id);
+
     return {
       success: false,
       message: error instanceof Error ? error.message : "Network Error",

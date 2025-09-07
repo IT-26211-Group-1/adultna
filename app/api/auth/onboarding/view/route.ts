@@ -1,6 +1,6 @@
 import { INTERNAL_SERVER_ERROR } from "@/constants/http";
 import { apiFetch } from "@/utils/api";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -9,7 +9,7 @@ export async function GET() {
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
 
     if (!res.success) {
@@ -18,7 +18,7 @@ export async function GET() {
           success: false,
           message: res.message || "Failed to fetch questions",
         },
-        { status: INTERNAL_SERVER_ERROR }
+        { status: INTERNAL_SERVER_ERROR },
       );
     }
 
@@ -35,7 +35,7 @@ export async function GET() {
         message: "Internal Server Error",
         statusCode: INTERNAL_SERVER_ERROR,
       },
-      { status: INTERNAL_SERVER_ERROR }
+      { status: INTERNAL_SERVER_ERROR },
     );
   }
 }

@@ -6,7 +6,7 @@ import { IntroductionStepProps } from "@/types/onboarding";
 export default function IntroductionStep({ onNext }: IntroductionStepProps) {
   const [displayName, setDisplayName] = useLocalStorage<string>(
     "displayName",
-    ""
+    "",
   );
 
   const handleSubmit = () => {

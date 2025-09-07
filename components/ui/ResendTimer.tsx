@@ -17,6 +17,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = parseInt(sessionStorage.getItem("otpTimer") || "120", 10);
+
       setTime(isNaN(saved) ? 120 : saved);
     }
   }, []);

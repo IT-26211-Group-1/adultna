@@ -9,7 +9,6 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useFormSubmit } from "@/hooks/useForm";
 import { useRouter } from "next/navigation";
 import { LoadingButton } from "@/components/ui/Button";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export const RegisterForm = () => {
   const router = useRouter();
@@ -41,9 +40,10 @@ export const RegisterForm = () => {
       const response = res as {
         data: { verificationToken: string; userId: string };
       };
+
       localStorage.setItem(
         "verificationToken",
-        response.data.verificationToken
+        response.data.verificationToken,
       );
       localStorage.setItem("userId", response.data.userId);
       router.push("/auth/verify-email");

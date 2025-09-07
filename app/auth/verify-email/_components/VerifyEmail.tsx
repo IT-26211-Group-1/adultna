@@ -18,13 +18,9 @@ type VerifyEmailFormType = { otp: string };
 export default function VerifyEmailForm() {
   const router = useRouter();
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null
+    null,
   );
-  const [user, setUser] = useState<{
-    email: string;
-    id: string;
-    firstName: string;
-  } | null>(null);
+  const [, setUserId] = useLocalStorage<string | null>("userId", null);
   const [resending, setResending] = useState(false);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -63,7 +59,7 @@ export default function VerifyEmailForm() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -97,7 +93,7 @@ export default function VerifyEmailForm() {
     },
     onSuccess: (responseData) => {
       if (responseData.userId) {
-        useLocalStorage("userId", responseData.userId);
+        setUserId(responseData.userId);
       }
 
       console.log(responseData);
@@ -128,6 +124,7 @@ export default function VerifyEmailForm() {
     } catch (err) {
       console.error("Resend OTP error:", err);
       addToast({ title: "Internal server error", color: "danger" });
+
       return 120;
     } finally {
       setResending(false);

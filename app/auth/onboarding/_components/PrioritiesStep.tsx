@@ -11,7 +11,7 @@ export default function PrioritiesStep({
   onSkip,
 }: PrioritiesStepProps) {
   const [prioritiesQuestion, setPrioritiesQuestion] = useState<Question | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
 
@@ -19,10 +19,12 @@ export default function PrioritiesStep({
     async function fetchPrioritiesQuestion() {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 20000);
+
       try {
         const res = await fetch("/api/auth/onboarding/view", {
           signal: controller.signal,
         });
+
         clearTimeout(timeout);
 
         const data = await res.json();
@@ -32,8 +34,9 @@ export default function PrioritiesStep({
             ? data.data.data
             : [];
           const question = questionsArray.find(
-            (q: Question) => q.category === "Priorities"
+            (q: Question) => q.category === "Priorities",
           );
+
           if (question) {
             setPrioritiesQuestion(question);
           } else {
@@ -60,7 +63,7 @@ export default function PrioritiesStep({
     setSelectedPriorities((prev) =>
       prev.includes(optionText)
         ? prev.filter((p) => p !== optionText)
-        : [...prev, optionText]
+        : [...prev, optionText],
     );
   };
 

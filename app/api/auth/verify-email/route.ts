@@ -10,14 +10,14 @@ export async function POST(request: NextRequest) {
     if (!verificationToken) {
       return NextResponse.json(
         { success: false, message: "Verification token is required" },
-        { status: BAD_REQUEST }
+        { status: BAD_REQUEST },
       );
     }
 
     if (!otp) {
       return NextResponse.json(
         { success: false, message: "OTP is required" },
-        { status: BAD_REQUEST }
+        { status: BAD_REQUEST },
       );
     }
 
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ otp, verificationToken }),
-      }
+      },
     );
 
     console.log(apiResponse);
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Invalid OTP",
         },
-        { status: BAD_REQUEST }
+        { status: BAD_REQUEST },
       );
     }
 
@@ -58,8 +58,9 @@ export async function POST(request: NextRequest) {
     if (data.accessToken && data.accessTokenExpiresAt) {
       const maxAge = Math.max(
         0,
-        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000)
+        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000),
       );
+
       response.cookies.set({
         name: "access_token",
         value: data.accessToken,
@@ -75,8 +76,9 @@ export async function POST(request: NextRequest) {
     if (data.refreshToken && data.refreshTokenExpiresAt) {
       const maxAge = Math.max(
         0,
-        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000)
+        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000),
       );
+
       response.cookies.set({
         name: "refresh_token",
         value: data.refreshToken,
@@ -96,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: INTERNAL_SERVER_ERROR }
+      { status: INTERNAL_SERVER_ERROR },
     );
   }
 }

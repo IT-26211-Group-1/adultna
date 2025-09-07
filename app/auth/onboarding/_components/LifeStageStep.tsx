@@ -30,7 +30,7 @@ export default function LifeStageStep({
   onSkip,
 }: LifeStageStepProps) {
   const [lifeStageQuestion, setLifeStageQuestion] = useState<Question | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
 
@@ -45,7 +45,7 @@ export default function LifeStageStep({
             ? data.data.data
             : [];
           const question = questionsArray.find(
-            (q: Question) => q.category === "Life Stage"
+            (q: Question) => q.category === "Life Stage",
           );
 
           if (question) setLifeStageQuestion(question);
