@@ -3,10 +3,10 @@ import { Button } from "@heroui/react";
 export function HeroActions() {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mt-2 justify-start w-full">
-      <Button className="text-white bg-olivine hover:bg-adult-green/90 hover:text-white border-adult-green border-3 px-6 py-3 rounded-lg font-medium transition-colors">
+      <Button className="text-white bg-olivine hover:bg-adult-green/90 hover:text-white border-adult-green border-3 px-8 py-6 rounded-xl font-large text-md transition-colors">
         Get Started with Us
       </Button>
-      <Button className="text-white bg-olivine hover:bg-adult-green/90 hover:text-white border-adult-green border-3 px-6 py-3 rounded-lg transition-colors flex items-center">
+      <Button className="text-white bg-olivine hover:bg-adult-green/90 hover:text-white border-adult-green border-3 px-8 py-6 rounded-xl font-large text-md transition-colors">
         Find out More
         <svg
           className="w-5 h-5 inline-block ml-1"
