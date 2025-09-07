@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { X } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
 import { STEPS } from "@/constants/onboarding";
 import IntroductionStep from "./IntroductionStep";
 import ProgressIndicator from "./ProgressIndicator";
 import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
 import YourPathStep from "./YourPathStep";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 type OnboardingModalProps = {
   isOpen: boolean;
@@ -17,17 +17,34 @@ type OnboardingModalProps = {
 
 export default function OnboardingModal({
   isOpen,
-  onClose,
   onComplete,
 }: OnboardingModalProps) {
-  const [currentStep, setCurrentStep] = useState<number>(STEPS.INTRODUCTION);
-  const [displayName, setDisplayName] = useState("");
-  const [selectedLifeStage, setSelectedLifeStage] = useState("");
-  const [selectedPriorities, setSelectedPriorities] = useState<string[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  const [currentStep, setCurrentStep] = useLocalStorage<number>(
+    "onboarding-currentStep",
+    STEPS.INTRODUCTION
+  );
+  const [displayName, setDisplayName] = useLocalStorage<string>(
+    "onboarding-displayName",
+    ""
+  );
+  const [selectedLifeStage, setSelectedLifeStage] = useLocalStorage<string>(
+    "onboarding-lifeStage",
+    ""
+  );
+  const [selectedPriorities, setSelectedPriorities] = useLocalStorage<string[]>(
+    "onboarding-priorities",
+    []
+  );
 
   const nextStep = useCallback(() => {
-    setCurrentStep((prev) => (prev < 4 ? prev + 1 : prev));
-  }, []);
+    setCurrentStep((prev) => (prev < STEPS.YOUR_PATH ? prev + 1 : prev));
+  }, [setCurrentStep]);
 
   const skipStep = useCallback(() => {
     nextStep();
@@ -40,17 +57,24 @@ export default function OnboardingModal({
       priorities: selectedPriorities,
       completedAt: new Date().toISOString(),
     };
-
     onComplete(onboardingData);
-  }, [displayName, selectedLifeStage, selectedPriorities, onComplete]);
 
-  const handleClose = useCallback(() => {
-    if (currentStep !== STEPS.INTRODUCTION) {
-      onClose();
-    }
-  }, [currentStep, onClose]);
+    setCurrentStep(STEPS.INTRODUCTION);
+    setDisplayName("");
+    setSelectedLifeStage("");
+    setSelectedPriorities([]);
+  }, [
+    displayName,
+    selectedLifeStage,
+    selectedPriorities,
+    onComplete,
+    setCurrentStep,
+    setDisplayName,
+    setSelectedLifeStage,
+    setSelectedPriorities,
+  ]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !hydrated) return null;
 
   const renderCurrentStep = () => {
     switch (currentStep) {
@@ -88,23 +112,14 @@ export default function OnboardingModal({
   };
 
   return (
-    <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-teal-700">AdultNa.</h1>
-            {currentStep !== STEPS.INTRODUCTION && (
-              <button
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-                onClick={handleClose}
-              >
-                <X size={24} />
-              </button>
-            )}
           </div>
           <ProgressIndicator currentStep={currentStep} />
         </div>
-
         <div className="p-8">{renderCurrentStep()}</div>
       </div>
     </div>
