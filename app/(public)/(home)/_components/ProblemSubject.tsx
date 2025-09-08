@@ -6,7 +6,7 @@ export function ProblemSubject() {
                 <img
                     src="/Road.png"
                     alt="Road"
-                    className="max-w-screen h-auto object-cover opacity-70"
+                    className="max-w-screen mr-5 h-auto object-cover opacity-70"
                 />
             </div>
             {/* Pain point Topics */}
