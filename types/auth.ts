@@ -4,32 +4,12 @@ export type RegisterPayload = {
   email: string;
   password: string;
   acceptedTerms: boolean;
-  token: string;
-  verificationToken: string;
 };
 
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface LoginData {
-  userId: string;
+export type LoginPayload = Pick<RegisterPayload, "email" | "password"> & {
   token: string;
-  isVerified: boolean;
-}
-
-export interface LoginResponse {
-  needsVerification?: boolean;
-  verificationToken?: string;
-  refreshTokenExpiresAt?: string;
-  accessTokenExpiresAt?: string;
-  accessToken: string;
-  refreshToken: string;
-  data?: LoginData;
-  message?: string;
-  success: boolean;
-}
+  userId: string;
+};
 
 export type RegisterResponse = {
   id: string;
@@ -37,32 +17,14 @@ export type RegisterResponse = {
   message?: string;
 };
 
-export type User = {
-  id: string;
-  email: string;
-  role: string;
-};
-
-export type VerifyEmailResponse = {
+export interface VerifyEmailResponse {
   token?: string;
   userId?: string;
   message?: string;
-  cooldownLeft?: number;
-  accessToken: string;
-  refreshToken: string;
-  refreshTokenExpiresAt?: string;
-  accessTokenExpiresAt?: string;
-};
+}
 
-export type ApiResponse<T> = {
+export interface ApiResponse<T> {
   success: boolean;
+  message: string;
   data?: T;
-  message?: string;
-  needsVerification?: boolean;
-  verificationToken?: string;
-};
-
-export type ResendOtpResponse = {
-  cooldownLeft?: number;
-  message?: string;
-};
+}

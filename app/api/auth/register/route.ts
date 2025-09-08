@@ -28,7 +28,7 @@ const aj = arcjet({
 
 export async function POST(request: NextRequest) {
   try {
-    const body: RegisterPayload = await request.json();
+    const body: RegisterPayload & { token?: string } = await request.json();
 
     const decision = await aj.protect(request, { email: body.email });
 
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     // Lambda Endpoint
     const response = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/register",
+      "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/register",
       {
         method: "POST",
         headers: {
@@ -111,19 +111,19 @@ export async function POST(request: NextRequest) {
       success: true,
       message: data.message || "Registration successful!",
       data: {
+        token: data.token,
         userId: data.userId,
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
-        verificationToken: data.verificationToken,
+        password: data.password,
       },
     });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       {
         success: false,
         message: "Registration Failed",
-        err,
       },
       { status: INTERNAL_SERVER_ERROR },
     );
