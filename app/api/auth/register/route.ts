@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     // Lambda Endpoint
     const response = await fetch(
-      "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/register",
+      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/register",
       {
         method: "POST",
         headers: {
@@ -115,15 +115,15 @@ export async function POST(request: NextRequest) {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
-        password: data.password,
         verificationToken: data.verificationToken,
       },
     });
-  } catch {
+  } catch (err) {
     return NextResponse.json(
       {
         success: false,
         message: "Registration Failed",
+        err,
       },
       { status: INTERNAL_SERVER_ERROR },
     );

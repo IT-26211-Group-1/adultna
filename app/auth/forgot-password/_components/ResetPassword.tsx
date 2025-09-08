@@ -57,6 +57,9 @@ export default function ResetPassword({ token }: Props) {
       error: { title: "Error resetting password", color: "danger" },
     },
     onSuccess: () => {
+      sessionStorage.removeItem("forgotPasswordEmail");
+      sessionStorage.removeItem("forgotPasswordStep");
+      sessionStorage.removeItem("forgotPasswordToken");
       router.replace("/auth/login");
     },
   });

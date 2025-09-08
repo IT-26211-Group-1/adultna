@@ -7,9 +7,11 @@ import { addToast } from "@heroui/react";
 import { LoadingButton } from "@/components/ui/Button";
 import { useFormSubmit } from "@/hooks/useForm";
 import { forgotPasswordOtpSchema } from "@/validators/authSchema";
+import { ResendTimer } from "@/components/ui/ResendTimer";
 
 interface InputOtpProps {
   token: string;
+  email: string;
   setStep: React.Dispatch<React.SetStateAction<"email" | "otp" | "reset">>;
 }
 
@@ -74,18 +76,30 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
 
   const handleResendOtp = async () => {
     try {
+      const email = sessionStorage.getItem("forgotPasswordEmail");
+
+      if (!email) {
+        addToast({ title: "Email is missing", color: "danger" });
+
+        return;
+      }
+
       setResending(true);
-      const res = await fetch("/api/auth/resend-otp", {
+
+      const res = await fetch("/api/auth/forgot-password/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ verificationToken: token }),
+        body: JSON.stringify({ verificationToken: token, email }),
       });
+
       const data = await res.json();
 
       addToast({
         title: data.message || (res.ok ? "OTP sent" : "Failed to resend"),
         color: res.ok ? "success" : "danger",
       });
+
+      return data.cooldownLeft ?? 120;
     } catch (err) {
       console.error("Resend OTP error:", err);
       addToast({ title: "Internal server error", color: "danger" });
@@ -130,14 +144,12 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
       <LoadingButton className="w-full mb-2" loading={loading} type="submit">
         Verify OTP
       </LoadingButton>
-      <button
-        className="w-full text-center text-blue-600 underline"
-        disabled={resending}
-        type="button"
-        onClick={handleResendOtp}
-      >
-        {resending ? "Resending..." : "Resend OTP"}
-      </button>
+
+      <ResendTimer
+        handleResendOtp={handleResendOtp}
+        resending={resending}
+        verificationToken={token}
+      />
     </form>
   );
 }
