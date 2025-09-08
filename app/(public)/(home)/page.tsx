@@ -1,5 +1,3 @@
-"use client";
-
 import { Hero } from "@/app/(public)/(home)/_components/Hero";
 import { Problem } from "@/app/(public)/(home)/_components/Problem";
 import { Preview } from "@/app/(public)/(home)/_components/Preview";
