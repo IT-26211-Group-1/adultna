@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   if (!refreshToken) {
     return NextResponse.json(
       { success: false, message: "No refresh token" },
-      { status: UNAUTHORIZED }
+      { status: UNAUTHORIZED },
     );
   }
 
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
-      }
+      },
     );
 
     const data = await backendRes.json();
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (!data.success) {
       const resp = NextResponse.json(
         { success: false, message: "Session expired" },
-        { status: UNAUTHORIZED }
+        { status: UNAUTHORIZED },
       );
 
       resp.cookies.delete("access_token");
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     const normalizeExpiryMs = (maybeMs: number): number => {
       if (typeof maybeMs !== "number" || Number.isNaN(maybeMs))
         return Date.now();
+
       return maybeMs < 1e12 ? maybeMs * 1000 : maybeMs;
     };
 
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
   } catch {
     const resp = NextResponse.json(
       { success: false, message: "Invalid token" },
-      { status: UNAUTHORIZED }
+      { status: UNAUTHORIZED },
     );
 
     resp.cookies.delete("access_token");
@@ -91,15 +92,17 @@ export async function GET(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
-      }
+      },
     );
 
     const data = await backendRes.json();
 
     if (!data.success) {
       const resp = NextResponse.redirect(new URL("/auth/login", req.url));
+
       resp.cookies.delete("access_token");
       resp.cookies.delete("refresh_token");
+
       return resp;
     }
 
@@ -108,13 +111,14 @@ export async function GET(req: NextRequest) {
     const normalizeExpiryMs = (maybeMs: number): number => {
       if (typeof maybeMs !== "number" || Number.isNaN(maybeMs))
         return Date.now();
+
       return maybeMs < 1e12 ? maybeMs * 1000 : maybeMs;
     };
 
     const accessExpiryMs = normalizeExpiryMs(accessTokenExpiresAt);
 
     const resp = NextResponse.redirect(
-      new URL(redirectUrl || "/dashboard", req.url)
+      new URL(redirectUrl || "/dashboard", req.url),
     );
 
     resp.cookies.set({
@@ -130,8 +134,10 @@ export async function GET(req: NextRequest) {
     return resp;
   } catch {
     const resp = NextResponse.redirect(new URL("/auth/login", req.url));
+
     resp.cookies.delete("access_token");
     resp.cookies.delete("refresh_token");
+
     return resp;
   }
 }

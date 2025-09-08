@@ -19,12 +19,13 @@ export default function JobBoard() {
     if (!query.trim()) return jobs;
 
     const searchTerm = query.toLowerCase().trim();
+
     return jobs.filter(
       (job) =>
         job.title.toLowerCase().includes(searchTerm) ||
         job.company.toLowerCase().includes(searchTerm) ||
         job.description.toLowerCase().includes(searchTerm) ||
-        job.location.toLowerCase().includes(searchTerm)
+        job.location.toLowerCase().includes(searchTerm),
     );
   }, [jobs, query]);
 
@@ -35,6 +36,7 @@ export default function JobBoard() {
         setError(null);
 
         const params = new URLSearchParams();
+
         if (searchQuery) params.set("q", searchQuery);
         params.set("country", "ph");
 
@@ -51,6 +53,7 @@ export default function JobBoard() {
         }
 
         const data: Job[] = await response.json();
+
         setJobs(data);
       } catch (err) {
         if (err instanceof Error && err.name === "AbortError") {
@@ -63,7 +66,7 @@ export default function JobBoard() {
         setIsLoading(false);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -87,8 +90,8 @@ export default function JobBoard() {
       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
         <p className="text-red-600">Error: {error}</p>
         <button
-          onClick={() => setQuery("")}
           className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+          onClick={() => setQuery("")}
         >
           Retry
         </button>
@@ -98,7 +101,7 @@ export default function JobBoard() {
 
   return (
     <div className="space-y-4">
-      <JobFilters onSearch={handleSearch} isLoading={isLoading} />
+      <JobFilters isLoading={isLoading} onSearch={handleSearch} />
       {isLoading && jobs.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-500">Loading jobs...</p>

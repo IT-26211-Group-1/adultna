@@ -13,17 +13,17 @@ export default function Error({ error, reset }: ErrorProps) {
         {/* Error Icon */}
         <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-50 mb-8">
           <svg
+            aria-hidden="true"
             className="h-10 w-10 text-red-500"
             fill="none"
-            viewBox="0 0 24 24"
             stroke="currentColor"
-            aria-hidden="true"
+            viewBox="0 0 24 24"
           >
             <path
+              d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={1.5}
-              d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
             />
           </svg>
         </div>
@@ -34,7 +34,8 @@ export default function Error({ error, reset }: ErrorProps) {
             Something went wrong!
           </h1>
           <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-            We're sorry, but something unexpected happened. Please try again.
+            We&apos;re sorry, but something unexpected happened. Please try
+            again.
           </p>
 
           {/* Error Details for Development */}
@@ -52,20 +53,20 @@ export default function Error({ error, reset }: ErrorProps) {
 
         {/* Action Button */}
         <button
-          onClick={reset}
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors shadow-sm"
+          onClick={reset}
         >
           <svg
             className="-ml-1 mr-3 h-5 w-5"
             fill="none"
-            viewBox="0 0 24 24"
             stroke="currentColor"
+            viewBox="0 0 24 24"
           >
             <path
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
             />
           </svg>
           Try again

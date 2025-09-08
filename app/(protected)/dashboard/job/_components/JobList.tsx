@@ -15,14 +15,14 @@ const JobList = memo(({ jobs }: JobListProps) => {
           <svg
             className="mx-auto h-12 w-12"
             fill="none"
-            viewBox="0 0 24 24"
             stroke="currentColor"
+            viewBox="0 0 24 24"
           >
             <path
+              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M8 6a2 2 0 00-2 2v6.002"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={1}
-              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M8 6a2 2 0 00-2 2v6.002"
             />
           </svg>
         </div>
@@ -35,7 +35,7 @@ const JobList = memo(({ jobs }: JobListProps) => {
   }
 
   return (
-    <div className="space-y-4" role="list" aria-label="Job listings">
+    <div aria-label="Job listings" className="space-y-4" role="list">
       {jobs.map((job) => (
         <div key={job.id} role="listitem">
           <JobCard job={job} />

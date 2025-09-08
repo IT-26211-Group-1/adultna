@@ -6,7 +6,9 @@ const JobCard = memo(({ job }: JobCardProps) => {
   const formattedDate = (() => {
     if (!job.listedDate) return "";
     const d = new Date(job.listedDate);
+
     if (Number.isNaN(d.getTime())) return "";
+
     return d.toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
@@ -18,15 +20,18 @@ const JobCard = memo(({ job }: JobCardProps) => {
     if (!job.listedDate) return "";
     const now = Date.now();
     const t = Date.parse(job.listedDate);
+
     if (Number.isNaN(t)) return "";
     const diffMs = now - t;
     const day = 24 * 60 * 60 * 1000;
     const hour = 60 * 60 * 1000;
+
     if (diffMs < hour) return "Just now";
     if (diffMs < day) return `${Math.floor(diffMs / hour)}h ago`;
+
     return `${Math.floor(diffMs / day)}d ago`;
   })();
-  const handleApplyClick = (e: React.MouseEvent) => {
+  const handleApplyClick = () => {
     console.log(`User clicked apply for job: ${job.id}`);
   };
 
@@ -54,11 +59,11 @@ const JobCard = memo(({ job }: JobCardProps) => {
               : ""}
         </p>
         <a
-          href={job.applyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleApplyClick}
           className="inline-flex items-center px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          href={job.applyUrl}
+          rel="noopener noreferrer"
+          target="_blank"
+          onClick={handleApplyClick}
         >
           View Listing
         </a>

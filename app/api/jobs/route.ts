@@ -43,24 +43,30 @@ function takeString(value: unknown, fallback = ""): string {
 
 function getClientIp(req: NextRequest): string {
   const forwarded = req.headers.get("x-forwarded-for");
+
   if (forwarded) return forwarded.split(",")[0]?.trim() || "unknown";
+
   return "unknown";
 }
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const entry = ipRequestCounts.get(ip);
+
   if (!entry || now > entry.resetAt) {
     ipRequestCounts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+
     return true;
   }
   if (entry.count >= RATE_LIMIT_MAX) return false;
   entry.count += 1;
+
   return true;
 }
 
 export async function GET(req: NextRequest) {
   const ip = getClientIp(req);
+
   if (!checkRateLimit(ip)) {
     return NextResponse.json([], {
       status: 429,
@@ -72,8 +78,9 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const parseResult = querySchema.safeParse(
-    Object.fromEntries(url.searchParams)
+    Object.fromEntries(url.searchParams),
   );
+
   if (!parseResult.success) {
     return NextResponse.json([], { status: 400 });
   }
@@ -86,6 +93,7 @@ export async function GET(req: NextRequest) {
   } = parseResult.data;
 
   const apiKey = process.env.JSEARCH_KEY;
+
   if (!apiKey) {
     return NextResponse.json([], {
       status: 503,
@@ -95,7 +103,7 @@ export async function GET(req: NextRequest) {
 
   const searchQuery = encodeURIComponent(q || "developer jobs");
   const externalUrl = `https://jsearch.p.rapidapi.com/search?query=${searchQuery}&page=${page}&num_pages=${pages}&country=${encodeURIComponent(
-    country
+    country,
   )}&date_posted=${encodeURIComponent(date_posted)}`;
 
   const controller = new AbortController();
@@ -137,16 +145,20 @@ export async function GET(req: NextRequest) {
       const postedAtTs = takeString(safe.job_posted_at_timestamp);
 
       let listedDate = "";
+
       if (postedAtTs) {
         const num = Number(postedAtTs);
+
         if (!Number.isNaN(num)) {
           const ms = num < 10_000_000_000 ? num * 1000 : num;
           const d = new Date(ms);
+
           if (!Number.isNaN(d.getTime())) listedDate = d.toISOString();
         }
       }
       if (!listedDate && postedAt) {
         const d = new Date(postedAt);
+
         if (!Number.isNaN(d.getTime())) listedDate = d.toISOString();
       }
       const applyUrl =
@@ -174,6 +186,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     const isAbort = error?.name === "AbortError";
+
     return NextResponse.json([], {
       status: isAbort ? 504 : 200,
       headers: {
