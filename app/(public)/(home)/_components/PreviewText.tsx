@@ -6,7 +6,7 @@ export function PreviewText() {
             <h2 className="text-2xl md:text-3xl lg:text-4xl text-black leading-tight font-playfair">
                 That's where we come in,
             </h2>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl leading-tight font-playfair">
+            <h2 className="text-3xl md:text-4xl lg:text-4xl leading-tight font-playfair">
                 <TextType
                     text={["Centralized tools to help you thrive.", "We've got you covered."]}
                     typingSpeed={75}

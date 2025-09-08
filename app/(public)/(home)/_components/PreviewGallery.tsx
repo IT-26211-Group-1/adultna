@@ -4,7 +4,7 @@ export function PreviewGallery() {
             <img
                 src="/Preview Element.png"
                 alt="Preview Gallery"
-                className="w-[800px] h-auto max-w-6xl"
+                className="w-full max-w-xs sm:max-w-md md:max-w-md lg:max-w-lg xl:max-w-2xl 2xl:max-w-4xl h-auto"
             />
         </section>
     );
