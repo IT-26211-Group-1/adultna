@@ -6,7 +6,6 @@ import IntroductionStep from "./IntroductionStep";
 import ProgressIndicator from "./ProgressIndicator";
 import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
-import YourPathStep from "./YourPathStep";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 type OnboardingModalProps = {
@@ -27,19 +26,19 @@ export default function OnboardingModal({
 
   const [currentStep, setCurrentStep] = useLocalStorage<number>(
     "onboarding-currentStep",
-    STEPS.INTRODUCTION
+    STEPS.INTRODUCTION,
   );
   const [displayName, setDisplayName] = useLocalStorage<string>(
     "onboarding-displayName",
-    ""
+    "",
   );
   const [selectedLifeStage, setSelectedLifeStage] = useLocalStorage<string>(
     "onboarding-lifeStage",
-    ""
+    "",
   );
   const [selectedPriorities, setSelectedPriorities] = useLocalStorage<string[]>(
     "onboarding-priorities",
-    []
+    [],
   );
 
   const nextStep = useCallback(() => {

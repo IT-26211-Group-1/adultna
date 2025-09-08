@@ -66,10 +66,10 @@ export default function YourPathStep({
 
         <div className="flex justify-end">
           <button
-            type="button"
             className="bg-teal-700 hover:bg-teal-800 text-white px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
-            onClick={handleSubmit}
             disabled={submitting}
+            type="button"
+            onClick={handleSubmit}
           >
             {submitting ? "Submitting..." : "Get Started"}
           </button>
