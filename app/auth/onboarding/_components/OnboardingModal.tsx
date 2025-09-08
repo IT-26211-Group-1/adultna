@@ -6,7 +6,6 @@ import IntroductionStep from "./IntroductionStep";
 import ProgressIndicator from "./ProgressIndicator";
 import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
-import YourPathStep from "./YourPathStep";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 type OnboardingModalProps = {
