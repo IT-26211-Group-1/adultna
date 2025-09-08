@@ -18,6 +18,7 @@ export const LoginForm = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -52,6 +53,13 @@ export const LoginForm = () => {
 
         return;
       }
+
+      const message =
+        typeof error === "string"
+          ? error
+          : error.message || "Invalid email or password";
+
+      setError("email", { type: "manual", message });
 
       addToast({
         title: "Login Failed",
