@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { FAQAccordion } from "./_components/FAQAccordion";
 import { FAQText } from "./_components/FAQText";
