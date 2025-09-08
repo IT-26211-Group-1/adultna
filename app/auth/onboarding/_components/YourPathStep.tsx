@@ -22,6 +22,7 @@ export default function YourPathStep({
           : {}),
         priorities,
       };
+
       await onComplete(payload);
     } finally {
       setSubmitting(false);
@@ -53,8 +54,8 @@ export default function YourPathStep({
 
         <div className="flex justify-end">
           <LoadingButton
-            loading={submitting}
             className="px-8 py-3"
+            loading={submitting}
             type="button"
             onClick={handleSubmit}
           >

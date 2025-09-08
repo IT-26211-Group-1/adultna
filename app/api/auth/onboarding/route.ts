@@ -52,19 +52,21 @@ export async function POST(request: NextRequest) {
     );
 
     if (!res.success) {
-      console.error("[onboarding] backend error:", res);
+      console.error("Error saving onboarding data:", res);
+
       return NextResponse.json(
         {
           success: false,
           message: res.message || "Onboarding failed",
         },
-        { status: BAD_REQUEST }
+        { status: (res as any).status ?? BAD_REQUEST }
       );
     }
 
     return NextResponse.json(res.data);
   } catch (err) {
     console.error("[onboarding] route error:", err);
+
     return NextResponse.json(
       { success: false, message: "Internal Server Error" },
       { status: INTERNAL_SERVER_ERROR }

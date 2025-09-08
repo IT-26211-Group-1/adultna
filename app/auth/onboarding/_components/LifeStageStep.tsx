@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 
 type QuestionOption = {
@@ -19,7 +19,7 @@ type Question = {
 type LifeStageStepProps = {
   selectedLifeStage: { questionId: number; optionId: number } | null;
   setSelectedLifeStage: (
-    stage: { questionId: number; optionId: number } | null
+    stage: { questionId: number; optionId: number } | null,
   ) => void;
   onNext: () => void;
   onSkip: () => void;
@@ -32,7 +32,7 @@ function LifeStageStep({
   onSkip,
 }: LifeStageStepProps) {
   const [lifeStageQuestion, setLifeStageQuestion] = useState<Question | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +47,7 @@ function LifeStageStep({
             ? data.data.data
             : [];
           const question = questionsArray.find(
-            (q: Question) => q.category === "Life Stage"
+            (q: Question) => q.category === "Life Stage",
           );
 
           if (question) setLifeStageQuestion(question);
@@ -73,7 +73,7 @@ function LifeStageStep({
     (optionId: number, questionId: number) =>
       selectedLifeStage?.optionId === optionId &&
       selectedLifeStage?.questionId === questionId,
-    [selectedLifeStage]
+    [selectedLifeStage],
   );
 
   const options = lifeStageQuestion?.options || [];

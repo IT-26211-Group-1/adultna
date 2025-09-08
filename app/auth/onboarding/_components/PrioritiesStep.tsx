@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { PrioritiesStepProps, Question } from "@/types/onboarding";
 
@@ -11,7 +11,7 @@ function PrioritiesStep({
   onSkip,
 }: PrioritiesStepProps) {
   const [prioritiesQuestion, setPrioritiesQuestion] = useState<Question | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +34,7 @@ function PrioritiesStep({
             ? data.data.data
             : [];
           const question = questionsArray.find(
-            (q: Question) => q.category === "Priorities"
+            (q: Question) => q.category === "Priorities",
           );
 
           if (question) {
@@ -63,17 +63,19 @@ function PrioritiesStep({
     (questionId: number, optionId: number) => {
       setSelectedPriorities((prev) => {
         const exists = prev.some(
-          (p) => p.questionId === questionId && p.optionId === optionId
+          (p) => p.questionId === questionId && p.optionId === optionId,
         );
+
         if (exists) {
           return prev.filter(
-            (p) => !(p.questionId === questionId && p.optionId === optionId)
+            (p) => !(p.questionId === questionId && p.optionId === optionId),
           );
         }
+
         return [...prev, { questionId, optionId }];
       });
     },
-    [setSelectedPriorities]
+    [setSelectedPriorities],
   );
 
   if (loading) {
@@ -106,7 +108,7 @@ function PrioritiesStep({
                 selectedPriorities.some(
                   (p) =>
                     p.questionId === prioritiesQuestion.id &&
-                    p.optionId === option.id
+                    p.optionId === option.id,
                 )
                   ? "border-teal-500 bg-teal-50"
                   : "border-gray-300 hover:bg-gray-50"
@@ -116,7 +118,7 @@ function PrioritiesStep({
                 checked={selectedPriorities.some(
                   (p) =>
                     p.questionId === prioritiesQuestion.id &&
-                    p.optionId === option.id
+                    p.optionId === option.id,
                 )}
                 className="mr-3 text-teal-600"
                 type="checkbox"

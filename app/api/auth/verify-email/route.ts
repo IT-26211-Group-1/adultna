@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
         0,
         Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000)
       );
+
       response.cookies.set({
         name: "access_token",
         value: data.accessToken,
@@ -67,13 +68,14 @@ export async function POST(request: NextRequest) {
     if (data.refreshToken && data.refreshTokenExpiresAt) {
       const maxAge = Math.max(
         0,
-        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000)
+        Math.floor((Number(data.refreshTokenExpiresAt) - Date.now()) / 1000)
       );
+
       response.cookies.set({
         name: "refresh_token",
         value: data.refreshToken,
         httpOnly: true,
-        path: "/api/auth/refresh",
+        path: "/",
         maxAge: maxAge,
         sameSite: "lax",
         secure: process.env.NODE_ENV !== "development",

@@ -1,6 +1,5 @@
-import { INTERNAL_SERVER_ERROR, UNAUTHORIZED } from "@/constants/http";
+import { INTERNAL_SERVER_ERROR } from "@/constants/http";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function GET() {
   const controller = new AbortController();
@@ -15,17 +14,18 @@ export async function GET() {
           "Content-Type": "application/json",
         },
         signal: controller.signal,
-      }
+      },
     );
 
     if (!res.ok) {
       const errorText = await res.text();
+
       return NextResponse.json(
         {
           success: false,
           message: errorText || "Failed to fetch questions",
         },
-        { status: res.status || INTERNAL_SERVER_ERROR }
+        { status: res.status || INTERNAL_SERVER_ERROR },
       );
     }
 
@@ -43,7 +43,7 @@ export async function GET() {
         success: false,
         message: "Internal Server Error",
       },
-      { status: INTERNAL_SERVER_ERROR }
+      { status: INTERNAL_SERVER_ERROR },
     );
   } finally {
     clearTimeout(timeout);

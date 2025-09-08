@@ -15,7 +15,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const storageKey = useMemo(
     () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
-    [verificationToken]
+    [verificationToken],
   );
 
   useEffect(() => {
@@ -26,6 +26,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
     if (!isNaN(savedMs)) {
       const secondsLeft = Math.max(0, Math.ceil((savedMs - Date.now()) / 1000));
+
       setTime(secondsLeft || 0);
     } else {
       setTime(120);
@@ -53,6 +54,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
     const cooldown = await handleResendOtp();
 
     const expiresAtMs = Date.now() + cooldown * 1000;
+
     sessionStorage.setItem(storageKey, String(expiresAtMs));
     setTime(cooldown);
   }, [handleResendOtp, isDisabled, storageKey, verificationToken]);
