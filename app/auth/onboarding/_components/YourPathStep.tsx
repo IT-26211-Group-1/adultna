@@ -1,10 +1,11 @@
 "use client";
 
-import { YourPathStepProps } from "@/types/onboarding";
+import { OnboardingData, YourPathStepProps } from "@/types/onboarding";
 import React, { useState } from "react";
+import { LoadingButton } from "@/components/ui/Button";
 
 export default function YourPathStep({
-  userId,
+  displayName,
   lifeStage,
   priorities,
   onComplete,
@@ -14,28 +15,14 @@ export default function YourPathStep({
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const res = await fetch("/api/auth/onboarding", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId,
-          "onboarding-lifeStage": lifeStage,
-          "onboarding-priorities": JSON.stringify(priorities),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        onComplete();
-      } else {
-        console.error("Onboarding submission failed:", data.message);
-      }
-    } catch (err) {
-      console.error("Error submitting onboarding:", err);
-      alert("An error occurred. Please try again.");
+      const payload: OnboardingData = {
+        displayName: displayName || undefined,
+        ...(lifeStage
+          ? { questionId: lifeStage.questionId, optionId: lifeStage.optionId }
+          : {}),
+        priorities,
+      };
+      await onComplete(payload);
     } finally {
       setSubmitting(false);
     }
@@ -65,14 +52,14 @@ export default function YourPathStep({
         </div>
 
         <div className="flex justify-end">
-          <button
-            className="bg-teal-700 hover:bg-teal-800 text-white px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
-            disabled={submitting}
+          <LoadingButton
+            loading={submitting}
+            className="px-8 py-3"
             type="button"
             onClick={handleSubmit}
           >
-            {submitting ? "Submitting..." : "Get Started"}
-          </button>
+            Get Started
+          </LoadingButton>
         </div>
       </div>
     </section>

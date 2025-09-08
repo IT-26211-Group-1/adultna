@@ -43,7 +43,6 @@ export const LoginForm = () => {
 
     onError: async (error: string | LoginResponse) => {
       if (typeof error !== "string" && error.needsVerification) {
-        console.log;
         addToast({
           title: "Email not verified",
           description: "Check your inbox for the OTP",

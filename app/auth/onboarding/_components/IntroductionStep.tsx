@@ -1,17 +1,15 @@
-import React from "react";
+import React, { memo, useCallback } from "react";
 import { ChevronRight } from "lucide-react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { IntroductionStepProps } from "@/types/onboarding";
 
-export default function IntroductionStep({ onNext }: IntroductionStepProps) {
-  const [displayName, setDisplayName] = useLocalStorage<string>(
-    "displayName",
-    "",
-  );
-
-  const handleSubmit = () => {
+function IntroductionStep({
+  displayName,
+  setDisplayName,
+  onNext,
+}: IntroductionStepProps) {
+  const handleSubmit = useCallback(() => {
     if (displayName.trim()) onNext();
-  };
+  }, [displayName, onNext]);
 
   return (
     <div className="text-center">
@@ -50,3 +48,5 @@ export default function IntroductionStep({ onNext }: IntroductionStepProps) {
     </div>
   );
 }
+
+export default memo(IntroductionStep);

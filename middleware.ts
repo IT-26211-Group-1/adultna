@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_ROUTES = ["/dashboard", "/admin"];
+const PROTECTED_ROUTES = ["/dashboard", "/admin", "/auth/onboarding"];
 const PUBLIC_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email"];
 
 export function middleware(request: NextRequest) {
@@ -28,6 +28,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/auth/onboarding",
     // "/admin/:path*",
     "/auth/login",
     "/auth/register",

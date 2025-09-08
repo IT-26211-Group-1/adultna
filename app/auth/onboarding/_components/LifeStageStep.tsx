@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 
 type QuestionOption = {
@@ -17,20 +17,22 @@ type Question = {
 };
 
 type LifeStageStepProps = {
-  selectedLifeStage: string;
-  setSelectedLifeStage: (stage: string) => void;
+  selectedLifeStage: { questionId: number; optionId: number } | null;
+  setSelectedLifeStage: (
+    stage: { questionId: number; optionId: number } | null
+  ) => void;
   onNext: () => void;
   onSkip: () => void;
 };
 
-export default function LifeStageStep({
+function LifeStageStep({
   selectedLifeStage,
   setSelectedLifeStage,
   onNext,
   onSkip,
 }: LifeStageStepProps) {
   const [lifeStageQuestion, setLifeStageQuestion] = useState<Question | null>(
-    null,
+    null
   );
   const [loading, setLoading] = useState(true);
 
@@ -45,7 +47,7 @@ export default function LifeStageStep({
             ? data.data.data
             : [];
           const question = questionsArray.find(
-            (q: Question) => q.category === "Life Stage",
+            (q: Question) => q.category === "Life Stage"
           );
 
           if (question) setLifeStageQuestion(question);
@@ -65,6 +67,16 @@ export default function LifeStageStep({
   {
     /* TODO: Change the Loading animation into a skeletion animation */
   }
+
+  // Hooks must be declared before any conditional returns
+  const isSelected = useCallback(
+    (optionId: number, questionId: number) =>
+      selectedLifeStage?.optionId === optionId &&
+      selectedLifeStage?.questionId === questionId,
+    [selectedLifeStage]
+  );
+
+  const options = lifeStageQuestion?.options || [];
 
   if (loading) {
     return <p className="text-center text-gray-600">Loading questions...</p>;
@@ -87,18 +99,23 @@ export default function LifeStageStep({
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-3">
-          {lifeStageQuestion.options.map((option) => (
+          {options.map((option) => (
             <label
               key={option.id}
               className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <input
-                checked={selectedLifeStage === option.optionText}
+                checked={isSelected(option.id, lifeStageQuestion.id)}
                 className="mr-3 text-teal-600"
                 name="lifeStage"
                 type="radio"
-                value={option.optionText}
-                onChange={(e) => setSelectedLifeStage(e.target.value)}
+                value={option.id}
+                onChange={() =>
+                  setSelectedLifeStage({
+                    questionId: lifeStageQuestion.id,
+                    optionId: option.id,
+                  })
+                }
               />
               <span className="text-gray-900">{option.optionText}</span>
             </label>
@@ -123,3 +140,5 @@ export default function LifeStageStep({
     </div>
   );
 }
+
+export default memo(LifeStageStep);
