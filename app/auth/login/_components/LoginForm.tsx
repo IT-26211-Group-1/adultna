@@ -18,6 +18,7 @@ export const LoginForm = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -43,7 +44,6 @@ export const LoginForm = () => {
 
     onError: async (error: string | LoginResponse) => {
       if (typeof error !== "string" && error.needsVerification) {
-        console.log;
         addToast({
           title: "Email not verified",
           description: "Check your inbox for the OTP",
@@ -53,6 +53,13 @@ export const LoginForm = () => {
 
         return;
       }
+
+      const message =
+        typeof error === "string"
+          ? error
+          : error.message || "Invalid email or password";
+
+      setError("email", { type: "manual", message });
 
       addToast({
         title: "Login Failed",

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { INTERNAL_SERVER_ERROR, BAD_REQUEST } from "@/constants/http";
 import { VerifyEmailResponse } from "@/types/auth";
-import { apiFetch } from "@/utils/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,39 +9,34 @@ export async function POST(request: NextRequest) {
     if (!verificationToken) {
       return NextResponse.json(
         { success: false, message: "Verification token is required" },
-        { status: BAD_REQUEST },
+        { status: BAD_REQUEST }
       );
     }
 
     if (!otp) {
       return NextResponse.json(
         { success: false, message: "OTP is required" },
-        { status: BAD_REQUEST },
+        { status: BAD_REQUEST }
       );
     }
 
-    const apiResponse = await apiFetch<VerifyEmailResponse>(
+    const apiResponse = await fetch(
       "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/verify-email",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ otp, verificationToken }),
-      },
+      }
     );
 
-    console.log(apiResponse);
+    const data: VerifyEmailResponse = await apiResponse.json();
 
-    if (!apiResponse.success) {
+    if (!apiResponse.ok) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid OTP",
-        },
-        { status: BAD_REQUEST },
+        { success: false, message: data.message || "Verification failed" },
+        { status: apiResponse.status }
       );
     }
-
-    const data = apiResponse.data!;
 
     const response = NextResponse.json({
       success: true,
@@ -53,12 +47,10 @@ export async function POST(request: NextRequest) {
       refreshTokenExpiresAt: data.refreshTokenExpiresAt,
     });
 
-    console.log(response);
-    // Set access token cookie
     if (data.accessToken && data.accessTokenExpiresAt) {
       const maxAge = Math.max(
         0,
-        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000),
+        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000)
       );
 
       response.cookies.set({
@@ -76,21 +68,19 @@ export async function POST(request: NextRequest) {
     if (data.refreshToken && data.refreshTokenExpiresAt) {
       const maxAge = Math.max(
         0,
-        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000),
+        Math.floor((Number(data.refreshTokenExpiresAt) - Date.now()) / 1000)
       );
 
       response.cookies.set({
         name: "refresh_token",
         value: data.refreshToken,
         httpOnly: true,
-        path: "/api/auth/refresh",
+        path: "/",
         maxAge: maxAge,
         sameSite: "lax",
         secure: process.env.NODE_ENV !== "development",
       });
     }
-
-    console.log(data);
 
     return response;
   } catch (err) {
@@ -98,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: INTERNAL_SERVER_ERROR },
+      { status: INTERNAL_SERVER_ERROR }
     );
   }
 }

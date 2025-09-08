@@ -2,13 +2,15 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   message?: string;
+  status?: number;
 }
 
 export async function apiFetch<T>(
   input: RequestInfo,
   init?: RequestInit,
   timeout = 10000,
-): Promise<{ success: boolean; data?: T; message?: string }> {
+  _hasRetried = false
+): Promise<{ success: boolean; data?: T; message?: string; status?: number }> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
@@ -38,15 +40,30 @@ export async function apiFetch<T>(
     }
 
     if (!response.ok) {
+      if (response.status === 401 && !_hasRetried) {
+        try {
+          const refreshRes = await fetch("/api/auth/refresh", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (refreshRes.ok) {
+            return apiFetch<T>(input, init, timeout, true);
+          }
+        } catch {}
+      }
+
       return {
         success: false,
+        status: response.status,
         message:
           (data as { message?: string })?.message ||
           `Request failed with status ${response.status}`,
       };
     }
 
-    return { success: true, data: data as T };
+    return { success: true, data: data as T, status: response.status };
   } catch (error: unknown) {
     clearTimeout(id);
 

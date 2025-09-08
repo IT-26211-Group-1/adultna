@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 type ResendTimerProps = {
   handleResendOtp: () => Promise<number>;
@@ -13,12 +13,23 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 }) => {
   const [time, setTime] = useState<number>(120);
   const [isDisabled, setDisabled] = useState<boolean>(false);
+  const storageKey = useMemo(
+    () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
+    [verificationToken],
+  );
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = parseInt(sessionStorage.getItem("otpTimer") || "120", 10);
+    if (typeof window === "undefined") return;
 
-      setTime(isNaN(saved) ? 120 : saved);
+    const saved = sessionStorage.getItem(storageKey);
+    const savedMs = saved ? parseInt(saved, 10) : NaN;
+
+    if (!isNaN(savedMs)) {
+      const secondsLeft = Math.max(0, Math.ceil((savedMs - Date.now()) / 1000));
+
+      setTime(secondsLeft || 0);
+    } else {
+      setTime(120);
     }
   }, []);
 
@@ -27,13 +38,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
     if (time > 0 && !resending) {
       timer = setInterval(() => {
-        setTime((prev) => {
-          const newTime = prev - 1;
-
-          sessionStorage.setItem("otpTimer", newTime.toString());
-
-          return newTime;
-        });
+        setTime((prev) => Math.max(0, prev - 1));
       }, 1000);
     } else {
       setDisabled(false);
@@ -42,15 +47,17 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
     return () => clearInterval(timer);
   }, [time, resending]);
 
-  const handleClick = async () => {
+  const handleClick = useCallback(async () => {
     if (!verificationToken || isDisabled) return;
 
     setDisabled(true);
     const cooldown = await handleResendOtp();
 
+    const expiresAtMs = Date.now() + cooldown * 1000;
+
+    sessionStorage.setItem(storageKey, String(expiresAtMs));
     setTime(cooldown);
-    sessionStorage.setItem("otpTimer", cooldown.toString());
-  };
+  }, [handleResendOtp, isDisabled, storageKey, verificationToken]);
 
   return (
     <div className="text-center text-sm text-gray-500 mt-4">

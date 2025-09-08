@@ -1,8 +1,8 @@
 export interface OnboardingData {
-  displayName: string;
-  lifeStage: string;
-  priorities: string[];
-  completedAt: string;
+  displayName?: string;
+  questionId?: number;
+  optionId?: number;
+  priorities?: { questionId: number; optionId: number }[];
 }
 
 export interface StepProps {
@@ -38,15 +38,17 @@ export type OnboardingApiResponse = {
 };
 
 export type PrioritiesStepProps = {
-  selectedPriorities: string[];
-  setSelectedPriorities: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedPriorities: { questionId: number; optionId: number }[];
+  setSelectedPriorities: React.Dispatch<
+    React.SetStateAction<{ questionId: number; optionId: number }[]>
+  >;
   onNext: () => void;
   onSkip: () => void;
 };
 
 export type YourPathStepProps = {
-  userId: string;
-  lifeStage: string;
-  priorities: string[];
-  onComplete: () => void;
+  displayName: string;
+  lifeStage: { questionId: number; optionId: number } | null;
+  priorities: { questionId: number; optionId: number }[];
+  onComplete: (data: OnboardingData) => void;
 };

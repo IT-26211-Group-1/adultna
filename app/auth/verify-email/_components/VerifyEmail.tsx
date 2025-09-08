@@ -95,8 +95,6 @@ export default function VerifyEmailForm() {
         setUserId(responseData.userId);
       }
 
-      console.log(responseData);
-
       localStorage.removeItem("verificationToken");
       router.push("/auth/onboarding");
     },

@@ -6,6 +6,7 @@ import IntroductionStep from "./IntroductionStep";
 import ProgressIndicator from "./ProgressIndicator";
 import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
+import YourPathStep from "./YourPathStep";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 type OnboardingModalProps = {
@@ -32,14 +33,13 @@ export default function OnboardingModal({
     "onboarding-displayName",
     "",
   );
-  const [selectedLifeStage, setSelectedLifeStage] = useLocalStorage<string>(
-    "onboarding-lifeStage",
-    "",
-  );
-  const [selectedPriorities, setSelectedPriorities] = useLocalStorage<string[]>(
-    "onboarding-priorities",
-    [],
-  );
+  const [selectedLifeStage, setSelectedLifeStage] = useLocalStorage<{
+    questionId: number;
+    optionId: number;
+  } | null>("onboarding-lifeStage", null);
+  const [selectedPriorities, setSelectedPriorities] = useLocalStorage<
+    { questionId: number; optionId: number }[]
+  >("onboarding-priorities", []);
 
   const nextStep = useCallback(() => {
     setCurrentStep((prev) => (prev < STEPS.YOUR_PATH ? prev + 1 : prev));
@@ -50,18 +50,22 @@ export default function OnboardingModal({
   }, [nextStep]);
 
   const handleComplete = useCallback(() => {
-    const onboardingData = {
-      displayName,
-      lifeStage: selectedLifeStage,
+    const payload = {
+      displayName: displayName || undefined,
+      ...(selectedLifeStage
+        ? {
+            questionId: selectedLifeStage.questionId,
+            optionId: selectedLifeStage.optionId,
+          }
+        : {}),
       priorities: selectedPriorities,
-      completedAt: new Date().toISOString(),
     };
 
-    onComplete(onboardingData);
+    onComplete(payload);
 
     setCurrentStep(STEPS.INTRODUCTION);
     setDisplayName("");
-    setSelectedLifeStage("");
+    setSelectedLifeStage(null);
     setSelectedPriorities([]);
   }, [
     displayName,
@@ -104,8 +108,15 @@ export default function OnboardingModal({
             onSkip={skipStep}
           />
         );
-      // case STEPS.YOUR_PATH:
-      //   return <YourPathStep onComplete={handleComplete} />;
+      case STEPS.YOUR_PATH:
+        return (
+          <YourPathStep
+            displayName={displayName}
+            lifeStage={selectedLifeStage}
+            priorities={selectedPriorities}
+            onComplete={handleComplete}
+          />
+        );
       default:
         return null;
     }

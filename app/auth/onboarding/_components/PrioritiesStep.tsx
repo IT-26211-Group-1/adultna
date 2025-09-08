@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { PrioritiesStepProps, Question } from "@/types/onboarding";
 
-export default function PrioritiesStep({
+function PrioritiesStep({
   selectedPriorities,
   setSelectedPriorities,
   onNext,
@@ -59,13 +59,24 @@ export default function PrioritiesStep({
     fetchPrioritiesQuestion();
   }, []);
 
-  const togglePriority = (optionText: string) => {
-    setSelectedPriorities((prev) =>
-      prev.includes(optionText)
-        ? prev.filter((p) => p !== optionText)
-        : [...prev, optionText],
-    );
-  };
+  const togglePriority = useCallback(
+    (questionId: number, optionId: number) => {
+      setSelectedPriorities((prev) => {
+        const exists = prev.some(
+          (p) => p.questionId === questionId && p.optionId === optionId,
+        );
+
+        if (exists) {
+          return prev.filter(
+            (p) => !(p.questionId === questionId && p.optionId === optionId),
+          );
+        }
+
+        return [...prev, { questionId, optionId }];
+      });
+    },
+    [setSelectedPriorities],
+  );
 
   if (loading) {
     return <p className="text-center text-gray-600">Loading questions...</p>;
@@ -76,6 +87,8 @@ export default function PrioritiesStep({
       <p className="text-center text-gray-600">No priorities question found.</p>
     );
   }
+
+  const options = prioritiesQuestion?.options || [];
 
   return (
     <div className="text-center">
@@ -88,20 +101,30 @@ export default function PrioritiesStep({
 
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-3">
-          {prioritiesQuestion.options.map((option) => (
+          {options.map((option) => (
             <label
               key={option.id}
               className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-                selectedPriorities.includes(option.optionText)
+                selectedPriorities.some(
+                  (p) =>
+                    p.questionId === prioritiesQuestion.id &&
+                    p.optionId === option.id,
+                )
                   ? "border-teal-500 bg-teal-50"
                   : "border-gray-300 hover:bg-gray-50"
               }`}
             >
               <input
-                checked={selectedPriorities.includes(option.optionText)}
+                checked={selectedPriorities.some(
+                  (p) =>
+                    p.questionId === prioritiesQuestion.id &&
+                    p.optionId === option.id,
+                )}
                 className="mr-3 text-teal-600"
                 type="checkbox"
-                onChange={() => togglePriority(option.optionText)}
+                onChange={() =>
+                  togglePriority(prioritiesQuestion.id, option.id)
+                }
               />
               <span className="text-gray-900 text-sm">{option.optionText}</span>
             </label>
@@ -126,3 +149,5 @@ export default function PrioritiesStep({
     </div>
   );
 }
+
+export default memo(PrioritiesStep);

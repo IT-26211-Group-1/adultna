@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      },
+      }
     );
 
     const data: LoginResponse = await res.json();
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
           needsVerification: true,
           verificationToken: data.accessToken,
         },
-        { status: UNAUTHORIZED },
+        { status: UNAUTHORIZED }
       );
     }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Invalid token expiration from backend",
         },
-        { status: UNAUTHORIZED },
+        { status: UNAUTHORIZED }
       );
     }
 
@@ -71,8 +71,11 @@ export async function POST(request: NextRequest) {
       name: "refresh_token",
       value: data.refreshToken,
       httpOnly: true,
-      path: "/api/auth/refresh",
-      maxAge: Math.floor((Number(refreshTokenExpiresAt) - Date.now()) / 1000),
+      path: "/",
+      maxAge: Math.max(
+        0,
+        Math.floor((Number(refreshTokenExpiresAt) - Date.now()) / 1000)
+      ),
       sameSite: "lax",
       secure: process.env.NODE_ENV !== "development",
     });

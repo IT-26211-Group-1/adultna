@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { BAD_REQUEST } from "@/constants/http";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -6,15 +7,15 @@ export async function GET(req: NextRequest) {
   if (!code) {
     return NextResponse.json(
       { success: false, message: "Missing code" },
-      { status: 400 },
+      { status: BAD_REQUEST }
     );
   }
 
   const res = await fetch(
     `https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/auth/google/callback?code=${encodeURIComponent(
-      code,
+      code
     )}`,
-    { method: "POST" },
+    { method: "POST" }
   );
 
   const data = await res.json();
@@ -23,18 +24,49 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(data, { status: res.status });
   }
 
-  const token = data.accessToken;
-  const redirectTo = data.isNew ? "/onboarding" : "/dashboard";
+  const accessToken = data.accessToken as string | undefined;
+  const refreshToken = data.refreshToken as string | undefined;
+  const accessTokenExpiresAt = data.accessTokenExpiresAt as number | undefined;
+  const refreshTokenExpiresAt = data.refreshTokenExpiresAt as
+    | number
+    | undefined;
+  const redirectTo = data.isNew ? "/auth/onboarding" : "/dashboard";
 
   const response = NextResponse.redirect(new URL(redirectTo, req.url));
 
-  response.cookies.set("access_token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "development",
-    sameSite: "strict",
-    path: "/",
-    maxAge: 60 * 60,
-  });
+  if (accessToken) {
+    response.cookies.set("access_token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development",
+      sameSite: "lax",
+      path: "/",
+      ...(typeof accessTokenExpiresAt === "number"
+        ? {
+            maxAge: Math.max(
+              0,
+              Math.floor((accessTokenExpiresAt - Date.now()) / 1000)
+            ),
+          }
+        : {}),
+    });
+  }
+
+  if (refreshToken) {
+    response.cookies.set("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development",
+      sameSite: "lax",
+      path: "/",
+      ...(typeof refreshTokenExpiresAt === "number"
+        ? {
+            maxAge: Math.max(
+              0,
+              Math.floor((refreshTokenExpiresAt - Date.now()) / 1000)
+            ),
+          }
+        : {}),
+    });
+  }
 
   return response;
 }
