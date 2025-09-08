@@ -15,7 +15,7 @@ export const Navbar = () => {
   return (
     <HeroUINavbar
       className="z-50 fixed top-3 left-1/2 -translate-x-1/2 w-full max-w-6xl mx-auto px-4 rounded-2xl"
-      maxWidth="none"
+      maxWidth="full"
     >
       {/* Left side (logo) */}
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -37,7 +37,7 @@ export const Navbar = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  "data-[active=true]:text-primary data-[active=true]:font-medium"
                 )}
                 color="foreground"
                 href={item.href}
