@@ -15,7 +15,6 @@ export const RegisterForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isVerified, setIsVerified] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
@@ -31,16 +30,13 @@ export const RegisterForm = () => {
   const handleCaptchaChange = (token: string | null) => {
     if (token) {
       setCaptchaToken(token);
-      setIsVerified(true);
     } else {
       setCaptchaToken(null);
-      setIsVerified(false);
     }
   };
 
   const handleCaptchaExpired = () => {
     setCaptchaToken(null);
-    setIsVerified(false);
   };
 
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
@@ -54,6 +50,7 @@ export const RegisterForm = () => {
         timeout: 5000,
       });
       setLoading(false);
+
       return;
     }
 
@@ -81,13 +78,12 @@ export const RegisterForm = () => {
         title: "Registration Successful!",
         color: "success",
       });
-    } catch (err) {
+    } catch {
       setError("Please try again.");
     } finally {
       setLoading(false);
       recaptchaRef.current?.reset();
       setCaptchaToken(null);
-      setIsVerified(false);
     }
   };
 
@@ -180,8 +176,8 @@ export const RegisterForm = () => {
         {/* reCAPTCHA */}
         <div>
           <ReCAPTCHA
-            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
             ref={recaptchaRef}
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
             onChange={handleCaptchaChange}
             onExpired={handleCaptchaExpired}
           />
