@@ -44,7 +44,7 @@ export const AdminLoginForm = () => {
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* Change font */}
-        <h1 className="text-3xl font-bold text-center text-adult-green">
+        <h1 className="text-6xl font-bold text-center font-songmyung text-adult-green">
           AdultNa.
         </h1>
         <p className="text-center text-gray-600 text-sm">

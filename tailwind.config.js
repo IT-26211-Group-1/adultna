@@ -9,10 +9,11 @@ export default {
   ],
   theme: {
     extend: {
-      // fontFamily: {
-      //   sans: ["var(--font-sans)"],
-      //   mono: ["var(--font-mono)"],
-      // },
+      fontFamily: {
+        inter: ["Inter", "sans-serif"],
+        playfair: ["Playfair", "serif"],
+        songmyung: ['"Song Myung"', 'serif'],
+      },
       colors: {
         crayolaOrange: "#F16F33",
         adultGreen: "#11553F",
