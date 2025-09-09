@@ -18,10 +18,12 @@ export function middleware(request: NextRequest) {
   const isAccessExpired = (() => {
     if (!accessToken) return true;
     const parts = accessToken.split(".");
+
     if (parts.length !== 3) return true;
     try {
       const payload = JSON.parse(Buffer.from(parts[1], "base64").toString());
       const expMs = typeof payload.exp === "number" ? payload.exp * 1000 : 0;
+
       return !expMs || expMs <= Date.now();
     } catch {
       return true;
@@ -32,12 +34,15 @@ export function middleware(request: NextRequest) {
     if (!accessToken || isAccessExpired) {
       if (refreshToken) {
         const refreshUrl = request.nextUrl.clone();
+
         refreshUrl.pathname = "/api/auth/refresh";
         refreshUrl.searchParams.set("redirect", url.pathname + url.search);
+
         return NextResponse.redirect(refreshUrl);
       }
 
       url.pathname = "/auth/login";
+
       return NextResponse.redirect(url);
     }
   }

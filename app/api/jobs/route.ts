@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const parseResult = querySchema.safeParse(
-    Object.fromEntries(url.searchParams)
+    Object.fromEntries(url.searchParams),
   );
 
   if (!parseResult.success) {
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
 
   const searchQuery = encodeURIComponent(q || "developer jobs");
   const externalUrl = `https://jsearch.p.rapidapi.com/search?query=${searchQuery}&page=${page}&num_pages=${pages}&country=${encodeURIComponent(
-    country
+    country,
   )}&date_posted=${encodeURIComponent(date_posted)}`;
 
   const controller = new AbortController();

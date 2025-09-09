@@ -25,7 +25,7 @@ export default function JobBoard() {
         job.title.toLowerCase().includes(searchTerm) ||
         job.company.toLowerCase().includes(searchTerm) ||
         job.description.toLowerCase().includes(searchTerm) ||
-        job.location.toLowerCase().includes(searchTerm)
+        job.location.toLowerCase().includes(searchTerm),
     );
   }, [jobs, query]);
 
@@ -66,7 +66,7 @@ export default function JobBoard() {
         setIsLoading(false);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {

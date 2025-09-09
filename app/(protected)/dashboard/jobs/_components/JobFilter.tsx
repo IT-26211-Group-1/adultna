@@ -19,7 +19,7 @@ export default function JobFilters({
       setInputValue(value);
       onSearch(value);
     },
-    [onSearch]
+    [onSearch],
   );
 
   const handleClearSearch = useCallback(() => {
