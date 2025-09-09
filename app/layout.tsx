@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: [], // TODO: Change Icon
+    icon: ["/Logo.png"],
   },
 };
 
@@ -46,7 +46,7 @@ export default function RootLayout({
         />
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <div className="relative flex flex-col h-screen">
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+            <main className="flex flex-col flex-grow w-full h-full pt-0 px-0 m-0">
               {children}
             </main>
           </div>
