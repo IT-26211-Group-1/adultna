@@ -9,18 +9,42 @@ import { useFormSubmit } from "@/hooks/useForm";
 import { useRouter } from "next/navigation";
 import { LoadingButton } from "@/components/ui/Button";
 import Link from "next/link";
-import { LoginResponse } from "@/types/auth";
 
 export const AdminLoginForm = () => {
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    mode: "onBlur",
+  });
+
+  const { loading, onSubmit } = useFormSubmit<z.infer<typeof loginSchema>>({
+    apiUrl: "/api/auth/", //No API endpoint yet
+    schema: loginSchema,
+    requireCaptcha: false,
+    toastLib: { addToast },
+    toastMessages: {
+      success: { title: "Login Successful!", color: "success" },
+      error: { title: "Login Failed", color: "danger" },
+    },
+
+    // onSuccess: (res) => {
+    //   router.replace("/admin/dashboard");
+    // },
+  });
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#F1F8F5] px-4">
       <form
         className="w-full max-w-md bg-white p-8 rounded-lg shadow-md space-y-6"
-        // onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
       >
-        {/* Logo / Title */}
-        <h1 className="text-3xl font-bold text-center text-[#11553F]">
+        {/* Change font */}
+        <h1 className="text-3xl font-bold text-center text-adult-green">
           AdultNa.
         </h1>
         <p className="text-center text-gray-600 text-sm">
@@ -30,43 +54,45 @@ export const AdminLoginForm = () => {
         {/* Email */}
         <div>
           <input
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#11553F]"
+            {...register("email")}
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-adult-green"
             placeholder="Email Address"
-            type="email"
+            type="email"  
           />
-          {/* <p className="text-sm text-red-500 mt-1">
+          <p className="text-sm text-red-500 mt-1">
             {errors.email?.message}
-          </p> */}
+          </p>
         </div>
 
         <div>
+          
           <input
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#11553F]"
+            {...register("password")}
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-adult-green"
             placeholder="Password"
             type="password"
           />
-          {/* <p className="text-sm text-red-500 mt-1">
+
+          <p className="text-sm text-red-500 mt-1">
             {errors.password?.message}
-          </p> */}
+          </p>
         </div>
 
         <div className="text-center">
           <Link
-            className="text-sm text-[#11553F] hover:underline"
+            className="text-sm text-adult-green hover:underline"
             href="/admin/forgot-password"
           >
             Forgot Your Password?
           </Link>
         </div>
 
-        {/* Submit */}
-        {/* <LoadingButton
+        <LoadingButton
           loading={loading}
           type="submit"
-          className="w-full bg-[#11553F] text-white py-2 rounded-md hover:bg-[#0d3f2f] transition-colors"
         >
           Login
-        </LoadingButton> */}
+        </LoadingButton>
       </form>
     </div>
   );
