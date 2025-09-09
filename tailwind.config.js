@@ -1,7 +1,7 @@
 const { heroui } = require("@heroui/theme");
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,10 +9,10 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // fontFamily: {
-      //   sans: ["var(--font-sans)"],
-      //   mono: ["var(--font-mono)"],
-      // },
+      fontFamily: {
+        inter: ["Inter", "sans-serif"],
+        playfair: ["Playfair", "serif"],
+      },
       colors: {
         crayolaOrange: "#F16F33",
         adultGreen: "#11553F",
@@ -20,7 +20,7 @@ module.exports = {
         peachYellow: "#FCE2A9",
         periwinkle: "#CBCBE7",
         ultraViolet: "#595880",
-        ivory: "#FDFAE7"
+        ivory: "#FDFAE7",
       },
     },
   },
