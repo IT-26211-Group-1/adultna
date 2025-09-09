@@ -1,85 +1,53 @@
-import { INTERNAL_SERVER_ERROR, UNAUTHORIZED } from "@/constants/http";
-import { LoginPayload, LoginResponse } from "@/types/auth";
+import { INTERNAL_SERVER_ERROR } from "@/constants/http";
+import { LoginPayload } from "@/types/auth";
+import { apiFetch } from "@/utils/api";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
     const body: LoginPayload = await request.json();
 
-    const res = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/login",
+    const response = await apiFetch<LoginPayload>(
+      "https://sy7rt60g76.execute-api.ap-southeast-1.amazonaws.com/login",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(body),
-      }
+      },
     );
 
-    const data: LoginResponse = await res.json();
+    const data = await response;
 
-    if (data.needsVerification) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: data.message ?? "Email not verified.",
-          needsVerification: true,
-          verificationToken: data.accessToken,
-        },
-        { status: UNAUTHORIZED }
-      );
-    }
-
-    if (!data.success) {
+    if (!response.success) {
       return NextResponse.json({
         success: false,
         message: data.message,
       });
     }
 
-    const { accessTokenExpiresAt, refreshTokenExpiresAt } = data;
-
-    if (!accessTokenExpiresAt || !refreshTokenExpiresAt) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid token expiration from backend",
-        },
-        { status: UNAUTHORIZED }
-      );
-    }
-
-    const response = NextResponse.json({
+    const nextRes = NextResponse.json({
       success: true,
-      message: data.message,
-      accessTokenExpiresAt,
-      refreshTokenExpiresAt,
+      message: data.message || "Login Successful",
+      data: {
+        data: { userId: data.data?.userId },
+      },
     });
 
-    // Access token
-    response.cookies.set({
-      name: "access_token",
-      value: data.accessToken,
+    nextRes.cookies.set({
+      name: "auth_token",
+      value: data.data?.token || "",
       httpOnly: true,
       path: "/",
-      maxAge: Math.floor((Number(accessTokenExpiresAt) - Date.now()) / 1000),
+      maxAge: 60 * 60,
       sameSite: "lax",
-      secure: process.env.NODE_ENV !== "development",
+      secure: process.env.NODE_ENV === "development",
     });
 
-    // Refresh token
-    response.cookies.set({
-      name: "refresh_token",
-      value: data.refreshToken,
-      httpOnly: true,
-      path: "/api/auth/refresh",
-      maxAge: Math.floor((Number(refreshTokenExpiresAt) - Date.now()) / 1000),
-      sameSite: "lax",
-      secure: process.env.NODE_ENV !== "development",
-    });
-
-    return response;
+    return nextRes;
   } catch (error) {
-    console.error("Login Failed:", error);
+    console.error("Login Failed: ", error);
 
     return NextResponse.json({
       success: false,
