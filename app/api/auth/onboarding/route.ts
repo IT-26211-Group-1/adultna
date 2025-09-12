@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
             }))
             .filter(
               (p) =>
-                Number.isFinite(p.questionId) && Number.isFinite(p.optionId),
+                Number.isFinite(p.questionId) && Number.isFinite(p.optionId)
             )
         : undefined,
     };
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       authHeader ?? (tokenFromCookie ? `Bearer ${tokenFromCookie}` : undefined);
 
     const res = await apiFetch(
-      "https://c5w27vri7g.execute-api.ap-southeast-1.amazonaws.com/onboarding",
+      "https://6xaew9pl7l.execute-api.ap-southeast-1.amazonaws.com/onboarding",
       {
         method: "POST",
         headers: {
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
           ...(auth ? { Authorization: auth } : {}),
         },
         body: JSON.stringify(body),
-      },
+      }
     );
 
     if (!res.success) {
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: res.message || "Onboarding failed",
         },
-        { status: (res as any).status ?? BAD_REQUEST },
+        { status: (res as any).status ?? BAD_REQUEST }
       );
     }
 
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { success: false, message: "Internal Server Error" },
-      { status: INTERNAL_SERVER_ERROR },
+      { status: INTERNAL_SERVER_ERROR }
     );
   }
 }

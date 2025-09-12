@@ -7,12 +7,12 @@ export async function POST(request: NextRequest) {
     const body: LoginPayload = await request.json();
 
     const res = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/login",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/login",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      },
+      }
     );
 
     const data: LoginResponse = await res.json();
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
           needsVerification: true,
           verificationToken: data.accessToken,
         },
-        { status: UNAUTHORIZED },
+        { status: UNAUTHORIZED }
       );
     }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: "Invalid token expiration from backend",
         },
-        { status: UNAUTHORIZED },
+        { status: UNAUTHORIZED }
       );
     }
 
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       path: "/",
       maxAge: Math.max(
         0,
-        Math.floor((Number(refreshTokenExpiresAt) - Date.now()) / 1000),
+        Math.floor((Number(refreshTokenExpiresAt) - Date.now()) / 1000)
       ),
       sameSite: "lax",
       secure: process.env.NODE_ENV !== "development",

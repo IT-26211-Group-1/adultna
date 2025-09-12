@@ -7,18 +7,18 @@ export async function POST(req: NextRequest) {
   if (!refreshToken) {
     return NextResponse.json(
       { success: false, message: "No refresh token" },
-      { status: UNAUTHORIZED },
+      { status: UNAUTHORIZED }
     );
   }
 
   try {
     const backendRes = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/login",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/login",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
-      },
+      }
     );
 
     const data = await backendRes.json();
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (!data.success) {
       const resp = NextResponse.json(
         { success: false, message: "Session expired" },
-        { status: UNAUTHORIZED },
+        { status: UNAUTHORIZED }
       );
 
       resp.cookies.delete("access_token");
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   } catch {
     const resp = NextResponse.json(
       { success: false, message: "Invalid token" },
-      { status: UNAUTHORIZED },
+      { status: UNAUTHORIZED }
     );
 
     resp.cookies.delete("access_token");
@@ -87,12 +87,12 @@ export async function GET(req: NextRequest) {
 
   try {
     const backendRes = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/login",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/login",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
-      },
+      }
     );
 
     const data = await backendRes.json();
@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
     const accessExpiryMs = normalizeExpiryMs(accessTokenExpiresAt);
 
     const resp = NextResponse.redirect(
-      new URL(redirectUrl || "/dashboard", req.url),
+      new URL(redirectUrl || "/dashboard", req.url)
     );
 
     resp.cookies.set({

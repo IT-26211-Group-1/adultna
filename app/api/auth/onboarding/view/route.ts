@@ -7,14 +7,14 @@ export async function GET() {
 
   try {
     const res = await fetch(
-      "https://c5w27vri7g.execute-api.ap-southeast-1.amazonaws.com/onboarding/view",
+      "https://6xaew9pl7l.execute-api.ap-southeast-1.amazonaws.com/onboarding/view",
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
         signal: controller.signal,
-      },
+      }
     );
 
     if (!res.ok) {
@@ -25,7 +25,7 @@ export async function GET() {
           success: false,
           message: errorText || "Failed to fetch questions",
         },
-        { status: res.status || INTERNAL_SERVER_ERROR },
+        { status: res.status || INTERNAL_SERVER_ERROR }
       );
     }
 
@@ -43,7 +43,7 @@ export async function GET() {
         success: false,
         message: "Internal Server Error",
       },
-      { status: INTERNAL_SERVER_ERROR },
+      { status: INTERNAL_SERVER_ERROR }
     );
   } finally {
     clearTimeout(timeout);

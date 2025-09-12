@@ -9,24 +9,24 @@ export async function POST(request: NextRequest) {
     if (!verificationToken) {
       return NextResponse.json(
         { success: false, message: "Verification token is required" },
-        { status: BAD_REQUEST },
+        { status: BAD_REQUEST }
       );
     }
 
     if (!otp) {
       return NextResponse.json(
         { success: false, message: "OTP is required" },
-        { status: BAD_REQUEST },
+        { status: BAD_REQUEST }
       );
     }
 
     const apiResponse = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/verify-email",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/verify-email",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ otp, verificationToken }),
-      },
+      }
     );
 
     const data: VerifyEmailResponse = await apiResponse.json();
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     if (!apiResponse.ok) {
       return NextResponse.json(
         { success: false, message: data.message || "Verification failed" },
-        { status: apiResponse.status },
+        { status: apiResponse.status }
       );
     }
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     if (data.accessToken && data.accessTokenExpiresAt) {
       const maxAge = Math.max(
         0,
-        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000),
+        Math.floor((Number(data.accessTokenExpiresAt) - Date.now()) / 1000)
       );
 
       response.cookies.set({
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     if (data.refreshToken && data.refreshTokenExpiresAt) {
       const maxAge = Math.max(
         0,
-        Math.floor((Number(data.refreshTokenExpiresAt) - Date.now()) / 1000),
+        Math.floor((Number(data.refreshTokenExpiresAt) - Date.now()) / 1000)
       );
 
       response.cookies.set({
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: INTERNAL_SERVER_ERROR },
+      { status: INTERNAL_SERVER_ERROR }
     );
   }
 }
