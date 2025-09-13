@@ -8,6 +8,7 @@ import DropdownMenu from "@/components/ui/DropdownMenu";
 import { User, UsersTableProps, UsersApiResponse } from "@/types/admin";
 import { getRoleDisplayLabel, Role } from "@/validators/adminSchema";
 import { EditUserModal } from "./EditUserModal";
+import { addToast } from "@heroui/toast";
 
 const UsersTable: React.FC<UsersTableProps> = ({
   onEditUser,
@@ -74,21 +75,91 @@ const UsersTable: React.FC<UsersTableProps> = ({
     }
   };
 
-  const handleToggleAccountStatus = (userId: string, currentStatus: string) => {
+  const handleToggleAccountStatus = async (
+    userId: string,
+    currentStatus: string
+  ) => {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
     const action = newStatus === "active" ? "activate" : "deactivate";
 
     if (confirm(`Are you sure you want to ${action} this account?`)) {
-      console.log(`${action} account:`, userId);
-      // TODO: Implement account status toggle functionality
+      try {
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.id === userId
+              ? { ...user, status: newStatus as "active" | "inactive" }
+              : user
+          )
+        );
 
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId
-            ? { ...user, status: newStatus as "active" | "inactive" }
-            : user
-        )
-      );
+        // Make API call
+        const response = await fetch(`/api/admin/update-status/${userId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          // Revert optimistic update on error
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === userId
+                ? { ...user, status: currentStatus as "active" | "inactive" }
+                : user
+            )
+          );
+
+          // Show error toast
+          try {
+            addToast({
+              title: data.message || "Failed to update account status",
+              color: "danger",
+              timeout: 4000,
+            });
+          } catch (err) {
+            console.warn("addToast failed", err);
+          }
+        } else {
+          // Show success toast
+          try {
+            const actionPast =
+              newStatus === "active" ? "activated" : "deactivated";
+            addToast({
+              title: data.message || `Account ${actionPast} successfully`,
+              color: "success",
+              timeout: 4000,
+            });
+          } catch (err) {
+            console.warn("addToast failed", err);
+          }
+        }
+      } catch (error) {
+        // Revert optimistic update on network error
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.id === userId
+              ? { ...user, status: currentStatus as "active" | "inactive" }
+              : user
+          )
+        );
+
+        console.error("Error updating account status:", error);
+
+        // Show network error toast
+        try {
+          addToast({
+            title: "Network error: Failed to update account status",
+            color: "danger",
+            timeout: 4000,
+          });
+        } catch (err) {
+          console.warn("addToast failed", err);
+        }
+      }
     }
   };
 
@@ -125,7 +196,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             variant={user.status === "active" ? "success" : "error"}
             size="sm"
           >
-            {user.status === "active" ? "Active" : "Inactive"}
+            {user.status === "active" ? "Active" : "Deactivated"}
           </Badge>
           {user.emailVerified && (
             <Badge variant="info" size="sm">
