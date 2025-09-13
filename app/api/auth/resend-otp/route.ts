@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     if (!verificationToken) {
       return NextResponse.json(
         { success: false, message: "Verification token is required" },
-        { status: BAD_REQUEST }
+        { status: BAD_REQUEST },
       );
     }
 
@@ -18,13 +18,13 @@ export async function POST(request: NextRequest) {
       {
         method: "POST",
         body: JSON.stringify({ verificationToken }),
-      }
+      },
     );
 
     if (!apiResponse.success) {
       return NextResponse.json(
         { success: false, message: apiResponse.message || "Resend OTP failed" },
-        { status: BAD_REQUEST }
+        { status: BAD_REQUEST },
       );
     }
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: INTERNAL_SERVER_ERROR }
+      { status: INTERNAL_SERVER_ERROR },
     );
   }
 }

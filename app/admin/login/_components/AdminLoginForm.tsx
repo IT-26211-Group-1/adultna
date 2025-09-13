@@ -6,12 +6,12 @@ import { z } from "zod";
 import { loginSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
 import { useFormSubmit } from "@/hooks/useForm";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { LoadingButton } from "@/components/ui/Button";
 import Link from "next/link";
 
 export const AdminLoginForm = () => {
-  const router = useRouter();
+  // const router = useRouter();
 
   const {
     register,
@@ -57,15 +57,12 @@ export const AdminLoginForm = () => {
             {...register("email")}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-adult-green"
             placeholder="Email Address"
-            type="email"  
+            type="email"
           />
-          <p className="text-sm text-red-500 mt-1">
-            {errors.email?.message}
-          </p>
+          <p className="text-sm text-red-500 mt-1">{errors.email?.message}</p>
         </div>
 
         <div>
-          
           <input
             {...register("password")}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-adult-green"
@@ -87,10 +84,7 @@ export const AdminLoginForm = () => {
           </Link>
         </div>
 
-        <LoadingButton
-          loading={loading}
-          type="submit"
-        >
+        <LoadingButton loading={loading} type="submit">
           Login
         </LoadingButton>
       </form>

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
           success: false,
           message: "Authentication required. Please login first.",
         },
-        { status: UNAUTHORIZED }
+        { status: UNAUTHORIZED },
       );
     }
 
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
           ...(cookieHeader && { Cookie: cookieHeader }),
         },
         signal: controller.signal,
-      }
+      },
     );
 
     if (!res.ok) {
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
           success: false,
           message: errorText || "Failed to fetch questions",
         },
-        { status: res.status || INTERNAL_SERVER_ERROR }
+        { status: res.status || INTERNAL_SERVER_ERROR },
       );
     }
 
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
         success: false,
         message: "Internal Server Error",
       },
-      { status: INTERNAL_SERVER_ERROR }
+      { status: INTERNAL_SERVER_ERROR },
     );
   } finally {
     clearTimeout(timeout);

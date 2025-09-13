@@ -18,7 +18,7 @@ type VerifyEmailFormType = { otp: string };
 export default function VerifyEmailForm() {
   const router = useRouter();
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null
+    null,
   );
   const [, setUserId] = useLocalStorage<string | null>("userId", null);
   const [resending, setResending] = useState(false);
@@ -63,7 +63,7 @@ export default function VerifyEmailForm() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -107,6 +107,7 @@ export default function VerifyEmailForm() {
       console.error("Verification error:", error);
       const errorMessage =
         typeof error === "string" ? error : (error as any)?.message || "";
+
       if (errorMessage.includes("timeout")) {
         addToast({
           title: "Request timed out. Please try again.",
@@ -171,11 +172,13 @@ export default function VerifyEmailForm() {
   const handleFormSubmit = (data: VerifyEmailFormType) => {
     if (!verificationToken) {
       addToast({ title: "Verification token missing", color: "danger" });
+
       return;
     }
 
     if (!mounted) {
       console.warn("Component unmounted, skipping form submission");
+
       return;
     }
 
