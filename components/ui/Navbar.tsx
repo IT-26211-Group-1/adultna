@@ -56,7 +56,7 @@ export const Navbar = () => {
       >
         <NavbarItem>
           <NextLink
-            className="px-4 py-2 rounded-lg border-2 border-adult-green text-sm font-medium hover:bg-adult-green hover:text-white transition"
+            className="px-8 py-3 rounded-lg  text-sm font-medium hover:bg-adult-green hover:text-white transition"
             href="/auth/register"
           >
             Sign Up
@@ -65,7 +65,7 @@ export const Navbar = () => {
 
         <NavbarItem>
           <NextLink
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-crayola-orange border-2 border-orange-800 text-white hover:bg-orange-800 transition"
+            className="px-8 py-3 rounded-lg text-sm font-medium bg-adult-green text-white hover:bg-orange-800 transition"
             href="/auth/login"
           >
             Login
