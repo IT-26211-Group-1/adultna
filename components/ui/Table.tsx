@@ -1,32 +1,63 @@
 import React from "react";
+import { Column, TableProps } from "@/types/table";
 
-export interface Column<T> {
-  header: string;
-  accessor: keyof T | ((row: T) => React.ReactNode);
-}
+export type { Column };
 
-interface TableProps<T> {
-  columns: Column<T>[];
-  data: T[];
-}
+export default function Table<T>({
+  columns,
+  data,
+  loading = false,
+  emptyMessage = "No data available",
+  className = "",
+}: TableProps<T>) {
+  const getAlignmentClass = (align?: "left" | "center" | "right") => {
+    switch (align) {
+      case "center":
+        return "text-center";
+      case "right":
+        return "text-right";
+      default:
+        return "text-left";
+    }
+  };
 
-export default function Table<T>({ columns, data }: TableProps<T>) {
+  if (loading) {
+    return (
+      <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
+        <div className="p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-2 text-gray-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded shadow p-4">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b">
-            {columns.map((col, idx) => (
-              <th key={idx} className="text-left py-2">
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.length
-            ? data.map((row, rowIndex) => (
-                <tr key={rowIndex} className="border-b hover:bg-gray-50">
+    <div
+      className={`bg-white rounded-lg shadow-sm border overflow-hidden ${className}`}
+    >
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              {columns.map((col, idx) => (
+                <th
+                  key={idx}
+                  className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider ${getAlignmentClass(col.align)}`}
+                  style={col.width ? { width: col.width } : undefined}
+                >
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {data.length > 0 ? (
+              data.map((row, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  className="hover:bg-gray-50 transition-colors"
+                >
                   {columns.map((col, colIndex) => {
                     const value =
                       typeof col.accessor === "function"
@@ -34,7 +65,10 @@ export default function Table<T>({ columns, data }: TableProps<T>) {
                         : row[col.accessor];
 
                     return (
-                      <td key={colIndex} className="py-2">
+                      <td
+                        key={colIndex}
+                        className={`px-6 py-4 whitespace-nowrap text-sm ${getAlignmentClass(col.align)}`}
+                      >
                         {value === null || value === undefined
                           ? "-"
                           : typeof value === "object" &&
@@ -46,9 +80,19 @@ export default function Table<T>({ columns, data }: TableProps<T>) {
                   })}
                 </tr>
               ))
-            : null}
-        </tbody>
-      </table>
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-6 py-12 text-center text-gray-500"
+                >
+                  {emptyMessage}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
