@@ -8,16 +8,26 @@ import { addToast } from "@heroui/react";
 import { verifyEmailSchema } from "@/validators/authSchema";
 import { useFormSubmit } from "@/hooks/useForm";
 import { LoadingButton } from "@/components/ui/Button";
+import { ResendTimer } from "@/components/ui/ResendTimer";
+import { ResendOtpResponse, VerifyEmailResponse } from "@/types/auth";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { apiFetch } from "@/utils/api";
 
 type VerifyEmailFormType = { otp: string };
 
 export default function VerifyEmailForm() {
   const router = useRouter();
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null,
+    null
   );
+  const [, setUserId] = useLocalStorage<string | null>("userId", null);
   const [resending, setResending] = useState(false);
+  const [mounted, setMounted] = useState(true);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+
+  useEffect(() => {
+    return () => setMounted(false);
+  }, []);
 
   const {
     handleSubmit,
@@ -29,12 +39,11 @@ export default function VerifyEmailForm() {
     defaultValues: { otp: "" },
   });
 
-  // Load token from localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem("verificationToken");
 
     if (!storedToken) {
-      router.replace("/register");
+      router.replace("/auth/register");
 
       return;
     }
@@ -54,7 +63,7 @@ export default function VerifyEmailForm() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
+    index: number
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -74,7 +83,10 @@ export default function VerifyEmailForm() {
     setValue("otp", pasteData);
   };
 
-  const { loading, onSubmit } = useFormSubmit<VerifyEmailFormType>({
+  const { loading, onSubmit } = useFormSubmit<
+    VerifyEmailFormType,
+    VerifyEmailResponse
+  >({
     apiUrl: "/api/auth/verify-email",
     schema: verifyEmailSchema,
     requireCaptcha: false,
@@ -83,45 +95,99 @@ export default function VerifyEmailForm() {
       success: { title: "Email verified successfully", color: "success" },
       error: { title: "Verification failed", color: "danger" },
     },
-    onSuccess: () => {
+    onSuccess: (responseData) => {
+      if (responseData.userId) {
+        setUserId(responseData.userId);
+      }
+
       localStorage.removeItem("verificationToken");
-      router.push("/auth/login");
+      router.push("/auth/onboarding");
+    },
+    onError: (error) => {
+      console.error("Verification error:", error);
+      const errorMessage =
+        typeof error === "string" ? error : (error as any)?.message || "";
+      if (errorMessage.includes("timeout")) {
+        addToast({
+          title: "Request timed out. Please try again.",
+          color: "danger",
+        });
+      }
     },
   });
 
   const handleResendOtp = async () => {
-    if (!verificationToken) return;
+    if (!verificationToken || !mounted) return 120;
+
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => timeoutController.abort(), 30000);
+
     try {
+      if (!mounted) return 120;
       setResending(true);
-      const res = await fetch("/api/auth/resend-otp", {
+
+      const res = await apiFetch<ResendOtpResponse>("/api/auth/resend-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ verificationToken }),
+        signal: timeoutController.signal,
       });
 
-      const data = await res.json();
+      clearTimeout(timeoutId);
+
+      if (!mounted) return 120;
 
       addToast({
         title:
-          data.message ||
-          (res.ok ? "OTP sent successfully" : "Failed to resend OTP"),
-        color: res.ok ? "success" : "danger",
+          res.message ||
+          (res.success ? "OTP sent successfully" : "Failed to resend OTP"),
+        color: res.success ? "success" : "danger",
       });
+
+      return res.data?.cooldownLeft ?? 120;
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error("Resend OTP error:", err);
-      addToast({ title: "Internal server error", color: "danger" });
+
+      if (!mounted) return 120;
+
+      if ((err as Error)?.name === "AbortError") {
+        addToast({
+          title: "Request timed out. Please try again.",
+          color: "danger",
+        });
+      } else {
+        addToast({ title: "Internal server error", color: "danger" });
+      }
+
+      return 120;
     } finally {
-      setResending(false);
+      if (mounted) {
+        setResending(false);
+      }
     }
   };
 
   const handleFormSubmit = (data: VerifyEmailFormType) => {
     if (!verificationToken) {
       addToast({ title: "Verification token missing", color: "danger" });
-
       return;
     }
-    onSubmit({ ...data, verificationToken } as any);
+
+    if (!mounted) {
+      console.warn("Component unmounted, skipping form submission");
+      return;
+    }
+
+    try {
+      onSubmit({ ...data, verificationToken } as any);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      addToast({
+        title: "Submission failed. Please try again.",
+        color: "danger",
+      });
+    }
   };
 
   return (
@@ -167,17 +233,11 @@ export default function VerifyEmailForm() {
           Verify
         </LoadingButton>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Didn&apos;t receive a code?
-          <button
-            className="text-blue-600 underline cursor-pointer"
-            disabled={resending || !verificationToken}
-            type="button"
-            onClick={handleResendOtp}
-          >
-            {resending ? "Resending..." : "Resend"}
-          </button>
-        </p>
+        <ResendTimer
+          handleResendOtp={handleResendOtp}
+          resending={resending}
+          verificationToken={verificationToken}
+        />
       </form>
     </div>
   );
