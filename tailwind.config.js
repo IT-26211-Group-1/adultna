@@ -12,6 +12,7 @@ export default {
       fontFamily: {
         inter: ["Inter", "sans-serif"],
         playfair: ["Playfair", "serif"],
+        songmyung: ['"Song Myung"', "serif"],
       },
       colors: {
         crayolaOrange: "#F16F33",

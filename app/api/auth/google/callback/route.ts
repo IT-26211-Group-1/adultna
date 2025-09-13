@@ -7,15 +7,15 @@ export async function GET(req: NextRequest) {
   if (!code) {
     return NextResponse.json(
       { success: false, message: "Missing code" },
-      { status: BAD_REQUEST }
+      { status: BAD_REQUEST },
     );
   }
 
   const res = await fetch(
     `https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/auth/google/callback?code=${encodeURIComponent(
-      code
+      code,
     )}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 
   const data = await res.json();
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
         ? {
             maxAge: Math.max(
               0,
-              Math.floor((accessTokenExpiresAt - Date.now()) / 1000)
+              Math.floor((accessTokenExpiresAt - Date.now()) / 1000),
             ),
           }
         : {}),
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
         ? {
             maxAge: Math.max(
               0,
-              Math.floor((refreshTokenExpiresAt - Date.now()) / 1000)
+              Math.floor((refreshTokenExpiresAt - Date.now()) / 1000),
             ),
           }
         : {}),
