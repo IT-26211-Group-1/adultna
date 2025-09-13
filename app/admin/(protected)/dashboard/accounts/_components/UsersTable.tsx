@@ -7,14 +7,16 @@ import Badge from "@/components/ui/Badge";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import { User, UsersTableProps, UsersApiResponse } from "@/types/admin";
 import { getRoleDisplayLabel, Role } from "@/validators/adminSchema";
+import { EditUserModal } from "./EditUserModal";
 
 const UsersTable: React.FC<UsersTableProps> = ({
   onEditUser,
   onDeleteUser,
-  onViewUser,
 }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -46,9 +48,23 @@ const UsersTable: React.FC<UsersTableProps> = ({
   };
 
   const handleEditAccount = (userId: string) => {
-    console.log("Edit account:", userId);
-    // TODO: Implement edit account functionality
+    const user = users.find((u) => u.id === userId);
+    if (user) {
+      setSelectedUser(user);
+      setEditModalOpen(true);
+    }
     onEditUser?.(userId);
+  };
+
+  const handleUserUpdated = (updatedUser: User) => {
+    setUsers((prev) =>
+      prev.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedUser(null);
   };
 
   const handleResetPassword = (userId: string, email: string) => {
@@ -249,6 +265,13 @@ const UsersTable: React.FC<UsersTableProps> = ({
           emptyMessage="No users found"
         />
       </div>
+
+      <EditUserModal
+        open={editModalOpen}
+        onClose={handleCloseEditModal}
+        user={selectedUser}
+        onUserUpdated={handleUserUpdated}
+      />
     </div>
   );
 };

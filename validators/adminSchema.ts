@@ -20,3 +20,11 @@ export const roleDisplayLabels: Record<Role, string> = {
 export const getRoleDisplayLabel = (role: Role): string => {
   return roleDisplayLabels[role] || role;
 };
+
+export const updateUserSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Please enter a valid email address"),
+});
+
+export type UpdateUserForm = z.infer<typeof updateUserSchema>;
