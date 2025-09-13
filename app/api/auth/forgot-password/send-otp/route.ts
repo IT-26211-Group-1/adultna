@@ -4,7 +4,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   const res = await fetch(
-    "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/forgot-password/send-otp",
+    "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/forgot-password/send-otp",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

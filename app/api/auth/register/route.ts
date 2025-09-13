@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     // Lambda Endpoint
     const response = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/register",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/register",
       {
         method: "POST",
         headers: {

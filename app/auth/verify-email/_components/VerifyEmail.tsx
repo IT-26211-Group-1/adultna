@@ -22,7 +22,12 @@ export default function VerifyEmailForm() {
   );
   const [, setUserId] = useLocalStorage<string | null>("userId", null);
   const [resending, setResending] = useState(false);
+  const [mounted, setMounted] = useState(true);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+
+  useEffect(() => {
+    return () => setMounted(false);
+  }, []);
 
   const {
     handleSubmit,
@@ -98,17 +103,40 @@ export default function VerifyEmailForm() {
       localStorage.removeItem("verificationToken");
       router.push("/auth/onboarding");
     },
+    onError: (error) => {
+      console.error("Verification error:", error);
+      const errorMessage =
+        typeof error === "string" ? error : (error as any)?.message || "";
+
+      if (errorMessage.includes("timeout")) {
+        addToast({
+          title: "Request timed out. Please try again.",
+          color: "danger",
+        });
+      }
+    },
   });
 
   const handleResendOtp = async () => {
-    if (!verificationToken) return 120;
+    if (!verificationToken || !mounted) return 120;
+
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => timeoutController.abort(), 30000);
+
     try {
+      if (!mounted) return 120;
       setResending(true);
+
       const res = await apiFetch<ResendOtpResponse>("/api/auth/resend-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ verificationToken }),
+        signal: timeoutController.signal,
       });
+
+      clearTimeout(timeoutId);
+
+      if (!mounted) return 120;
 
       addToast({
         title:
@@ -119,12 +147,25 @@ export default function VerifyEmailForm() {
 
       return res.data?.cooldownLeft ?? 120;
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error("Resend OTP error:", err);
-      addToast({ title: "Internal server error", color: "danger" });
+
+      if (!mounted) return 120;
+
+      if ((err as Error)?.name === "AbortError") {
+        addToast({
+          title: "Request timed out. Please try again.",
+          color: "danger",
+        });
+      } else {
+        addToast({ title: "Internal server error", color: "danger" });
+      }
 
       return 120;
     } finally {
-      setResending(false);
+      if (mounted) {
+        setResending(false);
+      }
     }
   };
 
@@ -134,7 +175,22 @@ export default function VerifyEmailForm() {
 
       return;
     }
-    onSubmit({ ...data, verificationToken } as any);
+
+    if (!mounted) {
+      console.warn("Component unmounted, skipping form submission");
+
+      return;
+    }
+
+    try {
+      onSubmit({ ...data, verificationToken } as any);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      addToast({
+        title: "Submission failed. Please try again.",
+        color: "danger",
+      });
+    }
   };
 
   return (

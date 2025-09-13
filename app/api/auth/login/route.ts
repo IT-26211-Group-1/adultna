@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const body: LoginPayload = await request.json();
 
     const res = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/login",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/login",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

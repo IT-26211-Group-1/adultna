@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   }
 
   const res = await fetch(
-    `https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/auth/google/callback?code=${encodeURIComponent(
+    `https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/auth/google/callback?code=${encodeURIComponent(
       code,
     )}`,
     { method: "POST" },

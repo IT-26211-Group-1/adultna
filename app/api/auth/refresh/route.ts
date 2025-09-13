@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const backendRes = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/login",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/login",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const backendRes = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/login",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/login",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

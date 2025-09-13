@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const apiResponse = await apiFetch<{ success: boolean; message?: string }>(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/resend-otp",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/resend-otp",
       {
         method: "POST",
         body: JSON.stringify({ verificationToken }),

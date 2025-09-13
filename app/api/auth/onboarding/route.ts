@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       authHeader ?? (tokenFromCookie ? `Bearer ${tokenFromCookie}` : undefined);
 
     const res = await apiFetch(
-      "https://c5w27vri7g.execute-api.ap-southeast-1.amazonaws.com/onboarding",
+      "https://6xaew9pl7l.execute-api.ap-southeast-1.amazonaws.com/onboarding",
       {
         method: "POST",
         headers: {

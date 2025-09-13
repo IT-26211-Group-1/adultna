@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     const apiResponse = await fetch(
-      "https://uf1zclrd28.execute-api.ap-southeast-1.amazonaws.com/verify-email",
+      "https://obvl5xsdag.execute-api.ap-southeast-1.amazonaws.com/verify-email",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
