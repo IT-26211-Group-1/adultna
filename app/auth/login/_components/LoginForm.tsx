@@ -7,10 +7,15 @@ import { loginSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
 import { useFormSubmit } from "@/hooks/useForm";
 import { useRouter } from "next/navigation";
-import { LoadingButton } from "@/components/ui/Button";
-import Link from "next/link";
-import Image from "next/image";
 import { LoginResponse } from "@/types/auth";
+import Link from "next/link";
+
+// Component imports
+import { UserAuthTitle } from "../../register/_components/UserAuthTitle";
+import { FormInput } from "../../register/_components/FormInput";
+import { AuthButton } from "../../register/_components/AuthButton";
+import { GoogleSignInButton } from "../../register/_components/GoogleSignInButton";
+import { ImageContainer } from "../../register/_components/ImageContainer";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -80,77 +85,70 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
-      <form
-        className="space-y-4 w-full max-w-md bg-white p-6 rounded-2xl shadow-md"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <h2 className="text-2xl font-semibold text-center mb-4">Login</h2>
-
-        {/* Email */}
-        <div>
-          <input
-            {...register("email")}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Email"
-            type="email"
+    <div className="min-h-screen flex">
+      {/* Left Side - Login Form */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="w-full max-w-md">
+          <UserAuthTitle
+            title="Welcome Back!"
+            subtitle="Hi there! Please sign in to your account."
           />
-          <p className="text-sm text-red-500 mt-1" role="alert">
-            {errors.email?.message}
-          </p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Email Field */}
+            <FormInput
+              register={register}
+              name="email"
+              placeholder="Email"
+              type="email"
+              error={errors.email?.message}
+            />
+
+            {/* Password Field */}
+            <FormInput
+              register={register}
+              name="password"
+              placeholder="Password"
+              type="password"
+              error={errors.password?.message}
+            />
+
+            {/* Forgot Password */}
+            <div className="text-right">
+              <Link
+                className="text-sm text-green-700 hover:text-green-800 font-medium"
+                href="/auth/forgot-password"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
+            {/* Auth Buttons - No spacing between them */}
+            <div className="space-y-3">
+              <AuthButton loading={loading} type="submit">
+                Login
+              </AuthButton>
+              <GoogleSignInButton />
+            </div>
+
+            {/* Footer */}
+            <div className="text-center mt-10">
+              <p className="text-sm text-gray-700">
+                Don't have an account? {'     '}
+                <Link
+                  href="/auth/register"
+                  className="text-green-700 hover:text-green-800 font-medium"
+                >
+                  Register here!
+                </Link>
+              </p>
+            </div>
+          </form>
         </div>
+      </div>
 
-        {/* Password */}
-        <div>
-          <input
-            {...register("password")}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Password"
-            type="password"
-          />
-          <p className="text-sm text-red-500 mt-1" role="alert">
-            {errors.password?.message}
-          </p>
-        </div>
-
-        {/* Forgot Password */}
-        <div className="text-right">
-          <Link
-            className="text-sm text-blue-600 hover:underline"
-            href="/auth/forgot-password"
-          >
-            Forgot Password?
-          </Link>
-        </div>
-
-        {/* Submit */}
-        <LoadingButton loading={loading} type="submit">
-          Login
-        </LoadingButton>
-
-        {/* OR divider */}
-        <div className="flex items-center gap-2 my-4">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="text-sm text-gray-500">or continue with</span>
-          <div className="flex-1 h-px bg-gray-300" />
-        </div>
-
-        {/* Login using Google */}
-        <button
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          type="button"
-          onClick={handleGoogleLogin}
-        >
-          <Image
-            alt="Google logo"
-            height={20}
-            priority={false}
-            src="https://www.svgrepo.com/show/355037/google.svg"
-            width={20}
-          />
-          <span>Continue with Google</span>
-        </button>
-      </form>
+      {/* Right Side - Image Container */}
+      <ImageContainer />
     </div>
   );
 };
