@@ -117,21 +117,22 @@ export const RegisterForm = () => {
             />
 
             {/* Password Fields */}
-            <FormInput
-              register={register}
-              name="password"
-              placeholder="Password"
-              type="password"
-              error={errors.password?.message}
-            />
-
-            <FormInput
-              register={register}
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              type="password"
-              error={errors.confirmPassword?.message}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormInput
+                register={register}
+                name="password"
+                placeholder="Password"
+                type="password"
+                error={errors.password?.message}
+              />
+              <FormInput
+                register={register}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                type="password"
+                error={errors.confirmPassword?.message}
+              />
+            </div>
 
             {/* Terms and Conditions */}
             <CheckboxField
@@ -153,13 +154,13 @@ export const RegisterForm = () => {
               </div>
             )}
 
-            {/* Register Button */}
-            <AuthButton loading={loading} type="submit" className="mb-6">
-              Register
-            </AuthButton>
-
-            {/* Google Sign In */}
-            <GoogleSignInButton />
+            {/* Auth Buttons - No spacing between them */}
+            <div className="space-y-3">
+              <AuthButton loading={loading} type="submit" className="">
+                Register
+              </AuthButton>
+              <GoogleSignInButton />
+            </div>
 
             {/* Footer */}
             <AuthFooter />

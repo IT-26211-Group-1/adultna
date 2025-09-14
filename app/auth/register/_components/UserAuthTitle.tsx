@@ -14,7 +14,7 @@ interface UserAuthTitleProps {
 export const UserAuthTitle = ({ title, subtitle }: UserAuthTitleProps) => {
   return (
     <div className="mb-6">
-      <h1 className={`text-3xl font-bold text-gray-800 mb-2 ${playfair.className}`}>
+      <h1 className={`text-4xl font-bold text-adult-green mb-2 ${playfair.className}`}>
         {title}
       </h1>
       <p className="text-gray-600 text-sm">

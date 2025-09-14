@@ -25,10 +25,9 @@ export const AuthButton = ({
       spinner={<Spinner size="sm" color="white" />}
       size="md"
       radius="lg"
-      color={variant === "primary" ? "success" : "default"}
+      color="default"
       variant={variant === "primary" ? "solid" : "bordered"}
-      className={`w-full font-medium text-md ${variant === "primary" ? "bg-adult-green/90" : "border-gray-200 hover:border-gray-300 text-white hover:bg-gray-50"} ${className}`}
-      // Removed unsupported classNames prop
+      className={`w-full font-medium text-md h-12 ${variant === "primary" ? "bg-adult-green text-white hover:bg-green-950" : "border-gray-100 hover:border-gray-200 text-white hover:bg-adult-green/100"} ${className}`}
     >
       {loading ? "Processing..." : children}
     </Button>

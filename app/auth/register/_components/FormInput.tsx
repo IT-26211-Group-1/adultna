@@ -47,18 +47,26 @@ const getDetailedValidationMessage = (error: string, fieldName: string, value?: 
   return error;
 };
 
-export const FormInput = ({ 
-  register, 
-  name, 
-  placeholder, 
-  type = "text", 
+export const FormInput = ({
+  register,
+  name,
+  placeholder,
+  type = "text",
   error,
   className = ""
 }: FormInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldValue, setFieldValue] = useState('');
-  
+
   const isPasswordField = type === 'password';
+
+  // Set max length based on field type
+  const getMaxLength = () => {
+    if (name === 'firstName' || name === 'lastName') return 30;
+    if (name === 'email') return 50;
+    if (name === 'password' || name === 'confirmPassword') return 40;
+    return undefined;
+  };
 
   return (
     <div className={className}>
@@ -66,8 +74,8 @@ export const FormInput = ({
         {...register(name)}
         type={isPasswordField ? (showPassword ? 'text' : 'password') : type}
         label={placeholder}
-        placeholder={placeholder}
-        size="sm"
+        maxLength={getMaxLength()}
+        size="lg"
         variant="flat"
         color={error ? "danger" : "default"}
         isRequired
@@ -75,10 +83,10 @@ export const FormInput = ({
         isInvalid={!!error}
         classNames={{
           base: "mb-1",
-          label: "text-xs font-medium text-gray-700 mb-1",
+          label: "text-[10px] font-normal text-gray-500 mb-7",
           input: "text-sm bg-gray-50 focus:bg-white transition-colors",
           inputWrapper: "bg-gray-50 hover:bg-gray-100 focus-within:!bg-white border-0 shadow-none h-10",
-          errorMessage: "text-xs mt-1",
+          errorMessage: "text-[10px] font-normal mt-0",
           innerWrapper: "items-center"
         }}
         endContent={
@@ -97,7 +105,15 @@ export const FormInput = ({
           )
         }
         onChange={(e) => {
-          setFieldValue(e.target.value);
+          let value = e.target.value;
+
+          // Prevent spaces in email fields
+          if (name === 'email' && value.includes(' ')) {
+            value = value.replace(/\s/g, '');
+            e.target.value = value;
+          }
+
+          setFieldValue(value);
           register(name).onChange(e);
         }}
       />

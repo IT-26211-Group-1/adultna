@@ -2,9 +2,9 @@ import { Link } from '@heroui/react';
 
 export const AuthFooter = () => {
   return (
-    <div className="text-center mt-6">
-      <p className="text-xs text-gray-600">
-        Already have an account?{' '}
+    <div className="text-center mt-10">
+      <p className="text-sm text-gray-700">
+        Already have an account? {'     '}
         <Link 
           href="/auth/login" 
           className="text-green-700 hover:text-green-800 font-medium"

@@ -9,15 +9,15 @@ interface CheckboxFieldProps {
 
 export const CheckboxField = ({ register, name, label, error }: CheckboxFieldProps) => {
   return (
-    <div className="mb-4">
+    <div className="mb-10">
       <Checkbox
         {...register(name)}
         size="sm"
         color={error ? "danger" : "success"}
         classNames={{
           base: "max-w-full",
-          label: "text-xs text-gray-700 leading-relaxed",
-          wrapper: "before:border-gray-300"
+          label: "text-sm text-gray-700 leading-relaxed",
+          wrapper: "before:border-gray-400"
         }}
       >
         {label}
