@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 
 import { FeatureText } from "./_components/FeatureText";
@@ -12,28 +11,27 @@ import { ScrollUp } from "./_components/ScrollUp";
 
 export default function Page() {
   return (
-      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+      <FeatureText />
+      <FeatureNav />
 
-        <FeatureText />
-        <FeatureNav />
+      <div className="w-full flex" id="roadmap-section">
+        <Roadmap />
+      </div>
+      <div className="w-full flex" id="govguide-section">
+        <GovGuide />
+      </div>
+      <div className="w-full flex" id="interview-section">
+        <Interview />
+      </div>
+      <div className="w-full flex" id="filebox-section">
+        <Filebox />
+      </div>
+      <div className="w-full flex" id="job-section">
+        <Job />
+      </div>
 
-        <div className="w-full flex" id="roadmap-section">
-          <Roadmap />
-        </div>
-        <div className="w-full flex" id="govguide-section">
-          <GovGuide />
-        </div>
-        <div className="w-full flex" id="interview-section">
-          <Interview />
-        </div>
-        <div className="w-full flex" id="filebox-section">
-          <Filebox />
-        </div>
-        <div className="w-full flex" id="job-section">
-          <Job />
-        </div>
-
-        <ScrollUp />
-      </section>
+      <ScrollUp />
+    </section>
   );
 }
