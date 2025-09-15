@@ -36,7 +36,7 @@ export function EditUserModal({
   }, [user]);
 
   const { loading, error, onSubmit } = useFormSubmit({
-    apiUrl: `/api/admin/update-account/${user?.id}`,
+    apiUrl: `/api/admin/accounts/update-account/${user?.id}`,
     schema: updateUserSchema,
     requireCaptcha: false,
     showToast: false,

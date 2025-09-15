@@ -6,12 +6,12 @@ import { z } from "zod";
 import { loginSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
 import { useFormSubmit } from "@/hooks/useForm";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { LoadingButton } from "@/components/ui/Button";
 import Link from "next/link";
 
 export const AdminLoginForm = () => {
-  // const router = useRouter();
+  const router = useRouter();
 
   const {
     register,
@@ -23,7 +23,7 @@ export const AdminLoginForm = () => {
   });
 
   const { loading, onSubmit } = useFormSubmit<z.infer<typeof loginSchema>>({
-    apiUrl: "/api/auth/", //No API endpoint yet
+    apiUrl: "/api/admin/accounts/login",
     schema: loginSchema,
     requireCaptcha: false,
     toastLib: { addToast },
@@ -32,9 +32,13 @@ export const AdminLoginForm = () => {
       error: { title: "Login Failed", color: "danger" },
     },
 
-    // onSuccess: (res) => {
-    //   router.replace("/admin/dashboard");
-    // },
+    onSuccess: (res: any) => {
+      // if (res?.user?.role === "verifier_admin") {
+      //   router.replace("/admin/manage-content");
+      // } else {
+      //   router.replace("/admin/dashboard");
+      // }
+    },
   });
 
   return (

@@ -26,7 +26,7 @@ export function AddUserModal({
   });
 
   const { loading, error, onSubmit } = useFormSubmit({
-    apiUrl: "/api/admin/add-account",
+    apiUrl: "/api/admin/accounts/add-account",
     schema: addUserSchema,
     requireCaptcha: false,
     showToast: false,

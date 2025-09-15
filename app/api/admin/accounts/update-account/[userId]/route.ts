@@ -8,10 +8,10 @@ import {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const userId = params.userId;
+    const { userId } = await params;
 
     if (!userId) {
       return NextResponse.json(
@@ -21,7 +21,6 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status } = body;
 
     // TODO: Add admin authentication/authorization check here
     // const session = await getServerSession(authOptions);
@@ -32,33 +31,42 @@ export async function PATCH(
     //   );
     // }
 
-    // Validate status
-    if (!status) {
-      return NextResponse.json(
-        { success: false, message: "Status is required" },
-        { status: BAD_REQUEST }
-      );
-    }
+    // Validate that at least one field is provided
+    const { firstName, lastName, email } = body;
 
-    if (!["active", "inactive"].includes(status)) {
+    if (!firstName && !lastName && !email) {
       return NextResponse.json(
         {
           success: false,
-          message: "Status must be either 'active' or 'inactive'",
+          message: "At least one field must be updated",
         },
         { status: BAD_REQUEST }
       );
     }
 
-    // Admin Auth Service Lambda Endpoint
+    // Validate email format if provided
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid email format" },
+          { status: BAD_REQUEST }
+        );
+      }
+    }
+
     const response = await fetch(
-      `https://ie6usme6ed.execute-api.ap-southeast-1.amazonaws.com/admin/update-status/${userId}`,
+      `https://ie6usme6ed.execute-api.ap-southeast-1.amazonaws.com/admin/update-account/${userId}`,
       {
-        method: "PATCH",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+        }),
       }
     );
 
@@ -66,22 +74,22 @@ export async function PATCH(
 
     if (!response.ok) {
       return NextResponse.json(
-        { success: false, message: data.message || "Failed to update status" },
+        { success: false, message: data.message || "Failed to update account" },
         { status: response.status }
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: data.message || "Account status updated successfully",
+      message: data.message || "Account updated successfully",
       user: data.user,
     });
   } catch (err) {
-    console.error("Admin update status API error:", err);
+    console.error("Admin update account API error:", err);
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to update account status",
+        message: "Failed to update account",
         error: err instanceof Error ? err.message : "Unknown error",
       },
       { status: INTERNAL_SERVER_ERROR }
@@ -89,5 +97,5 @@ export async function PATCH(
   }
 }
 
-// Also support POST for compatibility
+export const PUT = PATCH;
 export const POST = PATCH;

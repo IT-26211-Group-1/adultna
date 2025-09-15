@@ -22,7 +22,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("/api/admin/list-users");
+        const response = await fetch("/api/admin/accounts/list-users");
         if (response.ok) {
           const data: UsersApiResponse = await response.json();
           if (data.success && data.users) {
@@ -92,14 +92,16 @@ const UsersTable: React.FC<UsersTableProps> = ({
           )
         );
 
-        // Make API call
-        const response = await fetch(`/api/admin/update-status/${userId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: newStatus }),
-        });
+        const response = await fetch(
+          `/api/admin/accounts/update-status/${userId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: newStatus }),
+          }
+        );
 
         const data = await response.json();
 
@@ -124,7 +126,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
             console.warn("addToast failed", err);
           }
         } else {
-          // Show success toast
           try {
             const actionPast =
               newStatus === "active" ? "activated" : "deactivated";
@@ -138,7 +139,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
           }
         }
       } catch (error) {
-        // Revert optimistic update on network error
         setUsers((prev) =>
           prev.map((user) =>
             user.id === userId
@@ -149,7 +149,6 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
         console.error("Error updating account status:", error);
 
-        // Show network error toast
         try {
           addToast({
             title: "Network error: Failed to update account status",
