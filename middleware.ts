@@ -32,18 +32,12 @@ export function middleware(request: NextRequest) {
 
   if (isProtected) {
     if (!accessToken || isAccessExpired) {
-      if (refreshToken) {
-        const refreshUrl = request.nextUrl.clone();
-
-        refreshUrl.pathname = "/api/auth/refresh";
-        refreshUrl.searchParams.set("redirect", url.pathname + url.search);
-
-        return NextResponse.redirect(refreshUrl);
+      if (!refreshToken) {
+        url.pathname = "/auth/login";
+        return NextResponse.redirect(url);
       }
 
-      url.pathname = "/auth/login";
-
-      return NextResponse.redirect(url);
+      return NextResponse.next();
     }
   }
 
