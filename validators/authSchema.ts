@@ -7,59 +7,57 @@ export const registerSchema = z
       .min(1, "First name is required")
       .refine(
         (val) => val === val.trim(),
-        "First name cannot start or end with spaces",
+        "First name cannot start or end with spaces"
       )
       .refine(
         (val) => val.trim().length >= 2,
-        "First name must be at least 2 characters",
+        "First name must be at least 2 characters"
       )
       .refine(
         (val) => !/\s{2,}/.test(val),
-        "First name cannot contain multiple consecutive spaces",
+        "First name cannot contain multiple consecutive spaces"
       )
       .max(30, "First name must be less than 30 characters")
       .regex(
         /^[a-zA-Z\s'-]+$/,
-        "First name can only contain letters, spaces, hyphens, and apostrophes",
+        "First name can only contain letters, spaces, hyphens, and apostrophes"
       ),
     lastName: z
       .string()
       .min(1, "Last name is required")
       .refine(
         (val) => val === val.trim(),
-        "Last name cannot start or end with spaces",
+        "Last name cannot start or end with spaces"
       )
       .refine(
         (val) => val.trim().length >= 2,
-        "Last name must be at least 2 characters",
+        "Last name must be at least 2 characters"
       )
       .refine(
         (val) => !/\s{2,}/.test(val),
-        "Last name cannot contain multiple consecutive spaces",
+        "Last name cannot contain multiple consecutive spaces"
       )
       .max(30, "Last name must be less than 30 characters")
       .regex(
         /^[a-zA-Z\s'-]+$/,
-        "Last name can only contain letters, spaces, hyphens, and apostrophes",
+        "Last name can only contain letters, spaces, hyphens, and apostrophes"
       ),
     email: z
-      .string()
+      .email({ message: "Please enter a valid email address" })
       .min(1, "Email is required")
       .refine(
         (val) => val === val.trim(),
-        "Email cannot start or end with spaces",
+        "Email cannot start or end with spaces"
       )
       .refine((val) => !/\s/.test(val), "Email cannot contain any spaces")
       .max(100, "Email must be less than 100 characters")
-      .email({ message: "Please enter a valid email address" })
-      .refine((val) => val.toLowerCase() === val, "Email must be lowercase")
       .refine(
         (val) => !val.includes(".."),
-        "Email cannot contain consecutive dots",
+        "Email cannot contain consecutive dots"
       )
       .refine(
         (val) => !val.startsWith(".") && !val.endsWith("."),
-        "Email cannot start or end with a dot",
+        "Email cannot start or end with a dot"
       ),
     password: z
       .string()
@@ -67,21 +65,21 @@ export const registerSchema = z
       .max(50, "Password must be less than 50 characters")
       .regex(
         /^(?=.*[a-z])/,
-        "Password must contain at least one lowercase letter",
+        "Password must contain at least one lowercase letter"
       )
       .regex(
         /^(?=.*[A-Z])/,
-        "Password must contain at least one uppercase letter",
+        "Password must contain at least one uppercase letter"
       )
       .regex(/^(?=.*\d)/, "Password must contain at least one number")
       .regex(
         /^(?=.*[!@#$%^&*(),.?":{}|<>])/,
-        "Password must contain at least one special character",
+        "Password must contain at least one special character"
       )
       .refine((val) => !/\s/.test(val), "Password cannot contain spaces")
       .refine(
         (val) => !/(.)\1{2,}/.test(val),
-        "Password cannot have more than 2 consecutive identical characters",
+        "Password cannot have more than 2 consecutive identical characters"
       ),
     confirmPassword: z
       .string()
