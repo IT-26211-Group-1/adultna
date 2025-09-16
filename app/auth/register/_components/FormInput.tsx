@@ -14,7 +14,7 @@ interface FormInputProps {
 const getDetailedValidationMessage = (
   error: string,
   fieldName: string,
-  value?: string,
+  value?: string
 ) => {
   if (!error) return null;
 
@@ -78,7 +78,7 @@ export const FormInput = ({
   // Set max length based on field type
   const getMaxLength = () => {
     if (name === "firstName" || name === "lastName") return 30;
-    if (name === "email") return 50;
+    if (name === "email") return 100;
     if (name === "password" || name === "confirmPassword") return 40;
 
     return undefined;
