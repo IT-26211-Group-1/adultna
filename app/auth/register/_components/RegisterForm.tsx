@@ -65,14 +65,30 @@ export const RegisterForm = () => {
   const watchedValues = watch();
 
   const areAllFieldsFilled = () => {
-    const { firstName, lastName, email, password, confirmPassword, acceptedTerms } = watchedValues;
-    return firstName && lastName && email && password && confirmPassword && acceptedTerms;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+      acceptedTerms,
+    } = watchedValues;
+
+    return (
+      firstName &&
+      lastName &&
+      email &&
+      password &&
+      confirmPassword &&
+      acceptedTerms
+    );
   };
 
   const handleRegisterClick = (e: React.FormEvent) => {
     if (!showCaptcha && areAllFieldsFilled()) {
       e.preventDefault();
       setShowCaptcha(true);
+
       return;
     }
 
@@ -85,61 +101,61 @@ export const RegisterForm = () => {
       {/* Left Side - Registration Form */}
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
-          <UserAuthTitle 
-            title="Get Started!" 
+          <UserAuthTitle
             subtitle="Hi there! Please enter your details."
+            title="Get Started!"
           />
 
-          <form onSubmit={handleRegisterClick} className="space-y-6">
+          <form className="space-y-6" onSubmit={handleRegisterClick}>
             {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
-                register={register}
+                error={errors.firstName?.message}
                 name="firstName"
                 placeholder="First Name"
-                error={errors.firstName?.message}
+                register={register}
               />
               <FormInput
-                register={register}
+                error={errors.lastName?.message}
                 name="lastName"
                 placeholder="Last Name"
-                error={errors.lastName?.message}
+                register={register}
               />
             </div>
 
             {/* Email Field */}
             <FormInput
-              register={register}
+              error={errors.email?.message}
               name="email"
               placeholder="Email"
+              register={register}
               type="email"
-              error={errors.email?.message}
             />
 
             {/* Password Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
-                register={register}
+                error={errors.password?.message}
                 name="password"
                 placeholder="Password"
+                register={register}
                 type="password"
-                error={errors.password?.message}
               />
               <FormInput
-                register={register}
+                error={errors.confirmPassword?.message}
                 name="confirmPassword"
                 placeholder="Confirm Password"
+                register={register}
                 type="password"
-                error={errors.confirmPassword?.message}
               />
             </div>
 
             {/* Terms and Conditions */}
             <CheckboxField
-              register={register}
-              name="acceptedTerms"
-              label="I accept the terms and conditions"
               error={errors.acceptedTerms?.message}
+              label="I accept the terms and conditions"
+              name="acceptedTerms"
+              register={register}
             />
 
             {/* reCAPTCHA */}
@@ -156,7 +172,7 @@ export const RegisterForm = () => {
 
             {/* Auth Buttons - No spacing between them */}
             <div className="space-y-3">
-              <AuthButton loading={loading} type="submit" className="">
+              <AuthButton className="" loading={loading} type="submit">
                 Register
               </AuthButton>
               <GoogleSignInButton />
