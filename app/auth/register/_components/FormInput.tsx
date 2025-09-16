@@ -79,7 +79,7 @@ export const FormInput = ({
   const getMaxLength = () => {
     if (name === "firstName" || name === "lastName") return 30;
     if (name === "email") return 100;
-    if (name === "password" || name === "confirmPassword") return 40;
+    if (name === "password" || name === "confirmPassword") return 50;
 
     return undefined;
   };
