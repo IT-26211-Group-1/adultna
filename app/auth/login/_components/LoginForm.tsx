@@ -78,10 +78,27 @@ export const LoginForm = () => {
   });
 
   const handleGoogleLogin = async () => {
-    const res = await fetch("/api/auth/google");
-    const { url } = await res.json();
+    try {
+      const res = await fetch("/api/auth/google");
+      const { url } = await res.json();
 
-    window.location.href = url;
+      if (url) {
+        window.location.href = url;
+      } else {
+        addToast({
+          title: "Error",
+          description: "Unable to initiate Google login",
+          color: "danger",
+        });
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      addToast({
+        title: "Error",
+        description: "Failed to connect to Google login",
+        color: "danger",
+      });
+    }
   };
 
   return (
@@ -90,27 +107,27 @@ export const LoginForm = () => {
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           <UserAuthTitle
-            title="Welcome Back!"
             subtitle="Hi there! Please sign in to your account."
+            title="Welcome Back!"
           />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {/* Email Field */}
             <FormInput
-              register={register}
+              error={errors.email?.message}
               name="email"
               placeholder="Email"
+              register={register}
               type="email"
-              error={errors.email?.message}
             />
 
             {/* Password Field */}
             <FormInput
-              register={register}
+              error={errors.password?.message}
               name="password"
               placeholder="Password"
+              register={register}
               type="password"
-              error={errors.password?.message}
             />
 
             {/* Forgot Password */}
@@ -128,16 +145,16 @@ export const LoginForm = () => {
               <AuthButton loading={loading} type="submit">
                 Login
               </AuthButton>
-              <GoogleSignInButton />
+              <GoogleSignInButton onPress={handleGoogleLogin} />
             </div>
 
             {/* Footer */}
             <div className="text-center mt-10">
               <p className="text-sm text-gray-700">
-                Don't have an account? {'     '}
+                Don&apos;t have an account? {"     "}
                 <Link
-                  href="/auth/register"
                   className="text-green-700 hover:text-green-800 font-medium"
+                  href="/auth/register"
                 >
                   Register here!
                 </Link>
