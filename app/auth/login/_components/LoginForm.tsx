@@ -7,10 +7,15 @@ import { loginSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
 import { useFormSubmit } from "@/hooks/useForm";
 import { useRouter } from "next/navigation";
-import { LoadingButton } from "@/components/ui/Button";
-import Link from "next/link";
-import Image from "next/image";
 import { LoginResponse } from "@/types/auth";
+import Link from "next/link";
+
+// Component imports
+import { UserAuthTitle } from "../../register/_components/UserAuthTitle";
+import { FormInput } from "../../register/_components/FormInput";
+import { AuthButton } from "../../register/_components/AuthButton";
+import { GoogleSignInButton } from "../../register/_components/GoogleSignInButton";
+import { ImageContainer } from "../../register/_components/ImageContainer";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -73,84 +78,94 @@ export const LoginForm = () => {
   });
 
   const handleGoogleLogin = async () => {
-    const res = await fetch("/api/auth/google");
-    const { url } = await res.json();
+    try {
+      const res = await fetch("/api/auth/google");
+      const { url } = await res.json();
 
-    window.location.href = url;
+      if (url) {
+        window.location.href = url;
+      } else {
+        addToast({
+          title: "Error",
+          description: "Unable to initiate Google login",
+          color: "danger",
+        });
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      addToast({
+        title: "Error",
+        description: "Failed to connect to Google login",
+        color: "danger",
+      });
+    }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
-      <form
-        className="space-y-4 w-full max-w-md bg-white p-6 rounded-2xl shadow-md"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <h2 className="text-2xl font-semibold text-center mb-4">Login</h2>
-
-        {/* Email */}
-        <div>
-          <input
-            {...register("email")}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Email"
-            type="email"
+    <div className="min-h-screen flex">
+      {/* Left Side - Login Form */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="w-full max-w-md">
+          <UserAuthTitle
+            subtitle="Hi there! Please sign in to your account."
+            title="Welcome Back!"
           />
-          <p className="text-sm text-red-500 mt-1" role="alert">
-            {errors.email?.message}
-          </p>
+
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {/* Email Field */}
+            <FormInput
+              error={errors.email?.message}
+              name="email"
+              placeholder="Email"
+              register={register}
+              type="email"
+            />
+
+            {/* Password Field */}
+            <FormInput
+              error={errors.password?.message}
+              name="password"
+              placeholder="Password"
+              register={register}
+              type="password"
+            />
+
+            {/* Forgot Password */}
+            <div className="text-right">
+              <Link
+                className="text-sm text-green-700 hover:text-green-800 font-medium"
+                href="/auth/forgot-password"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
+            {/* Auth Buttons - No spacing between them */}
+            <div className="space-y-3">
+              <AuthButton loading={loading} type="submit">
+                Login
+              </AuthButton>
+              <GoogleSignInButton onPress={handleGoogleLogin} />
+            </div>
+
+            {/* Footer */}
+            <div className="text-center mt-10">
+              <p className="text-sm text-gray-700">
+                Don&apos;t have an account? {"     "}
+                <Link
+                  className="text-green-700 hover:text-green-800 font-medium"
+                  href="/auth/register"
+                >
+                  Register here!
+                </Link>
+              </p>
+            </div>
+          </form>
         </div>
+      </div>
 
-        {/* Password */}
-        <div>
-          <input
-            {...register("password")}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Password"
-            type="password"
-          />
-          <p className="text-sm text-red-500 mt-1" role="alert">
-            {errors.password?.message}
-          </p>
-        </div>
-
-        {/* Forgot Password */}
-        <div className="text-right">
-          <Link
-            className="text-sm text-blue-600 hover:underline"
-            href="/auth/forgot-password"
-          >
-            Forgot Password?
-          </Link>
-        </div>
-
-        {/* Submit */}
-        <LoadingButton loading={loading} type="submit">
-          Login
-        </LoadingButton>
-
-        {/* OR divider */}
-        <div className="flex items-center gap-2 my-4">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="text-sm text-gray-500">or continue with</span>
-          <div className="flex-1 h-px bg-gray-300" />
-        </div>
-
-        {/* Login using Google */}
-        <button
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          type="button"
-          onClick={handleGoogleLogin}
-        >
-          <Image
-            alt="Google logo"
-            height={20}
-            priority={false}
-            src="https://www.svgrepo.com/show/355037/google.svg"
-            width={20}
-          />
-          <span>Continue with Google</span>
-        </button>
-      </form>
+      {/* Right Side - Image Container */}
+      <ImageContainer />
     </div>
   );
 };
