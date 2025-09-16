@@ -1,18 +1,20 @@
 import { Checkbox } from "@heroui/react";
+import { UseFormRegister, Path } from "react-hook-form";
+import { FieldValues } from "react-hook-form";
 
-interface CheckboxFieldProps {
-  register: any;
-  name: string;
+type CheckboxFieldProps<FormData extends FieldValues> = {
+  register: UseFormRegister<FormData>;
+  name: Path<FormData>;
   label: string;
   error?: string;
-}
+};
 
-export const CheckboxField = ({
+export const CheckboxField = <FormData extends FieldValues>({
   register,
   name,
   label,
   error,
-}: CheckboxFieldProps) => {
+}: CheckboxFieldProps<FormData>) => {
   return (
     <div className="mb-10">
       <Checkbox
