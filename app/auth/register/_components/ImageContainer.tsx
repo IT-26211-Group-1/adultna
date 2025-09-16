@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 interface ImageContainerProps {
   step?: "email" | "otp" | "reset";
@@ -28,11 +28,11 @@ export const ImageContainer = ({ step }: ImageContainerProps = {}) => {
           alt={getAltText()}
           fill
           className="object-cover"
-          priority
+          // src="/user-auth-image.png"
         />
         {/* Decorative elements overlay */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-        <div className="absolute bottom-32 right-16 w-24 h-24 bg-white/20 rounded-full blur-lg"></div>
+        <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl" />
+        <div className="absolute bottom-32 right-16 w-24 h-24 bg-white/20 rounded-full blur-lg" />
       </div>
     </div>
   );

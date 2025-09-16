@@ -1,30 +1,39 @@
-import { Checkbox } from '@heroui/react';
+import { Checkbox } from "@heroui/react";
+import { UseFormRegister, Path } from "react-hook-form";
+import { FieldValues } from "react-hook-form";
 
-interface CheckboxFieldProps {
-  register: any;
-  name: string;
+type CheckboxFieldProps<FormData extends FieldValues> = {
+  register: UseFormRegister<FormData>;
+  name: Path<FormData>;
   label: string;
   error?: string;
-}
+};
 
-export const CheckboxField = ({ register, name, label, error }: CheckboxFieldProps) => {
+export const CheckboxField = <FormData extends FieldValues>({
+  register,
+  name,
+  label,
+  error,
+}: CheckboxFieldProps<FormData>) => {
   return (
     <div className="mb-10">
       <Checkbox
         {...register(name)}
-        size="sm"
-        color={error ? "danger" : "success"}
         classNames={{
           base: "max-w-full",
           label: "text-sm text-gray-700 leading-relaxed",
-          wrapper: "before:border-gray-400"
+          wrapper: "before:border-gray-400",
         }}
+        color={error ? "danger" : "success"}
+        size="sm"
       >
         {label}
       </Checkbox>
       {error && (
         <p className="text-xs text-red-500 mt-1 ml-6">
-          {error.includes('required') ? 'You must accept the terms and conditions to continue' : error}
+          {error.includes("required")
+            ? "You must accept the terms and conditions to continue"
+            : error}
         </p>
       )}
     </div>
