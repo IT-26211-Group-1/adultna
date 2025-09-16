@@ -4,9 +4,9 @@ export const AuthFooter = () => {
   return (
     <div className="text-center mt-10">
       <p className="text-sm text-gray-700">
-        Already have an account? {"     "}
+        Already have an account?
         <Link
-          className="text-green-700 hover:text-green-800 font-medium"
+          className="text-green-700 hover:text-green-800 font-medium ml-2"
           href="/auth/login"
           size="sm"
         >
