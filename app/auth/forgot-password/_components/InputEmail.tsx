@@ -3,7 +3,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addToast } from "@heroui/react";
-import { LoadingButton } from "@/components/ui/Button";
+import { AuthButton } from "../../register/_components/AuthButton";
+import { FormInput } from "../../register/_components/FormInput";
 import { useFormSubmit } from "@/hooks/useForm";
 import { forgotPasswordSchema } from "@/validators/authSchema";
 
@@ -56,17 +57,16 @@ export default function InputEmail({ setStep, setToken }: Props) {
       className="flex flex-col gap-4"
       onSubmit={handleSubmit(handleFormSubmit)}
     >
-      <h2 className="text-2xl font-semibold text-center">Forgot Password</h2>
-      <input
+      <FormInput
+        register={register}
+        name="email"
         type="email"
-        {...register("email")}
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Enter your email"
+        placeholder="Enter your email address"
+        error={errors.email?.message}
       />
-      <p className="text-sm text-red-500 mt-1">{errors.email?.message}</p>
-      <LoadingButton loading={loading} type="submit">
+      <AuthButton loading={loading} type="submit">
         Send OTP
-      </LoadingButton>
+      </AuthButton>
     </form>
   );
 }

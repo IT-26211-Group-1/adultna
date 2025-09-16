@@ -1,12 +1,31 @@
 import Image from 'next/image';
 
-export const ImageContainer = () => {
+interface ImageContainerProps {
+  step?: "email" | "otp" | "reset";
+}
+
+export const ImageContainer = ({ step }: ImageContainerProps = {}) => {
+  // Determine which image to show based on the step
+  const getImageSrc = () => {
+    if (step === "reset") {
+      return "/user-reset-password.png";
+    }
+    return "/user-auth-image.png";
+  };
+
+  const getAltText = () => {
+    if (step === "reset") {
+      return "Reset Password";
+    }
+    return "Authentication";
+  };
+
   return (
     <div className="hidden lg:flex lg:w-1/2 p-4">
       <div className="w-full h-[95vh] relative overflow-hidden rounded-2xl">
         <Image
-          src="/user-auth-image.png"
-          alt="Authentication"
+          src={getImageSrc()}
+          alt={getAltText()}
           fill
           className="object-cover"
           priority

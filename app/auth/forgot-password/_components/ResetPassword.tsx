@@ -4,7 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/react";
-import { LoadingButton } from "@/components/ui/Button";
+import { AuthButton } from "../../register/_components/AuthButton";
+import { FormInput } from "../../register/_components/FormInput";
 import { useFormSubmit } from "@/hooks/useForm";
 import { z } from "zod";
 
@@ -21,7 +22,13 @@ type ResetPasswordFormType = {
 
 export const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/\d/, "Password must contain at least one number")
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
     confirmPassword: z.string(),
     verificationToken: z.string(),
   })
@@ -74,34 +81,30 @@ export default function ResetPassword({ token }: Props) {
 
   return (
     <form
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-6"
       onSubmit={handleSubmit(handleFormSubmit)}
     >
-      <h2 className="text-2xl font-semibold text-center">Reset Password</h2>
+      <div className="space-y-4">
+        <FormInput
+          register={register}
+          name="password"
+          type="password"
+          placeholder="New Password"
+          error={errors.password?.message}
+        />
 
-      <input
-        type="password"
-        {...register("password")}
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="New Password"
-      />
-      {errors.password && (
-        <p className="text-sm text-red-500">{errors.password.message}</p>
-      )}
+        <FormInput
+          register={register}
+          name="confirmPassword"
+          type="password"
+          placeholder="Confirm New Password"
+          error={errors.confirmPassword?.message}
+        />
+      </div>
 
-      <input
-        type="password"
-        {...register("confirmPassword")}
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Retype New Password"
-      />
-      {errors.confirmPassword && (
-        <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
-      )}
-
-      <LoadingButton loading={loading} type="submit">
+      <AuthButton loading={loading} type="submit">
         Reset Password
-      </LoadingButton>
+      </AuthButton>
     </form>
   );
 }
