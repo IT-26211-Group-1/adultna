@@ -27,6 +27,7 @@
     "@heroui/theme": "2.4.20",
     "@heroui/toast": "^2.0.14",
     "@hookform/resolvers": "^5.2.1",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@react-aria/ssr": "3.9.10",
     "@react-aria/visually-hidden": "3.8.26",
     "@splinetool/react-spline": "^4.1.0",
