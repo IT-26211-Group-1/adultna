@@ -8,17 +8,26 @@ import ResetPasswordStep from "./ResetPassword";
 import { UserAuthTitle } from "../../register/_components/UserAuthTitle";
 import { ImageContainer } from "../../register/_components/ImageContainer";
 
-
 // Component: BackToLoginButton.tsx
 const BackToLoginButton = () => {
   return (
     <div className="mb-6">
       <a
-        href="/auth/login"
         className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+        href="/auth/login"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M15 19l-7-7 7-7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+          />
         </svg>
         Back to Login
       </a>
@@ -37,6 +46,7 @@ export default function ForgotPassword() {
       const storedStep = sessionStorage.getItem("forgotPasswordStep");
       const storedToken = sessionStorage.getItem("forgotPasswordToken");
       const storedEmail = sessionStorage.getItem("forgotPasswordEmail");
+
       if (storedStep) setStep(storedStep as "email" | "otp" | "reset");
       if (storedToken) setToken(storedToken);
       if (storedEmail) setEmail(storedEmail);
@@ -81,22 +91,24 @@ export default function ForgotPassword() {
       case "email":
         return {
           title: "Forgot Password?",
-          subtitle: "Enter your email address and we'll send you a link to reset your password."
+          subtitle:
+            "Enter your email address and we'll send you a link to reset your password.",
         };
       case "otp":
         return {
           title: "OTP Verification",
-          subtitle: "We've sent a verification code to your email address."
+          subtitle: "We've sent a verification code to your email address.",
         };
       case "reset":
         return {
           title: "Reset Password",
-          subtitle: "Enter your new password below."
+          subtitle: "Enter your new password below.",
         };
       default:
         return {
           title: "Forgot Password?",
-          subtitle: "Enter your email address and we'll send you a link to reset your password."
+          subtitle:
+            "Enter your email address and we'll send you a link to reset your password.",
         };
     }
   };
@@ -115,21 +127,19 @@ export default function ForgotPassword() {
           {step === "otp" ? (
             <div className="text-center mb-6">
               <UserAuthTitle
-                title={stepContent.title}
                 subtitle={stepContent.subtitle}
+                title={stepContent.title}
               />
             </div>
           ) : (
             <UserAuthTitle
-              title={stepContent.title}
               subtitle={stepContent.subtitle}
+              title={stepContent.title}
             />
           )}
 
           {/* Step Content */}
-          <div className="space-y-6">
-            {renderStep()}
-          </div>
+          <div className="space-y-6">{renderStep()}</div>
         </div>
       </div>
 

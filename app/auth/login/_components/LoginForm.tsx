@@ -9,8 +9,6 @@ import { useFormSubmit } from "@/hooks/useForm";
 import { useRouter } from "next/navigation";
 import { LoginResponse } from "@/types/auth";
 import Link from "next/link";
-
-// Component imports
 import { UserAuthTitle } from "../../register/_components/UserAuthTitle";
 import { FormInput } from "../../register/_components/FormInput";
 import { AuthButton } from "../../register/_components/AuthButton";
@@ -77,12 +75,12 @@ export const LoginForm = () => {
     },
   });
 
-  const handleGoogleLogin = async () => {
-    const res = await fetch("/api/auth/google");
-    const { url } = await res.json();
+  // const handleGoogleLogin = async () => {
+  //   const res = await fetch("/api/auth/google");
+  //   const { url } = await res.json();
 
-    window.location.href = url;
-  };
+  //   window.location.href = url;
+  // };
 
   return (
     <div className="min-h-screen flex">
@@ -90,27 +88,27 @@ export const LoginForm = () => {
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           <UserAuthTitle
-            title="Welcome Back!"
             subtitle="Hi there! Please sign in to your account."
+            title="Welcome Back!"
           />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {/* Email Field */}
             <FormInput
-              register={register}
+              error={errors.email?.message}
               name="email"
               placeholder="Email"
+              register={register}
               type="email"
-              error={errors.email?.message}
             />
 
             {/* Password Field */}
             <FormInput
-              register={register}
+              error={errors.password?.message}
               name="password"
               placeholder="Password"
+              register={register}
               type="password"
-              error={errors.password?.message}
             />
 
             {/* Forgot Password */}
@@ -134,10 +132,10 @@ export const LoginForm = () => {
             {/* Footer */}
             <div className="text-center mt-10">
               <p className="text-sm text-gray-700">
-                Don't have an account? {'     '}
+                Don&apos;t have an account? {"     "}
                 <Link
-                  href="/auth/register"
                   className="text-green-700 hover:text-green-800 font-medium"
+                  href="/auth/register"
                 >
                   Register here!
                 </Link>

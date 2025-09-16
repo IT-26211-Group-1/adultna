@@ -58,11 +58,11 @@ export default function InputEmail({ setStep, setToken }: Props) {
       onSubmit={handleSubmit(handleFormSubmit)}
     >
       <FormInput
-        register={register}
-        name="email"
-        type="email"
-        placeholder="Enter your email address"
         error={errors.email?.message}
+        name="email"
+        placeholder="Enter your email address"
+        register={register}
+        type="email"
       />
       <AuthButton loading={loading} type="submit">
         Send OTP

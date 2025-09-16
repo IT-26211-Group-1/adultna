@@ -14,7 +14,7 @@ interface FormInputProps {
 const getDetailedValidationMessage = (
   error: string,
   fieldName: string,
-  value?: string
+  value?: string,
 ) => {
   if (!error) return null;
 

@@ -10,6 +10,7 @@ export const ImageContainer = ({ step }: ImageContainerProps = {}) => {
     if (step === "reset") {
       return "/user-reset-password.png";
     }
+
     return "/user-auth-image.png";
   };
 
@@ -17,6 +18,7 @@ export const ImageContainer = ({ step }: ImageContainerProps = {}) => {
     if (step === "reset") {
       return "Reset Password";
     }
+
     return "Authentication";
   };
 
@@ -24,10 +26,10 @@ export const ImageContainer = ({ step }: ImageContainerProps = {}) => {
     <div className="hidden lg:flex lg:w-1/2 p-4">
       <div className="w-full h-[95vh] relative overflow-hidden rounded-2xl">
         <Image
-          src={getImageSrc()}
-          alt={getAltText()}
           fill
+          alt={getAltText()}
           className="object-cover"
+          src={getImageSrc()}
           // src="/user-auth-image.png"
         />
         {/* Decorative elements overlay */}

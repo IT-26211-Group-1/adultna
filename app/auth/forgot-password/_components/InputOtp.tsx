@@ -45,6 +45,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
   const handleOtpChange = (value: string) => {
     // Only allow digits and limit to 6 characters
     const cleanValue = value.replace(/[^0-9]/g, "").slice(0, 6);
+
     setOtpValue(cleanValue);
     setValue("otp", cleanValue);
     setFocusedIndex(Math.min(cleanValue.length, 5));
@@ -53,6 +54,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Backspace" && otpValue.length > 0) {
       const newValue = otpValue.slice(0, -1);
+
       setOtpValue(newValue);
       setValue("otp", newValue);
       setFocusedIndex(Math.max(0, newValue.length));
@@ -63,10 +65,11 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
     if (hiddenInputRef.current) {
       hiddenInputRef.current.focus();
       setFocusedIndex(index);
-      
+
       // If clicking on an earlier position, truncate the OTP to that position
       if (index < otpValue.length) {
         const newValue = otpValue.slice(0, index);
+
         setOtpValue(newValue);
         setValue("otp", newValue);
       }
@@ -76,6 +79,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const pasteData = e.clipboardData.getData("text").trim();
+
     if (/^\d{6}$/.test(pasteData)) {
       handleOtpChange(pasteData);
     }
@@ -99,6 +103,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
 
       if (!email) {
         addToast({ title: "Email is missing", color: "danger" });
+
         return;
       }
 
@@ -141,23 +146,23 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
         {/* Hidden input for actual typing */}
         <input
           ref={hiddenInputRef}
-          type="text"
+          autoComplete="one-time-code"
+          className="absolute opacity-0 pointer-events-none"
           inputMode="numeric"
+          maxLength={6}
+          type="text"
           value={otpValue}
           onChange={(e) => handleOtpChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
-          className="absolute opacity-0 pointer-events-none"
-          autoComplete="one-time-code"
-          maxLength={6}
         />
-        
+
         {/* Visual OTP boxes */}
         <div className="flex gap-3 justify-center">
           {otpArray.map((digit, index) => (
             <div
               key={index}
-              onClick={() => handleBoxClick(index)}
+              aria-label={`OTP digit ${index + 1} of 6`}
               className={`
                 w-14 h-14 
                 border-2 rounded-xl 
@@ -165,19 +170,28 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
                 text-xl font-semibold
                 cursor-pointer
                 transition-all duration-200
-                ${focusedIndex === index
-                  ? 'border-[#3C5A3A] bg-[#3C5A3A]/5 ring-2 ring-[#3C5A3A]/20'
-                  : digit.trim()
-                    ? 'border-[#3C5A3A] bg-[#3C5A3A]/10'
-                    : 'border-gray-300 bg-white hover:border-gray-400'
+                focus:outline-none focus:ring-2 focus:ring-[#3C5A3A]/30
+                ${
+                  focusedIndex === index
+                    ? "border-[#3C5A3A] bg-[#3C5A3A]/5 ring-2 ring-[#3C5A3A]/20"
+                    : digit.trim()
+                      ? "border-[#3C5A3A] bg-[#3C5A3A]/10"
+                      : "border-gray-300 bg-white hover:border-gray-400"
                 }
               `}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleBoxClick(index)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleBoxClick(index);
+                }
+              }}
             >
-              {digit.trim() && (
-                <span className="text-gray-800">{digit}</span>
-              )}
+              {digit.trim() && <span className="text-gray-800">{digit}</span>}
               {focusedIndex === index && !digit.trim() && (
-                <div className="w-0.5 h-6 bg-[#3C5A3A] animate-pulse"></div>
+                <div className="w-0.5 h-6 bg-[#3C5A3A] animate-pulse" />
               )}
             </div>
           ))}
@@ -185,7 +199,9 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
       </div>
 
       {errors.otp && (
-        <p className="text-red-500 text-center mb-4 text-sm">{errors.otp.message}</p>
+        <p className="text-red-500 text-center mb-4 text-sm">
+          {errors.otp.message}
+        </p>
       )}
 
       <AuthButton loading={loading} type="submit">

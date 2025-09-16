@@ -28,7 +28,10 @@ export const resetPasswordSchema = z
       .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
       .regex(/[a-z]/, "Password must contain at least one lowercase letter")
       .regex(/\d/, "Password must contain at least one number")
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
+      .regex(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        "Password must contain at least one special character",
+      ),
     confirmPassword: z.string(),
     verificationToken: z.string(),
   })
@@ -86,19 +89,19 @@ export default function ResetPassword({ token }: Props) {
     >
       <div className="space-y-4">
         <FormInput
-          register={register}
-          name="password"
-          type="password"
-          placeholder="New Password"
           error={errors.password?.message}
+          name="password"
+          placeholder="New Password"
+          register={register}
+          type="password"
         />
 
         <FormInput
-          register={register}
-          name="confirmPassword"
-          type="password"
-          placeholder="Confirm New Password"
           error={errors.confirmPassword?.message}
+          name="confirmPassword"
+          placeholder="Confirm New Password"
+          register={register}
+          type="password"
         />
       </div>
 
