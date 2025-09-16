@@ -75,12 +75,29 @@ export const LoginForm = () => {
     },
   });
 
-  // const handleGoogleLogin = async () => {
-  //   const res = await fetch("/api/auth/google");
-  //   const { url } = await res.json();
+  const handleGoogleLogin = async () => {
+    try {
+      const res = await fetch("/api/auth/google");
+      const { url } = await res.json();
 
-  //   window.location.href = url;
-  // };
+      if (url) {
+        window.location.href = url;
+      } else {
+        addToast({
+          title: "Error",
+          description: "Unable to initiate Google login",
+          color: "danger",
+        });
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      addToast({
+        title: "Error",
+        description: "Failed to connect to Google login",
+        color: "danger",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -126,7 +143,7 @@ export const LoginForm = () => {
               <AuthButton loading={loading} type="submit">
                 Login
               </AuthButton>
-              <GoogleSignInButton />
+              <GoogleSignInButton onPress={handleGoogleLogin} />
             </div>
 
             {/* Footer */}
