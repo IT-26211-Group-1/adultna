@@ -14,7 +14,7 @@ interface FormInputProps {
 const getDetailedValidationMessage = (
   error: string,
   fieldName: string,
-  value?: string,
+  value?: string
 ) => {
   if (!error) return null;
 
@@ -138,6 +138,11 @@ export const FormInput = ({
           register(name).onChange(e);
         }}
       />
+      {error && (
+        <p role="alert" className="sr-only">
+          {getDetailedValidationMessage(error, name, fieldValue)}
+        </p>
+      )}
     </div>
   );
 };
