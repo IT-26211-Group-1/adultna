@@ -9,8 +9,6 @@ import { useFormSubmit } from "@/hooks/useForm";
 import { useRouter } from "next/navigation";
 import { LoginResponse } from "@/types/auth";
 import Link from "next/link";
-
-// Component imports
 import { UserAuthTitle } from "../../register/_components/UserAuthTitle";
 import { FormInput } from "../../register/_components/FormInput";
 import { AuthButton } from "../../register/_components/AuthButton";
