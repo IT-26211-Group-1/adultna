@@ -3,11 +3,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useState } from "react";
 import { loginSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
-import { useFormSubmit } from "@/hooks/useForm";
 import { useRouter } from "next/navigation";
 import { LoginResponse } from "@/types/auth";
+import { loginRequest } from "../lib/login";
 import Link from "next/link";
 import { UserAuthTitle } from "../../register/_components/UserAuthTitle";
 import { FormInput } from "../../register/_components/FormInput";
@@ -17,6 +18,7 @@ import { ImageContainer } from "../../register/_components/ImageContainer";
 
 export const LoginForm = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -28,52 +30,52 @@ export const LoginForm = () => {
     mode: "onBlur",
   });
 
-  const { loading, onSubmit } = useFormSubmit<
-    z.infer<typeof loginSchema>,
-    LoginResponse
-  >({
-    apiUrl: "/api/auth/login",
-    schema: loginSchema,
-    requireCaptcha: false,
-    showToast: false,
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    setLoading(true);
 
-    onSuccess: async () => {
-      addToast({
-        title: "Login Successful!",
-        color: "success",
-      });
-      router.replace("/dashboard");
-    },
+    try {
+      console.log("Submitting login with data:", data);
+      const response = await loginRequest(data);
+      console.log("Login response:", response);
 
-    onError: async (error: string | LoginResponse) => {
-      if (typeof error !== "string" && error.needsVerification) {
+      if (response.success) {
+        addToast({
+          title: "Login Successful!",
+          color: "success",
+        });
+        console.log("Redirecting to dashboard...");
+
+        setTimeout(() => {
+          router.replace("/dashboard");
+        }, 100);
+      } else {
+        throw response;
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+
+      if (error.needsVerification) {
         addToast({
           title: "Email not verified",
           description: "Check your inbox for the OTP",
           color: "warning",
         });
         router.replace("/auth/verify-email");
-
         return;
       }
 
-      const message =
-        typeof error === "string"
-          ? error
-          : error.message || "Invalid email or password";
-
+      const message = error.message || "Invalid email or password";
       setError("email", { type: "manual", message });
 
       addToast({
         title: "Login Failed",
-        description:
-          typeof error === "string"
-            ? error
-            : error.message || "Something went wrong",
+        description: message,
         color: "danger",
       });
-    },
-  });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGoogleLogin = async () => {
     try {
