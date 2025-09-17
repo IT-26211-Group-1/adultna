@@ -5,26 +5,57 @@ export interface ApiResponse<T> {
   status?: number;
 }
 
+// Get cookie value by name
+const getCookie = (name: string): string | null => {
+  if (typeof window === "undefined") return null;
+
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop()?.split(";").shift() || null;
+  }
+  return null;
+};
+
+// Get access token from cookies
+const getAccessToken = (): string | null => {
+  return getCookie("access_token");
+};
+
 export async function apiFetch<T>(
   input: RequestInfo,
   init?: RequestInit,
   timeout = 10000,
-  _hasRetried = false,
+  _hasRetried = false
 ): Promise<{ success: boolean; data?: T; message?: string; status?: number }> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const headers = new Headers({
+    const accessToken = getAccessToken();
+
+    const baseHeaders: Record<string, string> = {
       "Content-Type": "application/json",
-      ...(init?.headers instanceof Headers
+    };
+
+    if (accessToken) {
+      baseHeaders.Authorization = `Bearer ${accessToken}`;
+    }
+
+    const initHeaders =
+      init?.headers instanceof Headers
         ? Object.fromEntries(init.headers.entries())
-        : init?.headers || {}),
+        : (init?.headers as Record<string, string>) || {};
+
+    const headers = new Headers({
+      ...baseHeaders,
+      ...initHeaders,
     });
 
     const response = await fetch(input, {
       ...init,
       headers,
+      credentials: "include",
       signal: controller.signal,
     });
 
@@ -41,17 +72,9 @@ export async function apiFetch<T>(
 
     if (!response.ok) {
       if (response.status === 401 && !_hasRetried) {
-        try {
-          const refreshRes = await fetch("/api/auth/refresh", {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-          });
-
-          if (refreshRes.ok) {
-            return apiFetch<T>(input, init, timeout, true);
-          }
-        } catch {}
+        if (typeof window !== "undefined") {
+          window.location.href = "/auth/login";
+        }
       }
 
       return {
