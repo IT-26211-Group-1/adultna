@@ -85,16 +85,14 @@ export function useAuth() {
 
   // Refresh access token
   const refreshAccessToken = async (): Promise<boolean> => {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) return false;
-
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/login`,
+        `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/refresh-token`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken }),
+          headers: {
+            "Content-Type": "application/json",
+          },
           credentials: "include",
         }
       );
@@ -105,14 +103,7 @@ export function useAuth() {
       }
 
       const data = await res.json();
-      if (data.success && data.accessToken) {
-        // Set new access token cookie manually
-        const accessTokenExpiry = data.accessTokenExpiresAt
-          ? new Date(data.accessTokenExpiresAt)
-          : new Date(Date.now() + 15 * 60 * 1000);
-
-        document.cookie = `access_token=${data.accessToken}; expires=${accessTokenExpiry.toUTCString()}; path=/; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure;" : ""}`;
-
+      if (data.success) {
         return true;
       }
 
@@ -124,13 +115,25 @@ export function useAuth() {
     }
   };
 
-  // Logout function
-  const logout = () => {
-    // Clear cookies by setting them to expire immediately
+  const logout = async () => {
+    try {
+      // SECURITY: Call backend logout to invalidate tokens server-side
+      await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+    }
+
+    // Clear any client-side data
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("isAuthenticated");
+
     document.cookie =
-      "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=None";
     document.cookie =
-      "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=None";
 
     setAuthState({
       isAuthenticated: false,
@@ -208,5 +211,11 @@ export function useAuth() {
     logout,
     checkAuth,
     getAccessToken,
+
+    forceAuthCheck: () => {
+      setTimeout(() => {
+        checkAuth();
+      }, 50);
+    },
   };
 }

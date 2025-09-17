@@ -30,7 +30,7 @@ export const ImageContainer = ({ step }: ImageContainerProps = {}) => {
           alt={getAltText()}
           className="object-cover"
           src={getImageSrc()}
-          // src="/user-auth-image.png"
+          priority
         />
         {/* Decorative elements overlay */}
         <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl" />
