@@ -17,10 +17,6 @@ export async function loginRequest(data: unknown): Promise<LoginResponse> {
 
   const response = await res.json();
 
-  // Log cookies to debug
-  console.log("Response headers:", res.headers);
-  console.log("Document cookies before manual setting:", document.cookie);
-
   if (response.success && response.accessToken) {
     const accessTokenExpiry = response.accessTokenExpiresAt
       ? new Date(response.accessTokenExpiresAt)
@@ -37,18 +33,6 @@ export async function loginRequest(data: unknown): Promise<LoginResponse> {
     if (response.refreshToken) {
       document.cookie = `refresh_token=${response.refreshToken}; expires=${refreshTokenExpiry.toUTCString()}; path=/; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure;" : ""}`;
     }
-
-    console.log("Document cookies after manual setting:", document.cookie);
-
-    // Verify cookies are readable
-    const setCookies = document.cookie.split(";").map((c) => c.trim());
-    const accessCookie = setCookies.find((c) => c.startsWith("access_token="));
-    const refreshCookie = setCookies.find((c) =>
-      c.startsWith("refresh_token=")
-    );
-
-    console.log("Access token cookie found:", !!accessCookie);
-    console.log("Refresh token cookie found:", !!refreshCookie);
   }
 
   return response;
