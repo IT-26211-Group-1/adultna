@@ -13,9 +13,10 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: User | null;
-  logout: () => void;
+  logout: () => Promise<void>;
   checkAuth: () => Promise<boolean>;
   getAccessToken: () => string | null;
+  forceAuthCheck: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

@@ -6,7 +6,6 @@ import { z } from "zod";
 import { loginSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { LoginResponse } from "@/types/auth";
 import { loginRequest } from "../lib/login";
 import { useState } from "react";
 

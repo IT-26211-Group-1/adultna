@@ -1,14 +1,16 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { registerSchema } from "@/validators/authSchema";
-import { addToast } from "@heroui/react";
-import ReCAPTCHA from "react-google-recaptcha";
-import { useFormSubmit } from "@/hooks/useForm";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useRegister } from "../hooks/useRegister";
+
+const LazyRecaptcha = dynamic(() => import("@/components/ui/LazyRecaptcha"), {
+  loading: () => (
+    <div className="flex justify-center items-center h-[78px] w-[304px] bg-gray-100 rounded border">
+      <div className="animate-pulse w-full h-full bg-gray-200 rounded"></div>
+    </div>
+  ),
+  ssr: false,
+});
 
 // Component imports
 import { UserAuthTitle } from "../_components/UserAuthTitle";
@@ -20,80 +22,36 @@ import { ImageContainer } from "../_components/ImageContainer";
 import { AuthFooter } from "../_components/AuthFooter";
 
 export const RegisterForm = () => {
-  const router = useRouter();
-  const [showCaptcha, setShowCaptcha] = useState(false);
   const {
     register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<z.infer<typeof registerSchema> & { emailVerified?: boolean }>({
-    resolver: zodResolver(registerSchema),
-    mode: "onBlur",
-  });
-
-  const {
+    errors,
     loading,
+    onSubmit,
+    watch,
+    showCaptcha,
+    setShowCaptcha,
     recaptchaRef,
     handleCaptchaChange,
     handleCaptchaExpired,
-    onSubmit,
-  } = useFormSubmit<z.infer<typeof registerSchema>>({
-    apiUrl: "/api/auth/register",
-    schema: registerSchema,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "Registration Successful!", color: "success" },
-      error: { title: "Registration Failed", color: "danger" },
-      captcha: { title: "Please verify captcha", color: "warning" },
-    },
-    onSuccess: (res) => {
-      const response = res as {
-        data: { verificationToken: string; userId: string };
-      };
+  } = useRegister();
 
-      localStorage.setItem(
-        "verificationToken",
-        response.data.verificationToken,
-      );
-      localStorage.setItem("userId", response.data.userId);
-      router.push("/auth/verify-email");
-    },
-  });
-
-  // Watch form values to check if all required fields are filled
   const watchedValues = watch();
 
-  const areAllFieldsFilled = () => {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword,
-      acceptedTerms,
-    } = watchedValues;
+  const areFieldsFilled =
+    watchedValues.firstName &&
+    watchedValues.lastName &&
+    watchedValues.email &&
+    watchedValues.password &&
+    watchedValues.confirmPassword &&
+    watchedValues.acceptedTerms;
 
-    return (
-      firstName &&
-      lastName &&
-      email &&
-      password &&
-      confirmPassword &&
-      acceptedTerms
-    );
-  };
-
-  const handleRegisterClick = (e: React.FormEvent) => {
-    if (!showCaptcha && areAllFieldsFilled()) {
-      e.preventDefault();
+  const handleClick = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!showCaptcha && areFieldsFilled) {
       setShowCaptcha(true);
-
       return;
     }
-
-    // If captcha is shown or fields are not filled, proceed with normal form submission
-    handleSubmit(onSubmit)(e);
+    onSubmit();
   };
 
   return (
@@ -106,7 +64,7 @@ export const RegisterForm = () => {
             title="Get Started!"
           />
 
-          <form className="space-y-6" onSubmit={handleRegisterClick}>
+          <form className="space-y-6" onSubmit={handleClick}>
             {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
@@ -161,7 +119,7 @@ export const RegisterForm = () => {
             {/* reCAPTCHA */}
             {showCaptcha && (
               <div className="flex justify-center">
-                <ReCAPTCHA
+                <LazyRecaptcha
                   ref={recaptchaRef}
                   sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
                   onChange={handleCaptchaChange}

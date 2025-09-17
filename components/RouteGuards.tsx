@@ -1,66 +1,89 @@
 "use client";
 
-import { useEffect, ReactNode } from "react";
+import { useEffect, ReactNode, memo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { LoadingSpinner } from "./ui/LoadingSpinner";
 
 interface ProtectedRouteProps {
   children: ReactNode;
   fallback?: ReactNode;
 }
 
-// protect routes
-export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
+export const ProtectedRoute = memo(
+  ({ children, fallback }: ProtectedRouteProps) => {
+    const { isAuthenticated, isLoading } = useAuth();
+    const router = useRouter();
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace("/auth/login");
+    useEffect(() => {
+      if (!isLoading && !isAuthenticated) {
+        router.replace("/auth/login");
+      }
+    }, [isAuthenticated, isLoading, router]);
+
+    if (isLoading) {
+      return fallback || <LoadingSpinner />;
     }
-  }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading) {
-    return (
-      fallback || (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-        </div>
-      )
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  return <>{children}</>;
-}
-
-// public routes, redirect if user is authenticated
-export function PublicRoute({ children, fallback }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.replace("/dashboard");
+    if (!isAuthenticated) {
+      return null;
     }
-  }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading) {
-    return (
-      fallback || (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-        </div>
-      )
-    );
+    return <>{children}</>;
   }
+);
 
-  if (isAuthenticated) {
-    return null;
+export const PublicRoute = memo(
+  ({ children, fallback }: ProtectedRouteProps) => {
+    const { isAuthenticated, isLoading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+      if (!isLoading && isAuthenticated) {
+        router.replace("/dashboard");
+      }
+    }, [isAuthenticated, isLoading, router]);
+
+    if (isLoading) {
+      return fallback || <LoadingSpinner />;
+    }
+
+    if (isAuthenticated) {
+      return null;
+    }
+
+    return <>{children}</>;
   }
+);
 
-  return <>{children}</>;
-}
+export const OnboardingRoute = memo(
+  ({ children, fallback }: ProtectedRouteProps) => {
+    const { isAuthenticated, isLoading, user } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+      if (!isLoading) {
+        if (!isAuthenticated) {
+          router.replace("/auth/login");
+        } else if (user && user.role !== "pending") {
+          router.replace("/dashboard");
+        }
+      }
+    }, [isAuthenticated, isLoading, user, router]);
+
+    if (isLoading) {
+      return fallback || <LoadingSpinner />;
+    }
+
+    if (!isAuthenticated) {
+      return null;
+    }
+
+    return <>{children}</>;
+  }
+);
+
+LoadingSpinner.displayName = "LoadingSpinner";
+ProtectedRoute.displayName = "ProtectedRoute";
+PublicRoute.displayName = "PublicRoute";
+OnboardingRoute.displayName = "OnboardingRoute";

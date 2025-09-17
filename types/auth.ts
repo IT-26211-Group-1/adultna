@@ -32,9 +32,10 @@ export interface LoginResponse {
 }
 
 export type RegisterResponse = {
-  id: string;
   success: boolean;
   message?: string;
+  userId?: string;
+  verificationToken?: string;
 };
 
 export type User = {
@@ -44,14 +45,19 @@ export type User = {
 };
 
 export type VerifyEmailResponse = {
-  token?: string;
-  userId?: string;
+  statusCode?: number;
+  success?: boolean;
   message?: string;
+  userId?: string;
+  email?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  accessTokenExpiresAt?: number;
+  refreshTokenExpiresAt?: number;
   cooldownLeft?: number;
-  accessToken: string;
-  refreshToken: string;
-  refreshTokenExpiresAt?: string;
-  accessTokenExpiresAt?: string;
+  data?: {
+    userId?: string;
+  };
 };
 
 export type ApiResponse<T> = {
@@ -63,6 +69,51 @@ export type ApiResponse<T> = {
 };
 
 export type ResendOtpResponse = {
-  cooldownLeft?: number;
+  success: boolean;
   message?: string;
+  data?: {
+    cooldownLeft?: number;
+  };
 };
+
+// Secure Auth Types
+export interface AuthResponse {
+  success: boolean;
+  user?: User;
+  needsVerification?: boolean;
+  message?: string;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  user: User | null;
+}
+
+export interface RateLimitTracker {
+  count: number;
+  resetTime: number;
+}
+
+export interface SecureAuthService {
+  checkAuth(): Promise<AuthResponse>;
+  login(credentials: LoginPayload): Promise<AuthResponse>;
+  register(userData: RegisterPayload): Promise<AuthResponse>;
+  refreshSession(): Promise<AuthResponse>;
+  logout(): Promise<void>;
+  verifyEmail(otp: string, verificationToken?: string): Promise<AuthResponse>;
+  forgotPassword(email: string): Promise<AuthResponse>;
+  resetPassword(
+    password: string,
+    verificationToken: string
+  ): Promise<AuthResponse>;
+  initiateGoogleAuth(): Promise<{ url: string }>;
+}
+
+export interface UseSecureAuthReturn extends AuthState {
+  checkAuth: () => Promise<boolean>;
+  login: (credentials: LoginPayload) => Promise<AuthResponse>;
+  logout: () => Promise<void>;
+  refreshSession: () => Promise<boolean>;
+  authService: SecureAuthService;
+}

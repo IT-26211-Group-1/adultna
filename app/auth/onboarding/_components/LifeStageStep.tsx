@@ -1,25 +1,13 @@
 "use client";
 
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo } from "react";
 import { ChevronRight } from "lucide-react";
-
-type QuestionOption = {
-  id: number;
-  optionText: string;
-  outcomeId?: number;
-};
-
-type Question = {
-  id: number;
-  question: string;
-  category: string;
-  options: QuestionOption[];
-};
+import { useLifeStage } from "../hooks/useLifeStage";
 
 type LifeStageStepProps = {
   selectedLifeStage: { questionId: number; optionId: number } | null;
   setSelectedLifeStage: (
-    stage: { questionId: number; optionId: number } | null,
+    stage: { questionId: number; optionId: number } | null
   ) => void;
   onNext: () => void;
   onSkip: () => void;
@@ -31,55 +19,31 @@ function LifeStageStep({
   onNext,
   onSkip,
 }: LifeStageStepProps) {
-  const [lifeStageQuestion, setLifeStageQuestion] = useState<Question | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchLifeStageQuestion() {
-      try {
-        const res = await fetch("/api/auth/onboarding/view");
-        const data = await res.json();
-
-        if (data.success && data.data?.success) {
-          const questionsArray = Array.isArray(data.data.data)
-            ? data.data.data
-            : [];
-          const question = questionsArray.find(
-            (q: Question) => q.category === "Life Stage",
-          );
-
-          if (question) setLifeStageQuestion(question);
-        } else {
-          console.error("Failed to fetch questions:", data.message);
-        }
-      } catch (err) {
-        console.error("Error fetching questions:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchLifeStageQuestion();
-  }, []);
+  const { lifeStageQuestion, loading, error, isSelected, createSelectHandler } =
+    useLifeStage();
 
   {
     /* TODO: Change the Loading animation into a skeletion animation */
   }
 
-  // Hooks must be declared before any conditional returns
-  const isSelected = useCallback(
-    (optionId: number, questionId: number) =>
-      selectedLifeStage?.optionId === optionId &&
-      selectedLifeStage?.questionId === questionId,
-    [selectedLifeStage],
-  );
-
   const options = lifeStageQuestion?.options || [];
 
   if (loading) {
     return <p className="text-center text-gray-600">Loading questions...</p>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center">
+        <p className="text-red-600 mb-4">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="text-teal-600 hover:text-teal-700"
+        >
+          Try again
+        </button>
+      </div>
+    );
   }
 
   if (!lifeStageQuestion) {
@@ -105,16 +69,19 @@ function LifeStageStep({
               className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <input
-                checked={isSelected(option.id, lifeStageQuestion.id)}
+                checked={isSelected(
+                  option.id,
+                  lifeStageQuestion.id,
+                  selectedLifeStage
+                )}
                 className="mr-3 text-teal-600"
                 name="lifeStage"
                 type="radio"
                 value={option.id}
                 onChange={() =>
-                  setSelectedLifeStage({
-                    questionId: lifeStageQuestion.id,
-                    optionId: option.id,
-                  })
+                  setSelectedLifeStage(
+                    createSelectHandler(lifeStageQuestion.id, option.id)
+                  )
                 }
               />
               <span className="text-gray-900">{option.optionText}</span>
