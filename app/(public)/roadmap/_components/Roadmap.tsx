@@ -107,12 +107,13 @@ const Roadmap = () => {
         />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
-          {milestones.map(milestone => (
+          {milestones.map((milestone, index) => (
             <MilestoneCard
               key={milestone.id}
               milestone={milestone}
               onUpdateMilestone={handleUpdateMilestone}
               onDeleteMilestone={handleDeleteMilestone}
+              index={index}
             />
           ))}
           

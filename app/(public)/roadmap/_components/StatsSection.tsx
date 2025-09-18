@@ -40,7 +40,7 @@ const StatsSection = ({ stats, isExpanded, onToggle }: StatsSectionProps) => {
         <div className="p-6 space-y-6">
           {/* Overall Progress */}
           <div className="text-center">
-            <h2 className="text-xl font-semibold mb-4 bg-gradient-to-r from-roadmap-primary to-purple-600 bg-clip-text text-transparent">
+            <h2 className="text-xl font-semibold mb-4 bg-gradient-to-r from-roadmap-primary to-adult-green bg-clip-text text-transparent">
               Roadmap Progress
             </h2>
             <div className="flex justify-center mb-4">

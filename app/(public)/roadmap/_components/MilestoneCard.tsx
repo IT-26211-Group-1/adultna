@@ -15,12 +15,32 @@ interface MilestoneCardProps {
   milestone: Milestone;
   onUpdateMilestone: (milestone: Milestone) => void;
   onDeleteMilestone: (milestoneId: string) => void;
+  index: number;
 }
+
+// Shuffle array using Fisher-Yates algorithm
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+const bgColors = shuffleArray([
+  'bg-[#ACBD6F]', // olivine
+  'bg-[#FCE2A9]', // peachYellow
+  'bg-[#CBCBE7]', // periwinkle
+  'bg-[#F16F33]/80', // crayola-orange
+  'bg-[#FDFAE7]', // ultraviolet
+]);
 
 const MilestoneCard = ({ 
   milestone, 
   onUpdateMilestone, 
-  onDeleteMilestone 
+  onDeleteMilestone,
+  index
 }: MilestoneCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(milestone.title);
@@ -121,14 +141,16 @@ const MilestoneCard = ({
   }
 
   return (
-    <Card className={`roadmap-card group ${isCompleted ? 'ring-2 ring-roadmap-success/20' : ''}`}>
+    <Card className={`roadmap-card group ${bgColors[index % bgColors.length]} ${isCompleted ? 'ring-2 ring-roadmap-success/20' : ''}`}>
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <h3 className="font-semibold text-lg text-foreground">{milestone.title}</h3>
+            </div>
+            <div className="flex items-center mb-2">
               {isCompleted && (
-                <Badge variant="secondary" className="bg-roadmap-success/10 text-roadmap-success">
+                <Badge variant="default" className="bg-roadmap-success/10 text-roadmap-success border-black bg-adult-green text-white">
                   Completed
                 </Badge>
               )}

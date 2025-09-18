@@ -33,10 +33,10 @@ const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
       </span>
       
       <Button
-        variant="ghost"
+        variant="bordered"
         size="sm"
         onClick={() => onDelete(task.id)}
-        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-auto text-destructive hover:text-destructive hover:bg-destructive/10"
+        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-auto border-adult-green hover:bg-white/50 transition-colors"
       >
         <Trash2 className="w-4 h-4" />
       </Button>

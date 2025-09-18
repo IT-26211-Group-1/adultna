@@ -24,10 +24,10 @@ const AddTaskForm = ({ onAdd, disabled }: AddTaskFormProps) => {
   if (!isExpanded) {
     return (
       <Button
-        variant="ghost"
+        variant="bordered"
         onClick={() => setIsExpanded(true)}
         disabled={disabled}
-        className="w-full justify-start text-muted-foreground hover:text-foreground"
+        className="w-full justify-start border-[#2e2c29] hover:bg-[#242321] hover:text-white"
       >
         <Plus className="w-4 h-4 mr-2" />
         Add task

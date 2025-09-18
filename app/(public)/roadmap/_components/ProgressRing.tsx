@@ -16,9 +16,9 @@ const ProgressRing = ({
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   const getProgressColor = (progress: number) => {
-    if (progress === 100) return "hsl(var(--roadmap-success))";
-    if (progress >= 50) return "hsl(var(--roadmap-primary))";
-    return "hsl(var(--roadmap-warning))";
+    if (progress === 100) return "#11553F"; // Green for complete
+    if (progress >= 50) return "#FCE2A9"; // Blue for half or more
+    return "#F16F33"; // Crayola orange for less than half
   };
 
   return (
@@ -33,7 +33,7 @@ const ProgressRing = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="hsl(var(--border))"
+          stroke="#a1a1a1" // light gray outline always visible
           strokeWidth={strokeWidth}
           fill="transparent"
         />
@@ -52,7 +52,7 @@ const ProgressRing = ({
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-sm font-semibold text-foreground">
+        <span className="text-[11px] font-semibold text-foreground">
           {Math.round(progress)}%
         </span>
       </div>
