@@ -105,7 +105,7 @@ export interface SecureAuthService {
   forgotPassword(email: string): Promise<AuthResponse>;
   resetPassword(
     password: string,
-    verificationToken: string
+    verificationToken: string,
   ): Promise<AuthResponse>;
   initiateGoogleAuth(): Promise<{ url: string }>;
 }

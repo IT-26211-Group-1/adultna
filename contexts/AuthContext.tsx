@@ -40,12 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!res.ok) {
         console.error("Auth/me request failed with status:", res.status);
         setUser(null);
+
         return;
       }
 

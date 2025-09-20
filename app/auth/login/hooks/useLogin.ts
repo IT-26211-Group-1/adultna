@@ -49,10 +49,12 @@ export function useLogin() {
           color: "warning",
         });
         router.replace("/auth/verify-email");
+
         return;
       }
 
       const message = error.message || "Invalid email or password";
+
       setError("email", { type: "manual", message });
 
       addToast({

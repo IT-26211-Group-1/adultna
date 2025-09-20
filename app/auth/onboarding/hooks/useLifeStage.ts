@@ -10,7 +10,7 @@ interface LifeStageSelection {
 
 export function useLifeStage() {
   const [lifeStageQuestion, setLifeStageQuestion] = useState<Question | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,9 +21,11 @@ export function useLifeStage() {
 
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) {
       return parts.pop()?.split(";").shift() || null;
     }
+
     return null;
   };
 
@@ -52,7 +54,7 @@ export function useLifeStage() {
           headers,
           credentials: "include",
           signal: controller.signal,
-        }
+        },
       );
 
       clearTimeout(timeout);
@@ -72,7 +74,7 @@ export function useLifeStage() {
             : [];
 
         const question = questionsArray.find(
-          (q: Question) => q.category === "Life Stage"
+          (q: Question) => q.category === "Life Stage",
         );
 
         if (question) {
@@ -110,11 +112,11 @@ export function useLifeStage() {
     (
       optionId: number,
       questionId: number,
-      selectedLifeStage: LifeStageSelection | null
+      selectedLifeStage: LifeStageSelection | null,
     ) =>
       selectedLifeStage?.optionId === optionId &&
       selectedLifeStage?.questionId === questionId,
-    []
+    [],
   );
 
   const createSelectHandler = useCallback(
@@ -122,7 +124,7 @@ export function useLifeStage() {
       questionId,
       optionId,
     }),
-    []
+    [],
   );
 
   useEffect(() => {

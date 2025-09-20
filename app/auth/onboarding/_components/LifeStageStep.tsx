@@ -7,7 +7,7 @@ import { useLifeStage } from "../hooks/useLifeStage";
 type LifeStageStepProps = {
   selectedLifeStage: { questionId: number; optionId: number } | null;
   setSelectedLifeStage: (
-    stage: { questionId: number; optionId: number } | null
+    stage: { questionId: number; optionId: number } | null,
   ) => void;
   onNext: () => void;
   onSkip: () => void;
@@ -37,8 +37,8 @@ function LifeStageStep({
       <div className="text-center">
         <p className="text-red-600 mb-4">{error}</p>
         <button
-          onClick={() => window.location.reload()}
           className="text-teal-600 hover:text-teal-700"
+          onClick={() => window.location.reload()}
         >
           Try again
         </button>
@@ -72,7 +72,7 @@ function LifeStageStep({
                 checked={isSelected(
                   option.id,
                   lifeStageQuestion.id,
-                  selectedLifeStage
+                  selectedLifeStage,
                 )}
                 className="mr-3 text-teal-600"
                 name="lifeStage"
@@ -80,7 +80,7 @@ function LifeStageStep({
                 value={option.id}
                 onChange={() =>
                   setSelectedLifeStage(
-                    createSelectHandler(lifeStageQuestion.id, option.id)
+                    createSelectHandler(lifeStageQuestion.id, option.id),
                   )
                 }
               />

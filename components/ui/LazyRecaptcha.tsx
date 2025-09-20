@@ -16,7 +16,7 @@ const LazyRecaptcha = forwardRef<any, LazyRecaptchaProps>(
       <Suspense
         fallback={
           <div className="flex justify-center items-center h-[78px] w-[304px] bg-gray-100 rounded border">
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 border-t-gray-600"></div>
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 border-t-gray-600" />
           </div>
         }
       >
@@ -28,7 +28,7 @@ const LazyRecaptcha = forwardRef<any, LazyRecaptchaProps>(
         />
       </Suspense>
     );
-  }
+  },
 );
 
 LazyRecaptcha.displayName = "LazyRecaptcha";

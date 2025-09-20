@@ -32,7 +32,7 @@ export const ProtectedRoute = memo(
     }
 
     return <>{children}</>;
-  }
+  },
 );
 
 export const PublicRoute = memo(
@@ -55,7 +55,7 @@ export const PublicRoute = memo(
     // }
 
     return <>{children}</>;
-  }
+  },
 );
 
 export const OnboardingRoute = memo(
@@ -82,7 +82,7 @@ export const OnboardingRoute = memo(
     }
 
     return <>{children}</>;
-  }
+  },
 );
 
 LoadingSpinner.displayName = "LoadingSpinner";

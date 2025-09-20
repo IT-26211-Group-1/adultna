@@ -11,9 +11,11 @@ const getCookie = (name: string): string | null => {
 
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
+
   if (parts.length === 2) {
     return parts.pop()?.split(";").shift() || null;
   }
+
   return null;
 };
 
@@ -26,7 +28,7 @@ export async function apiFetch<T>(
   input: RequestInfo,
   init?: RequestInit,
   timeout = 10000,
-  _hasRetried = false
+  _hasRetried = false,
 ): Promise<{ success: boolean; data?: T; message?: string; status?: number }> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);

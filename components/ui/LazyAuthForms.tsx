@@ -7,18 +7,18 @@ const AuthFormSkeleton = () => (
     <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
       <div className="w-full max-w-md space-y-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded mb-6"></div>
+          <div className="h-8 bg-gray-200 rounded mb-2" />
+          <div className="h-4 bg-gray-200 rounded mb-6" />
           <div className="space-y-4">
-            <div className="h-12 bg-gray-200 rounded"></div>
-            <div className="h-12 bg-gray-200 rounded"></div>
-            <div className="h-12 bg-gray-200 rounded"></div>
-            <div className="h-12 bg-gray-200 rounded"></div>
+            <div className="h-12 bg-gray-200 rounded" />
+            <div className="h-12 bg-gray-200 rounded" />
+            <div className="h-12 bg-gray-200 rounded" />
+            <div className="h-12 bg-gray-200 rounded" />
           </div>
         </div>
       </div>
     </div>
-    <div className="hidden lg:block lg:w-1/2 bg-gray-100"></div>
+    <div className="hidden lg:block lg:w-1/2 bg-gray-100" />
   </div>
 );
 
@@ -30,7 +30,7 @@ export const LazyLoginForm = dynamic(
   {
     loading: () => <AuthFormSkeleton />,
     ssr: false,
-  }
+  },
 );
 
 export const LazyRegisterForm = dynamic(
@@ -41,7 +41,7 @@ export const LazyRegisterForm = dynamic(
   {
     loading: () => <AuthFormSkeleton />,
     ssr: false,
-  }
+  },
 );
 
 export const LazyForgotPasswordForm = dynamic(
@@ -49,7 +49,7 @@ export const LazyForgotPasswordForm = dynamic(
   {
     loading: () => <AuthFormSkeleton />,
     ssr: false,
-  }
+  },
 );
 
 export const LazyVerifyEmail = dynamic(
@@ -57,5 +57,5 @@ export const LazyVerifyEmail = dynamic(
   {
     loading: () => <AuthFormSkeleton />,
     ssr: false,
-  }
+  },
 );

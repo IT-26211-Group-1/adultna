@@ -17,7 +17,7 @@ export async function authMeRequest(): Promise<AuthMeResponse> {
       {
         method: "GET",
         credentials: "include",
-      }
+      },
     );
 
     if (!res.ok) {
@@ -25,6 +25,7 @@ export async function authMeRequest(): Promise<AuthMeResponse> {
     }
 
     const response = await res.json();
+
     return response;
   } catch (error) {
     return { success: false, message: "Network error" };
