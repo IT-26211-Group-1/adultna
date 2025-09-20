@@ -105,7 +105,6 @@ export function useAuth() {
 
       const data = await res.json();
       if (data.success) {
-        console.log("Token refreshed successfully");
         return true;
       }
 

@@ -63,8 +63,6 @@ export function useLifeStage() {
 
       const data = await res.json();
 
-      console.log("Onboarding view response:", data);
-
       if (data.success) {
         // Handle the response structure - data might be directly in data or nested
         const questionsArray = Array.isArray(data.data)

@@ -43,9 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       );
 
-      console.log("Auth/me response status:", res.status);
-      console.log("Auth/me response headers:", res.headers.get("content-type"));
-
       if (!res.ok) {
         console.error("Auth/me request failed with status:", res.status);
         setUser(null);
@@ -53,7 +50,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const data = await res.json();
-      console.log("Auth/me response data:", data);
 
       if (data.success && data.user) {
         setUser(data.user);
