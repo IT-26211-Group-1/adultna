@@ -15,7 +15,7 @@ export function useVerifyEmail() {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null
+    null,
   );
   const mountedRef = useRef(true);
 
@@ -26,12 +26,14 @@ export function useVerifyEmail() {
   // Simple countdown timer for cooldowns
   useEffect(() => {
     let interval: NodeJS.Timeout;
+
     if (verifyCooldown > 0 || resendCooldown > 0) {
       interval = setInterval(() => {
         setVerifyCooldown((c) => Math.max(0, c - 1));
         setResendCooldown((c) => Math.max(0, c - 1));
       }, 1000);
     }
+
     return () => clearInterval(interval);
   }, [verifyCooldown, resendCooldown]);
 
@@ -40,7 +42,9 @@ export function useVerifyEmail() {
     if (typeof window === "undefined") return null;
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+
     return null;
   };
 
@@ -51,7 +55,7 @@ export function useVerifyEmail() {
     const language = navigator.language;
 
     const fingerprint = btoa(
-      `${userAgent.slice(0, 50)}-${timezone}-${language}`
+      `${userAgent.slice(0, 50)}-${timezone}-${language}`,
     ).slice(0, 16);
 
     return { timestamp, fingerprint, timezone };
@@ -77,7 +81,7 @@ export function useVerifyEmail() {
     } else if (userId) {
       // User has registered but no verification token - this might happen if the server didn't return one
       console.log(
-        "User ID found but no verification token - allowing verification anyway"
+        "User ID found but no verification token - allowing verification anyway",
       );
       setVerificationToken("user_registered");
     } else {
@@ -88,6 +92,7 @@ export function useVerifyEmail() {
         color: "warning",
       });
       router.replace("/auth/register");
+
       return;
     }
 
@@ -105,15 +110,18 @@ export function useVerifyEmail() {
           title: `Please wait ${verifyCooldown}s before trying again`,
           color: "warning",
         });
+
         return;
       }
 
       const parsed = verifyEmailSchema.safeParse({ otp });
+
       if (!parsed.success) {
         addToast({
           title: parsed.error.issues[0]?.message || "Invalid verification code",
           color: "danger",
         });
+
         return;
       }
 
@@ -138,7 +146,7 @@ export function useVerifyEmail() {
             credentials: "include",
             signal: controller.signal,
             body: JSON.stringify({ otp, ...integrity }),
-          }
+          },
         );
 
         clearTimeout(timeout);
@@ -159,6 +167,7 @@ export function useVerifyEmail() {
           if (res.status === TOO_MANY_REQUESTS) {
             setVerifyCooldown(result.cooldownLeft ?? 30);
           }
+
           return;
         }
 
@@ -171,6 +180,7 @@ export function useVerifyEmail() {
         router.push("/auth/onboarding");
       } catch (err: any) {
         let errorMessage = "Verification failed. Please try again.";
+
         if (err.name === "AbortError") {
           errorMessage = "Request timed out. Please try again.";
         }
@@ -181,7 +191,7 @@ export function useVerifyEmail() {
         }
       }
     },
-    [router, verificationToken, verifyCooldown, forceAuthCheck]
+    [router, verificationToken, verifyCooldown, forceAuthCheck],
   );
 
   const resendOtp = useCallback(async (): Promise<number> => {
@@ -192,6 +202,7 @@ export function useVerifyEmail() {
         title: `Please wait ${resendCooldown}s before resending`,
         color: "warning",
       });
+
       return resendCooldown;
     }
 
@@ -216,7 +227,7 @@ export function useVerifyEmail() {
           credentials: "include",
           signal: controller.signal,
           body: JSON.stringify({ ...integrity }),
-        }
+        },
       );
 
       clearTimeout(timeout);
@@ -235,6 +246,7 @@ export function useVerifyEmail() {
         if (res.status === TOO_MANY_REQUESTS) {
           setResendCooldown(result.data?.cooldownLeft ?? 60);
         }
+
         return 120;
       }
 
@@ -245,13 +257,16 @@ export function useVerifyEmail() {
 
       // New: apply cooldown from server
       const cooldown = result.data?.cooldownLeft ?? 60;
+
       setResendCooldown(cooldown);
+
       return cooldown;
     } catch (err: any) {
       addToast({
         title: "Failed to resend OTP",
         color: "danger",
       });
+
       return 120;
     } finally {
       if (mountedRef.current) {

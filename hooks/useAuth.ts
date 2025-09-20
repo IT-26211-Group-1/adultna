@@ -29,9 +29,11 @@ export function useAuth() {
 
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) {
       return parts.pop()?.split(";").shift() || null;
     }
+
     return null;
   };
 
@@ -52,6 +54,7 @@ export function useAuth() {
     try {
       // Decode JWT payload (without verifying signature - client-side only)
       const parts = token.split(".");
+
       if (parts.length !== 3) return true;
 
       const payload = JSON.parse(atob(parts[1]));
@@ -70,9 +73,11 @@ export function useAuth() {
   const getUserFromToken = (token: string): User | null => {
     try {
       const parts = token.split(".");
+
       if (parts.length !== 3) return null;
 
       const payload = JSON.parse(atob(parts[1]));
+
       return {
         id: payload.userId,
         email: payload.email,
@@ -94,26 +99,30 @@ export function useAuth() {
             "Content-Type": "application/json",
           },
           credentials: "include",
-        }
+        },
       );
 
       if (!res.ok) {
         console.error("Token refresh failed with status:", res.status);
         logout();
+
         return false;
       }
 
       const data = await res.json();
+
       if (data.success) {
         return true;
       }
 
       console.error("Token refresh failed:", data.message);
       logout();
+
       return false;
     } catch (error) {
       console.error("Token refresh failed:", error);
       logout();
+
       return false;
     }
   };
@@ -170,7 +179,7 @@ export function useAuth() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!res.ok) {
@@ -179,6 +188,7 @@ export function useAuth() {
           isLoading: false,
           user: null,
         });
+
         return false;
       }
 
@@ -190,6 +200,7 @@ export function useAuth() {
           isLoading: false,
           user: data.user,
         });
+
         return true;
       } else {
         setAuthState({
@@ -197,6 +208,7 @@ export function useAuth() {
           isLoading: false,
           user: null,
         });
+
         return false;
       }
     } catch (error) {
@@ -206,6 +218,7 @@ export function useAuth() {
         isLoading: false,
         user: null,
       });
+
       return false;
     }
   };

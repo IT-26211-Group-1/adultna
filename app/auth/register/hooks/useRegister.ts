@@ -47,6 +47,7 @@ export function useRegister() {
             color: "warning",
           });
           setLoading(false);
+
           return;
         }
 
@@ -58,19 +59,21 @@ export function useRegister() {
             credentials: "include",
             body: JSON.stringify({ ...data, token: captchaToken }),
             signal: controller.signal,
-          }
+          },
         );
 
         const result: RegisterResponse = await res.json();
 
         if (!res.ok || !result.success) {
           const message = result.message || "Registration failed";
+
           addToast({
             title: "Registration Failed",
             description: message,
             color: "danger",
           });
           setLoading(false);
+
           return;
         }
 
@@ -102,7 +105,7 @@ export function useRegister() {
         }
         setCaptchaToken(null);
       }
-    }
+    },
   );
 
   return {

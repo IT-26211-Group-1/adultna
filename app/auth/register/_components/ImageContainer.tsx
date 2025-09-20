@@ -27,10 +27,10 @@ export const ImageContainer = ({ step }: ImageContainerProps = {}) => {
       <div className="w-full h-[95vh] relative overflow-hidden rounded-2xl">
         <Image
           fill
+          priority
           alt={getAltText()}
           className="object-cover"
           src={getImageSrc()}
-          priority
         />
         {/* Decorative elements overlay */}
         <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl" />

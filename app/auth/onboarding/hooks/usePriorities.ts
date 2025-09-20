@@ -10,7 +10,7 @@ interface Priority {
 
 export function usePriorities() {
   const [prioritiesQuestion, setPrioritiesQuestion] = useState<Question | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,9 +21,11 @@ export function usePriorities() {
 
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) {
       return parts.pop()?.split(";").shift() || null;
     }
+
     return null;
   };
 
@@ -52,7 +54,7 @@ export function usePriorities() {
           headers,
           credentials: "include",
           signal: controller.signal,
-        }
+        },
       );
 
       clearTimeout(timeout);
@@ -73,7 +75,7 @@ export function usePriorities() {
             : [];
 
         const question = questionsArray.find(
-          (q: Question) => q.category === "Priorities"
+          (q: Question) => q.category === "Priorities",
         );
 
         if (question) {
@@ -112,23 +114,23 @@ export function usePriorities() {
       questionId: number,
       optionId: number,
       selectedPriorities: Priority[],
-      setSelectedPriorities: React.Dispatch<React.SetStateAction<Priority[]>>
+      setSelectedPriorities: React.Dispatch<React.SetStateAction<Priority[]>>,
     ) => {
       setSelectedPriorities((prev) => {
         const exists = prev.some(
-          (p) => p.questionId === questionId && p.optionId === optionId
+          (p) => p.questionId === questionId && p.optionId === optionId,
         );
 
         if (exists) {
           return prev.filter(
-            (p) => !(p.questionId === questionId && p.optionId === optionId)
+            (p) => !(p.questionId === questionId && p.optionId === optionId),
           );
         }
 
         return [...prev, { questionId, optionId }];
       });
     },
-    []
+    [],
   );
 
   useEffect(() => {

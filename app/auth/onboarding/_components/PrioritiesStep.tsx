@@ -20,16 +20,16 @@ function PrioritiesStep({
         questionId,
         optionId,
         selectedPriorities,
-        setSelectedPriorities
+        setSelectedPriorities,
       );
     },
-    [togglePriority, selectedPriorities, setSelectedPriorities]
+    [togglePriority, selectedPriorities, setSelectedPriorities],
   );
 
   if (loading) {
     return (
       <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4" />
         <p className="text-gray-600">Loading questions...</p>
       </div>
     );
@@ -40,8 +40,8 @@ function PrioritiesStep({
       <div className="text-center">
         <p className="text-red-600 mb-4">{error}</p>
         <button
-          onClick={() => window.location.reload()}
           className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          onClick={() => window.location.reload()}
         >
           Try Again
         </button>
@@ -75,7 +75,7 @@ function PrioritiesStep({
                 selectedPriorities.some(
                   (p) =>
                     p.questionId === prioritiesQuestion.id &&
-                    p.optionId === option.id
+                    p.optionId === option.id,
                 )
                   ? "border-teal-500 bg-teal-50"
                   : "border-gray-300 hover:bg-gray-50"
@@ -85,7 +85,7 @@ function PrioritiesStep({
                 checked={selectedPriorities.some(
                   (p) =>
                     p.questionId === prioritiesQuestion.id &&
-                    p.optionId === option.id
+                    p.optionId === option.id,
                 )}
                 className="mr-3 text-teal-600"
                 type="checkbox"

@@ -1,39 +1,34 @@
 import { z } from "zod";
 
-const nameSchema = (field: string) => z
-  .string()
-  .min(1, `${field} is required`)
-  .refine(
-    (val) => val === val.trim(),
-    `${field} cannot start or end with spaces`,
-  )
-  .refine(
-    (val) => val.trim().length >= 2,
-    `${field} must be at least 2 characters`,
-  )
-  .refine(
-    (val) => !/\s{2,}/.test(val),
-    `${field} cannot contain multiple consecutive spaces`,
-  )
-  .max(30, `${field} must be less than 30 characters`)
-  .regex(
-    /^[a-zA-Z\s'-]+$/,
-    `${field} can only contain letters, spaces, hyphens, and apostrophes`,
-  );
+const nameSchema = (field: string) =>
+  z
+    .string()
+    .min(1, `${field} is required`)
+    .refine(
+      (val) => val === val.trim(),
+      `${field} cannot start or end with spaces`,
+    )
+    .refine(
+      (val) => val.trim().length >= 2,
+      `${field} must be at least 2 characters`,
+    )
+    .refine(
+      (val) => !/\s{2,}/.test(val),
+      `${field} cannot contain multiple consecutive spaces`,
+    )
+    .max(30, `${field} must be less than 30 characters`)
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      `${field} can only contain letters, spaces, hyphens, and apostrophes`,
+    );
 
 const emailSchema = z
   .email({ message: "Please enter a valid email address" })
   .min(1, "Email is required")
-  .refine(
-    (val) => val === val.trim(),
-    "Email cannot start or end with spaces",
-  )
+  .refine((val) => val === val.trim(), "Email cannot start or end with spaces")
   .refine((val) => !/\s/.test(val), "Email cannot contain any spaces")
   .max(100, "Email must be less than 100 characters")
-  .refine(
-    (val) => !val.includes(".."),
-    "Email cannot contain consecutive dots",
-  )
+  .refine((val) => !val.includes(".."), "Email cannot contain consecutive dots")
   .refine(
     (val) => !val.startsWith(".") && !val.endsWith("."),
     "Email cannot start or end with a dot",
@@ -43,14 +38,8 @@ const strongPasswordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
   .max(50, "Password must be less than 50 characters")
-  .regex(
-    /^(?=.*[a-z])/,
-    "Password must contain at least one lowercase letter",
-  )
-  .regex(
-    /^(?=.*[A-Z])/,
-    "Password must contain at least one uppercase letter",
-  )
+  .regex(/^(?=.*[a-z])/, "Password must contain at least one lowercase letter")
+  .regex(/^(?=.*[A-Z])/, "Password must contain at least one uppercase letter")
   .regex(/^(?=.*\d)/, "Password must contain at least one number")
   .regex(
     /^(?=.*[!@#$%^&*(),.?":{}|<>])/,

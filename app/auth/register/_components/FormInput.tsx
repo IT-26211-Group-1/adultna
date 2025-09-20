@@ -139,7 +139,7 @@ export const FormInput = ({
         }}
       />
       {error && (
-        <p role="alert" className="sr-only">
+        <p className="sr-only" role="alert">
           {getDetailedValidationMessage(error, name, fieldValue)}
         </p>
       )}

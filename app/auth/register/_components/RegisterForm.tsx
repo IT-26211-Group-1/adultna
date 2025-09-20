@@ -6,7 +6,7 @@ import { useRegister } from "../hooks/useRegister";
 const LazyRecaptcha = dynamic(() => import("@/components/ui/LazyRecaptcha"), {
   loading: () => (
     <div className="flex justify-center items-center h-[78px] w-[304px] bg-gray-100 rounded border">
-      <div className="animate-pulse w-full h-full bg-gray-200 rounded"></div>
+      <div className="animate-pulse w-full h-full bg-gray-200 rounded" />
     </div>
   ),
   ssr: false,
@@ -49,6 +49,7 @@ export const RegisterForm = () => {
     e.preventDefault();
     if (!showCaptcha && areFieldsFilled) {
       setShowCaptcha(true);
+
       return;
     }
     onSubmit();
