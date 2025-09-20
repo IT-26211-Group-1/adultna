@@ -69,15 +69,8 @@ export function useVerifyEmail() {
     const userId =
       typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
-    console.log("Debug - Token check:", {
-      cookieToken: !!cookieToken,
-      localToken: !!localToken,
-      userId: !!userId,
-    });
-
     if (cookieToken) {
       console.log("Using cookie token");
-      setVerificationToken(cookieToken);
     } else if (localToken) {
       console.log("Using localStorage token");
       setVerificationToken(localToken);
