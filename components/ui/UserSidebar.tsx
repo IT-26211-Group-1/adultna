@@ -125,7 +125,7 @@ export default function UserSidebar({
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-screen bg-white border-r border-gray-200 z-[100]
+        fixed top-0 left-0 h-screen bg-transparent border-r border-gray-200 z-[100]
         transform transition-all duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0

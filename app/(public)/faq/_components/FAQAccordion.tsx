@@ -11,7 +11,7 @@ export function FAQAccordion() {
   );
 
   return (
-    <section className="w-full min-h-[500px] top-10 py-16 bg-white relative flex flex-col gap-8 px-4 md:px-22 max-w-6xl text-justify">
+    <section className="w-full min-h-[500px] top-10 py-16 bg-transparent relative flex flex-col gap-8 px-4 md:px-22 max-w-6xl text-justify">
       <h2 className="text-2xl md:text-3xl lg:text-4xl text-ultra-violet leading-tight font-playfair text-center ">
         {" "}
         FAQ Accordion Example

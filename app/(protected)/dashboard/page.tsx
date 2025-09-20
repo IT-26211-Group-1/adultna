@@ -1,5 +1,5 @@
 import React from "react"
-import DashboardWrapper from "./components/DashboardWrapper"
+import ProtectedPageWrapper from "../../../components/ui/ProtectedPageWrapper"
 import ProfileDropdown from "./components/ProfileDropdown"
 import Calendar from "./components/Calendar"
 import ProgressCard from "./components/ProgressCard"
@@ -9,9 +9,9 @@ import AdultingToolkit from "./components/AdultingToolkit"
 
 export default function Page() {
   return (
-    <DashboardWrapper>
+    <ProtectedPageWrapper>
         {/* Welcome Section with Profile */}
-        <div className="px-6 pt-6 pb-4">
+        <div className="px-6 pt-12 pb-8">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-start justify-between">
               <div>
@@ -49,7 +49,7 @@ export default function Page() {
             </div>
           </div>
         </main>
-    </DashboardWrapper>
+    </ProtectedPageWrapper>
   )
 }
           
