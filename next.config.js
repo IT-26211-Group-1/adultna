@@ -7,6 +7,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // For local development with HTTPS
+  ...(process.env.NODE_ENV === "development" && {
+    output: undefined, // Remove export for dev server
+  }),
 };
 
 export default nextConfig;

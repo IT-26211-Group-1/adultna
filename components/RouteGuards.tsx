@@ -8,16 +8,18 @@ import { LoadingSpinner } from "./ui/LoadingSpinner";
 interface ProtectedRouteProps {
   children: ReactNode;
   fallback?: ReactNode;
+  roles?: string[];
 }
 
 export const ProtectedRoute = memo(
-  ({ children, fallback }: ProtectedRouteProps) => {
-    const { isAuthenticated, isLoading } = useAuth();
+  ({ children, fallback, roles }: ProtectedRouteProps) => {
+    const { isAuthenticated, isLoading, user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
       if (!isLoading && !isAuthenticated) {
         router.replace("/auth/login");
+      } else if (roles && user && !roles.includes(user.role)) {
       }
     }, [isAuthenticated, isLoading, router]);
 
@@ -25,7 +27,7 @@ export const ProtectedRoute = memo(
       return fallback || <LoadingSpinner />;
     }
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated || (roles && !roles.includes(user?.role ?? "user"))) {
       return null;
     }
 
@@ -48,9 +50,9 @@ export const PublicRoute = memo(
       return fallback || <LoadingSpinner />;
     }
 
-    if (isAuthenticated) {
-      return null;
-    }
+    // if (isAuthenticated) {
+    //   return null;
+    // }
 
     return <>{children}</>;
   }
@@ -86,4 +88,3 @@ export const OnboardingRoute = memo(
 LoadingSpinner.displayName = "LoadingSpinner";
 ProtectedRoute.displayName = "ProtectedRoute";
 PublicRoute.displayName = "PublicRoute";
-OnboardingRoute.displayName = "OnboardingRoute";

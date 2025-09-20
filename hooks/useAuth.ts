@@ -98,15 +98,19 @@ export function useAuth() {
       );
 
       if (!res.ok) {
+        console.error("Token refresh failed with status:", res.status);
         logout();
         return false;
       }
 
       const data = await res.json();
       if (data.success) {
+        console.log("Token refreshed successfully");
         return true;
       }
 
+      console.error("Token refresh failed:", data.message);
+      logout();
       return false;
     } catch (error) {
       console.error("Token refresh failed:", error);
@@ -117,7 +121,6 @@ export function useAuth() {
 
   const logout = async () => {
     try {
-      // SECURITY: Call backend logout to invalidate tokens server-side
       await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/logout`, {
         method: "POST",
         credentials: "include",
@@ -130,10 +133,22 @@ export function useAuth() {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("isAuthenticated");
 
-    document.cookie =
-      "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=None";
-    document.cookie =
-      "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=None";
+    // Clear cookies with proper settings for static deployment
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (isLocalhost) {
+      document.cookie =
+        "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";
+      document.cookie =
+        "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";
+    } else {
+      document.cookie =
+        "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=None";
+      document.cookie =
+        "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=None";
+    }
 
     setAuthState({
       isAuthenticated: false,
@@ -144,13 +159,49 @@ export function useAuth() {
     router.push("/auth/login");
   };
 
-  // Check authentication status
+  // Check authentication status using server-side validation
   const checkAuth = async () => {
     setAuthState((prev) => ({ ...prev, isLoading: true }));
 
-    const accessToken = getAccessToken();
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/auth/me`,
+        {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    if (!accessToken) {
+      if (!res.ok) {
+        setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+          user: null,
+        });
+        return false;
+      }
+
+      const data = await res.json();
+
+      if (data.success && data.user) {
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          user: data.user,
+        });
+        return true;
+      } else {
+        setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+          user: null,
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error);
       setAuthState({
         isAuthenticated: false,
         isLoading: false,
@@ -158,47 +209,6 @@ export function useAuth() {
       });
       return false;
     }
-
-    if (isAccessTokenExpired(accessToken)) {
-      // Try to refresh token
-      const refreshed = await refreshAccessToken();
-      if (!refreshed) {
-        setAuthState({
-          isAuthenticated: false,
-          isLoading: false,
-          user: null,
-        });
-        return false;
-      }
-
-      // Get the new token after refresh
-      const newAccessToken = getAccessToken();
-      if (!newAccessToken) {
-        setAuthState({
-          isAuthenticated: false,
-          isLoading: false,
-          user: null,
-        });
-        return false;
-      }
-
-      const user = getUserFromToken(newAccessToken);
-      setAuthState({
-        isAuthenticated: true,
-        isLoading: false,
-        user,
-      });
-      return true;
-    }
-
-    // Token is valid
-    const user = getUserFromToken(accessToken);
-    setAuthState({
-      isAuthenticated: true,
-      isLoading: false,
-      user,
-    });
-    return true;
   };
 
   // Initialize auth check on mount
@@ -213,9 +223,7 @@ export function useAuth() {
     getAccessToken,
 
     forceAuthCheck: () => {
-      setTimeout(() => {
-        checkAuth();
-      }, 50);
+      checkAuth();
     },
   };
 }
