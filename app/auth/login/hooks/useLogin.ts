@@ -8,10 +8,12 @@ import { addToast } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { loginRequest } from "../lib/login";
 import { useState } from "react";
+import { useAuthContext } from "@/providers/AuthProvider";
 
 export function useLogin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { forceAuthCheck } = useAuthContext();
 
   const {
     register,
@@ -30,6 +32,7 @@ export function useLogin() {
       const response = await loginRequest(data);
 
       if (response.success) {
+        forceAuthCheck(); // Refresh auth context
         router.replace("/dashboard");
         addToast({
           title: "Login Successful!",

@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { OnboardingData } from "@/types/onboarding";
-import { saveOnboardingData } from "@/lib/api/onboarding/onboarding";
+
 import { addToast } from "@heroui/toast";
 
 const OnboardingModal = dynamic(() => import("./OnboardingModal"));
@@ -21,8 +21,6 @@ export default function DashboardClient() {
 
   const handleOnboardingComplete = useCallback(async (data: OnboardingData) => {
     try {
-      await saveOnboardingData(data);
-      localStorage.setItem("onboarding_completed", "true");
       setShowOnboarding(false);
       addToast({
         title: "Onboarding completed",
