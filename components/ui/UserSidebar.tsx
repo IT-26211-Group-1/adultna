@@ -100,7 +100,7 @@ export default function UserSidebar({
     {
       id: 'job-board',
       label: 'Job Board',
-      href: '/job-board'
+      href: '/dashboard/jobs'
     }
   ]
 
@@ -129,18 +129,28 @@ export default function UserSidebar({
         transform transition-all duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
-        ${isCollapsed ? 'lg:w-16' : 'lg:w-80'}
-        w-80 flex flex-col
+        ${isCollapsed ? 'lg:w-16' : 'lg:w-64'}
+        w-64 flex flex-col
       `}>
         {/* Header */}
         <div className="p-6 flex items-center">
-          <Image 
-            src={isCollapsed ? "/AdultNa-Logo-Icon.png" : "/AdultNa-Logo.png"}
-            alt="AdultNa Logo" 
-            width={isCollapsed ? 32 : 120} 
-            height={isCollapsed ? 32 : 40}
-            className="object-contain"
-          />
+          {isCollapsed ? (
+            <Image
+              src="/AdultNa-Logo-Icon.png"
+              alt="AdultNa Logo"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+          ) : (
+            <Image
+              src="/AdultNa-Logo.png"
+              alt="AdultNa Logo"
+              width={120}
+              height={40}
+              className="object-contain"
+            />
+          )}
         </div>
 
         {/* Collapse/Expand Button - Desktop only */}
@@ -200,7 +210,7 @@ export default function UserSidebar({
                           <li key={item.id}>
                             <a
                               href={item.href}
-                              className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-xs"
+                              className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-sm"
                             >
                               {item.label}
                             </a>
@@ -230,7 +240,7 @@ export default function UserSidebar({
                             <li key={item.id}>
                               <a
                                 href={item.href}
-                                className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-xs"
+                                className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-sm"
                               >
                                 {item.label}
                               </a>
@@ -267,7 +277,7 @@ export default function UserSidebar({
                           <li key={item.id}>
                             <a
                               href={item.href}
-                              className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-xs"
+                              className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-sm"
                             >
                               {item.label}
                             </a>
@@ -297,7 +307,7 @@ export default function UserSidebar({
                             <li key={item.id}>
                               <a
                                 href={item.href}
-                                className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-xs"
+                                className="block px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-sm"
                               >
                                 {item.label}
                               </a>
@@ -313,8 +323,8 @@ export default function UserSidebar({
           </div>
         </nav>
 
-        {/* Storage Section - Always at bottom */}
-        <div className="mt-auto p-4 border-t border-gray-200">
+        {/* Storage Section */}
+        <div className="mt-auto p-6 border-t border-gray-200">
           {!isCollapsed ? (
             <>
               <h3 className="text-sm font-medium text-gray-500 mb-3">Storage</h3>

@@ -47,7 +47,7 @@ export default function ProtectedPageWrapper({ children }: ProtectedPageWrapperP
       />
 
       {/* Main Content Wrapper */}
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-80'} relative z-10`}>
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} relative z-10`}>
         {children}
       </div>
     </div>
