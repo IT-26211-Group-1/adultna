@@ -17,7 +17,7 @@ const ProgressRing = ({
 
   const getProgressColor = (progress: number) => {
     if (progress === 100) return "#11553F"; // Green for complete
-    if (progress >= 50) return "#FCE2A9"; // Blue for half or more
+    if (progress >= 50) return "#fc9803"; // Blue for half or more
     return "#F16F33"; // Crayola orange for less than half
   };
 
@@ -33,7 +33,7 @@ const ProgressRing = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#a1a1a1" // light gray outline always visible
+          stroke="#d4d4d4" // light gray outline always visible
           strokeWidth={strokeWidth}
           fill="transparent"
         />

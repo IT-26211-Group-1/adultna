@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MoreVertical, Trash2, Edit3 } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit3 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../_ui/Card";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
@@ -104,7 +104,7 @@ const MilestoneCard = ({
 
   if (isEditing) {
     return (
-      <Card className="roadmap-card">
+      <Card className="roadmap-card transition-transform duration-300 hover:-translate-y-2 h-full flex flex-col">
         <CardHeader className="pb-4">
           <div className="space-y-3">
             <Input
@@ -121,8 +121,9 @@ const MilestoneCard = ({
               rows={2}
             />
             <div className="flex gap-2">
-              <Button onClick={handleSaveEdit} size="sm">Save</Button>
+              <Button className="border-2 rounded-lg border-[#2e2c29] bg-adult-green text-white" onClick={handleSaveEdit} size="sm">Save</Button>
               <Button 
+                className="border-2 rounded-lg border-[#2e2c29]"
                 variant="ghost" 
                 size="sm" 
                 onClick={() => {
@@ -141,12 +142,12 @@ const MilestoneCard = ({
   }
 
   return (
-    <Card className={`roadmap-card group ${bgColors[index % bgColors.length]} ${isCompleted ? 'ring-2 ring-roadmap-success/20' : ''}`}>
+    <Card className={`roadmap-card group transition-transform duration-300 hover:-translate-y-2 h-full flex flex-col ${bgColors[index % bgColors.length]} ${isCompleted ? 'ring-2 ring-roadmap-success/20' : ''}`}>
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h3 className="font-semibold text-lg text-foreground">{milestone.title}</h3>
+              <h3 className="font-semibold text-lg text-foreground font-inter">{milestone.title}</h3>
             </div>
             <div className="flex items-center mb-2">
               {isCompleted && (
@@ -166,21 +167,21 @@ const MilestoneCard = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
-                  variant="ghost" 
+                  variant="bordered" 
                   size="sm" 
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-auto"
+                  className="cursor-pointer border-[#211f1f] border-2 hover:bg-white transition-color px-2 w-10 min-w-0"
                 >
-                  <MoreVertical className="w-4 h-4" />
+                  <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsEditing(true)}>
+              <DropdownMenuContent align="end" className="bg-white">
+                <DropdownMenuItem onClick={() => setIsEditing(true)} className="hover:bg-gray-200">
                   <Edit3 className="w-4 h-4 mr-2" />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => onDeleteMilestone(milestone.id)}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive hover:bg-gray-200"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete
@@ -191,26 +192,28 @@ const MilestoneCard = ({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
-        {milestone.tasks.map(task => (
-          <TaskItem
-            key={task.id}
-            task={task}
-            onToggle={handleToggleTask}
-            onDelete={handleDeleteTask}
+      <CardContent className="flex flex-col flex-grow space-y-3">
+        <div className="flex-grow flex flex-col space-y-px">
+          {milestone.tasks.map(task => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              onToggle={handleToggleTask}
+              onDelete={handleDeleteTask}
+            />
+          ))}
+        </div>
+        <div>
+          <AddTaskForm
+            onAdd={handleAddTask}
+            disabled={milestone.tasks.length >= 5}
           />
-        ))}
-
-        <AddTaskForm
-          onAdd={handleAddTask}
-          disabled={milestone.tasks.length >= 5}
-        />
-
-        {milestone.tasks.length >= 5 && (
-          <p className="text-xs text-muted-foreground text-center pt-2">
-            Maximum 5 tasks per milestone
-          </p>
-        )}
+          {milestone.tasks.length >= 5 && (
+            <p className="text-xs text-muted-foreground text-center pt-2">
+              Maximum 5 tasks per milestone
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

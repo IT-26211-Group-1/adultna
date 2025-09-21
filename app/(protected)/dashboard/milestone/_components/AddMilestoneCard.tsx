@@ -14,15 +14,19 @@ const AddMilestoneCard = ({ onAdd, disabled }: AddMilestoneCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [showWarning, setShowWarning] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim()) {
-      onAdd(title.trim(), description.trim() || undefined);
-      setTitle("");
-      setDescription("");
-      setIsExpanded(false);
+    if (!title.trim()) {
+      setShowWarning(true);
+      return;
     }
+    setShowWarning(false);
+    onAdd(title.trim(), description.trim() || undefined);
+    setTitle("");
+    setDescription("");
+    setIsExpanded(false);
   };
 
   const handleCancel = () => {
@@ -33,7 +37,7 @@ const AddMilestoneCard = ({ onAdd, disabled }: AddMilestoneCardProps) => {
 
   if (!isExpanded) {
     return (
-      <Card className="roadmap-card border-2 border-dashed cursor-pointer hover:border-roadmap-primary/50 transition-colors">
+      <Card className="roadmap-card border-2 border-dashed cursor-pointer hover:border-roadmap-primary/50 transition-colors duration-300 hover:-translate-y-2">
         <CardContent 
           className="flex items-center justify-center p-8"
           onClick={() => !disabled && setIsExpanded(true)}
@@ -62,10 +66,16 @@ const AddMilestoneCard = ({ onAdd, disabled }: AddMilestoneCardProps) => {
           <div className="space-y-2">
             <Input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (showWarning && e.target.value.trim()) setShowWarning(false);
+              }}
               placeholder="Milestone title..."
               maxLength={100}
             />
+            {showWarning && (
+              <div className="text-xs text-red-500 mt-1">Please enter a milestone title before adding.</div>
+            )}
           </div>
           
           <div className="space-y-2">
@@ -80,7 +90,7 @@ const AddMilestoneCard = ({ onAdd, disabled }: AddMilestoneCardProps) => {
           </div>
 
           <div className="flex gap-2">
-            <Button type="submit" disabled={!title.trim()}>
+            <Button className="border-2 rounded-lg border-[#2e2c29] bg-adult-green text-white" type="submit">
               Create Milestone
             </Button>
             <Button type="button" variant="ghost" onClick={handleCancel}>

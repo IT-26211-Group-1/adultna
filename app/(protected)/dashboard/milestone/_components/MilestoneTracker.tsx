@@ -5,7 +5,7 @@ import MilestoneCard from "./MilestoneCard";
 import AddMilestoneCard from "./AddMilestoneCard";
 import StatsSection from "./StatsSection";
 
-const Roadmap = () => {
+const MilestoneTracker = () => {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isStatsExpanded, setIsStatsExpanded] = useState(false);
 
@@ -106,7 +106,7 @@ const Roadmap = () => {
           overallProgress={stats.overallProgress}
         />
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
           {milestones.map((milestone, index) => (
             <MilestoneCard
               key={milestone.id}
@@ -143,4 +143,4 @@ const Roadmap = () => {
   );
 };
 
-export default Roadmap;
+export default MilestoneTracker;
