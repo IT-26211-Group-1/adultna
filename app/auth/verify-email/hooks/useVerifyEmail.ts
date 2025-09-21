@@ -15,13 +15,25 @@ export function useVerifyEmail() {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null,
+    null
   );
   const mountedRef = useRef(true);
-
-  // New: simple cooldown states (instead of manual counters)
   const [verifyCooldown, setVerifyCooldown] = useState(0);
   const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Check for verification token on mount
+  useEffect(() => {
+    const token = sessionStorage.getItem("verification_token");
+    setVerificationToken(token);
+
+    if (!token) {
+      setLoading(true);
+      router.replace("/auth/register");
+      return;
+    }
+
+    setLoading(false);
+  }, [router]);
 
   // Simple countdown timer for cooldowns
   useEffect(() => {
@@ -37,17 +49,6 @@ export function useVerifyEmail() {
     return () => clearInterval(interval);
   }, [verifyCooldown, resendCooldown]);
 
-  // Get cookie value by name
-  const getCookie = (name: string): string | null => {
-    if (typeof window === "undefined") return null;
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-
-    if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
-
-    return null;
-  };
-
   const generateRequestIntegrity = () => {
     const timestamp = Date.now();
     const userAgent = navigator.userAgent;
@@ -55,55 +56,20 @@ export function useVerifyEmail() {
     const language = navigator.language;
 
     const fingerprint = btoa(
-      `${userAgent.slice(0, 50)}-${timezone}-${language}`,
+      `${userAgent.slice(0, 50)}-${timezone}-${language}`
     ).slice(0, 16);
 
     return { timestamp, fingerprint, timezone };
   };
 
-  useEffect(() => {
-    mountedRef.current = true;
-
-    // Check for verification token
-    const cookieToken = getCookie("verify_token");
-    const localToken =
-      typeof window !== "undefined"
-        ? localStorage.getItem("verificationToken")
-        : null;
-    const userId =
-      typeof window !== "undefined" ? localStorage.getItem("userId") : null;
-
-    if (cookieToken) {
-      console.log("Using cookie token");
-    } else if (localToken) {
-      console.log("Using localStorage token");
-      setVerificationToken(localToken);
-    } else if (userId) {
-      // User has registered but no verification token - this might happen if the server didn't return one
-      console.log(
-        "User ID found but no verification token - allowing verification anyway",
-      );
-      setVerificationToken("user_registered");
-    } else {
-      console.log("No verification session found");
-      addToast({
-        title: "No verification session found",
-        description: "Please register first",
-        color: "warning",
-      });
-      router.replace("/auth/register");
-
-      return;
-    }
-
-    return () => {
-      mountedRef.current = false;
-    };
-  }, [router]);
-
   const verifyEmail = useCallback(
     async (otp: string) => {
-      if (!verificationToken) return;
+      const currentToken = sessionStorage.getItem("verification_token");
+      setVerificationToken(currentToken);
+
+      if (!currentToken) {
+        return router.replace("/auth/register");
+      }
 
       if (verifyCooldown > 0) {
         addToast({
@@ -134,6 +100,12 @@ export function useVerifyEmail() {
 
         const integrity = generateRequestIntegrity();
 
+        const requestBody = {
+          otp,
+          verificationToken: currentToken,
+          ...integrity,
+        };
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/verify-email`,
           {
@@ -145,8 +117,8 @@ export function useVerifyEmail() {
             },
             credentials: "include",
             signal: controller.signal,
-            body: JSON.stringify({ otp, ...integrity }),
-          },
+            body: JSON.stringify(requestBody),
+          }
         );
 
         clearTimeout(timeout);
@@ -176,6 +148,8 @@ export function useVerifyEmail() {
           color: "success",
         });
 
+        sessionStorage.removeItem("verification_token");
+
         forceAuthCheck();
         router.push("/auth/onboarding");
       } catch (err: any) {
@@ -191,11 +165,13 @@ export function useVerifyEmail() {
         }
       }
     },
-    [router, verificationToken, verifyCooldown, forceAuthCheck],
+    [router, verificationToken, verifyCooldown, forceAuthCheck]
   );
 
   const resendOtp = useCallback(async (): Promise<number> => {
-    if (!mountedRef.current) return 120;
+    if (!mountedRef.current) {
+      return 120;
+    }
 
     if (resendCooldown > 0) {
       addToast({
@@ -204,6 +180,16 @@ export function useVerifyEmail() {
       });
 
       return resendCooldown;
+    }
+
+    const currentToken = sessionStorage.getItem("verification_token");
+    if (!currentToken) {
+      addToast({
+        title: "No verification session found",
+        color: "danger",
+      });
+      router.replace("/auth/register");
+      return 120;
     }
 
     const controller = new AbortController();
@@ -226,8 +212,11 @@ export function useVerifyEmail() {
           },
           credentials: "include",
           signal: controller.signal,
-          body: JSON.stringify({ ...integrity }),
-        },
+          body: JSON.stringify({
+            verificationToken: currentToken,
+            ...integrity,
+          }),
+        }
       );
 
       clearTimeout(timeout);
@@ -242,7 +231,6 @@ export function useVerifyEmail() {
 
         addToast({ title: message, color: "danger" });
 
-        // New: set cooldown if backend tells us
         if (res.status === TOO_MANY_REQUESTS) {
           setResendCooldown(result.data?.cooldownLeft ?? 60);
         }
@@ -255,13 +243,18 @@ export function useVerifyEmail() {
         color: "success",
       });
 
-      // New: apply cooldown from server
+      // Update verification token if provided
+      if (result.verificationToken) {
+        sessionStorage.setItem("verification_token", result.verificationToken);
+        setVerificationToken(result.verificationToken);
+      }
+
       const cooldown = result.data?.cooldownLeft ?? 60;
 
       setResendCooldown(cooldown);
 
       return cooldown;
-    } catch (err: any) {
+    } catch {
       addToast({
         title: "Failed to resend OTP",
         color: "danger",

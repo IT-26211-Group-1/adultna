@@ -23,8 +23,14 @@ export default function VerifyEmailForm() {
     defaultValues: { otp: "" },
   });
 
-  const { loading, resending, verificationToken, handleFormSubmit, resendOtp } =
-    useVerifyEmail();
+  const {
+    loading,
+    resending,
+    verificationToken,
+    handleFormSubmit,
+    resendOtp,
+    resendCooldown,
+  } = useVerifyEmail();
 
   const otp = watch("otp").split("").concat(Array(6).fill("")).slice(0, 6);
 
@@ -39,7 +45,7 @@ export default function VerifyEmailForm() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
+    index: number
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -110,6 +116,7 @@ export default function VerifyEmailForm() {
           handleResendOtp={resendOtp}
           resending={resending}
           verificationToken={verificationToken}
+          cooldown={resendCooldown}
         />
       </form>
     </div>
