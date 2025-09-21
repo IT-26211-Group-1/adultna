@@ -59,7 +59,7 @@ export function useRegister() {
             credentials: "include",
             body: JSON.stringify({ ...data, token: captchaToken }),
             signal: controller.signal,
-          },
+          }
         );
 
         const result: RegisterResponse = await res.json();
@@ -77,12 +77,11 @@ export function useRegister() {
           return;
         }
 
-        // Store userId
-        if (result.userId && typeof window !== "undefined") {
-          localStorage.setItem("userId", result.userId);
-          if (result.verificationToken) {
-            localStorage.setItem("verificationToken", result.verificationToken);
-          }
+        if (result.verificationToken) {
+          sessionStorage.setItem(
+            "verification_token",
+            result.verificationToken
+          );
         }
 
         addToast({
@@ -105,7 +104,7 @@ export function useRegister() {
         }
         setCaptchaToken(null);
       }
-    },
+    }
   );
 
   return {

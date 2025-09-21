@@ -4,20 +4,32 @@ type ResendTimerProps = {
   handleResendOtp: () => Promise<number>;
   verificationToken: string | null;
   resending: boolean;
+  cooldown?: number;
 };
 
 export const ResendTimer: React.FC<ResendTimerProps> = ({
   handleResendOtp,
   verificationToken,
   resending,
+  cooldown = 0,
 }) => {
   const [time, setTime] = useState<number>(120);
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const storageKey = useMemo(
     () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
-    [verificationToken],
+    [verificationToken]
   );
 
+  // Sync with cooldown from hook
+  useEffect(() => {
+    if (cooldown > 0) {
+      setTime(cooldown);
+      const expiresAtMs = Date.now() + cooldown * 1000;
+      sessionStorage.setItem(storageKey, String(expiresAtMs));
+    }
+  }, [cooldown, storageKey]);
+
+  // Initialize from storage on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -26,12 +38,11 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
     if (!isNaN(savedMs)) {
       const secondsLeft = Math.max(0, Math.ceil((savedMs - Date.now()) / 1000));
-
       setTime(secondsLeft || 0);
     } else {
-      setTime(120);
+      setTime(0);
     }
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -48,7 +59,9 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
   }, [time, resending]);
 
   const handleClick = useCallback(async () => {
-    if (!verificationToken || isDisabled) return;
+    if (!verificationToken || isDisabled) {
+      return;
+    }
 
     setDisabled(true);
     const cooldown = await handleResendOtp();

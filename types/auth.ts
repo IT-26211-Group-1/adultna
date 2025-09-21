@@ -34,7 +34,6 @@ export interface LoginResponse {
 export type RegisterResponse = {
   success: boolean;
   message?: string;
-  userId?: string;
   verificationToken?: string;
 };
 
@@ -71,6 +70,7 @@ export type ApiResponse<T> = {
 export type ResendOtpResponse = {
   success: boolean;
   message?: string;
+  verificationToken?: string;
   data?: {
     cooldownLeft?: number;
   };
@@ -105,7 +105,7 @@ export interface SecureAuthService {
   forgotPassword(email: string): Promise<AuthResponse>;
   resetPassword(
     password: string,
-    verificationToken: string,
+    verificationToken: string
   ): Promise<AuthResponse>;
   initiateGoogleAuth(): Promise<{ url: string }>;
 }
