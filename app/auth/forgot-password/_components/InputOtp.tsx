@@ -86,7 +86,7 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
   };
 
   const { loading, onSubmit } = useFormSubmit<OtpFormType>({
-    apiUrl: "/api/auth/forgot-password/verify-otp",
+    apiUrl: `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/forgot-password/verify-otp`,
     schema: forgotPasswordOtpSchema,
     requireCaptcha: false,
     toastLib: { addToast },
@@ -109,10 +109,11 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
 
       setResending(true);
 
-      const res = await fetch("/api/auth/forgot-password/send-otp", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/forgot-password/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ verificationToken: token, email }),
+        credentials: "include",
       });
 
       const data = await res.json();

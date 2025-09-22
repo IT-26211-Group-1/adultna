@@ -3,12 +3,9 @@ import { useState, useEffect } from "react";
 import EmailStep from "./InputEmail";
 import OtpStep from "./InputOtp";
 import ResetPasswordStep from "./ResetPassword";
-
-// Import the components we created for registration
 import { UserAuthTitle } from "../../register/_components/UserAuthTitle";
 import { ImageContainer } from "../../register/_components/ImageContainer";
 
-// Component: BackToLoginButton.tsx
 const BackToLoginButton = () => {
   return (
     <div className="mb-6">
