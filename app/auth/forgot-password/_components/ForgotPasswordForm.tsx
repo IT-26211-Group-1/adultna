@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 import EmailStep from "./InputEmail";
 import OtpStep from "./InputOtp";
 import ResetPasswordStep from "./ResetPassword";
@@ -37,26 +38,27 @@ export default function ForgotPassword() {
   const [token, setToken] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const { getSecureItem, setSecureItem } = useSecureStorage();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedStep = sessionStorage.getItem("forgotPasswordStep");
-      const storedToken = sessionStorage.getItem("forgotPasswordToken");
-      const storedEmail = sessionStorage.getItem("forgotPasswordEmail");
+      const storedStep = getSecureItem("forgotPasswordStep");
+      const storedToken = getSecureItem("forgotPasswordToken");
+      const storedEmail = getSecureItem("forgotPasswordEmail");
 
       if (storedStep) setStep(storedStep as "email" | "otp" | "reset");
       if (storedToken) setToken(storedToken);
       if (storedEmail) setEmail(storedEmail);
       setLoading(false);
     }
-  }, []);
+  }, [getSecureItem]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("forgotPasswordStep", step);
-      sessionStorage.setItem("forgotPasswordToken", token);
+      setSecureItem("forgotPasswordStep", step, 60); // 1 hour expiry
+      setSecureItem("forgotPasswordToken", token, 60); // 1 hour expiry
     }
-  }, [step, token]);
+  }, [step, token, setSecureItem]);
 
   if (loading) {
     return null;

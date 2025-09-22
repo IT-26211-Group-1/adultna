@@ -4,13 +4,15 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { verifyEmailSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { TOO_MANY_REQUESTS, UNAUTHORIZED } from "@/constants/http";
 import { ResendOtpResponse, VerifyEmailResponse } from "@/types/auth";
 
 export function useVerifyEmail() {
   const router = useRouter();
-  const { forceAuthCheck } = useAuthContext();
+  const { forceAuthCheck } = useAuth();
+  const { getSecureItem, setSecureItem, removeSecureItem } = useSecureStorage();
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export function useVerifyEmail() {
 
   // Check for verification token on mount
   useEffect(() => {
-    const token = sessionStorage.getItem("verification_token");
+    const token = getSecureItem("verification_token");
     setVerificationToken(token);
 
     if (!token) {
@@ -33,7 +35,7 @@ export function useVerifyEmail() {
     }
 
     setLoading(false);
-  }, [router]);
+  }, [router, getSecureItem]);
 
   // Simple countdown timer for cooldowns
   useEffect(() => {
@@ -64,7 +66,7 @@ export function useVerifyEmail() {
 
   const verifyEmail = useCallback(
     async (otp: string) => {
-      const currentToken = sessionStorage.getItem("verification_token");
+      const currentToken = getSecureItem("verification_token");
       setVerificationToken(currentToken);
 
       if (!currentToken) {
@@ -148,7 +150,7 @@ export function useVerifyEmail() {
           color: "success",
         });
 
-        sessionStorage.removeItem("verification_token");
+        removeSecureItem("verification_token");
 
         setTimeout(() => {
           router.push("/auth/onboarding");
@@ -166,7 +168,7 @@ export function useVerifyEmail() {
         }
       }
     },
-    [router, verificationToken, verifyCooldown, forceAuthCheck]
+    [router, verificationToken, verifyCooldown, forceAuthCheck, getSecureItem, removeSecureItem]
   );
 
   const resendOtp = useCallback(async (): Promise<number> => {
@@ -183,7 +185,7 @@ export function useVerifyEmail() {
       return resendCooldown;
     }
 
-    const currentToken = sessionStorage.getItem("verification_token");
+    const currentToken = getSecureItem("verification_token");
     if (!currentToken) {
       addToast({
         title: "No verification session found",
@@ -246,7 +248,7 @@ export function useVerifyEmail() {
 
       // Update verification token if provided
       if (result.verificationToken) {
-        sessionStorage.setItem("verification_token", result.verificationToken);
+        setSecureItem("verification_token", result.verificationToken, 60); // 1 hour expiry
         setVerificationToken(result.verificationToken);
       }
 
@@ -267,7 +269,7 @@ export function useVerifyEmail() {
         setResending(false);
       }
     }
-  }, [resendCooldown]);
+  }, [resendCooldown, getSecureItem, setSecureItem]);
 
   return {
     loading,

@@ -2,7 +2,7 @@
 
 import { useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
 
 type RouteProps = {
@@ -12,7 +12,7 @@ type RouteProps = {
 };
 
 export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
-  const { isAuthenticated, isLoading, user } = useAuthContext();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
 }
 
 export function PublicRoute({ children, fallback }: RouteProps) {
-  const { isAuthenticated, isLoading } = useAuthContext();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function PublicRoute({ children, fallback }: RouteProps) {
 }
 
 export function OnboardingRoute({ children, fallback }: RouteProps) {
-  const { isAuthenticated, isLoading, user } = useAuthContext();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

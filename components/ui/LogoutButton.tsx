@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@heroui/react";
 import { addToast } from "@heroui/react";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LogoutButtonProps {
   variant?: "solid" | "bordered" | "light" | "flat" | "faded" | "shadow" | "ghost";
@@ -24,8 +23,7 @@ export function LogoutButton({
   children,
   confirmLogout = false
 }: LogoutButtonProps) {
-  const { logout } = useAuthContext();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { logout, isLoggingOut } = useAuth();
 
   const handleLogout = async () => {
     if (confirmLogout) {
@@ -33,12 +31,10 @@ export function LogoutButton({
       if (!confirmed) return;
     }
 
-    setIsLoggingOut(true);
-
     try {
-      await logout();
+      logout(); // React Query mutation handles the state
       addToast({
-        title: "Signed out successfully",
+        title: "Signing out...",
         color: "success",
       });
     } catch (error) {
@@ -48,8 +44,6 @@ export function LogoutButton({
         description: "Please try again",
         color: "danger",
       });
-    } finally {
-      setIsLoggingOut(false);
     }
   };
 

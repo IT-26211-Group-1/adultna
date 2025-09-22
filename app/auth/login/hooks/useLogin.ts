@@ -8,12 +8,14 @@ import { addToast } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { loginRequest } from "../lib/login";
 import { useState } from "react";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 
 export function useLogin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { forceAuthCheck } = useAuthContext();
+  const { forceAuthCheck } = useAuth();
+  const { setSecureItem } = useSecureStorage();
 
   const {
     register,
@@ -56,9 +58,10 @@ export function useLogin() {
           color: "warning",
         });
 
-        sessionStorage.setItem(
+        setSecureItem(
           "verification_token",
-          response.verificationToken as string
+          response.verificationToken as string,
+          60 // 1 hour expiry
         );
 
         router.replace("/auth/verify-email");
