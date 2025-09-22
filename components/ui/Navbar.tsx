@@ -3,6 +3,8 @@ import {
   NavbarContent,
   NavbarBrand,
   NavbarItem,
+  NavbarMenuToggle,
+  NavbarMenu,
 } from "@heroui/navbar";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
@@ -49,6 +51,13 @@ export const Navbar = () => {
         </ul>
       </NavbarContent>
 
+      {/* Mobile menu toggle (visible on small screens) */}
+      <NavbarContent className="flex lg:hidden basis-1/3" justify="end">
+        <NavbarItem>
+          <NavbarMenuToggle className="p-2 rounded-md hover:bg-muted" />
+        </NavbarItem>
+      </NavbarContent>
+
       {/* Right side (buttons) */}
       <NavbarContent
         className="hidden sm:flex basis-1/5 sm:basis-full"
@@ -74,6 +83,43 @@ export const Navbar = () => {
 
         <NavbarItem className="hidden md:flex" />
       </NavbarContent>
+
+      {/* Mobile menu (collapsible) */}
+      <NavbarMenu className="lg:hidden">
+        <ul className="flex flex-col gap-4 p-4">
+          {siteConfig.navItems.map((item) => (
+            <li key={item.href}>
+              <NextLink
+                className={clsx(
+                  linkStyles({ color: "foreground" }),
+                  "block w-full text-left text-base"
+                )}
+                href={item.href}
+              >
+                {item.label}
+              </NextLink>
+            </li>
+          ))}
+
+          <li>
+            <NextLink
+              className="block w-full px-4 py-2 rounded-lg text-base font-medium hover:bg-adult-green hover:text-white transition"
+              href="/auth/register"
+            >
+              Sign Up
+            </NextLink>
+          </li>
+
+          <li>
+            <NextLink
+              className="block w-full px-4 py-2 rounded-lg text-base font-medium bg-adult-green text-white hover:bg-orange-800 transition"
+              href="/auth/login"
+            >
+              Login
+            </NextLink>
+          </li>
+        </ul>
+      </NavbarMenu>
     </HeroUINavbar>
   );
 };
