@@ -11,11 +11,15 @@ export async function loginRequest(data: unknown): Promise<LoginResponse> {
     credentials: "include",
   });
 
-  if (!res.ok) {
-    throw await res.json();
-  }
-
   const response = await res.json();
+
+  if (!res.ok) {
+    // If it's a 401 with verification token, return it instead of throwing
+    if (res.status === 401 && response.verificationToken) {
+      return response;
+    }
+    throw response;
+  }
 
   return response;
 }

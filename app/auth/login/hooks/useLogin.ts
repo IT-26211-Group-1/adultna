@@ -41,7 +41,6 @@ export function useLogin() {
         const authResult = await forceAuthCheck();
 
         if (authResult) {
-          // Use setTimeout to ensure navigation happens after auth state update
           setTimeout(() => {
             router.replace("/dashboard");
           }, 100);
@@ -50,28 +49,23 @@ export function useLogin() {
             window.location.href = "/dashboard";
           }, 200);
         }
-      } else {
-        throw response;
-      }
-    } catch (error: any) {
-      if (error.needsVerification) {
+      } else if ("verificationToken" in response) {
         addToast({
           title: "Email not verified",
           description: "Check your inbox for the OTP",
           color: "warning",
         });
+
+        sessionStorage.setItem(
+          "verification_token",
+          response.verificationToken as string
+        );
+
         router.replace("/auth/verify-email");
-
-        return;
       }
-
-      const message = error.message || "Invalid email or password";
-
-      setError("email", { type: "manual", message });
-
+    } catch (err: any) {
       addToast({
-        title: "Login Failed",
-        description: message,
+        title: "Invalid Credentials",
         color: "danger",
       });
     } finally {

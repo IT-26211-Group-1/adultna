@@ -40,7 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+          next: {
+            revalidate: 900,
+          },
+        }
       );
 
       if (!res.ok) {

@@ -150,8 +150,9 @@ export function useVerifyEmail() {
 
         sessionStorage.removeItem("verification_token");
 
-        await forceAuthCheck();
-        router.push("/auth/onboarding");
+        setTimeout(() => {
+          router.push("/auth/onboarding");
+        }, 1000);
       } catch (err: any) {
         let errorMessage = "Verification failed. Please try again.";
 
