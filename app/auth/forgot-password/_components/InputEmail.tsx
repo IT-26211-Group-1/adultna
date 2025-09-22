@@ -31,7 +31,7 @@ export default function InputEmail({ setStep, setToken }: Props) {
   });
 
   const { loading, onSubmit } = useFormSubmit<EmailFormType>({
-    apiUrl: "/api/auth/forgot-password/send-otp",
+    apiUrl: `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/forgot-password/send-otp`,
     schema: forgotPasswordSchema,
     requireCaptcha: false,
     toastLib: { addToast },

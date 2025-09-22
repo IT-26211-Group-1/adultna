@@ -58,7 +58,7 @@ export default function ResetPassword({ token }: Props) {
   });
 
   const { loading, onSubmit } = useFormSubmit<ResetPasswordFormType>({
-    apiUrl: "/api/auth/forgot-password/reset-password",
+    apiUrl: `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/forgot-password/reset`,
     schema: resetPasswordSchema,
     requireCaptcha: false,
     toastLib: { addToast },
