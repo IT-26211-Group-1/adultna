@@ -1,0 +1,90 @@
+"use client";
+
+import { useCallback } from "react";
+
+export function useSecureStorage() {
+  const encrypt = useCallback((data: string): string => {
+    return btoa(encodeURIComponent(data));
+  }, []);
+
+  const decrypt = useCallback((data: string): string => {
+    try {
+      return decodeURIComponent(atob(data));
+    } catch {
+      return "";
+    }
+  }, []);
+
+  const setSecureItem = useCallback(
+    (key: string, value: string, expiryMinutes: number = 30) => {
+      const expiry = Date.now() + expiryMinutes * 60 * 1000;
+      const secureData = {
+        value: encrypt(value),
+        expiry,
+        checksum: btoa(value + expiry.toString()).slice(0, 8), // Simple integrity check
+      };
+
+      try {
+        sessionStorage.setItem(`secure_${key}`, JSON.stringify(secureData));
+      } catch (error) {
+        console.warn("Failed to store secure data:", error);
+      }
+    },
+    [encrypt]
+  );
+
+  const getSecureItem = useCallback(
+    (key: string): string | null => {
+      try {
+        const stored = sessionStorage.getItem(`secure_${key}`);
+        if (!stored) return null;
+
+        const secureData = JSON.parse(stored);
+
+        // Check expiry
+        if (Date.now() > secureData.expiry) {
+          sessionStorage.removeItem(`secure_${key}`);
+          return null;
+        }
+
+        const decryptedValue = decrypt(secureData.value);
+
+        // Verify integrity
+        const expectedChecksum = btoa(
+          decryptedValue + secureData.expiry.toString()
+        ).slice(0, 8);
+        if (expectedChecksum !== secureData.checksum) {
+          console.warn("Data integrity check failed");
+          sessionStorage.removeItem(`secure_${key}`);
+          return null;
+        }
+
+        return decryptedValue;
+      } catch (error) {
+        console.warn("Failed to retrieve secure data:", error);
+        return null;
+      }
+    },
+    [decrypt]
+  );
+
+  const removeSecureItem = useCallback((key: string) => {
+    sessionStorage.removeItem(`secure_${key}`);
+  }, []);
+
+  const clearAllSecure = useCallback(() => {
+    const keys = Object.keys(sessionStorage);
+    keys.forEach((key) => {
+      if (key.startsWith("secure_")) {
+        sessionStorage.removeItem(key);
+      }
+    });
+  }, []);
+
+  return {
+    setSecureItem,
+    getSecureItem,
+    removeSecureItem,
+    clearAllSecure,
+  };
+}
