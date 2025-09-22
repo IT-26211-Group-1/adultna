@@ -63,9 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      setIsLoading(true);
-      setUser(null);
-
       await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/logout`, {
         method: "POST",
         credentials: "include",
@@ -73,8 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      setIsLoading(false);
-      router.replace("/auth/login");
+      window.location.href = "/auth/login";
     }
   };
 
