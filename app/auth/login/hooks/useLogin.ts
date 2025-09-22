@@ -32,12 +32,24 @@ export function useLogin() {
       const response = await loginRequest(data);
 
       if (response.success) {
-        forceAuthCheck(); // Refresh auth context
-        router.replace("/dashboard");
         addToast({
           title: "Login Successful!",
           color: "success",
         });
+
+        // Wait for auth check to complete before navigation
+        const authResult = await forceAuthCheck();
+
+        if (authResult) {
+          // Use setTimeout to ensure navigation happens after auth state update
+          setTimeout(() => {
+            router.replace("/dashboard");
+          }, 100);
+        } else {
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 200);
+        }
       } else {
         throw response;
       }

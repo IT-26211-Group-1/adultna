@@ -1,90 +1,69 @@
 "use client";
 
-import { useEffect, ReactNode, memo } from "react";
+import { useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/providers/AuthProvider";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
 
-interface ProtectedRouteProps {
+type RouteProps = {
   children: ReactNode;
   fallback?: ReactNode;
   roles?: string[];
-}
+};
 
-export const ProtectedRoute = memo(
-  ({ children, fallback, roles }: ProtectedRouteProps) => {
-    const { isAuthenticated, isLoading, user } = useAuth();
-    const router = useRouter();
+export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
+  const { isAuthenticated, isLoading, user } = useAuthContext();
+  const router = useRouter();
 
-    useEffect(() => {
-      if (!isLoading && !isAuthenticated) {
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated) {
         router.replace("/auth/login");
       } else if (roles && user && !roles.includes(user.role)) {
-      }
-    }, [isAuthenticated, isLoading, router]);
-
-    if (isLoading) {
-      return fallback || <LoadingSpinner />;
-    }
-
-    if (!isAuthenticated || (roles && !roles.includes(user?.role ?? "user"))) {
-      return null;
-    }
-
-    return <>{children}</>;
-  },
-);
-
-export const PublicRoute = memo(
-  ({ children, fallback }: ProtectedRouteProps) => {
-    const { isAuthenticated, isLoading } = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-      if (!isLoading && isAuthenticated) {
         router.replace("/dashboard");
       }
-    }, [isAuthenticated, isLoading, router]);
-
-    if (isLoading) {
-      return fallback || <LoadingSpinner />;
     }
+  }, [isAuthenticated, isLoading, user, roles, router]);
 
-    // if (isAuthenticated) {
-    //   return null;
-    // }
+  if (isLoading) return fallback || <LoadingSpinner />;
+  if (!isAuthenticated || (roles && user && !roles.includes(user.role)))
+    return null;
 
-    return <>{children}</>;
-  },
-);
+  return <>{children}</>;
+}
 
-export const OnboardingRoute = memo(
-  ({ children, fallback }: ProtectedRouteProps) => {
-    const { isAuthenticated, isLoading, user } = useAuth();
-    const router = useRouter();
+export function PublicRoute({ children, fallback }: RouteProps) {
+  const { isAuthenticated, isLoading } = useAuthContext();
+  const router = useRouter();
 
-    useEffect(() => {
-      if (!isLoading) {
-        if (!isAuthenticated) {
-          router.replace("/auth/login");
-        } else if (user && user.role !== "pending") {
-          router.replace("/dashboard");
-        }
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading) return fallback || <LoadingSpinner />;
+  if (isAuthenticated) return null;
+
+  return <>{children}</>;
+}
+
+export function OnboardingRoute({ children, fallback }: RouteProps) {
+  const { isAuthenticated, isLoading, user } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.replace("/auth/login");
+      } else if (user && user.role !== "user") {
+        router.replace("/dashboard");
       }
-    }, [isAuthenticated, isLoading, user, router]);
-
-    if (isLoading) {
-      return fallback || <LoadingSpinner />;
     }
+  }, [isAuthenticated, isLoading, user, router]);
 
-    if (!isAuthenticated) {
-      return null;
-    }
+  if (isLoading) return fallback || <LoadingSpinner />;
+  if (!isAuthenticated) return null;
 
-    return <>{children}</>;
-  },
-);
-
-LoadingSpinner.displayName = "LoadingSpinner";
-ProtectedRoute.displayName = "ProtectedRoute";
-PublicRoute.displayName = "PublicRoute";
+  return <>{children}</>;
+}
