@@ -11,13 +11,14 @@ export function useResendTimer() {
   const checkExistingTimer = useCallback(() => {
     try {
       const stored = sessionStorage.getItem(TIMER_KEY);
+
       if (!stored) return;
 
       const timerData = JSON.parse(stored);
       const now = Date.now();
       const remaining = Math.max(
         0,
-        Math.ceil((timerData.expiresAt - now) / 1000)
+        Math.ceil((timerData.expiresAt - now) / 1000),
       );
 
       if (remaining > 0) {
@@ -54,6 +55,7 @@ export function useResendTimer() {
   const formatTime = useCallback((seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
+
     return mins > 0
       ? `${mins}:${secs.toString().padStart(2, "0")}`
       : `${secs}s`;
@@ -74,10 +76,12 @@ export function useResendTimer() {
           if (newTime <= 0) {
             setIsActive(false);
             sessionStorage.removeItem(TIMER_KEY);
+
             return 0;
           }
 
           const expiresAt = Date.now() + newTime * 1000;
+
           try {
             sessionStorage.setItem(TIMER_KEY, JSON.stringify({ expiresAt }));
           } catch (error) {

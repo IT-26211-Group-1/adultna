@@ -78,7 +78,8 @@ export function useAuth() {
 
         if (response.success && response.user) {
           // Default onboardingStatus to "not_started" if missing
-          const onboardingStatus = response.user.onboardingStatus || "not_started";
+          const onboardingStatus =
+            response.user.onboardingStatus || "not_started";
 
           // Add computed onboardingCompleted property for backward compatibility
           const user = {
@@ -86,8 +87,10 @@ export function useAuth() {
             onboardingStatus,
             onboardingCompleted: onboardingStatus === "completed",
           };
+
           return user;
         }
+
         return null;
       } catch (error) {
         if (
@@ -117,6 +120,7 @@ export function useAuth() {
       ) {
         return false;
       }
+
       return failureCount < 2;
     },
   });
@@ -183,6 +187,7 @@ export function useAuth() {
   const updateUser = (updatedUser: Partial<User>) => {
     queryClient.setQueryData(queryKeys.auth.me(), (oldUser: User | null) => {
       if (!oldUser) return null;
+
       return { ...oldUser, ...updatedUser };
     });
   };
@@ -191,10 +196,12 @@ export function useAuth() {
 
   const isAuthFresh = () => {
     const queryState = queryClient.getQueryState(queryKeys.auth.me());
+
     if (!queryState?.dataUpdatedAt) return false;
 
     const now = Date.now();
     const dataAge = now - queryState.dataUpdatedAt;
+
     return dataAge < 15 * 60 * 1000;
   };
 

@@ -13,15 +13,17 @@ export function useVerifyEmail() {
     useEmailVerification();
   const { getSecureItem } = useSecureStorage();
   const [verificationToken, setVerificationToken] = useState<string | null>(
-    null
+    null,
   );
   const [initialCooldown, setInitialCooldown] = useState<number>(0);
 
   useEffect(() => {
     const token = getSecureItem("verification_token");
+
     setVerificationToken(token);
 
     const cooldownData = sessionStorage.getItem("initial_resend_cooldown");
+
     if (cooldownData) {
       try {
         const { cooldown, timestamp } = JSON.parse(cooldownData);
@@ -52,21 +54,25 @@ export function useVerifyEmail() {
   const handleVerifyEmail = useCallback(
     (otp: string) => {
       const currentToken = getSecureItem("verification_token");
+
       if (!currentToken) {
         addToast({
           title: "No verification session found",
           color: "danger",
         });
         router.replace("/auth/register");
+
         return;
       }
 
       const parsed = verifyEmailSchema.safeParse({ otp });
+
       if (!parsed.success) {
         addToast({
           title: parsed.error.issues[0]?.message || "Invalid verification code",
           color: "danger",
         });
+
         return;
       }
 
@@ -90,20 +96,22 @@ export function useVerifyEmail() {
               color: "danger",
             });
           },
-        }
+        },
       );
     },
-    [verifyEmail, getSecureItem, router]
+    [verifyEmail, getSecureItem, router],
   );
 
   const handleResendOtp = useCallback(async (): Promise<number> => {
     const currentToken = getSecureItem("verification_token");
+
     if (!currentToken) {
       addToast({
         title: "No verification session found",
         color: "danger",
       });
       router.replace("/auth/register");
+
       return 120;
     }
 
@@ -125,6 +133,7 @@ export function useVerifyEmail() {
           description: `You can resend OTP in ${error.data.cooldownLeft} seconds`,
           color: "warning",
         });
+
         return error.data.cooldownLeft;
       }
 

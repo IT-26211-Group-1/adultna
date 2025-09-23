@@ -27,19 +27,20 @@ export function useSecureStorage() {
       try {
         sessionStorage.setItem(`secure_${key}`, JSON.stringify(secureData));
         window.dispatchEvent(
-          new CustomEvent(`secureStorage:${key}`, { detail: value })
+          new CustomEvent(`secureStorage:${key}`, { detail: value }),
         );
       } catch (error) {
         console.warn("Failed to store secure data:", error);
       }
     },
-    [encrypt]
+    [encrypt],
   );
 
   const getSecureItem = useCallback(
     (key: string): string | null => {
       try {
         const stored = sessionStorage.getItem(`secure_${key}`);
+
         if (!stored) return null;
 
         const secureData = JSON.parse(stored);
@@ -47,6 +48,7 @@ export function useSecureStorage() {
         // Check expiry
         if (Date.now() > secureData.expiry) {
           sessionStorage.removeItem(`secure_${key}`);
+
           return null;
         }
 
@@ -54,21 +56,24 @@ export function useSecureStorage() {
 
         // Verify integrity
         const expectedChecksum = btoa(
-          decryptedValue + secureData.expiry.toString()
+          decryptedValue + secureData.expiry.toString(),
         ).slice(0, 8);
+
         if (expectedChecksum !== secureData.checksum) {
           console.warn("Data integrity check failed");
           sessionStorage.removeItem(`secure_${key}`);
+
           return null;
         }
 
         return decryptedValue;
       } catch (error) {
         console.warn("Failed to retrieve secure data:", error);
+
         return null;
       }
     },
-    [decrypt]
+    [decrypt],
   );
 
   const removeSecureItem = useCallback((key: string) => {
@@ -77,6 +82,7 @@ export function useSecureStorage() {
 
   const clearAllSecure = useCallback(() => {
     const keys = Object.keys(sessionStorage);
+
     keys.forEach((key) => {
       if (key.startsWith("secure_")) {
         sessionStorage.removeItem(key);
@@ -106,12 +112,13 @@ export function useSecureStorageListener(key: string) {
     };
 
     const eventName = `secureStorage:${key}`;
+
     window.addEventListener(eventName, handleStorageChange as EventListener);
 
     return () => {
       window.removeEventListener(
         eventName,
-        handleStorageChange as EventListener
+        handleStorageChange as EventListener,
       );
     };
   }, [key, getSecureItem]);

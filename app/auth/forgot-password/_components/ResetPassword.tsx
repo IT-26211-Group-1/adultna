@@ -57,8 +57,10 @@ export default function ResetPassword() {
 
   const handleFormSubmit = (data: ResetPasswordFormType) => {
     const token = getStoredToken();
+
     if (!token) {
       addToast({ title: "Missing verification token", color: "danger" });
+
       return;
     }
 
@@ -80,7 +82,7 @@ export default function ResetPassword() {
             color: "danger",
           });
         },
-      }
+      },
     );
   };
 

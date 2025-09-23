@@ -9,12 +9,17 @@ interface Priority {
 }
 
 export function usePriorities() {
-  const { question: prioritiesQuestion, isLoading: loading, error, refetch } = usePrioritiesQuestion();
+  const {
+    question: prioritiesQuestion,
+    isLoading: loading,
+    error,
+    refetch,
+  } = usePrioritiesQuestion();
 
   const isSelected = useCallback(
     (optionId: number, selectedPriorities: Priority[]) =>
       selectedPriorities.some((priority) => priority.optionId === optionId),
-    []
+    [],
   );
 
   const createSelectHandler = useCallback(
@@ -22,7 +27,7 @@ export function usePriorities() {
       questionId,
       optionId,
     }),
-    []
+    [],
   );
 
   const togglePriority = useCallback(
@@ -30,16 +35,16 @@ export function usePriorities() {
       questionId: number,
       optionId: number,
       selectedPriorities: Priority[],
-      setSelectedPriorities: (priorities: Priority[]) => void
+      setSelectedPriorities: (priorities: Priority[]) => void,
     ) => {
       const existingIndex = selectedPriorities.findIndex(
-        (priority) => priority.optionId === optionId
+        (priority) => priority.optionId === optionId,
       );
 
       if (existingIndex >= 0) {
         // Remove if already selected
         setSelectedPriorities(
-          selectedPriorities.filter((_, index) => index !== existingIndex)
+          selectedPriorities.filter((_, index) => index !== existingIndex),
         );
       } else {
         // Add if not selected
@@ -49,7 +54,7 @@ export function usePriorities() {
         ]);
       }
     },
-    []
+    [],
   );
 
   return {

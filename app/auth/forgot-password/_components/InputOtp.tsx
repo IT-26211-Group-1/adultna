@@ -88,8 +88,10 @@ export default function InputOtp() {
 
   const handleResendOtp = async (): Promise<number> => {
     const email = getStoredEmail();
+
     if (!email) {
       addToast({ title: "Email is missing", color: "danger" });
+
       return 120; // Return default cooldown
     }
 
@@ -117,8 +119,10 @@ export default function InputOtp() {
 
   const handleFormSubmit = (data: OtpFormType) => {
     const token = getStoredToken();
+
     if (!token) {
       addToast({ title: "Verification token is missing", color: "danger" });
+
       return;
     }
 

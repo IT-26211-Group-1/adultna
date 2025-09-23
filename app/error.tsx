@@ -21,14 +21,14 @@ export default function Error({
             <svg
               className="w-8 h-8 text-crayolaOrange"
               fill="none"
-              viewBox="0 0 24 24"
               stroke="currentColor"
+              viewBox="0 0 24 24"
             >
               <path
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.963-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.963-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
               />
             </svg>
           </div>
@@ -38,35 +38,36 @@ export default function Error({
               Oops! Something went wrong
             </h2>
             <p className="text-ultraViolet font-inter text-sm">
-              We encountered an unexpected error. Don't worry, we're on it!
+              We encountered an unexpected error. Don&apos;t worry, we&apos;re
+              on it!
             </p>
           </div>
         </div>
 
         <div className="space-y-3">
           <button
-            onClick={() => reset()}
             className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-white bg-adultGreen hover:bg-adultGreen/90 transition-colors duration-200 font-inter font-medium"
+            onClick={() => reset()}
           >
             <svg
               className="w-4 h-4"
               fill="none"
-              viewBox="0 0 24 24"
               stroke="currentColor"
+              viewBox="0 0 24 24"
             >
               <path
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
             Try again
           </button>
 
           <button
-            onClick={() => window.location.href = '/'}
             className="w-full px-6 py-3 rounded-lg text-adultGreen bg-peachYellow hover:bg-peachYellow/80 transition-colors duration-200 font-inter font-medium"
+            onClick={() => (window.location.href = "/")}
           >
             Go to Homepage
           </button>
@@ -74,7 +75,7 @@ export default function Error({
 
         <div className="pt-4 border-t border-periwinkle/30">
           <p className="text-xs text-ultraViolet/60 font-inter">
-            Error ID: {(error as any).digest || 'Unknown'}
+            Error ID: {(error as any).digest || "Unknown"}
           </p>
         </div>
       </div>

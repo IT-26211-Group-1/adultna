@@ -68,6 +68,7 @@ export function useOnboardingQuestions() {
       ) {
         return false;
       }
+
       return failureCount < 2;
     },
   });

@@ -5,7 +5,5 @@ interface ProtectedLayoutProps {
 }
 
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
-  return (
-    <ProtectedRoute roles={["user"]}>{children}</ProtectedRoute>
-  );
+  return <ProtectedRoute roles={["user"]}>{children}</ProtectedRoute>;
 }

@@ -61,7 +61,7 @@ export function useRegister() {
             credentials: "include",
             body: JSON.stringify({ ...data, token: captchaToken }),
             signal: controller.signal,
-          }
+          },
         );
 
         const result: RegisterResponse = await res.json();
@@ -90,7 +90,7 @@ export function useRegister() {
             JSON.stringify({
               cooldown: result.data.cooldownLeft,
               timestamp: Date.now(),
-            })
+            }),
           );
         }
 
@@ -114,7 +114,7 @@ export function useRegister() {
         }
         setCaptchaToken(null);
       }
-    }
+    },
   );
 
   return {

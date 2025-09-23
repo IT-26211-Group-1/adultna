@@ -23,7 +23,7 @@ export class ApiClient {
   static async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    baseUrl: string = AUTH_API_BASE_URL as string
+    baseUrl: string = AUTH_API_BASE_URL as string,
   ): Promise<T> {
     const url = `${baseUrl}${endpoint}`;
 
@@ -54,7 +54,7 @@ export class ApiClient {
         throw new ApiError(
           data?.message || `HTTP ${response.status}: ${response.statusText}`,
           response.status,
-          data
+          data,
         );
       }
 
@@ -68,7 +68,7 @@ export class ApiClient {
       throw new ApiError(
         error instanceof Error ? error.message : "Network error",
         0,
-        null
+        null,
       );
     }
   }
@@ -76,7 +76,7 @@ export class ApiClient {
   static get<T>(
     endpoint: string,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "GET" }, baseUrl);
   }
@@ -85,7 +85,7 @@ export class ApiClient {
     endpoint: string,
     data?: any,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(
       endpoint,
@@ -94,7 +94,7 @@ export class ApiClient {
         method: "POST",
         body: data ? JSON.stringify(data) : undefined,
       },
-      baseUrl
+      baseUrl,
     );
   }
 
@@ -102,7 +102,7 @@ export class ApiClient {
     endpoint: string,
     data?: any,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(
       endpoint,
@@ -111,14 +111,14 @@ export class ApiClient {
         method: "PUT",
         body: data ? JSON.stringify(data) : undefined,
       },
-      baseUrl
+      baseUrl,
     );
   }
 
   static delete<T>(
     endpoint: string,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" }, baseUrl);
   }
@@ -129,7 +129,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public data: any = null
+    public data: any = null,
   ) {
     super(message);
     this.name = "ApiError";

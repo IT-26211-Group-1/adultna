@@ -31,6 +31,7 @@ export default function OnboardingModal({
   // Use secure storage for onboarding data
   const [currentStep, setCurrentStep] = useState<number>(() => {
     const stored = getSecureItem("onboarding-currentStep");
+
     return stored ? parseInt(stored) : STEPS.INTRODUCTION;
   });
 
@@ -43,6 +44,7 @@ export default function OnboardingModal({
     optionId: number;
   } | null>(() => {
     const stored = getSecureItem("onboarding-lifeStage");
+
     return stored ? JSON.parse(stored) : null;
   });
 
@@ -50,6 +52,7 @@ export default function OnboardingModal({
     { questionId: number; optionId: number }[]
   >(() => {
     const stored = getSecureItem("onboarding-priorities");
+
     return stored ? JSON.parse(stored) : [];
   });
 
@@ -65,14 +68,14 @@ export default function OnboardingModal({
   };
 
   const updateSelectedLifeStage = (
-    lifeStage: { questionId: number; optionId: number } | null
+    lifeStage: { questionId: number; optionId: number } | null,
   ) => {
     setSelectedLifeStage(lifeStage);
     setSecureItem("onboarding-lifeStage", JSON.stringify(lifeStage), 1440); // 24 hours
   };
 
   const updateSelectedPriorities = (
-    priorities: { questionId: number; optionId: number }[]
+    priorities: { questionId: number; optionId: number }[],
   ) => {
     setSelectedPriorities(priorities);
     setSecureItem("onboarding-priorities", JSON.stringify(priorities), 1440); // 24 hours
@@ -80,7 +83,7 @@ export default function OnboardingModal({
 
   const nextStep = useCallback(() => {
     updateCurrentStep(
-      currentStep < STEPS.YOUR_PATH ? currentStep + 1 : currentStep
+      currentStep < STEPS.YOUR_PATH ? currentStep + 1 : currentStep,
     );
   }, [currentStep, updateCurrentStep]);
 
@@ -88,21 +91,24 @@ export default function OnboardingModal({
     nextStep();
   }, [nextStep]);
 
-  const handleComplete = useCallback(async (data: any) => {
-    await onComplete(data);
+  const handleComplete = useCallback(
+    async (data: any) => {
+      await onComplete(data);
 
-    // Reset onboarding state after successful submission
-    updateCurrentStep(STEPS.INTRODUCTION);
-    updateDisplayName("");
-    updateSelectedLifeStage(null);
-    updateSelectedPriorities([]);
-  }, [
-    onComplete,
-    updateCurrentStep,
-    updateDisplayName,
-    updateSelectedLifeStage,
-    updateSelectedPriorities,
-  ]);
+      // Reset onboarding state after successful submission
+      updateCurrentStep(STEPS.INTRODUCTION);
+      updateDisplayName("");
+      updateSelectedLifeStage(null);
+      updateSelectedPriorities([]);
+    },
+    [
+      onComplete,
+      updateCurrentStep,
+      updateDisplayName,
+      updateSelectedLifeStage,
+      updateSelectedPriorities,
+    ],
+  );
 
   if (!isOpen || !hydrated) return null;
 
@@ -138,10 +144,10 @@ export default function OnboardingModal({
         return (
           <YourPathStep
             displayName={displayName}
+            isSubmitting={isSubmitting}
             lifeStage={selectedLifeStage}
             priorities={selectedPriorities}
             onComplete={handleComplete}
-            isSubmitting={isSubmitting}
           />
         );
       default:

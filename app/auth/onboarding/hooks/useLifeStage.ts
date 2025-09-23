@@ -16,16 +16,15 @@ export function useLifeStage() {
     refetch,
   } = useLifeStageQuestion();
 
-
   const isSelected = useCallback(
     (
       optionId: number,
       questionId: number,
-      selectedLifeStage: LifeStageSelection | null
+      selectedLifeStage: LifeStageSelection | null,
     ) =>
       selectedLifeStage?.optionId === optionId &&
       selectedLifeStage?.questionId === questionId,
-    []
+    [],
   );
 
   const createSelectHandler = useCallback(
@@ -33,7 +32,7 @@ export function useLifeStage() {
       questionId,
       optionId,
     }),
-    []
+    [],
   );
 
   return {

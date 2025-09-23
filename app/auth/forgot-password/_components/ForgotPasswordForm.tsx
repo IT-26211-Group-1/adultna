@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
 import { useSecureStorageListener } from "@/hooks/useSecureStorage";
 import EmailStep from "./InputEmail";
 import OtpStep from "./InputOtp";

@@ -17,7 +17,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const storageKey = useMemo(
     () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
-    [verificationToken]
+    [verificationToken],
   );
 
   // Sync with cooldown from hook
@@ -25,6 +25,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
     if (cooldown > 0) {
       setTime(cooldown);
       const expiresAtMs = Date.now() + cooldown * 1000;
+
       sessionStorage.setItem(storageKey, String(expiresAtMs));
     }
   }, [cooldown, storageKey]);
@@ -38,6 +39,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
     if (!isNaN(savedMs)) {
       const secondsLeft = Math.max(0, Math.ceil((savedMs - Date.now()) / 1000));
+
       setTime(secondsLeft || 0);
     } else {
       setTime(0);
@@ -51,9 +53,11 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
       timer = setInterval(() => {
         setTime((prev) => {
           const newTime = Math.max(0, prev - 1);
+
           if (newTime === 0) {
             setDisabled(false);
           }
+
           return newTime;
         });
       }, 1000);
@@ -78,6 +82,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
     try {
       const cooldown = await handleResendOtp();
       const expiresAtMs = Date.now() + cooldown * 1000;
+
       sessionStorage.setItem(storageKey, String(expiresAtMs));
       setTime(cooldown);
     } catch (error) {
