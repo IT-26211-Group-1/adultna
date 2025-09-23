@@ -45,17 +45,27 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
   }, [storageKey]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: NodeJS.Timeout | undefined;
 
     if (time > 0 && !resending) {
       timer = setInterval(() => {
-        setTime((prev) => Math.max(0, prev - 1));
+        setTime((prev) => {
+          const newTime = Math.max(0, prev - 1);
+          if (newTime === 0) {
+            setDisabled(false);
+          }
+          return newTime;
+        });
       }, 1000);
-    } else {
+    } else if (time === 0) {
       setDisabled(false);
     }
 
-    return () => clearInterval(timer);
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
   }, [time, resending]);
 
   const handleClick = useCallback(async () => {
@@ -64,12 +74,16 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
     }
 
     setDisabled(true);
-    const cooldown = await handleResendOtp();
 
-    const expiresAtMs = Date.now() + cooldown * 1000;
-
-    sessionStorage.setItem(storageKey, String(expiresAtMs));
-    setTime(cooldown);
+    try {
+      const cooldown = await handleResendOtp();
+      const expiresAtMs = Date.now() + cooldown * 1000;
+      sessionStorage.setItem(storageKey, String(expiresAtMs));
+      setTime(cooldown);
+    } catch (error) {
+      console.error("Failed to resend OTP:", error);
+      setDisabled(false);
+    }
   }, [handleResendOtp, isDisabled, storageKey, verificationToken]);
 
   return (
