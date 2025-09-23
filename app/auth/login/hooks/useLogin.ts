@@ -53,11 +53,19 @@ export function useLogin() {
         }
       },
       onError: (error: any) => {
-        addToast({
-          title: "Invalid Credentials",
-          description: error?.message || "Please check your email and password",
-          color: "danger",
-        });
+        if (error?.message === "Please verify your email first") {
+          addToast({
+            title: "Email not verified",
+            description: "Check your inbox for the OTP",
+            color: "warning",
+          });
+        } else {
+          addToast({
+            title: "Invalid Credentials",
+            description: error?.message || "Please check your email and password",
+            color: "danger",
+          });
+        }
       },
     });
   });
