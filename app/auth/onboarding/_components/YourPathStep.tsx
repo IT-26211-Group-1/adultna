@@ -1,7 +1,7 @@
 "use client";
 
 import { OnboardingData, YourPathStepProps } from "@/types/onboarding";
-import React, { useState } from "react";
+import React from "react";
 import { LoadingButton } from "@/components/ui/Button";
 
 export default function YourPathStep({
@@ -9,24 +9,18 @@ export default function YourPathStep({
   lifeStage,
   priorities,
   onComplete,
+  isSubmitting = false,
 }: YourPathStepProps) {
-  const [submitting, setSubmitting] = useState(false);
-
   const handleSubmit = async () => {
-    setSubmitting(true);
-    try {
-      const payload: OnboardingData = {
-        displayName: displayName || undefined,
-        ...(lifeStage
-          ? { questionId: lifeStage.questionId, optionId: lifeStage.optionId }
-          : {}),
-        priorities,
-      };
+    const payload: OnboardingData = {
+      displayName: displayName || undefined,
+      ...(lifeStage
+        ? { questionId: lifeStage.questionId, optionId: lifeStage.optionId }
+        : {}),
+      priorities,
+    };
 
-      await onComplete(payload);
-    } finally {
-      setSubmitting(false);
-    }
+    await onComplete(payload);
   };
 
   return (
@@ -55,7 +49,7 @@ export default function YourPathStep({
         <div className="flex justify-end">
           <LoadingButton
             className="px-8 py-3"
-            loading={submitting}
+            loading={isSubmitting}
             type="button"
             onClick={handleSubmit}
           >

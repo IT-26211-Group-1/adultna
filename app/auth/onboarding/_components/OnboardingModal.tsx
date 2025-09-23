@@ -12,12 +12,14 @@ import { useSecureStorage } from "@/hooks/useSecureStorage";
 type OnboardingModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onComplete: (data: any) => void;
+  onComplete: (data: any) => Promise<void>;
+  isSubmitting?: boolean;
 };
 
 export default function OnboardingModal({
   isOpen,
   onComplete,
+  isSubmitting = false,
 }: OnboardingModalProps) {
   const [hydrated, setHydrated] = useState(false);
   const { getSecureItem, setSecureItem } = useSecureStorage();
@@ -62,47 +64,39 @@ export default function OnboardingModal({
     setSecureItem("onboarding-displayName", name, 1440); // 24 hours
   };
 
-  const updateSelectedLifeStage = (lifeStage: { questionId: number; optionId: number } | null) => {
+  const updateSelectedLifeStage = (
+    lifeStage: { questionId: number; optionId: number } | null
+  ) => {
     setSelectedLifeStage(lifeStage);
     setSecureItem("onboarding-lifeStage", JSON.stringify(lifeStage), 1440); // 24 hours
   };
 
-  const updateSelectedPriorities = (priorities: { questionId: number; optionId: number }[]) => {
+  const updateSelectedPriorities = (
+    priorities: { questionId: number; optionId: number }[]
+  ) => {
     setSelectedPriorities(priorities);
     setSecureItem("onboarding-priorities", JSON.stringify(priorities), 1440); // 24 hours
   };
 
   const nextStep = useCallback(() => {
-    updateCurrentStep(currentStep < STEPS.YOUR_PATH ? currentStep + 1 : currentStep);
+    updateCurrentStep(
+      currentStep < STEPS.YOUR_PATH ? currentStep + 1 : currentStep
+    );
   }, [currentStep, updateCurrentStep]);
 
   const skipStep = useCallback(() => {
     nextStep();
   }, [nextStep]);
 
-  const handleComplete = useCallback(() => {
-    const payload = {
-      displayName: displayName || undefined,
-      ...(selectedLifeStage
-        ? {
-            questionId: selectedLifeStage.questionId,
-            optionId: selectedLifeStage.optionId,
-          }
-        : {}),
-      priorities: selectedPriorities,
-    };
+  const handleComplete = useCallback(async (data: any) => {
+    await onComplete(data);
 
-    onComplete(payload);
-
-    // Reset onboarding state
+    // Reset onboarding state after successful submission
     updateCurrentStep(STEPS.INTRODUCTION);
     updateDisplayName("");
     updateSelectedLifeStage(null);
     updateSelectedPriorities([]);
   }, [
-    displayName,
-    selectedLifeStage,
-    selectedPriorities,
     onComplete,
     updateCurrentStep,
     updateDisplayName,
@@ -135,7 +129,7 @@ export default function OnboardingModal({
         return (
           <PrioritiesStep
             selectedPriorities={selectedPriorities}
-            setSelectedPriorities={updateSelectedPriorities}
+            setSelectedPriorities={setSelectedPriorities}
             onNext={nextStep}
             onSkip={skipStep}
           />
@@ -147,6 +141,7 @@ export default function OnboardingModal({
             lifeStage={selectedLifeStage}
             priorities={selectedPriorities}
             onComplete={handleComplete}
+            isSubmitting={isSubmitting}
           />
         );
       default:

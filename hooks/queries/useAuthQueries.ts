@@ -10,7 +10,8 @@ export type User = {
   id: string;
   email: string;
   role: string;
-  onboardingCompleted?: boolean;
+  onboardingStatus?: "not_started" | "in_progress" | "completed";
+  onboardingCompleted?: boolean; // Computed property for backward compatibility
 };
 
 export type AuthMeResponse = {
@@ -74,7 +75,20 @@ export function useAuth() {
     queryFn: async () => {
       try {
         const response = await authApi.me();
-        return response.success && response.user ? response.user : null;
+
+        if (response.success && response.user) {
+          // Default onboardingStatus to "not_started" if missing
+          const onboardingStatus = response.user.onboardingStatus || "not_started";
+
+          // Add computed onboardingCompleted property for backward compatibility
+          const user = {
+            ...response.user,
+            onboardingStatus,
+            onboardingCompleted: onboardingStatus === "completed",
+          };
+          return user;
+        }
+        return null;
       } catch (error) {
         if (
           error instanceof ApiError &&

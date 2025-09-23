@@ -1,10 +1,15 @@
 "use client";
 
-// Base API
-export const API_BASE_URL =
+// Base API URLs
+export const AUTH_API_BASE_URL =
   process.env.NODE_ENV === "development"
     ? "/api/auth"
     : process.env.NEXT_PUBLIC_AUTH_SERVICE_URL;
+
+export const ONBOARDING_API_BASE_URL =
+  process.env.NODE_ENV === "development"
+    ? "/api/onboarding"
+    : process.env.NEXT_PUBLIC_ONBOARDING_SERVICE_URL;
 
 const defaultOptions: RequestInit = {
   credentials: "include",
@@ -17,9 +22,10 @@ const defaultOptions: RequestInit = {
 export class ApiClient {
   static async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    baseUrl: string = AUTH_API_BASE_URL as string
   ): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `${baseUrl}${endpoint}`;
 
     const config: RequestInit = {
       ...defaultOptions,
@@ -67,36 +73,54 @@ export class ApiClient {
     }
   }
 
-  static get<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: "GET" });
+  static get<T>(
+    endpoint: string,
+    options?: RequestInit,
+    baseUrl?: string
+  ): Promise<T> {
+    return this.request<T>(endpoint, { ...options, method: "GET" }, baseUrl);
   }
 
   static post<T>(
     endpoint: string,
     data?: any,
-    options?: RequestInit
+    options?: RequestInit,
+    baseUrl?: string
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: "POST",
-      body: data ? JSON.stringify(data) : undefined,
-    });
+    return this.request<T>(
+      endpoint,
+      {
+        ...options,
+        method: "POST",
+        body: data ? JSON.stringify(data) : undefined,
+      },
+      baseUrl
+    );
   }
 
   static put<T>(
     endpoint: string,
     data?: any,
-    options?: RequestInit
+    options?: RequestInit,
+    baseUrl?: string
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: "PUT",
-      body: data ? JSON.stringify(data) : undefined,
-    });
+    return this.request<T>(
+      endpoint,
+      {
+        ...options,
+        method: "PUT",
+        body: data ? JSON.stringify(data) : undefined,
+      },
+      baseUrl
+    );
   }
 
-  static delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: "DELETE" });
+  static delete<T>(
+    endpoint: string,
+    options?: RequestInit,
+    baseUrl?: string
+  ): Promise<T> {
+    return this.request<T>(endpoint, { ...options, method: "DELETE" }, baseUrl);
   }
 }
 
