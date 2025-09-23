@@ -50,5 +50,6 @@ export type YourPathStepProps = {
   displayName: string;
   lifeStage: { questionId: number; optionId: number } | null;
   priorities: { questionId: number; optionId: number }[];
-  onComplete: (data: OnboardingData) => void;
+  onComplete: (data: OnboardingData) => Promise<void>;
+  isSubmitting?: boolean;
 };

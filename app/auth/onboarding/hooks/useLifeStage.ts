@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Question } from "@/types/onboarding";
+import { useCallback } from "react";
+import { useLifeStageQuestion } from "@/hooks/queries/useOnboardingQueries";
 
 interface LifeStageSelection {
   questionId: number;
@@ -9,114 +9,23 @@ interface LifeStageSelection {
 }
 
 export function useLifeStage() {
-  const [lifeStageQuestion, setLifeStageQuestion] = useState<Question | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    question: lifeStageQuestion,
+    isLoading: loading,
+    error,
+    refetch,
+  } = useLifeStageQuestion();
 
-  // Get cookie value by name
-  const getCookie = (name: string): string | null => {
-    if (typeof window === "undefined") return null;
-
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-
-    if (parts.length === 2) {
-      return parts.pop()?.split(";").shift() || null;
-    }
-
-    return null;
-  };
-
-  const fetchLifeStageQuestion = async () => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Get access token from cookies
-      const accessToken = getCookie("access_token");
-
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-
-      if (accessToken) {
-        headers.Authorization = `Bearer ${accessToken}`;
-      }
-
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_ONBOARDING_SERVICE_URL}/onboarding/view`,
-        {
-          headers,
-          credentials: "include",
-          signal: controller.signal,
-        },
-      );
-
-      clearTimeout(timeout);
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      if (data.success) {
-        // Handle the response structure - data might be directly in data or nested
-        const questionsArray = Array.isArray(data.data)
-          ? data.data
-          : Array.isArray(data.data?.data)
-            ? data.data.data
-            : [];
-
-        const question = questionsArray.find(
-          (q: Question) => q.category === "Life Stage",
-        );
-
-        if (question) {
-          setLifeStageQuestion(question);
-        } else {
-          setError("No life stage question found.");
-          console.error("No life stage question found in:", questionsArray);
-        }
-      } else {
-        setError(data.message || "Failed to fetch life stage question.");
-      }
-    } catch (err: any) {
-      console.error("Error fetching life stage question:", err);
-
-      if (err.name === "AbortError") {
-        setError("Request timed out. Please try again.");
-      } else if (
-        err.message?.includes("401") ||
-        err.message?.includes("Unauthorized")
-      ) {
-        setError("Authentication required. Please login again.");
-        // Redirect to login if unauthorized
-        if (typeof window !== "undefined") {
-          window.location.href = "/auth/login";
-        }
-      } else {
-        setError("Error fetching life stage question. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const isSelected = useCallback(
     (
       optionId: number,
       questionId: number,
-      selectedLifeStage: LifeStageSelection | null,
+      selectedLifeStage: LifeStageSelection | null
     ) =>
       selectedLifeStage?.optionId === optionId &&
       selectedLifeStage?.questionId === questionId,
-    [],
+    []
   );
 
   const createSelectHandler = useCallback(
@@ -124,12 +33,8 @@ export function useLifeStage() {
       questionId,
       optionId,
     }),
-    [],
+    []
   );
-
-  useEffect(() => {
-    fetchLifeStageQuestion();
-  }, []);
 
   return {
     lifeStageQuestion,
@@ -137,6 +42,6 @@ export function useLifeStage() {
     error,
     isSelected,
     createSelectHandler,
-    refetch: fetchLifeStageQuestion,
+    refetch,
   };
 }
