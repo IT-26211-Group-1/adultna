@@ -83,6 +83,17 @@ export function useRegister() {
           setSecureItem("verification_token", result.verificationToken, 60); // 1 hour expiry
         }
 
+        // Store initial cooldown
+        if (result.data?.cooldownLeft) {
+          sessionStorage.setItem(
+            "initial_resend_cooldown",
+            JSON.stringify({
+              cooldown: result.data.cooldownLeft,
+              timestamp: Date.now(),
+            })
+          );
+        }
+
         addToast({
           title: "Registration Successful!",
           description: "Please check your email for verification",

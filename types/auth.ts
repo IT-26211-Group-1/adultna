@@ -35,6 +35,7 @@ export type RegisterResponse = {
   success: boolean;
   message?: string;
   verificationToken?: string;
+  data?: { cooldownLeft: number };
 };
 
 export type User = {

@@ -59,10 +59,22 @@ export function useLogin() {
             description: "Check your inbox for the OTP",
             color: "warning",
           });
+
+          // Store initial cooldown
+          if (error?.data?.cooldownLeft) {
+            sessionStorage.setItem(
+              "initial_resend_cooldown",
+              JSON.stringify({
+                cooldown: error.data.cooldownLeft,
+                timestamp: Date.now(),
+              })
+            );
+          }
         } else {
           addToast({
             title: "Invalid Credentials",
-            description: error?.message || "Please check your email and password",
+            description:
+              error?.message || "Please check your email and password",
             color: "danger",
           });
         }
