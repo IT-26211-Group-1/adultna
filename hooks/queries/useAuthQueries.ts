@@ -29,6 +29,7 @@ export type LoginResponse = {
   message?: string;
   verificationToken?: string;
   user?: User;
+  data?: { cooldownLeft: number };
 };
 
 // API Functions
@@ -248,6 +249,7 @@ export function useEmailVerification() {
     // Mutations
     verifyEmail: verifyEmailMutation.mutate,
     resendOtp: resendOtpMutation.mutate,
+    resendOtpAsync: resendOtpMutation.mutateAsync,
 
     // State
     isVerifying: verifyEmailMutation.isPending,

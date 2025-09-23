@@ -9,14 +9,35 @@ import { useSecureStorage } from "@/hooks/useSecureStorage";
 
 export function useVerifyEmail() {
   const router = useRouter();
-  const { verifyEmail, resendOtp, isVerifying, isResending } = useEmailVerification();
-  const { getSecureItem, removeSecureItem } = useSecureStorage();
-  const [verificationToken, setVerificationToken] = useState<string | null>(null);
+  const { verifyEmail, resendOtpAsync, isVerifying, isResending } =
+    useEmailVerification();
+  const { getSecureItem } = useSecureStorage();
+  const [verificationToken, setVerificationToken] = useState<string | null>(
+    null
+  );
+  const [initialCooldown, setInitialCooldown] = useState<number>(0);
 
-  // Check for verification token on mount
   useEffect(() => {
     const token = getSecureItem("verification_token");
     setVerificationToken(token);
+
+    const cooldownData = sessionStorage.getItem("initial_resend_cooldown");
+    if (cooldownData) {
+      try {
+        const { cooldown, timestamp } = JSON.parse(cooldownData);
+        const elapsed = Math.floor((Date.now() - timestamp) / 1000);
+        const remaining = Math.max(0, cooldown - elapsed);
+
+        if (remaining > 0) {
+          setInitialCooldown(remaining);
+        }
+
+        sessionStorage.removeItem("initial_resend_cooldown");
+      } catch (error) {
+        console.warn("Failed to parse initial cooldown:", error);
+        sessionStorage.removeItem("initial_resend_cooldown");
+      }
+    }
 
     if (!token) {
       addToast({
@@ -64,7 +85,8 @@ export function useVerifyEmail() {
           onError: (error: any) => {
             addToast({
               title: "Verification failed",
-              description: error?.message || "Please check your code and try again",
+              description:
+                error?.message || "Please check your code and try again",
               color: "danger",
             });
           },
@@ -85,29 +107,36 @@ export function useVerifyEmail() {
       return 120;
     }
 
-    return new Promise((resolve) => {
-      resendOtp(
-        { verificationToken: currentToken },
-        {
-          onSuccess: () => {
-            addToast({
-              title: "OTP sent successfully",
-              color: "success",
-            });
-            resolve(60); // Default cooldown
-          },
-          onError: (error: any) => {
-            addToast({
-              title: "Failed to resend OTP",
-              description: error?.message || "Please try again",
-              color: "danger",
-            });
-            resolve(120); // Error cooldown
-          },
-        }
-      );
-    });
-  }, [resendOtp, getSecureItem, router]);
+    try {
+      await resendOtpAsync({
+        verificationToken: currentToken,
+      });
+
+      addToast({
+        title: "OTP sent successfully",
+        color: "success",
+      });
+
+      return 60;
+    } catch (error: any) {
+      if (error?.data?.cooldownLeft) {
+        addToast({
+          title: "Please wait before resending",
+          description: `You can resend OTP in ${error.data.cooldownLeft} seconds`,
+          color: "warning",
+        });
+        return error.data.cooldownLeft;
+      }
+
+      addToast({
+        title: "Failed to resend OTP",
+        description: error?.message || "Please try again",
+        color: "danger",
+      });
+
+      return 120;
+    }
+  }, [resendOtpAsync, getSecureItem, router]);
 
   return {
     loading: isVerifying,
@@ -115,6 +144,6 @@ export function useVerifyEmail() {
     verificationToken: verificationToken ? "present" : null,
     handleFormSubmit: handleVerifyEmail,
     resendOtp: handleResendOtp,
-    resendCooldown: 0, // Managed by the query hook now
+    resendCooldown: initialCooldown,
   };
 }
