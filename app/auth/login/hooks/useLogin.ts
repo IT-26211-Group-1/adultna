@@ -17,7 +17,6 @@ export function useLogin() {
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -73,8 +72,6 @@ export function useLogin() {
         } else {
           addToast({
             title: "Invalid Credentials",
-            description:
-              error?.message || "Please check your email and password",
             color: "danger",
           });
         }

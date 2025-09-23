@@ -110,19 +110,13 @@ export function useAuth() {
   // Login Mutation
   const loginMutation = useMutation({
     mutationFn: authApi.login,
-    onSuccess: (data) => {
-      if (data.success && data.user) {
+    onSuccess: async (data) => {
+      if (data.success) {
         queryClient.setQueryData(queryKeys.auth.me(), data.user);
+        await new Promise((r) => setTimeout(r, 300));
+        await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
 
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.auth.me(),
-          refetchType: "none",
-        });
-
-        // Redirect after state is updated
-        setTimeout(() => {
-          router.replace("/dashboard");
-        }, 0);
+        router.replace("/dashboard");
       }
     },
     onError: (error) => {
