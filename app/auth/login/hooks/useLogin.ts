@@ -6,15 +6,12 @@ import { z } from "zod";
 import { loginSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { loginRequest } from "../lib/login";
-import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 
 export function useLogin() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const { forceAuthCheck } = useAuth();
+  const { login, isLoggingIn } = useAuth();
   const { setSecureItem } = useSecureStorage();
 
   const {
@@ -28,52 +25,41 @@ export function useLogin() {
   });
 
   const onSubmit = handleSubmit(async (data: z.infer<typeof loginSchema>) => {
-    setLoading(true);
+    login(data, {
+      onSuccess: (response) => {
+        if (response.success && response.user) {
+          addToast({
+            title: "Login Successful!",
+            color: "success",
+          });
 
-    try {
-      const response = await loginRequest(data);
-
-      if (response.success) {
-        addToast({
-          title: "Login Successful!",
-          color: "success",
-        });
-
-        // Wait for auth check to complete before navigation
-        const authResult = await forceAuthCheck();
-
-        if (authResult) {
           setTimeout(() => {
             router.replace("/dashboard");
           }, 100);
-        } else {
-          setTimeout(() => {
-            window.location.href = "/dashboard";
-          }, 200);
+        } else if (response.verificationToken) {
+          addToast({
+            title: "Email not verified",
+            description: "Check your inbox for the OTP",
+            color: "warning",
+          });
+
+          setSecureItem(
+            "verification_token",
+            response.verificationToken,
+            60 // 1 hour expiry
+          );
+
+          router.replace("/auth/verify-email");
         }
-      } else if ("verificationToken" in response) {
+      },
+      onError: (error: any) => {
         addToast({
-          title: "Email not verified",
-          description: "Check your inbox for the OTP",
-          color: "warning",
+          title: "Invalid Credentials",
+          description: error?.message || "Please check your email and password",
+          color: "danger",
         });
-
-        setSecureItem(
-          "verification_token",
-          response.verificationToken as string,
-          60 // 1 hour expiry
-        );
-
-        router.replace("/auth/verify-email");
-      }
-    } catch (err: any) {
-      addToast({
-        title: "Invalid Credentials",
-        color: "danger",
-      });
-    } finally {
-      setLoading(false);
-    }
+      },
+    });
   });
 
   const handleGoogleLogin = async () => {
@@ -102,7 +88,7 @@ export function useLogin() {
   return {
     register,
     errors,
-    loading,
+    loading: isLoggingIn,
     onSubmit,
     handleGoogleLogin,
   };
