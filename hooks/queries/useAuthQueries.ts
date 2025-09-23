@@ -61,6 +61,7 @@ const authApi = {
 export function useAuth() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { setSecureItem } = useSecureStorage();
 
   const {
     data: user,
@@ -110,10 +111,8 @@ export function useAuth() {
     mutationFn: authApi.login,
     onSuccess: (data) => {
       if (data.success && data.user) {
-        // Cache the user data first
         queryClient.setQueryData(queryKeys.auth.me(), data.user);
 
-        // Mark the query as fresh to start the 15-minute cache timer
         queryClient.invalidateQueries({
           queryKey: queryKeys.auth.me(),
           refetchType: "none",
@@ -126,8 +125,21 @@ export function useAuth() {
       }
     },
     onError: (error) => {
-      console.error("Login failed:", error);
       queryClient.setQueryData(queryKeys.auth.me(), null);
+
+      // email verification
+      if (
+        error instanceof ApiError &&
+        error.message === "Please verify your email first"
+      ) {
+        if (error.data?.verificationToken) {
+          setSecureItem("verification_token", error.data.verificationToken, 60);
+        }
+
+        setTimeout(() => {
+          router.replace("/auth/verify-email");
+        }, 0);
+      }
     },
   });
 
@@ -218,16 +230,16 @@ export function useEmailVerification() {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: queryKeys.auth.all });
 
-        router.push("/onboarding");
+        router.push("/auth/onboarding");
       }
     },
   });
 
   const resendOtpMutation = useMutation({
     mutationFn: authApi.resendOtp,
-    onSuccess: (data) => {
-      if (data.verificationToken) {
-        setSecureItem("verification_token", data.verificationToken, 60);
+    onSuccess: (response) => {
+      if (response.verificationToken) {
+        setSecureItem("verification_token", response.verificationToken, 60);
       }
     },
   });
