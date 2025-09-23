@@ -45,7 +45,7 @@ export default function VerifyEmailForm() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -113,10 +113,10 @@ export default function VerifyEmailForm() {
         </LoadingButton>
 
         <ResendTimer
+          cooldown={resendCooldown}
           handleResendOtp={resendOtp}
           resending={resending}
           verificationToken={verificationToken}
-          cooldown={resendCooldown}
         />
       </form>
     </div>

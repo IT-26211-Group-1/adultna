@@ -38,7 +38,9 @@ function PrioritiesStep({
   if (error) {
     return (
       <div className="text-center">
-        <p className="text-red-600 mb-4">{error instanceof Error ? error.message : 'An error occurred'}</p>
+        <p className="text-red-600 mb-4">
+          {error instanceof Error ? error.message : "An error occurred"}
+        </p>
         <button
           className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           onClick={() => window.location.reload()}

@@ -17,11 +17,13 @@ export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
     if (!isLoading) {
       if (!isAuthenticated) {
         router.replace("/auth/login");
+
         return;
       }
 
       if (user?.onboardingStatus === "completed") {
         router.replace("/dashboard");
+
         return;
       }
     }

@@ -12,7 +12,7 @@ import { addToast } from "@heroui/toast";
 
 const OnboardingModal = dynamic(() => import("./OnboardingModal"), {
   ssr: false,
-  loading: () => <div className="min-h-screen bg-gray-100 animate-pulse" />
+  loading: () => <div className="min-h-screen bg-gray-100 animate-pulse" />,
 });
 
 const ONBOARDING_COMPLETED_KEY = "onboarding_completed";
@@ -33,6 +33,7 @@ export default function DashboardClient() {
 
     // Fallback to secure storage cache
     const completed = getSecureItem(ONBOARDING_COMPLETED_KEY);
+
     return !completed;
   }, [user?.onboardingStatus, getSecureItem]);
 
@@ -47,64 +48,68 @@ export default function DashboardClient() {
     }
   }, [user?.onboardingStatus, setSecureItem]);
 
-  const handleOnboardingComplete = useCallback(async (data: OnboardingData) => {
-    try {
-      // Submit onboarding data to the API
-      const result = await onboardingSubmit.mutateAsync(data);
+  const handleOnboardingComplete = useCallback(
+    async (data: OnboardingData) => {
+      try {
+        // Submit onboarding data to the API
+        const result = await onboardingSubmit.mutateAsync(data);
 
-      setShowOnboarding(false);
+        setShowOnboarding(false);
 
-      // Show appropriate success message based on completion status
-      const isCompleted = result.message?.includes("Personalized Roadmap");
+        // Show appropriate success message based on completion status
+        const isCompleted = result.message?.includes("Personalized Roadmap");
 
-      if (isCompleted) {
-        // Cache completion status securely only if truly completed
-        setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
+        if (isCompleted) {
+          // Cache completion status securely only if truly completed
+          setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
+          addToast({
+            title: "Onboarding completed successfully!",
+            description: "Your personalized roadmap is being prepared.",
+            color: "success",
+          });
+        } else {
+          addToast({
+            title: "Progress saved!",
+            description: "You can continue your onboarding anytime.",
+            color: "success",
+          });
+        }
+
+        // The useOnboardingSubmit hook will handle redirects based on completion status
+      } catch (error) {
+        console.error("Failed to save onboarding:", error);
+
+        // More specific error handling
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred";
+
         addToast({
-          title: "Onboarding completed successfully!",
-          description: "Your personalized roadmap is being prepared.",
-          color: "success",
+          title: "Onboarding submission failed",
+          description: errorMessage.includes("unauthorized")
+            ? "Session expired. Please login again."
+            : errorMessage,
+          color: "danger",
         });
-      } else {
-        addToast({
-          title: "Progress saved!",
-          description: "You can continue your onboarding anytime.",
-          color: "success",
-        });
+
+        // If unauthorized, redirect to login
+        if (errorMessage.includes("unauthorized")) {
+          router.replace("/auth/login");
+        }
       }
-
-      // The useOnboardingSubmit hook will handle redirects based on completion status
-    } catch (error) {
-      console.error("Failed to save onboarding:", error);
-
-      // More specific error handling
-      const errorMessage = error instanceof Error
-        ? error.message
-        : "An unexpected error occurred";
-
-      addToast({
-        title: "Onboarding submission failed",
-        description: errorMessage.includes("unauthorized")
-          ? "Session expired. Please login again."
-          : errorMessage,
-        color: "danger",
-      });
-
-      // If unauthorized, redirect to login
-      if (errorMessage.includes("unauthorized")) {
-        router.replace("/auth/login");
-      }
-    }
-  }, [onboardingSubmit, setSecureItem, router]);
+    },
+    [onboardingSubmit, setSecureItem, router],
+  );
 
   return (
     <div className="min-h-screen bg-gray-100">
       {showOnboarding && (
         <OnboardingModal
           isOpen={showOnboarding}
+          isSubmitting={onboardingSubmit.isPending}
           onClose={() => setShowOnboarding(false)}
           onComplete={handleOnboardingComplete}
-          isSubmitting={onboardingSubmit.isPending}
         />
       )}
     </div>

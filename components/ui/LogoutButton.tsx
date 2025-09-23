@@ -41,6 +41,7 @@ export function LogoutButton({
   const handleLogout = async () => {
     if (confirmLogout) {
       const confirmed = window.confirm("Are you sure you want to sign out?");
+
       if (!confirmed) return;
     }
 
@@ -58,13 +59,11 @@ export function LogoutButton({
 
   return (
     <Button
-      variant={variant}
-      color={color}
-      size={size}
       className={className}
-      onPress={handleLogout}
-      isLoading={isLoggingOut}
+      color={color}
       disabled={isLoggingOut}
+      isLoading={isLoggingOut}
+      size={size}
       startContent={
         showIcon && !isLoggingOut ? (
           <svg
@@ -75,14 +74,16 @@ export function LogoutButton({
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
             />
           </svg>
         ) : undefined
       }
+      variant={variant}
+      onPress={handleLogout}
     >
       {isLoggingOut ? "Signing out..." : children || "Sign Out"}
     </Button>

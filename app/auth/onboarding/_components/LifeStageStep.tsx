@@ -35,7 +35,9 @@ function LifeStageStep({
   if (error) {
     return (
       <div className="text-center">
-        <p className="text-red-600 mb-4">{error instanceof Error ? error.message : 'An error occurred'}</p>
+        <p className="text-red-600 mb-4">
+          {error instanceof Error ? error.message : "An error occurred"}
+        </p>
         <button
           className="text-teal-600 hover:text-teal-700"
           onClick={() => window.location.reload()}

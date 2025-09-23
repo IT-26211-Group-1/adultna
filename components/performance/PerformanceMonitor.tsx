@@ -16,13 +16,13 @@ export function PerformanceMonitor() {
         if (entry.entryType === "largest-contentful-paint") {
           name = "LCP";
           value = Math.round(
-            (entry as PerformanceEntry & { startTime: number }).startTime
+            (entry as PerformanceEntry & { startTime: number }).startTime,
           );
         } else if (entry.entryType === "first-input") {
           name = "FID";
           value = Math.round(
             (entry as PerformanceEventTiming).processingStart -
-              (entry as PerformanceEventTiming).startTime
+              (entry as PerformanceEventTiming).startTime,
           );
         } else if (entry.entryType === "layout-shift") {
           name = "CLS";
@@ -51,7 +51,7 @@ export function PerformanceMonitor() {
       observer.observe({
         entryTypes: ["largest-contentful-paint", "first-input", "layout-shift"],
       });
-    } catch (e) {
+    } catch {
       // Fallback for older browsers
       console.log("Performance monitoring not supported");
     }

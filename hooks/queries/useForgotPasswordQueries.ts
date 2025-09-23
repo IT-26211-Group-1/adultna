@@ -39,17 +39,17 @@ export type ForgotPasswordResetResponse = {
 // API Functions
 const forgotPasswordApi = {
   sendOtp: (
-    data: ForgotPasswordSendOtpRequest
+    data: ForgotPasswordSendOtpRequest,
   ): Promise<ForgotPasswordSendOtpResponse> =>
     ApiClient.post("/forgot-password/send-otp", data),
 
   verifyOtp: (
-    data: ForgotPasswordVerifyOtpRequest
+    data: ForgotPasswordVerifyOtpRequest,
   ): Promise<ForgotPasswordVerifyOtpResponse> =>
     ApiClient.post("/forgot-password/verify-otp", data),
 
   resetPassword: (
-    data: ForgotPasswordResetRequest
+    data: ForgotPasswordResetRequest,
   ): Promise<ForgotPasswordResetResponse> =>
     ApiClient.post("/forgot-password/reset", data),
 };
@@ -126,9 +126,11 @@ export function useForgotPasswordFlow() {
   const resendOtpMutation = useMutation({
     mutationFn: async () => {
       const email = getSecureItem("forgotPasswordEmail");
+
       if (!email) {
         throw new Error("No email found for resend");
       }
+
       return forgotPasswordApi.sendOtp({ email });
     },
     onSuccess: (data) => {
