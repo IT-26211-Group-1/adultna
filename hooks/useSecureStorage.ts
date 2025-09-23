@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 export function useSecureStorage() {
   const encrypt = useCallback((data: string): string => {
@@ -21,11 +21,14 @@ export function useSecureStorage() {
       const secureData = {
         value: encrypt(value),
         expiry,
-        checksum: btoa(value + expiry.toString()).slice(0, 8), // Simple integrity check
+        checksum: btoa(value + expiry.toString()).slice(0, 8),
       };
 
       try {
         sessionStorage.setItem(`secure_${key}`, JSON.stringify(secureData));
+        window.dispatchEvent(
+          new CustomEvent(`secureStorage:${key}`, { detail: value })
+        );
       } catch (error) {
         console.warn("Failed to store secure data:", error);
       }
@@ -87,4 +90,31 @@ export function useSecureStorage() {
     removeSecureItem,
     clearAllSecure,
   };
+}
+
+// Hook to listen to secure storage changes
+export function useSecureStorageListener(key: string) {
+  const [value, setValue] = useState<string | null>(null);
+  const { getSecureItem } = useSecureStorage();
+
+  useEffect(() => {
+    setValue(getSecureItem(key));
+
+    // Listen for changes
+    const handleStorageChange = (event: CustomEvent) => {
+      setValue(event.detail);
+    };
+
+    const eventName = `secureStorage:${key}`;
+    window.addEventListener(eventName, handleStorageChange as EventListener);
+
+    return () => {
+      window.removeEventListener(
+        eventName,
+        handleStorageChange as EventListener
+      );
+    };
+  }, [key, getSecureItem]);
+
+  return value;
 }

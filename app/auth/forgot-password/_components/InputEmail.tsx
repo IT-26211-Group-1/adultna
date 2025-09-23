@@ -2,22 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addToast } from "@heroui/react";
 import { AuthButton } from "../../register/_components/AuthButton";
 import { FormInput } from "../../register/_components/FormInput";
-import { useFormSubmit } from "@/hooks/useForm";
+import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
 import { forgotPasswordSchema } from "@/validators/authSchema";
-
-interface Props {
-  email: string;
-  setEmail: (email: string) => void;
-  setStep: (step: "email" | "otp" | "reset") => void;
-  setToken: (token: string) => void;
-}
 
 type EmailFormType = { email: string };
 
-export default function InputEmail({ setStep, setToken }: Props) {
+export default function InputEmail() {
+  const { sendOtp, isSendingOtp } = useForgotPasswordFlow();
   const {
     handleSubmit,
     register,
@@ -30,26 +23,8 @@ export default function InputEmail({ setStep, setToken }: Props) {
     mode: "onBlur",
   });
 
-  const { loading, onSubmit } = useFormSubmit<EmailFormType>({
-    apiUrl: `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/forgot-password/send-otp`,
-    schema: forgotPasswordSchema,
-    requireCaptcha: false,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "OTP sent to your email", color: "success" },
-      error: { title: "Error sending OTP", color: "danger" },
-    },
-    onSuccess: (data) => {
-      const { verificationToken } = data as { verificationToken: string };
-
-      setToken(verificationToken);
-      setStep("otp");
-    },
-  });
-
   const handleFormSubmit = (data: EmailFormType) => {
-    sessionStorage.setItem("forgotPasswordEmail", data.email);
-    onSubmit(data);
+    sendOtp(data);
   };
 
   return (
@@ -64,7 +39,7 @@ export default function InputEmail({ setStep, setToken }: Props) {
         register={register}
         type="email"
       />
-      <AuthButton loading={loading} type="submit">
+      <AuthButton loading={isSendingOtp} type="submit">
         Send OTP
       </AuthButton>
     </form>

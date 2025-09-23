@@ -8,9 +8,11 @@ import { useState, useRef, useCallback } from "react";
 import { registerSchema } from "@/validators/authSchema";
 import { addToast } from "@heroui/react";
 import { RegisterResponse } from "@/types/auth";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 
 export function useRegister() {
   const router = useRouter();
+  const { setSecureItem } = useSecureStorage();
   const [loading, setLoading] = useState(false);
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -78,10 +80,7 @@ export function useRegister() {
         }
 
         if (result.verificationToken) {
-          sessionStorage.setItem(
-            "verification_token",
-            result.verificationToken
-          );
+          setSecureItem("verification_token", result.verificationToken, 60); // 1 hour expiry
         }
 
         addToast({

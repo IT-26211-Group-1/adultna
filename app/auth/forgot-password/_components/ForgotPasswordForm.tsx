@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
+import { useSecureStorageListener } from "@/hooks/useSecureStorage";
 import EmailStep from "./InputEmail";
 import OtpStep from "./InputOtp";
 import ResetPasswordStep from "./ResetPassword";
@@ -34,31 +35,17 @@ const BackToLoginButton = () => {
 };
 
 export default function ForgotPassword() {
-  const [step, setStep] = useState<"email" | "otp" | "reset">("email");
-  const [token, setToken] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const { getSecureItem, setSecureItem } = useSecureStorage();
+
+  // Listen to step changes from secure storage
+  const storedStep = useSecureStorageListener("forgotPasswordStep");
+  const step = (storedStep as "email" | "otp" | "reset") || "email";
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedStep = getSecureItem("forgotPasswordStep");
-      const storedToken = getSecureItem("forgotPasswordToken");
-      const storedEmail = getSecureItem("forgotPasswordEmail");
-
-      if (storedStep) setStep(storedStep as "email" | "otp" | "reset");
-      if (storedToken) setToken(storedToken);
-      if (storedEmail) setEmail(storedEmail);
       setLoading(false);
     }
-  }, [getSecureItem]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setSecureItem("forgotPasswordStep", step, 60); // 1 hour expiry
-      setSecureItem("forgotPasswordToken", token, 60); // 1 hour expiry
-    }
-  }, [step, token, setSecureItem]);
+  }, []);
 
   if (loading) {
     return null;
@@ -67,18 +54,11 @@ export default function ForgotPassword() {
   const renderStep = () => {
     switch (step) {
       case "email":
-        return (
-          <EmailStep
-            email={email}
-            setEmail={setEmail}
-            setStep={setStep}
-            setToken={setToken}
-          />
-        );
+        return <EmailStep />;
       case "otp":
-        return <OtpStep email={email} setStep={setStep} token={token} />;
+        return <OtpStep />;
       case "reset":
-        return <ResetPasswordStep setStep={setStep} token={token} />;
+        return <ResetPasswordStep />;
       default:
         return null;
     }
