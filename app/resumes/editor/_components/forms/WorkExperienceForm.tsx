@@ -10,23 +10,21 @@ export default function WorkExperienceForm({ resumeData, setResumeData }: Editor
   const form = useForm<WorkExperienceData>({
     resolver: zodResolver(workSchema),
     defaultValues: {
-      jobTitle: resumeData.jobTitle || "",
-      employer: resumeData.employer || "",
-      startDate: resumeData.startDate || undefined,
-      endDate: resumeData.endDate || undefined,
-      isCurrentlyWorkingHere: resumeData.isCurrentlyWorkingHere || false,
-      description: resumeData.description || "",
+      workExperiences: resumeData.workExperiences || [],
     },
   });
 
   useEffect(() => {
-      const { unsubscribe } = form.watch(async (values) => {
-        const isValid = await form.trigger();
-        if (!isValid) return;
-        setResumeData({ ...resumeData, ...values });
+    const { unsubscribe } = form.watch(async (values) => {
+      const isValid = await form.trigger();
+      if (!isValid) return;
+      setResumeData({
+        ...resumeData,
+        workExperiences: values.workExperiences?.filter((exp) => exp !== undefined) || [],
       });
-      return unsubscribe;
-    }, [form, resumeData, setResumeData]);
+    });
+    return unsubscribe;
+  }, [form, resumeData, setResumeData]);
     
   // Function to count words in the description
   const getWordCount = (text: string): number => {

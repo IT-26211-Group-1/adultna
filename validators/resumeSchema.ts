@@ -26,16 +26,18 @@ export const contactSchema = z.object({
 export type ContactFormData = z.infer<typeof contactSchema>;
 
 export const workSchema = z.object({
-    jobTitle: z.string().min(1, "Job title is required").max(100, "Job title must be less than 100 characters"),
-    employer: z.string().max(100, "Employer must be less than 100 characters").optional(),
-    startDate: calendarDateToDate.optional(),
-    endDate: calendarDateToDate.optional(),
-    isCurrentlyWorkingHere: z.boolean().optional(),
-    description: z.string().optional().refine((value) => {
-      if (!value) return true;
-      const wordCount = value.trim().split(/\s+/).length;
-      return wordCount <= 100;
-    }, "Summary must be less than 100 words"),
+    workExperiences: z.array(z.object({
+        jobTitle: z.string().max(100, "Job title must be less than 100 characters").optional(),
+        employer: z.string().max(100, "Employer must be less than 100 characters").optional(),
+        startDate: calendarDateToDate.optional(),
+        endDate: calendarDateToDate.optional(),
+        isCurrentlyWorkingHere: z.boolean().optional(),
+        description: z.string().optional().refine((value) => {
+            if (!value) return true;
+            const wordCount = value.trim().split(/\s+/).length;
+            return wordCount <= 100;
+            }, "Summary must be less than 100 words"),
+    })).optional(),
 });
 export type WorkExperienceData = z.infer<typeof workSchema>;
 
