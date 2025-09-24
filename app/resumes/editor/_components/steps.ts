@@ -1,5 +1,6 @@
 // import { EditorFormProps } from "@/lib/types";
 // import EducationForm from "./forms/EducationForm";
+import { EditorFormProps } from "@/lib/resume/types";
 import CertificationForm from "./forms/CertificationForm";
 import ContactForm from "./forms/ContactForm";
 import EducationForm from "./forms/EducationForm";
@@ -12,7 +13,7 @@ import WorkExperienceForm from "./forms/WorkExperienceForm";
 
 export const steps: {
   title: string;
-  component: React.ComponentType;
+  component: React.ComponentType<EditorFormProps>;
   key: string;
 }[] = [
     { title: "Contact Information", component: ContactForm, key: "contact" },

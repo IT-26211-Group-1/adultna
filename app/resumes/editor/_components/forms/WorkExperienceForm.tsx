@@ -3,19 +3,31 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { Input, Textarea, Checkbox, DatePicker } from "@heroui/react";
 import { CalendarDate } from "@internationalized/date";
+import { EditorFormProps } from "@/lib/resume/types";
+import { useEffect } from "react";
 
-export default function WorkExperienceForm() {
+export default function WorkExperienceForm({ resumeData, setResumeData }: EditorFormProps) {
   const form = useForm<WorkExperienceData>({
     resolver: zodResolver(workSchema),
     defaultValues: {
-      jobTitle: "",
-      employer: "",
-      startDate: undefined,
-      endDate: undefined,
-      isCurrentlyWorkingHere: false,
-      description: "",
+      jobTitle: resumeData.jobTitle || "",
+      employer: resumeData.employer || "",
+      startDate: resumeData.startDate || undefined,
+      endDate: resumeData.endDate || undefined,
+      isCurrentlyWorkingHere: resumeData.isCurrentlyWorkingHere || false,
+      description: resumeData.description || "",
     },
   });
+
+  useEffect(() => {
+      const { unsubscribe } = form.watch(async (values) => {
+        const isValid = await form.trigger();
+        if (!isValid) return;
+        setResumeData({ ...resumeData, ...values });
+      });
+      return unsubscribe;
+    }, [form, resumeData, setResumeData]);
+    
   // Function to count words in the description
   const getWordCount = (text: string): number => {
     if (!text || text.trim() === "") return 0;

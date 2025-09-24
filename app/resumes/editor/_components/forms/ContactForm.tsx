@@ -7,22 +7,33 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { CalendarDate } from "@internationalized/date";
+import { EditorFormProps } from "@/lib/resume/types";
 
-export default function ContactForm() {
+export default function ContactForm({ resumeData, setResumeData }: EditorFormProps) {
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      email: "",
-      phone: "",
-      firstName: "",
-      lastName: "",
-      city: "",
-      region: "",
-      birthDate: undefined,
-      linkedin: "",
-      portfolio: "",
+      email: resumeData.email || "",
+      phone: resumeData.phone || "",
+      firstName: resumeData.firstName || "",
+      lastName: resumeData.lastName || "",
+      city: resumeData.city || "",
+      region: resumeData.region || "",
+      birthDate: resumeData.birthDate || undefined,
+      linkedin: resumeData.linkedin || "",
+      portfolio: resumeData.portfolio || "",
     },
   });
+
+  useEffect(() => {
+    const { unsubscribe } = form.watch(async (values) => {
+      const isValid = await form.trigger();
+      if (!isValid) return;
+      setResumeData({ ...resumeData, ...values });
+    });
+    return unsubscribe;
+  }, [form, resumeData, setResumeData]);
+
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">

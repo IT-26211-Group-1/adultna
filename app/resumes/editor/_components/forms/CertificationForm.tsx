@@ -4,9 +4,10 @@ import { Input } from "@heroui/react";
 import { CertificationFormData, certificationSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { EditorFormProps } from "@/lib/resume/types";
+import { useEffect } from "react";
 
-
-export default function CertificationForm() {
+export default function CertificationForm({resumeData, setResumeData}: EditorFormProps) {
   const form = useForm<CertificationFormData>({
     resolver: zodResolver(certificationSchema),
     defaultValues: {
@@ -14,6 +15,15 @@ export default function CertificationForm() {
       issuingOrganization: "",
     },
   });
+
+  useEffect(() => {
+      const { unsubscribe } = form.watch(async (values) => {
+        const isValid = await form.trigger();
+        if (!isValid) return;
+        setResumeData({ ...resumeData, ...values });
+      });
+      return unsubscribe;
+    }, [form, resumeData, setResumeData]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">

@@ -14,10 +14,14 @@ import EducationForm from "./forms/EducationForm";
 import CertificationForm from "./forms/CertificationForm";
 import SkillsForm from "./forms/SkillsForm";
 import SummaryForm from "./forms/SummaryForm";
+import Navigator from "./Navigator";
+import { ResumeData } from "@/validators/resumeSchema";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
   const currentStep = searchParams.get("step") || steps[0].key;
+
+  const [resumeData, setResumeData] = useState<ResumeData>({} as ResumeData)
 
   function setStep(key: string) {
     const newSearchParams = new URLSearchParams(searchParams)
@@ -47,14 +51,23 @@ export default function ResumeEditor() {
             {/* <SkillsForm /> */}
             {/* <SummaryForm /> */}
             <Breadcrumbs currentStep={currentStep} setCurrentStep={setStep} />
-            {FormComponent && <FormComponent />}
+            {FormComponent && <FormComponent
+              resumeData={resumeData}
+              setResumeData={setResumeData}
+            />}
           </div>
           <div className="grow md:border-r" />
           <div className="hidden w-1/2 overflow-y-auto border-l p-3 md:flex">
-            Right
+            <pre>{JSON.stringify(resumeData, null, 2)}</pre>
           </div>
         </div>
       </main>
+      <footer>
+        <Navigator
+          currentStep={currentStep}
+          setCurrentStep={setStep}
+        />
+      </footer>
     </div>
   );
 }
