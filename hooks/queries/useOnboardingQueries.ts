@@ -9,6 +9,7 @@ import {
   ONBOARDING_API_BASE_URL,
 } from "@/lib/apiClient";
 import { useAuth } from "./useAuthQueries";
+import { API_CONFIG } from "@/config/api";
 
 // Types
 export type OnboardingData = {
@@ -59,8 +60,8 @@ export function useOnboardingQuestions() {
     queryKey: queryKeys.onboarding.questions(),
     queryFn: onboardingApi.getQuestions,
     enabled: isAuthenticated,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 10 * 60 * 1000,
+    gcTime: API_CONFIG.AUTH_QUERY.CACHE_TIME,
     retry: (failureCount, error) => {
       if (
         error instanceof ApiError &&
@@ -69,7 +70,7 @@ export function useOnboardingQuestions() {
         return false;
       }
 
-      return failureCount < 2;
+      return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
     },
   });
 }

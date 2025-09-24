@@ -1,70 +1,141 @@
 "use client";
 
-// Base API URLs
-export const AUTH_API_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? "/api/auth"
-    : process.env.NEXT_PUBLIC_AUTH_SERVICE_URL;
+import { API_CONFIG } from "@/config/api";
 
-export const ONBOARDING_API_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? "/api/onboarding"
-    : process.env.NEXT_PUBLIC_ONBOARDING_SERVICE_URL;
+export const AUTH_API_BASE_URL = API_CONFIG.AUTH_SERVICE_URL;
+export const ONBOARDING_API_BASE_URL = API_CONFIG.ONBOARDING_SERVICE_URL;
 
-const defaultOptions: RequestInit = {
-  credentials: "include",
-  headers: {
-    "Content-Type": "application/json",
-  },
-};
+let tokenProvider: (() => string | null) | null = null;
+let refreshTokenCallback: (() => Promise<string | null>) | null = null;
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string | null) => void> = [];
 
-// API Client
+export function setTokenProvider(provider: () => string | null) {
+  tokenProvider = provider;
+}
+
+export function setRefreshTokenCallback(callback: () => Promise<string | null>) {
+  refreshTokenCallback = callback;
+}
+
+function subscribeTokenRefresh(callback: (token: string | null) => void) {
+  refreshSubscribers.push(callback);
+}
+
+function onTokenRefreshed(token: string | null) {
+  refreshSubscribers.forEach(callback => callback(token));
+  refreshSubscribers = [];
+}
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (!refreshTokenCallback) return null;
+
+  if (isRefreshing) {
+    return new Promise((resolve) => {
+      subscribeTokenRefresh((token) => {
+        resolve(token);
+      });
+    });
+  }
+
+  isRefreshing = true;
+  try {
+    const newToken = await refreshTokenCallback();
+    onTokenRefreshed(newToken);
+    return newToken;
+  } catch (error) {
+    onTokenRefreshed(null);
+    return null;
+  } finally {
+    isRefreshing = false;
+  }
+}
+
 export class ApiClient {
+  private static buildHeaders(customHeaders?: HeadersInit): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "X-Request-ID": crypto.randomUUID(),
+    };
+
+    if (customHeaders) {
+      Object.entries(customHeaders).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          headers[key] = value;
+        }
+      });
+    }
+
+    const token = tokenProvider?.();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return headers;
+  }
+
   static async request<T>(
     endpoint: string,
     options: RequestInit = {},
     baseUrl: string = AUTH_API_BASE_URL as string,
+    _isRetry = false,
   ): Promise<T> {
     const url = `${baseUrl}${endpoint}`;
+    const headers = this.buildHeaders(options.headers);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
 
     const config: RequestInit = {
-      ...defaultOptions,
       ...options,
-      headers: {
-        ...defaultOptions.headers,
-        "X-Request-ID": crypto.randomUUID(),
-        ...options.headers,
-      },
+      credentials: "include",
+      headers,
+      signal: controller.signal,
     };
 
     try {
       const response = await fetch(url, config);
+      clearTimeout(timeoutId);
 
-      const contentType = response.headers.get("content-type");
-      let data: any;
-
-      if (contentType?.includes("application/json")) {
-        data = await response.json();
-      } else {
-        data = await response.text();
-      }
-
-      // Check if response is ok
       if (!response.ok) {
+        if (response.status === 401 && !_isRetry) {
+          const newToken = await refreshAccessToken();
+          if (newToken) {
+            return this.request<T>(endpoint, options, baseUrl, true);
+          }
+
+          if (typeof window !== "undefined") {
+            window.location.href = "/auth/login";
+          }
+        }
+
+        const contentType = response.headers.get("content-type");
+        const errorData = contentType?.includes("application/json")
+          ? await response.json()
+          : await response.text();
+
         throw new ApiError(
-          data?.message || `HTTP ${response.status}: ${response.statusText}`,
+          errorData?.message || `HTTP ${response.status}: ${response.statusText}`,
           response.status,
-          data,
+          errorData,
         );
       }
 
+      const contentType = response.headers.get("content-type");
+      const data = contentType?.includes("application/json")
+        ? await response.json()
+        : await response.text();
+
       return data;
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
+      clearTimeout(timeoutId);
+
+      if (error instanceof ApiError) throw error;
+
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new ApiError("Request timeout", 408, null);
       }
 
-      // network errors
       throw new ApiError(
         error instanceof Error ? error.message : "Network error",
         0,
@@ -162,6 +233,10 @@ export class ApiError extends Error {
   get isTooManyRequests() {
     return this.status === 429;
   }
+
+  get isTimeout() {
+    return this.status === 408;
+  }
 }
 
 // Query key factories for consistent cache management
@@ -170,6 +245,7 @@ export const queryKeys = {
   auth: {
     all: ["auth"] as const,
     me: () => [...queryKeys.auth.all, "me"] as const,
+    token: () => [...queryKeys.auth.all, "token"] as const,
   },
 
   // User queries

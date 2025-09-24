@@ -1,9 +1,10 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { API_CONFIG } from "@/config/api";
 
 // Types
 export type User = {
@@ -31,6 +32,8 @@ export type LoginResponse = {
   verificationToken?: string;
   user?: User;
   data?: { cooldownLeft: number };
+  accessToken?: string;
+  accessTokenExpiresAt?: number;
 };
 
 // API Functions
@@ -63,7 +66,15 @@ const authApi = {
 export function useAuth() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const pathname = usePathname();
   const { setSecureItem } = useSecureStorage();
+
+  const isPublicRoute = [
+    "/auth/login",
+    "/auth/register",
+    "/auth/verify-email",
+    "/auth/forgot-password",
+  ].some((route) => pathname?.startsWith(route));
 
   const {
     data: user,
@@ -72,22 +83,26 @@ export function useAuth() {
     refetch: checkAuth,
   } = useQuery({
     queryKey: queryKeys.auth.me(),
+    enabled: !isPublicRoute,
     queryFn: async () => {
       try {
         const response = await authApi.me();
+        console.log("Auth /me response:", response);
 
         if (response.success && response.user) {
-          // Default onboardingStatus to "not_started" if missing
           const onboardingStatus =
-            response.user.onboardingStatus || "not_started";
+            response.user.onboardingStatus === null ||
+            response.user.onboardingStatus === undefined
+              ? "not_started"
+              : response.user.onboardingStatus;
 
-          // Add computed onboardingCompleted property for backward compatibility
           const user = {
             ...response.user,
             onboardingStatus,
             onboardingCompleted: onboardingStatus === "completed",
           };
 
+          console.log("Processed user:", user);
           return user;
         }
 
@@ -102,10 +117,10 @@ export function useAuth() {
         throw error;
       }
     },
-    staleTime: 15 * 60 * 1000, // 15 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: API_CONFIG.AUTH_QUERY.STALE_TIME,
+    gcTime: API_CONFIG.AUTH_QUERY.CACHE_TIME,
     refetchInterval: (query) => {
-      return query.state.data ? 15 * 60 * 1000 : false; // 15 minutes
+      return query.state.data ? API_CONFIG.AUTH_QUERY.STALE_TIME : false;
     },
     refetchOnWindowFocus: (query) => {
       return !query.state.data || query.isStale();
@@ -121,7 +136,7 @@ export function useAuth() {
         return false;
       }
 
-      return failureCount < 2;
+      return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
     },
   });
 
@@ -129,10 +144,14 @@ export function useAuth() {
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: async (data) => {
-      if (data.success) {
-        queryClient.setQueryData(queryKeys.auth.me(), data.user);
-        await new Promise((r) => setTimeout(r, 300));
+      if (data.success && data.accessToken) {
+        queryClient.setQueryData(queryKeys.auth.token(), {
+          accessToken: data.accessToken,
+          expiresAt: data.accessTokenExpiresAt,
+        });
+
         await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
+        await new Promise((r) => setTimeout(r, 300));
 
         router.replace("/dashboard");
       }
@@ -202,7 +221,7 @@ export function useAuth() {
     const now = Date.now();
     const dataAge = now - queryState.dataUpdatedAt;
 
-    return dataAge < 15 * 60 * 1000;
+    return dataAge < API_CONFIG.AUTH_QUERY.STALE_TIME;
   };
 
   return {
