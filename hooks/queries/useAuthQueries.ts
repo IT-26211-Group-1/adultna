@@ -83,11 +83,9 @@ export function useAuth() {
     refetch: checkAuth,
   } = useQuery({
     queryKey: queryKeys.auth.me(),
-    enabled: !isPublicRoute,
     queryFn: async () => {
       try {
         const response = await authApi.me();
-        console.log("Auth /me response:", response);
 
         if (response.success && response.user) {
           const onboardingStatus =
@@ -102,7 +100,6 @@ export function useAuth() {
             onboardingCompleted: onboardingStatus === "completed",
           };
 
-          console.log("Processed user:", user);
           return user;
         }
 
@@ -224,7 +221,7 @@ export function useAuth() {
     return dataAge < API_CONFIG.AUTH_QUERY.STALE_TIME;
   };
 
-  return {
+  const authState = {
     user,
     isAuthenticated: !!user,
     isLoading,
@@ -248,6 +245,8 @@ export function useAuth() {
     updateUser,
     isAuthFresh,
   };
+
+  return authState;
 }
 
 // Email verification hooks
@@ -258,14 +257,23 @@ export function useEmailVerification() {
 
   const verifyEmailMutation = useMutation({
     mutationFn: authApi.verifyEmail,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       removeSecureItem("verification_token");
 
       // Cache the user data from successful verification
       if (data.success) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.auth.all });
+        await queryClient.invalidateQueries({ queryKey: queryKeys.auth.all });
 
-        router.push("/auth/onboarding");
+        // Wait for auth to refresh to get onboarding status
+        await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
+
+        const userData = queryClient.getQueryData(queryKeys.auth.me()) as User | null;
+
+        if (userData?.onboardingStatus === "completed") {
+          router.push("/dashboard");
+        } else {
+          router.push("/auth/onboarding");
+        }
       }
     },
   });

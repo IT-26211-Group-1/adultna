@@ -14,7 +14,9 @@ export function setTokenProvider(provider: () => string | null) {
   tokenProvider = provider;
 }
 
-export function setRefreshTokenCallback(callback: () => Promise<string | null>) {
+export function setRefreshTokenCallback(
+  callback: () => Promise<string | null>
+) {
   refreshTokenCallback = callback;
 }
 
@@ -23,7 +25,7 @@ function subscribeTokenRefresh(callback: (token: string | null) => void) {
 }
 
 function onTokenRefreshed(token: string | null) {
-  refreshSubscribers.forEach(callback => callback(token));
+  refreshSubscribers.forEach((callback) => callback(token));
   refreshSubscribers = [];
 }
 
@@ -52,7 +54,9 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 export class ApiClient {
-  private static buildHeaders(customHeaders?: HeadersInit): Record<string, string> {
+  private static buildHeaders(
+    customHeaders?: HeadersInit
+  ): Record<string, string> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       "X-Request-ID": crypto.randomUUID(),
@@ -67,6 +71,7 @@ export class ApiClient {
     }
 
     const token = tokenProvider?.();
+    console.log("ApiClient - Building headers, token from provider:", token ? `[${token.substring(0, 20)}...]` : "[MISSING]");
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -78,7 +83,7 @@ export class ApiClient {
     endpoint: string,
     options: RequestInit = {},
     baseUrl: string = AUTH_API_BASE_URL as string,
-    _isRetry = false,
+    _isRetry = false
   ): Promise<T> {
     const url = `${baseUrl}${endpoint}`;
     const headers = this.buildHeaders(options.headers);
@@ -103,10 +108,6 @@ export class ApiClient {
           if (newToken) {
             return this.request<T>(endpoint, options, baseUrl, true);
           }
-
-          if (typeof window !== "undefined") {
-            window.location.href = "/auth/login";
-          }
         }
 
         const contentType = response.headers.get("content-type");
@@ -115,9 +116,10 @@ export class ApiClient {
           : await response.text();
 
         throw new ApiError(
-          errorData?.message || `HTTP ${response.status}: ${response.statusText}`,
+          errorData?.message ||
+            `HTTP ${response.status}: ${response.statusText}`,
           response.status,
-          errorData,
+          errorData
         );
       }
 
@@ -139,7 +141,7 @@ export class ApiClient {
       throw new ApiError(
         error instanceof Error ? error.message : "Network error",
         0,
-        null,
+        null
       );
     }
   }
@@ -147,7 +149,7 @@ export class ApiClient {
   static get<T>(
     endpoint: string,
     options?: RequestInit,
-    baseUrl?: string,
+    baseUrl?: string
   ): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "GET" }, baseUrl);
   }
@@ -156,7 +158,7 @@ export class ApiClient {
     endpoint: string,
     data?: any,
     options?: RequestInit,
-    baseUrl?: string,
+    baseUrl?: string
   ): Promise<T> {
     return this.request<T>(
       endpoint,
@@ -165,7 +167,7 @@ export class ApiClient {
         method: "POST",
         body: data ? JSON.stringify(data) : undefined,
       },
-      baseUrl,
+      baseUrl
     );
   }
 
@@ -173,7 +175,7 @@ export class ApiClient {
     endpoint: string,
     data?: any,
     options?: RequestInit,
-    baseUrl?: string,
+    baseUrl?: string
   ): Promise<T> {
     return this.request<T>(
       endpoint,
@@ -182,14 +184,14 @@ export class ApiClient {
         method: "PUT",
         body: data ? JSON.stringify(data) : undefined,
       },
-      baseUrl,
+      baseUrl
     );
   }
 
   static delete<T>(
     endpoint: string,
     options?: RequestInit,
-    baseUrl?: string,
+    baseUrl?: string
   ): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" }, baseUrl);
   }
@@ -200,7 +202,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public data: any = null,
+    public data: any = null
   ) {
     super(message);
     this.name = "ApiError";
