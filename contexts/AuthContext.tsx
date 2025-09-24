@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef } from "react";
 import { setTokenProvider, setRefreshTokenCallback } from "@/lib/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
@@ -18,7 +18,22 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const REFRESH_URL = `${API_CONFIG.AUTH_SERVICE_URL}/refresh-token`;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { data: tokenData, isLoading, isFetching, refetch } = useQuery({
+  const tokenRef = useRef<string | null>(null);
+
+  // Initialize token provider on mount to always read from ref
+  useEffect(() => {
+    setTokenProvider(() => {
+      console.log("TokenProvider called, returning:", tokenRef.current ? "[PRESENT]" : "[NULL]");
+      return tokenRef.current;
+    });
+  }, []);
+
+  const {
+    data: tokenData,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: queryKeys.auth.token(),
     queryFn: async () => {
       try {
@@ -57,27 +72,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    if (isDevelopment) {
-      console.log("Access Token:", tokenData?.accessToken ? "[PRESENT]" : "[MISSING]");
-      console.log("Expires At:", tokenData?.expiresAt);
-    }
+    tokenRef.current = tokenData?.accessToken || null;
+  }, [tokenData?.accessToken, tokenData?.expiresAt]);
 
-    setTokenProvider(() => tokenData?.accessToken || null);
-
+  useEffect(() => {
     setRefreshTokenCallback(async () => {
       const result = await refetch();
       return result.data?.accessToken || null;
     });
-  }, [tokenData?.accessToken, tokenData?.expiresAt, refetch]);
+  }, [refetch]);
 
   if (isLoading) {
     return <LoadingSpinner />;
   }
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
 

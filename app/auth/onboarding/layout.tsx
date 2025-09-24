@@ -14,27 +14,18 @@ export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("Onboarding layout - isLoading:", isLoading);
-    console.log("Onboarding layout - isAuthenticated:", isAuthenticated);
-    console.log("Onboarding layout - user:", user);
-    console.log("Onboarding layout - onboardingStatus:", user?.onboardingStatus);
-
     if (!isLoading) {
-      if (!isAuthenticated) {
-        console.log("Redirecting to login - not authenticated");
+      if (!isAuthenticated && !user) {
         router.replace("/auth/login");
         return;
       }
 
       if (user?.onboardingStatus === "completed") {
-        console.log("Redirecting to dashboard - onboarding completed");
         router.replace("/dashboard");
         return;
       }
-
-      console.log("Allowing access to onboarding");
     }
-  }, [isLoading, isAuthenticated, user?.onboardingStatus, router]);
+  }, [isLoading, isAuthenticated, user, router]);
 
   // Show loading while checking auth
   if (isLoading) {

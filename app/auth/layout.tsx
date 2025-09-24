@@ -14,7 +14,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && !pathname?.startsWith("/auth/onboarding")) {
+    if (
+      !isLoading &&
+      isAuthenticated &&
+      !pathname?.startsWith("/auth/onboarding")
+    ) {
       router.replace("/dashboard");
     }
   }, [isAuthenticated, isLoading, pathname, router]);

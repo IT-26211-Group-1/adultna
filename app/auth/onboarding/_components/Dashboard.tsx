@@ -87,16 +87,9 @@ export default function DashboardClient() {
 
         addToast({
           title: "Onboarding submission failed",
-          description: errorMessage.includes("unauthorized")
-            ? "Session expired. Please login again."
-            : errorMessage,
+          description: errorMessage,
           color: "danger",
         });
-
-        // If unauthorized, redirect to login
-        if (errorMessage.includes("unauthorized")) {
-          router.replace("/auth/login");
-        }
       }
     },
     [onboardingSubmit, setSecureItem, router],
