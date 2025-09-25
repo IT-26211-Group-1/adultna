@@ -36,12 +36,6 @@ export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
     );
   }
 
-  // Only block if not authenticated
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  // Allow access if onboarding is not completed (includes not_started, in_progress, or undefined)
   if (user?.onboardingStatus === "completed") {
     return null;
   }

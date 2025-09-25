@@ -10,6 +10,7 @@ import {
 } from "@/lib/apiClient";
 import { useAuth } from "./useAuthQueries";
 import { API_CONFIG } from "@/config/api";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 
 // Types
 export type OnboardingData = {
@@ -78,15 +79,27 @@ export function useOnboardingQuestions() {
 export function useOnboardingSubmit() {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { removeSecureItem } = useSecureStorage();
 
   return useMutation({
     mutationFn: onboardingApi.submitOnboarding,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.success) {
+        // Clear onboarding secure storage items
+        removeSecureItem("onboarding-currentStep");
+        removeSecureItem("onboarding-displayName");
+        removeSecureItem("onboarding-lifeStage");
+        removeSecureItem("onboarding-priorities");
+
         // Invalidate and refetch auth to get updated user data from server
-        queryClient.invalidateQueries({
+        await queryClient.invalidateQueries({
           queryKey: queryKeys.auth.me(),
           refetchType: "active",
+        });
+
+        // Wait for auth to refetch
+        await queryClient.refetchQueries({
+          queryKey: queryKeys.auth.me(),
         });
 
         if (data.message?.includes("Personalized Roadmap")) {

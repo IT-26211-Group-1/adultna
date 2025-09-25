@@ -26,15 +26,16 @@ export function useLogin() {
   const onSubmit = handleSubmit(async (data: z.infer<typeof loginSchema>) => {
     login(data, {
       onSuccess: (response) => {
-        if (response.success && response.user) {
+        if (response.success) {
           addToast({
             title: "Login Successful!",
             color: "success",
           });
 
+          // Wait for auth state to update, then navigate
           setTimeout(() => {
             router.replace("/dashboard");
-          }, 100);
+          }, 300);
         } else if (response.verificationToken) {
           addToast({
             title: "Email not verified",
@@ -45,7 +46,7 @@ export function useLogin() {
           setSecureItem(
             "verification_token",
             response.verificationToken,
-            60, // 1 hour expiry
+            60 // 1 hour expiry
           );
 
           router.replace("/auth/verify-email");
@@ -66,12 +67,12 @@ export function useLogin() {
               JSON.stringify({
                 cooldown: error.data.cooldownLeft,
                 timestamp: Date.now(),
-              }),
+              })
             );
           }
         } else {
           addToast({
-            title: "Invalid Credentials",
+            title: "Something went wrong",
             color: "danger",
           });
         }

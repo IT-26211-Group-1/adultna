@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { API_CONFIG } from "@/config/api";
+import { useAuthToken } from "@/contexts/AuthContext";
 
 // Types
 export type User = {
@@ -41,16 +42,16 @@ const authApi = {
   me: (): Promise<AuthMeResponse> => ApiClient.get("/auth/me"),
 
   login: (data: LoginRequest): Promise<LoginResponse> =>
-    ApiClient.post("/login", data),
+    ApiClient.post("/auth/login", data),
 
   logout: (): Promise<{ success: boolean; message: string }> =>
-    ApiClient.post("/logout"),
+    ApiClient.post("/auth/logout"),
 
   verifyEmail: (data: {
     otp: string;
     verificationToken: string;
   }): Promise<{ success: boolean; message: string }> =>
-    ApiClient.post("/verify-email", data),
+    ApiClient.post("/auth/verify-email", data),
 
   resendOtp: (data: {
     verificationToken: string;
@@ -59,7 +60,7 @@ const authApi = {
     message: string;
     verificationToken?: string;
     data?: { cooldownLeft: number };
-  }> => ApiClient.post("/resend-otp", data),
+  }> => ApiClient.post("/auth/resend-otp", data),
 };
 
 // Query Hooks
@@ -76,6 +77,8 @@ export function useAuth() {
     "/auth/forgot-password",
   ].some((route) => pathname?.startsWith(route));
 
+  const { token: authToken } = useAuthToken();
+
   const {
     data: user,
     isLoading,
@@ -83,6 +86,7 @@ export function useAuth() {
     refetch: checkAuth,
   } = useQuery({
     queryKey: queryKeys.auth.me(),
+    enabled: !isPublicRoute, // Enable on private routes regardless of token
     queryFn: async () => {
       try {
         const response = await authApi.me();
@@ -105,32 +109,31 @@ export function useAuth() {
 
         return null;
       } catch (error) {
+        // Let ApiClient handle 401s and token refresh
+        // Only return null for other auth errors
         if (
           error instanceof ApiError &&
-          (error.isUnauthorized || error.isForbidden)
+          error.isForbidden // 403 - definitely no access
         ) {
           return null;
         }
-        throw error;
+        throw error; // Let ApiClient handle 401s and retry with refresh
       }
     },
     staleTime: API_CONFIG.AUTH_QUERY.STALE_TIME,
     gcTime: API_CONFIG.AUTH_QUERY.CACHE_TIME,
-    refetchInterval: (query) => {
-      return query.state.data ? API_CONFIG.AUTH_QUERY.STALE_TIME : false;
-    },
-    refetchOnWindowFocus: (query) => {
-      return !query.state.data || query.isStale();
-    },
-    refetchOnMount: (query) => {
-      return query.isStale();
-    },
+    refetchInterval: false, // Disable automatic refetching - token refresh handles this
+    refetchOnWindowFocus: false, // Disable focus refetch - causes too many requests
+    refetchOnMount: "always", // Always check on mount for fresh user state
     retry: (failureCount, error) => {
-      if (
-        error instanceof ApiError &&
-        (error.isUnauthorized || error.isForbidden)
-      ) {
+      // Don't retry 403 Forbidden - user definitely doesn't have access
+      if (error instanceof ApiError && error.isForbidden) {
         return false;
+      }
+
+      // For 401 errors, retry once to allow token refresh
+      if (error instanceof ApiError && error.isUnauthorized) {
+        return failureCount < 1; // Allow one retry for token refresh
       }
 
       return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
@@ -141,16 +144,22 @@ export function useAuth() {
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: async (data) => {
-      if (data.success && data.accessToken) {
-        queryClient.setQueryData(queryKeys.auth.token(), {
-          accessToken: data.accessToken,
-          expiresAt: data.accessTokenExpiresAt,
+      if (data.success) {
+        // Login successful - cookies are set, now refresh token and user data
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.auth.all,
+          exact: false,
         });
 
-        await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
-        await new Promise((r) => setTimeout(r, 300));
+        // Fetch fresh token from cookies
+        await queryClient.refetchQueries({
+          queryKey: queryKeys.auth.token(),
+        });
 
-        router.replace("/dashboard");
+        // Fetch user data
+        await queryClient.refetchQueries({
+          queryKey: queryKeys.auth.me(),
+        });
       }
     },
     onError: (error) => {
@@ -267,7 +276,9 @@ export function useEmailVerification() {
         // Wait for auth to refresh to get onboarding status
         await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
 
-        const userData = queryClient.getQueryData(queryKeys.auth.me()) as User | null;
+        const userData = queryClient.getQueryData(
+          queryKeys.auth.me()
+        ) as User | null;
 
         if (userData?.onboardingStatus === "completed") {
           router.push("/dashboard");
