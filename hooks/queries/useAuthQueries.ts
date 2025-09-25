@@ -12,7 +12,6 @@ export type User = {
   email: string;
   role: string;
   onboardingStatus?: "not_started" | "in_progress" | "completed";
-  onboardingCompleted?: boolean;
 };
 
 export type AuthMeResponse = {
@@ -86,14 +85,26 @@ export function useAuth() {
     enabled: !isPublicRoute,
     queryFn: async () => {
       try {
+        console.log("[AUTH-QUERY] Making request to /auth/me...");
         const response = await authApi.me();
+        console.log("[AUTH-QUERY] Full response:", JSON.stringify(response));
 
         if (response.success && response.user) {
+          console.log(
+            "[AUTH-QUERY] Raw response from auth service:",
+            JSON.stringify(response.user)
+          );
+
           const onboardingStatus =
             response.user.onboardingStatus === null ||
             response.user.onboardingStatus === undefined
               ? "not_started"
               : response.user.onboardingStatus;
+
+          console.log("[AUTH-QUERY] Processed onboarding status:", {
+            raw: response.user.onboardingStatus,
+            processed: onboardingStatus,
+          });
 
           const user = {
             ...response.user,
@@ -267,7 +278,7 @@ export function useEmailVerification() {
         await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
 
         const userData = queryClient.getQueryData(
-          queryKeys.auth.me(),
+          queryKeys.auth.me()
         ) as User | null;
 
         if (userData?.onboardingStatus === "completed") {

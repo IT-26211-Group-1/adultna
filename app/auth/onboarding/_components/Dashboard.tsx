@@ -24,17 +24,25 @@ export default function DashboardClient() {
   const router = useRouter();
   const onboardingSubmit = useOnboardingSubmit();
 
-  // Memoize the initial onboarding state check
   const initialShowOnboarding = useMemo(() => {
-    // First check user's actual onboarding status from the server
     if (user?.onboardingStatus === "completed") {
       return false;
     }
 
-    // Fallback to secure storage cache
-    const completed = getSecureItem(ONBOARDING_COMPLETED_KEY);
+    if (
+      user?.onboardingStatus &&
+      !["not_started", "in_progress"].includes(user.onboardingStatus)
+    ) {
+      return false;
+    }
 
-    return !completed;
+    if (!user?.onboardingStatus) {
+      const completed = getSecureItem(ONBOARDING_COMPLETED_KEY);
+      return !completed;
+    }
+
+    // Show onboarding for not_started and in_progress
+    return ["not_started", "in_progress"].includes(user.onboardingStatus);
   }, [user?.onboardingStatus, getSecureItem]);
 
   const [showOnboarding, setShowOnboarding] = useState(initialShowOnboarding);
@@ -43,28 +51,33 @@ export default function DashboardClient() {
   useEffect(() => {
     if (user?.onboardingStatus === "completed") {
       setShowOnboarding(false);
-      // Cache the completion status securely
       setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
+    } else if (
+      user?.onboardingStatus &&
+      !["not_started", "in_progress"].includes(user.onboardingStatus)
+    ) {
+      setShowOnboarding(false);
+    } else if (
+      user?.onboardingStatus &&
+      ["not_started", "in_progress"].includes(user.onboardingStatus)
+    ) {
+      setShowOnboarding(true);
     }
   }, [user?.onboardingStatus, setSecureItem]);
 
   const handleOnboardingComplete = useCallback(
     async (data: OnboardingData) => {
       try {
-        // Submit onboarding data to the API
         const result = await onboardingSubmit.mutateAsync(data);
 
         setShowOnboarding(false);
 
-        // Show appropriate success message based on completion status
         const isCompleted = result.message?.includes("Personalized Roadmap");
 
         if (isCompleted) {
-          // Cache completion status securely only if truly completed
           setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
           addToast({
             title: "Onboarding completed successfully!",
-            description: "Your personalized roadmap is being prepared.",
             color: "success",
           });
         } else {
@@ -74,25 +87,43 @@ export default function DashboardClient() {
             color: "success",
           });
         }
-
-        // The useOnboardingSubmit hook will handle redirects based on completion status
       } catch (error) {
         console.error("Failed to save onboarding:", error);
 
-        // More specific error handling
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred";
+        // More specific error handling based on error type
+        let errorMessage = "An unexpected error occurred";
+        let shouldRedirect = false;
+
+        if (error instanceof Error) {
+          if (error.message.includes("already completed")) {
+            errorMessage = "Onboarding has already been completed";
+            shouldRedirect = true;
+          } else if (error.message.includes("Authentication required")) {
+            errorMessage = "Please log in to continue";
+            shouldRedirect = true;
+          } else if (error.message.includes("Invalid onboarding status")) {
+            errorMessage = "Your onboarding status is invalid";
+            shouldRedirect = true;
+          } else {
+            errorMessage = error.message;
+          }
+        }
 
         addToast({
           title: "Onboarding submission failed",
           description: errorMessage,
           color: "danger",
         });
+
+        // Redirect if needed
+        if (shouldRedirect) {
+          setTimeout(() => {
+            router.replace("/dashboard");
+          }, 2000);
+        }
       }
     },
-    [onboardingSubmit, setSecureItem, router],
+    [onboardingSubmit, setSecureItem, router]
   );
 
   return (

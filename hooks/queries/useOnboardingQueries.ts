@@ -13,6 +13,7 @@ export type OnboardingData = {
   questionId?: number;
   optionId?: number;
   priorities?: { questionId: number; optionId: number }[];
+  isSkip?: boolean; // Flag to indicate user is skipping onboarding
 };
 
 export type QuestionOption = {
@@ -42,7 +43,7 @@ export type OnboardingSubmitResponse = {
 // API Functions
 const onboardingApi = {
   getQuestions: (): Promise<OnboardingQuestionsResponse> =>
-    ApiClient.get("/onboarding/view", {}, API_CONFIG.API_URL),
+    ApiClient.get("/onboarding", {}, API_CONFIG.API_URL),
 
   submitOnboarding: (data: OnboardingData): Promise<OnboardingSubmitResponse> =>
     ApiClient.post("/onboarding", data, {}, API_CONFIG.API_URL),
@@ -50,23 +51,43 @@ const onboardingApi = {
 
 // Query Hooks
 export function useOnboardingQuestions() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+
+  // Only enable if user is authenticated and has valid onboarding status
+  const shouldFetch =
+    isAuthenticated &&
+    user?.onboardingStatus &&
+    ["not_started", "in_progress"].includes(user.onboardingStatus);
 
   return useQuery({
     queryKey: queryKeys.onboarding.questions(),
     queryFn: onboardingApi.getQuestions,
-    enabled: isAuthenticated,
-    staleTime: 10 * 60 * 1000,
+    enabled: shouldFetch,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
     gcTime: API_CONFIG.AUTH_QUERY.CACHE_TIME,
     retry: (failureCount, error) => {
-      if (
-        error instanceof ApiError &&
-        (error.isUnauthorized || error.isForbidden)
-      ) {
-        return false;
+      // Don't retry auth/forbidden errors or onboarding status errors
+      if (error instanceof ApiError) {
+        if (error.isUnauthorized || error.isForbidden) {
+          return false;
+        }
+        // Don't retry if onboarding already completed
+        if (
+          error.status === 400 &&
+          error.data?.message?.includes("already completed")
+        ) {
+          return false;
+        }
       }
 
       return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
+    },
+    throwOnError: (error) => {
+      // Don't throw for expected onboarding status errors
+      if (error instanceof ApiError && error.status === 400) {
+        return false;
+      }
+      return true;
     },
   });
 }
@@ -75,9 +96,36 @@ export function useOnboardingSubmit() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { removeSecureItem } = useSecureStorage();
+  const { user } = useAuth();
 
   return useMutation({
-    mutationFn: onboardingApi.submitOnboarding,
+    mutationFn: async (data: OnboardingData) => {
+      // Client-side validation
+      if (user?.onboardingStatus === "completed") {
+        throw new ApiError("Onboarding already completed", 400, {
+          message: "Onboarding already completed",
+        });
+      }
+
+      if (
+        user?.onboardingStatus &&
+        !["not_started", "in_progress"].includes(user.onboardingStatus)
+      ) {
+        throw new ApiError("Invalid onboarding status", 400, {
+          message: "Invalid onboarding status",
+        });
+      }
+
+      // Validate required data
+      if (!data.displayName && !data.priorities?.length && !data.optionId) {
+        throw new ApiError("At least one field must be provided", 400, {
+          message:
+            "Please provide at least display name, life stage, or priorities",
+        });
+      }
+
+      return onboardingApi.submitOnboarding(data);
+    },
     onSuccess: async (data) => {
       if (data.success) {
         // Clear onboarding secure storage items
@@ -86,18 +134,24 @@ export function useOnboardingSubmit() {
         removeSecureItem("onboarding-lifeStage");
         removeSecureItem("onboarding-priorities");
 
-        // Invalidate and refetch auth to get updated user data from server
+        // Invalidate related queries
         await queryClient.invalidateQueries({
           queryKey: queryKeys.auth.me(),
           refetchType: "active",
         });
 
-        // Wait for auth to refetch
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.onboarding.all,
+        });
+
+        // await refetch to get updated onboarding status
         await queryClient.refetchQueries({
           queryKey: queryKeys.auth.me(),
         });
 
+        // Redirect based on completion status
         if (data.message?.includes("Personalized Roadmap")) {
+          // Slight delay to ensure state updates
           setTimeout(() => {
             router.replace("/dashboard");
           }, 100);
@@ -106,6 +160,27 @@ export function useOnboardingSubmit() {
     },
     onError: (error) => {
       console.error("Onboarding submission failed:", error);
+
+      if (error instanceof ApiError) {
+        if (error.isUnauthorized) {
+          router.replace("/auth/login");
+        } else if (
+          error.status === 400 &&
+          error.data?.message?.includes("already completed")
+        ) {
+          // If onboarding completed by another session, redirect to dashboard
+          router.replace("/dashboard");
+        }
+      }
+    },
+    retry: (failureCount, error) => {
+      if (
+        error instanceof ApiError &&
+        (error.isUnauthorized || error.status === 400)
+      ) {
+        return false;
+      }
+      return failureCount < 2; // Only retry twice for network errors
     },
   });
 }
