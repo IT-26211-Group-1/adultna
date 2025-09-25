@@ -38,6 +38,7 @@ export default function DashboardClient() {
 
     if (!user?.onboardingStatus) {
       const completed = getSecureItem(ONBOARDING_COMPLETED_KEY);
+
       return !completed;
     }
 
@@ -123,7 +124,7 @@ export default function DashboardClient() {
         }
       }
     },
-    [onboardingSubmit, setSecureItem, router]
+    [onboardingSubmit, setSecureItem, router],
   );
 
   return (

@@ -87,12 +87,13 @@ export function useAuth() {
       try {
         console.log("[AUTH-QUERY] Making request to /auth/me...");
         const response = await authApi.me();
+
         console.log("[AUTH-QUERY] Full response:", JSON.stringify(response));
 
         if (response.success && response.user) {
           console.log(
             "[AUTH-QUERY] Raw response from auth service:",
-            JSON.stringify(response.user)
+            JSON.stringify(response.user),
           );
 
           const onboardingStatus =
@@ -278,7 +279,7 @@ export function useEmailVerification() {
         await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
 
         const userData = queryClient.getQueryData(
-          queryKeys.auth.me()
+          queryKeys.auth.me(),
         ) as User | null;
 
         if (userData?.onboardingStatus === "completed") {
