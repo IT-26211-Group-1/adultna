@@ -2,12 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import {
-  ApiClient,
-  ApiError,
-  queryKeys,
-  ONBOARDING_API_BASE_URL,
-} from "@/lib/apiClient";
+import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { useAuth } from "./useAuthQueries";
 import { API_CONFIG } from "@/config/api";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
@@ -47,10 +42,10 @@ export type OnboardingSubmitResponse = {
 // API Functions
 const onboardingApi = {
   getQuestions: (): Promise<OnboardingQuestionsResponse> =>
-    ApiClient.get("/onboarding/view", {}, ONBOARDING_API_BASE_URL),
+    ApiClient.get("/onboarding/view", {}, API_CONFIG.API_URL),
 
   submitOnboarding: (data: OnboardingData): Promise<OnboardingSubmitResponse> =>
-    ApiClient.post("/onboarding", data, {}, ONBOARDING_API_BASE_URL),
+    ApiClient.post("/onboarding", data, {}, API_CONFIG.API_URL),
 };
 
 // Query Hooks
@@ -115,7 +110,7 @@ export function useOnboardingSubmit() {
   });
 }
 
-// Helper hook to get specific question by category
+// helper hook to get specific question by category
 export function useQuestionByCategory(category: string) {
   const { data: questionsResponse, ...rest } = useOnboardingQuestions();
 
@@ -129,7 +124,7 @@ export function useQuestionByCategory(category: string) {
   };
 }
 
-// Convenience hooks for specific question types
+// hooks to get question categories
 export function useLifeStageQuestion() {
   return useQuestionByCategory("Life Stage");
 }

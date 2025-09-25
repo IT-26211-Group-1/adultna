@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { API_CONFIG } from "@/config/api";
-import { useAuthToken } from "@/contexts/AuthContext";
 
 // Types
 export type User = {
@@ -13,7 +12,7 @@ export type User = {
   email: string;
   role: string;
   onboardingStatus?: "not_started" | "in_progress" | "completed";
-  onboardingCompleted?: boolean; // Computed property for backward compatibility
+  onboardingCompleted?: boolean;
 };
 
 export type AuthMeResponse = {
@@ -77,8 +76,6 @@ export function useAuth() {
     "/auth/forgot-password",
   ].some((route) => pathname?.startsWith(route));
 
-  const { token: authToken } = useAuthToken();
-
   const {
     data: user,
     isLoading,
@@ -86,7 +83,7 @@ export function useAuth() {
     refetch: checkAuth,
   } = useQuery({
     queryKey: queryKeys.auth.me(),
-    enabled: !isPublicRoute, // Enable on private routes regardless of token
+    enabled: !isPublicRoute,
     queryFn: async () => {
       try {
         const response = await authApi.me();
@@ -109,31 +106,25 @@ export function useAuth() {
 
         return null;
       } catch (error) {
-        // Let ApiClient handle 401s and token refresh
-        // Only return null for other auth errors
-        if (
-          error instanceof ApiError &&
-          error.isForbidden // 403 - definitely no access
-        ) {
+        if (error instanceof ApiError && error.isForbidden) {
           return null;
         }
-        throw error; // Let ApiClient handle 401s and retry with refresh
+        throw error;
       }
     },
-    staleTime: API_CONFIG.AUTH_QUERY.STALE_TIME,
+    staleTime: 0,
     gcTime: API_CONFIG.AUTH_QUERY.CACHE_TIME,
-    refetchInterval: false, // Disable automatic refetching - token refresh handles this
-    refetchOnWindowFocus: false, // Disable focus refetch - causes too many requests
-    refetchOnMount: "always", // Always check on mount for fresh user state
+    refetchInterval: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
     retry: (failureCount, error) => {
-      // Don't retry 403 Forbidden - user definitely doesn't have access
       if (error instanceof ApiError && error.isForbidden) {
         return false;
       }
 
-      // For 401 errors, retry once to allow token refresh
+      // retry once to allow token refresh
       if (error instanceof ApiError && error.isUnauthorized) {
-        return failureCount < 1; // Allow one retry for token refresh
+        return failureCount < 1;
       }
 
       return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
@@ -145,7 +136,6 @@ export function useAuth() {
     mutationFn: authApi.login,
     onSuccess: async (data) => {
       if (data.success) {
-        // Login successful - cookies are set, now refresh token and user data
         await queryClient.invalidateQueries({
           queryKey: queryKeys.auth.all,
           exact: false,
@@ -277,7 +267,7 @@ export function useEmailVerification() {
         await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
 
         const userData = queryClient.getQueryData(
-          queryKeys.auth.me()
+          queryKeys.auth.me(),
         ) as User | null;
 
         if (userData?.onboardingStatus === "completed") {

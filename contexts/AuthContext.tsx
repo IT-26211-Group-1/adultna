@@ -27,12 +27,10 @@ const REFRESH_URL = `${API_CONFIG.API_URL}/auth/refresh-token`;
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const tokenRef = useRef<string | null>(null);
 
-  // Stable token provider callback - should return null since we use HTTP-only cookies
   const getToken = useCallback(() => {
-    return null; // Always return null - tokens are in HTTP-only cookies
+    return null;
   }, []);
 
-  // Stable refresh callback
   const refreshToken = useCallback(async () => {
     try {
       const response = await fetch(REFRESH_URL, {
@@ -43,13 +41,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         const { accessToken, accessTokenExpiresAt } = data;
+
         return {
           accessToken,
           expiresAt: accessTokenExpiresAt,
         };
       } else {
         console.log(
-          "❌ AuthContext: refresh-token endpoint failed:",
+          "AuthContext: refresh-token endpoint failed:",
           response.status,
           response.statusText
         );
@@ -57,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error("Token refresh failed:", error);
     }
+
     return null;
   }, []);
 
@@ -72,18 +72,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refetchInterval: API_CONFIG.TOKEN.REFRESH_INTERVAL,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
-    retry: 1, // Retry once on failure
+    retry: 1,
   });
 
   // Update ref whenever token data changes
   tokenRef.current = tokenData?.accessToken || null;
 
-  // Stable refresh callback for apiClient - should return null since we use HTTP-only cookies
   const refreshTokenForApiClient = useCallback(async () => {
     console.log(
-      "🔄 AuthContext: refreshTokenForApiClient called - using HTTP-only cookies, no manual token needed"
+      "AuthContext: refreshTokenForApiClient called - using HTTP-only cookies, no manual token needed"
     );
-    return null; // Return null - refresh happens via HTTP-only cookies
+
+    return null;
   }, []);
 
   // Initialize providers once on mount
@@ -112,8 +112,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuthToken() {
   const context = useContext(AuthContext);
+
   if (!context) {
     throw new Error("useAuthToken must be used within AuthProvider");
   }
+
   return context;
 }
