@@ -39,12 +39,14 @@ export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
       // Redirect if not authenticated
       if (!isAuthenticated || !user) {
         router.replace("/auth/login");
+
         return;
       }
 
       // Redirect if onboarding is completed
       if (user?.onboardingStatus === "completed") {
         router.replace("/dashboard");
+
         return;
       }
 
@@ -54,6 +56,7 @@ export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
         !["not_started", "in_progress"].includes(user.onboardingStatus)
       ) {
         router.replace("/dashboard");
+
         return;
       }
     }

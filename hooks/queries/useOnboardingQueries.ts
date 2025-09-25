@@ -87,6 +87,7 @@ export function useOnboardingQuestions() {
       if (error instanceof ApiError && error.status === 400) {
         return false;
       }
+
       return true;
     },
   });
@@ -180,6 +181,7 @@ export function useOnboardingSubmit() {
       ) {
         return false;
       }
+
       return failureCount < 2; // Only retry twice for network errors
     },
   });
