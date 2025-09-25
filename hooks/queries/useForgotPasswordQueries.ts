@@ -122,7 +122,7 @@ export function useForgotPasswordFlow() {
     },
   });
 
-  // Resend OTP (reuses send OTP with stored email)
+  // Resend OTP
   const resendOtpMutation = useMutation({
     mutationFn: async () => {
       const email = getSecureItem("forgotPasswordEmail");

@@ -13,15 +13,16 @@ const sizeMap = {
 
 const LoadingSpinnerComponent = ({
   fullScreen = true,
-  size = "lg"
+  size = "lg",
 }: LoadingSpinnerProps) => {
   const spinner = (
     <div className="relative">
       <div className={`${sizeMap[size]} relative`}>
         <div className="absolute inset-0 rounded-full border-4 border-olivine/30" />
         <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-adultGreen animate-spin" />
-        <div className="absolute inset-2 rounded-full border-4 border-transparent border-r-olivine animate-spin animation-delay-150"
-          style={{ animationDuration: '1s', animationDirection: 'reverse' }}
+        <div
+          className="absolute inset-2 rounded-full border-4 border-transparent border-r-olivine animate-spin animation-delay-150"
+          style={{ animationDuration: "1s", animationDirection: "reverse" }}
         />
       </div>
     </div>
