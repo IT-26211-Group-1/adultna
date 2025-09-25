@@ -1,6 +1,8 @@
+export const isDevelopment = process.env.NODE_ENV === "development";
+export const isProduction = process.env.NODE_ENV === "production";
+
 export const API_CONFIG = {
-  AUTH_SERVICE_URL: process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "",
-  ONBOARDING_SERVICE_URL: process.env.NEXT_PUBLIC_ONBOARDING_SERVICE_URL || "",
+  API_URL: process.env.NEXT_PUBLIC_API || "",
 
   TIMEOUT: 30000,
 
@@ -21,6 +23,3 @@ export const API_CONFIG = {
     CACHE_TIME: 30 * 60 * 1000,
   },
 } as const;
-
-export const isDevelopment = process.env.NODE_ENV === "development";
-export const isProduction = process.env.NODE_ENV === "production";

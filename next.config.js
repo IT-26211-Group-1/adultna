@@ -70,12 +70,8 @@ const nextConfig = {
     async rewrites() {
       return [
         {
-          source: "/api/auth/:path*",
-          destination: `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/:path*`,
-        },
-        {
-          source: "/api/onboarding/:path*",
-          destination: `${process.env.NEXT_PUBLIC_ONBOARDING_SERVICE_URL}/:path*`,
+          source: "/api/:path*",
+          destination: `${process.env.NEXT_PUBLIC_API}/auth/:path*`,
         },
       ];
     },

@@ -13,7 +13,7 @@ export interface AuthMeResponse {
 export async function authMeRequest(): Promise<AuthMeResponse> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/auth/me`,
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
       {
         method: "GET",
         credentials: "include",

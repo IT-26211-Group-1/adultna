@@ -1,10 +1,17 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import { setTokenProvider, setRefreshTokenCallback } from "@/lib/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
-import { API_CONFIG, isDevelopment } from "@/config/api";
+import { API_CONFIG } from "@/config/api";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface AuthContextValue {
@@ -15,52 +22,75 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const REFRESH_URL = `${API_CONFIG.AUTH_SERVICE_URL}/refresh-token`;
+const REFRESH_URL = `${API_CONFIG.API_URL}/auth/refresh-token`;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const tokenRef = useRef<string | null>(null);
 
-  // Initialize token provider on mount to always read from ref
-  useEffect(() => {
-    setTokenProvider(() => {
-      console.log("TokenProvider called, returning:", tokenRef.current ? "[PRESENT]" : "[NULL]");
-      return tokenRef.current;
-    });
+  // Stable token provider callback - should return null since we use HTTP-only cookies
+  const getToken = useCallback(() => {
+    return null; // Always return null - tokens are in HTTP-only cookies
+  }, []);
+
+  // Stable refresh callback
+  const refreshToken = useCallback(async () => {
+    try {
+      const response = await fetch(REFRESH_URL, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const { accessToken, accessTokenExpiresAt } = data;
+        return {
+          accessToken,
+          expiresAt: accessTokenExpiresAt,
+        };
+      } else {
+        console.log(
+          "❌ AuthContext: refresh-token endpoint failed:",
+          response.status,
+          response.statusText
+        );
+      }
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+    }
+    return null;
   }, []);
 
   const {
     data: tokenData,
     isLoading,
     isFetching,
-    refetch,
   } = useQuery({
     queryKey: queryKeys.auth.token(),
-    queryFn: async () => {
-      try {
-        const response = await fetch(REFRESH_URL, {
-          method: "POST",
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const { accessToken, accessTokenExpiresAt } = await response.json();
-          return {
-            accessToken,
-            expiresAt: accessTokenExpiresAt,
-          };
-        }
-      } catch (error) {
-        console.error("Token refresh failed:", error);
-      }
-      return null;
-    },
+    queryFn: refreshToken,
     staleTime: API_CONFIG.TOKEN.STALE_TIME,
     gcTime: API_CONFIG.TOKEN.CACHE_TIME,
     refetchInterval: API_CONFIG.TOKEN.REFRESH_INTERVAL,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
-    retry: false,
+    retry: 1, // Retry once on failure
   });
+
+  // Update ref whenever token data changes
+  tokenRef.current = tokenData?.accessToken || null;
+
+  // Stable refresh callback for apiClient - should return null since we use HTTP-only cookies
+  const refreshTokenForApiClient = useCallback(async () => {
+    console.log(
+      "🔄 AuthContext: refreshTokenForApiClient called - using HTTP-only cookies, no manual token needed"
+    );
+    return null; // Return null - refresh happens via HTTP-only cookies
+  }, []);
+
+  // Initialize providers once on mount
+  useEffect(() => {
+    setTokenProvider(getToken);
+    setRefreshTokenCallback(refreshTokenForApiClient);
+  }, [getToken, refreshTokenForApiClient]);
 
   const contextValue = useMemo(
     () => ({
@@ -70,17 +100,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }),
     [tokenData?.accessToken, tokenData?.expiresAt, isFetching]
   );
-
-  useEffect(() => {
-    tokenRef.current = tokenData?.accessToken || null;
-  }, [tokenData?.accessToken, tokenData?.expiresAt]);
-
-  useEffect(() => {
-    setRefreshTokenCallback(async () => {
-      const result = await refetch();
-      return result.data?.accessToken || null;
-    });
-  }, [refetch]);
 
   if (isLoading) {
     return <LoadingSpinner />;

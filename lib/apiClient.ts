@@ -2,13 +2,11 @@
 
 import { API_CONFIG } from "@/config/api";
 
-export const AUTH_API_BASE_URL = API_CONFIG.AUTH_SERVICE_URL;
-export const ONBOARDING_API_BASE_URL = API_CONFIG.ONBOARDING_SERVICE_URL;
+export const API_BASE_URL = API_CONFIG.API_URL;
+export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
 
 let tokenProvider: (() => string | null) | null = null;
 let refreshTokenCallback: (() => Promise<string | null>) | null = null;
-let isRefreshing = false;
-let refreshSubscribers: Array<(token: string | null) => void> = [];
 
 export function setTokenProvider(provider: () => string | null) {
   tokenProvider = provider;
@@ -20,38 +18,7 @@ export function setRefreshTokenCallback(
   refreshTokenCallback = callback;
 }
 
-function subscribeTokenRefresh(callback: (token: string | null) => void) {
-  refreshSubscribers.push(callback);
-}
-
-function onTokenRefreshed(token: string | null) {
-  refreshSubscribers.forEach((callback) => callback(token));
-  refreshSubscribers = [];
-}
-
-async function refreshAccessToken(): Promise<string | null> {
-  if (!refreshTokenCallback) return null;
-
-  if (isRefreshing) {
-    return new Promise((resolve) => {
-      subscribeTokenRefresh((token) => {
-        resolve(token);
-      });
-    });
-  }
-
-  isRefreshing = true;
-  try {
-    const newToken = await refreshTokenCallback();
-    onTokenRefreshed(newToken);
-    return newToken;
-  } catch (error) {
-    onTokenRefreshed(null);
-    return null;
-  } finally {
-    isRefreshing = false;
-  }
-}
+// No manual token refresh needed for HTTP-only cookies
 
 export class ApiClient {
   private static buildHeaders(
@@ -71,7 +38,6 @@ export class ApiClient {
     }
 
     const token = tokenProvider?.();
-    console.log("ApiClient - Building headers, token from provider:", token ? `[${token.substring(0, 20)}...]` : "[MISSING]");
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -82,7 +48,7 @@ export class ApiClient {
   static async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    baseUrl: string = AUTH_API_BASE_URL as string,
+    baseUrl: string = API_BASE_URL as string,
     _isRetry = false
   ): Promise<T> {
     const url = `${baseUrl}${endpoint}`;
@@ -103,12 +69,9 @@ export class ApiClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        if (response.status === 401 && !_isRetry) {
-          const newToken = await refreshAccessToken();
-          if (newToken) {
-            return this.request<T>(endpoint, options, baseUrl, true);
-          }
-        }
+        // For HTTP-only cookie auth, we don't handle 401s manually
+        // The backend endpoints handle token refresh internally
+        console.log("🔒 Got", response.status, "for:", endpoint, "- using HTTP-only cookies, no manual refresh");
 
         const contentType = response.headers.get("content-type");
         const errorData = contentType?.includes("application/json")

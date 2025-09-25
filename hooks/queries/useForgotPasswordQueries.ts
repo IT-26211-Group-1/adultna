@@ -41,17 +41,17 @@ const forgotPasswordApi = {
   sendOtp: (
     data: ForgotPasswordSendOtpRequest,
   ): Promise<ForgotPasswordSendOtpResponse> =>
-    ApiClient.post("/forgot-password/send-otp", data),
+    ApiClient.post("/auth/forgot-password/send-otp", data),
 
   verifyOtp: (
     data: ForgotPasswordVerifyOtpRequest,
   ): Promise<ForgotPasswordVerifyOtpResponse> =>
-    ApiClient.post("/forgot-password/verify-otp", data),
+    ApiClient.post("/auth/forgot-password/verify-otp", data),
 
   resetPassword: (
     data: ForgotPasswordResetRequest,
   ): Promise<ForgotPasswordResetResponse> =>
-    ApiClient.post("/forgot-password/reset", data),
+    ApiClient.post("/auth/forgot-password/reset", data),
 };
 
 // Query Hooks

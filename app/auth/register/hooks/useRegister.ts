@@ -54,7 +54,7 @@ export function useRegister() {
         }
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/register`,
+          `${process.env.NEXT_PUBLIC_API}/auth/register`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
