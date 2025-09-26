@@ -112,13 +112,6 @@ export const AdminMenu = () => {
 
               <Link
                 className="px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
-                href="/admin/content/lifeskills"
-              >
-                <span className="text-sm">Life skills library</span>
-              </Link>
-
-              <Link
-                className="px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
                 href="/admin/content/interview"
               >
                 <span className="text-sm">Interview questions bank</span>
