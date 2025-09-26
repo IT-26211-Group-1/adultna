@@ -25,7 +25,7 @@ export default function Table<T>({
     return (
       <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
         <div className="p-8 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto" />
           <p className="mt-2 text-gray-500">Loading...</p>
         </div>
       </div>
@@ -83,8 +83,8 @@ export default function Table<T>({
             ) : (
               <tr>
                 <td
-                  colSpan={columns.length}
                   className="px-6 py-12 text-center text-gray-500"
+                  colSpan={columns.length}
                 >
                   {emptyMessage}
                 </td>

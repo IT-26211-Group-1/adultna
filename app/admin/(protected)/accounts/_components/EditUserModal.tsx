@@ -26,11 +26,14 @@ export function EditUserModal({
   const { updateUser, isUpdatingUser } = useAdminUsers();
 
   // Derive initial form data from user prop - no useEffect needed
-  const defaultValues = useMemo<UpdateUserForm>(() => ({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
-  }), [user?.id, open]); // Reset when user changes or modal opens
+  const defaultValues = useMemo<UpdateUserForm>(
+    () => ({
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      email: user?.email || "",
+    }),
+    [user?.id, open],
+  ); // Reset when user changes or modal opens
 
   const {
     register,
@@ -81,8 +84,8 @@ export function EditUserModal({
             color: "danger",
             timeout: 4000,
           });
-        }
-      }
+        },
+      },
     );
   });
 
@@ -94,50 +97,63 @@ export function EditUserModal({
   if (!user) return null;
 
   return (
-    <Modal open={open} onClose={handleClose} title="Edit User">
-      <form onSubmit={onSubmit} className="space-y-4">
+    <Modal open={open} title="Edit User" onClose={handleClose}>
+      <form className="space-y-4" onSubmit={onSubmit}>
         <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+          <label
+            className="block text-sm font-medium text-gray-700"
+            htmlFor="firstName"
+          >
             First Name
           </label>
           <input
             {...register("firstName")}
-            type="text"
-            id="firstName"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            id="firstName"
             placeholder="Enter first name"
+            type="text"
           />
           {errors.firstName && (
-            <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
+            <p className="mt-1 text-sm text-red-600">
+              {errors.firstName.message}
+            </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+          <label
+            className="block text-sm font-medium text-gray-700"
+            htmlFor="lastName"
+          >
             Last Name
           </label>
           <input
             {...register("lastName")}
-            type="text"
-            id="lastName"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            id="lastName"
             placeholder="Enter last name"
+            type="text"
           />
           {errors.lastName && (
-            <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
+            <p className="mt-1 text-sm text-red-600">
+              {errors.lastName.message}
+            </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label
+            className="block text-sm font-medium text-gray-700"
+            htmlFor="email"
+          >
             Email Address
           </label>
           <input
             {...register("email")}
-            type="email"
-            id="email"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            id="email"
             placeholder="Enter email address"
+            type="email"
           />
           {errors.email && (
             <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -146,17 +162,17 @@ export function EditUserModal({
 
         <div className="flex justify-end space-x-3 pt-4 border-t">
           <button
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             type="button"
             onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
           >
             Cancel
           </button>
           <LoadingButton
-            type="submit"
-            loading={isUpdatingUser}
-            disabled={!isDirty}
             className="px-4 py-2 text-sm font-medium text-white bg-adult-green border border-transparent rounded-md hover:bg-adult-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green disabled:opacity-50"
+            disabled={!isDirty}
+            loading={isUpdatingUser}
+            type="submit"
           >
             Update User
           </LoadingButton>

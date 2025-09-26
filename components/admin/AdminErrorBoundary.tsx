@@ -26,10 +26,10 @@ const DefaultErrorFallback: React.FC<{
           viewBox="0 0 24 24"
         >
           <path
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z"
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z"
           />
         </svg>
       </div>
@@ -53,14 +53,14 @@ const DefaultErrorFallback: React.FC<{
       )}
       <div className="space-y-3">
         <button
-          onClick={resetError}
           className="w-full px-4 py-2 bg-adult-green text-white rounded-md hover:bg-adult-green/90 transition-colors"
+          onClick={resetError}
         >
           Try Again
         </button>
         <button
-          onClick={() => (window.location.href = "/admin/dashboard")}
           className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+          onClick={() => (window.location.href = "/admin/dashboard")}
         >
           Go to Dashboard
         </button>
@@ -96,6 +96,7 @@ export class AdminErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       const ErrorComponent = this.props.fallback || DefaultErrorFallback;
+
       return (
         <ErrorComponent error={this.state.error} resetError={this.resetError} />
       );

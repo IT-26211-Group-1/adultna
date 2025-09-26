@@ -15,7 +15,7 @@ interface AdminRouteGuardProps {
 export function AdminRouteGuard({
   children,
   redirectAuthenticated = false,
-  redirectTo = "/admin/dashboard",
+  // redirectTo = "/admin/dashboard",
   allowedRoles = ["technical_admin", "verifier_admin"],
 }: AdminRouteGuardProps) {
   const router = useRouter();

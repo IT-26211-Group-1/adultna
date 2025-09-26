@@ -46,7 +46,7 @@ export function useLogin() {
           setSecureItem(
             "verification_token",
             response.verificationToken,
-            60 // 1 hour expiry
+            60, // 1 hour expiry
           );
 
           router.replace("/auth/verify-email");
@@ -69,7 +69,7 @@ export function useLogin() {
               JSON.stringify({
                 cooldown: error.data.cooldownLeft,
                 timestamp: Date.now(),
-              })
+              }),
             );
           }
         } else if (error?.message?.includes("Too many failed attempts")) {
@@ -87,7 +87,8 @@ export function useLogin() {
         } else if (error?.message?.includes("Account is not active")) {
           addToast({
             title: "Account Deactivated",
-            description: "Your account has been deactivated. Please contact support for assistance.",
+            description:
+              "Your account has been deactivated. Please contact support for assistance.",
             color: "danger",
             timeout: 6000,
           });

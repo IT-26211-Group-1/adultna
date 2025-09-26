@@ -27,9 +27,9 @@ export const Modal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
+        aria-hidden
         className="fixed inset-0 bg-black/40"
         onClick={onClose}
-        aria-hidden
       />
 
       <div className={`relative w-full ${sizeClass} mx-4`}>
@@ -42,22 +42,22 @@ export const Modal = ({
               )}
             </div>
             <button
+              aria-label="close"
               className="text-gray-400 hover:text-gray-600"
               onClick={onClose}
-              aria-label="close"
             >
               <svg
-                xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
                 fill="none"
-                viewBox="0 0 24 24"
                 stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
+                  d="M6 18L18 6M6 6l12 12"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
             </button>

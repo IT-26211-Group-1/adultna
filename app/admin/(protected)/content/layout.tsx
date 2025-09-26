@@ -15,9 +15,7 @@ export default function ContentLayout({ children }: ContentLayoutProps) {
         <AdminMenu />
         <main className="flex-1 p-6">
           <AdminHeader />
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
+          <div className="max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
     </AdminRouteGuard>

@@ -9,7 +9,9 @@ interface AdminPublicLayoutProps {
   children: React.ReactNode;
 }
 
-export default function AdminPublicLayout({ children }: AdminPublicLayoutProps) {
+export default function AdminPublicLayout({
+  children,
+}: AdminPublicLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -26,7 +28,8 @@ export default function AdminPublicLayout({ children }: AdminPublicLayoutProps) 
     }
 
     return {
-      to: user?.role === "verifier_admin" ? "/admin/content" : "/admin/dashboard"
+      to:
+        user?.role === "verifier_admin" ? "/admin/content" : "/admin/dashboard",
     };
   }, [isLoading, isAuthenticated, pathname, user]);
 

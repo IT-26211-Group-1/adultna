@@ -67,7 +67,9 @@ export function useAdminLogin() {
             description: "Your admin account has been deactivated",
             color: "danger",
           });
-        } else if (error?.message?.includes("Technical admin privileges required")) {
+        } else if (
+          error?.message?.includes("Technical admin privileges required")
+        ) {
           addToast({
             title: "Access denied",
             description: "This area is restricted to technical administrators",

@@ -14,37 +14,35 @@ import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 // Memoized user avatar component
 const UserAvatar = React.memo<{ user: User }>(({ user }) => (
   <div className="flex items-center space-x-3">
-    <Avatar
-      alt={`${user.firstName} ${user.lastName}`}
-      size="md"
-    />
+    <Avatar alt={`${user.firstName} ${user.lastName}`} size="md" />
     <div>
       <div className="font-medium text-gray-900">
-        {user.displayName || `${user.firstName} ${user.lastName}`.trim() || 'Unknown User'}
+        {user.displayName ||
+          `${user.firstName} ${user.lastName}`.trim() ||
+          "Unknown User"}
       </div>
       <div className="text-sm text-gray-500">{user.email}</div>
     </div>
   </div>
 ));
-UserAvatar.displayName = 'UserAvatar';
+
+UserAvatar.displayName = "UserAvatar";
 
 // Memoized status badges component
 const StatusBadges = React.memo<{ user: User }>(({ user }) => (
   <div className="flex items-center space-x-2">
-    <Badge
-      variant={user.status === "active" ? "success" : "error"}
-      size="sm"
-    >
+    <Badge size="sm" variant={user.status === "active" ? "success" : "error"}>
       {user.status === "active" ? "Active" : "Inactive"}
     </Badge>
     {user.emailVerified && (
-      <Badge variant="info" size="sm">
+      <Badge size="sm" variant="info">
         Verified
       </Badge>
     )}
   </div>
 ));
-StatusBadges.displayName = 'StatusBadges';
+
+StatusBadges.displayName = "StatusBadges";
 
 // Memoized actions dropdown component
 const UserActions = React.memo<{
@@ -55,6 +53,77 @@ const UserActions = React.memo<{
   isUpdating: boolean;
 }>(({ user, onEdit, onResetPassword, onToggleStatus, isUpdating }) => (
   <DropdownMenu
+    items={[
+      {
+        label: "Edit Account",
+        onClick: () => onEdit(user.id),
+        icon: (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
+          </svg>
+        ),
+      },
+      {
+        label: "Reset Password",
+        onClick: () => onResetPassword(user.id, user.email),
+        icon: (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
+          </svg>
+        ),
+      },
+      {
+        label:
+          user.status === "active" ? "Deactivate Account" : "Activate Account",
+        onClick: () => onToggleStatus(user.id, user.status),
+        destructive: user.status === "active",
+        disabled: isUpdating,
+        icon: (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            {user.status === "active" ? (
+              <path
+                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            ) : (
+              <path
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            )}
+          </svg>
+        ),
+      },
+    ]}
     trigger={
       <button
         className="p-1 hover:bg-gray-100 rounded-full transition-colors"
@@ -69,44 +138,10 @@ const UserActions = React.memo<{
         </svg>
       </button>
     }
-    items={[
-      {
-        label: "Edit Account",
-        onClick: () => onEdit(user.id),
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        ),
-      },
-      {
-        label: "Reset Password",
-        onClick: () => onResetPassword(user.id, user.email),
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z" />
-          </svg>
-        ),
-      },
-      {
-        label: user.status === "active" ? "Deactivate Account" : "Activate Account",
-        onClick: () => onToggleStatus(user.id, user.status),
-        destructive: user.status === "active",
-        disabled: isUpdating,
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {user.status === "active" ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            )}
-          </svg>
-        ),
-      },
-    ]}
   />
 ));
-UserActions.displayName = 'UserActions';
+
+UserActions.displayName = "UserActions";
 
 const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -118,12 +153,13 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     usersError,
     updateUserStatus,
     isUpdatingStatus,
-    refetchUsers
+    refetchUsers,
   } = useAdminUsers();
 
   // Memoized date formatter
   const formatDate = useCallback((dateString: string | Date) => {
     const date = new Date(dateString);
+
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -132,32 +168,47 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
   }, []);
 
   // Memoized event handlers
-  const handleEditAccount = useCallback((userId: string) => {
-    const user = users.find((u) => u.id === userId);
-    if (user) {
-      const mappedUser: User = {
-        id: user.id,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        status: user.status as "active" | "inactive",
-        createdAt: typeof user.createdAt === 'string' ? user.createdAt : user.createdAt.toISOString(),
-        lastLogin: user.lastLogin ? (typeof user.lastLogin === 'string' ? user.lastLogin : user.lastLogin.toISOString()) : null,
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        displayName: user.displayName,
-        roleName: user.roleName || "",
-      };
-      setSelectedUser(mappedUser);
-      setEditModalOpen(true);
-    }
-    onEditUser?.(userId);
-  }, [users, onEditUser]);
+  const handleEditAccount = useCallback(
+    (userId: string) => {
+      const user = users.find((u) => u.id === userId);
 
-  const handleUserUpdated = useCallback((_updatedUser?: User) => {
-    refetchUsers();
-    setEditModalOpen(false);
-    setSelectedUser(null);
-  }, [refetchUsers]);
+      if (user) {
+        const mappedUser: User = {
+          id: user.id,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          status: user.status as "active" | "inactive",
+          createdAt:
+            typeof user.createdAt === "string"
+              ? user.createdAt
+              : user.createdAt.toISOString(),
+          lastLogin: user.lastLogin
+            ? typeof user.lastLogin === "string"
+              ? user.lastLogin
+              : user.lastLogin.toISOString()
+            : null,
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          displayName: user.displayName,
+          roleName: user.roleName || "",
+        };
+
+        setSelectedUser(mappedUser);
+        setEditModalOpen(true);
+      }
+      onEditUser?.(userId);
+    },
+    [users, onEditUser],
+  );
+
+  const handleUserUpdated = useCallback(
+    (_updatedUser?: User) => {
+      refetchUsers();
+      setEditModalOpen(false);
+      setSelectedUser(null);
+    },
+    [refetchUsers],
+  );
 
   const handleCloseEditModal = useCallback(() => {
     setEditModalOpen(false);
@@ -175,104 +226,128 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     }
   }, []);
 
-  const handleToggleAccountStatus = useCallback((userId: string, currentStatus: string) => {
-    const newStatus = currentStatus === "active" ? "inactive" : "active";
-    const action = newStatus === "active" ? "activate" : "deactivate";
+  const handleToggleAccountStatus = useCallback(
+    (userId: string, currentStatus: string) => {
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
+      const action = newStatus === "active" ? "activate" : "deactivate";
 
-    if (confirm(`Are you sure you want to ${action} this account?`)) {
-      updateUserStatus(
-        { userId, status: newStatus as "active" | "inactive" },
-        {
-          onSuccess: (response) => {
-            if (response.success) {
-              const actionPast = newStatus === "active" ? "activated" : "deactivated";
+      if (confirm(`Are you sure you want to ${action} this account?`)) {
+        updateUserStatus(
+          { userId, status: newStatus as "active" | "inactive" },
+          {
+            onSuccess: (response) => {
+              if (response.success) {
+                const actionPast =
+                  newStatus === "active" ? "activated" : "deactivated";
+
+                addToast({
+                  title:
+                    response.message || `Account ${actionPast} successfully`,
+                  color: "success",
+                  timeout: 4000,
+                });
+              }
+            },
+            onError: (error: any) => {
               addToast({
-                title: response.message || `Account ${actionPast} successfully`,
-                color: "success",
+                title: error?.message || "Failed to update account status",
+                color: "danger",
                 timeout: 4000,
               });
-            }
+            },
           },
-          onError: (error: any) => {
-            addToast({
-              title: error?.message || "Failed to update account status",
-              color: "danger",
-              timeout: 4000,
-            });
-          }
-        }
-      );
-    }
-  }, [updateUserStatus]);
+        );
+      }
+    },
+    [updateUserStatus],
+  );
 
   // Memoized user list mapping
-  const mappedUsers: User[] = useMemo(() =>
-    users.map(user => ({
-      id: user.id,
-      email: user.email,
-      emailVerified: user.emailVerified,
-      status: user.status as "active" | "inactive",
-      createdAt: typeof user.createdAt === 'string' ? user.createdAt : user.createdAt.toISOString(),
-      lastLogin: user.lastLogin ? (typeof user.lastLogin === 'string' ? user.lastLogin : user.lastLogin.toISOString()) : null,
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      displayName: user.displayName,
-      roleName: user.roleName || "",
-    })), [users]
+  const mappedUsers: User[] = useMemo(
+    () =>
+      users.map((user) => ({
+        id: user.id,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        status: user.status as "active" | "inactive",
+        createdAt:
+          typeof user.createdAt === "string"
+            ? user.createdAt
+            : user.createdAt.toISOString(),
+        lastLogin: user.lastLogin
+          ? typeof user.lastLogin === "string"
+            ? user.lastLogin
+            : user.lastLogin.toISOString()
+          : null,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        displayName: user.displayName,
+        roleName: user.roleName || "",
+      })),
+    [users],
   );
 
   // Memoized table columns
-  const columns: Column<User>[] = useMemo(() => [
-    {
-      header: "User",
-      accessor: (user) => <UserAvatar user={user} />,
-      width: "300px",
-    },
-    {
-      header: "Role",
-      accessor: (user) => (
-        <span className="text-gray-900">
-          {getRoleDisplayLabel(user.roleName as Role)}
-        </span>
-      ),
-      width: "120px",
-    },
-    {
-      header: "Status",
-      accessor: (user) => <StatusBadges user={user} />,
-      width: "140px",
-    },
-    {
-      header: "Join Date",
-      accessor: (user) => (
-        <div className="text-gray-900">{formatDate(user.createdAt)}</div>
-      ),
-      width: "140px",
-    },
-    {
-      header: "Last Login",
-      accessor: (user) => (
-        <div className="text-gray-900">
-          {user.lastLogin ? formatDate(user.lastLogin) : "Never"}
-        </div>
-      ),
-      width: "140px",
-    },
-    {
-      header: "Actions",
-      accessor: (user) => (
-        <UserActions
-          user={user}
-          onEdit={handleEditAccount}
-          onResetPassword={handleResetPassword}
-          onToggleStatus={handleToggleAccountStatus}
-          isUpdating={isUpdatingStatus}
-        />
-      ),
-      width: "80px",
-      align: "center" as const,
-    },
-  ], [formatDate, handleEditAccount, handleResetPassword, handleToggleAccountStatus, isUpdatingStatus]);
+  const columns: Column<User>[] = useMemo(
+    () => [
+      {
+        header: "User",
+        accessor: (user) => <UserAvatar user={user} />,
+        width: "300px",
+      },
+      {
+        header: "Role",
+        accessor: (user) => (
+          <span className="text-gray-900">
+            {getRoleDisplayLabel(user.roleName as Role)}
+          </span>
+        ),
+        width: "120px",
+      },
+      {
+        header: "Status",
+        accessor: (user) => <StatusBadges user={user} />,
+        width: "140px",
+      },
+      {
+        header: "Join Date",
+        accessor: (user) => (
+          <div className="text-gray-900">{formatDate(user.createdAt)}</div>
+        ),
+        width: "140px",
+      },
+      {
+        header: "Last Login",
+        accessor: (user) => (
+          <div className="text-gray-900">
+            {user.lastLogin ? formatDate(user.lastLogin) : "Never"}
+          </div>
+        ),
+        width: "140px",
+      },
+      {
+        header: "Actions",
+        accessor: (user) => (
+          <UserActions
+            isUpdating={isUpdatingStatus}
+            user={user}
+            onEdit={handleEditAccount}
+            onResetPassword={handleResetPassword}
+            onToggleStatus={handleToggleAccountStatus}
+          />
+        ),
+        width: "80px",
+        align: "center" as const,
+      },
+    ],
+    [
+      formatDate,
+      handleEditAccount,
+      handleResetPassword,
+      handleToggleAccountStatus,
+      isUpdatingStatus,
+    ],
+  );
 
   // Error state
   if (usersError) {
@@ -280,8 +355,8 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       <div className="text-center py-8">
         <p className="text-red-600">Failed to load users. Please try again.</p>
         <button
-          onClick={() => refetchUsers()}
           className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          onClick={() => refetchUsers()}
         >
           Retry
         </button>
@@ -306,10 +381,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="max-h-96 overflow-auto">
           <Table
-            data={mappedUsers}
             columns={columns}
-            loading={loading}
+            data={mappedUsers}
             emptyMessage="No users found"
+            loading={loading}
           />
         </div>
       </div>
@@ -317,8 +392,8 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       {selectedUser && (
         <EditUserModal
           open={editModalOpen}
-          onClose={handleCloseEditModal}
           user={selectedUser}
+          onClose={handleCloseEditModal}
           onUserUpdated={handleUserUpdated}
         />
       )}

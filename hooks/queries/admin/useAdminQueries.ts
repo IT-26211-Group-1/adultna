@@ -1,9 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { usePathname } from "next/navigation";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
-import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { API_CONFIG } from "@/config/api";
 
 // Types
@@ -135,7 +133,7 @@ const adminApi = {
     }),
 
   updateUserStatus: (
-    data: UpdateUserStatusRequest
+    data: UpdateUserStatusRequest,
   ): Promise<UpdateUserStatusResponse> =>
     ApiClient.patch(`/admin/update-status/${data.userId}`, {
       status: data.status,
@@ -145,12 +143,7 @@ const adminApi = {
 // Query Hooks
 export function useAdminAuth() {
   const queryClient = useQueryClient();
-  const pathname = usePathname();
-  const { setSecureItem } = useSecureStorage();
-
-  const isPublicRoute = ["/admin/login", "/admin/forgot-password"].some(
-    (route) => pathname?.startsWith(route)
-  );
+  // const pathname = usePathname();
 
   const {
     data: user,
@@ -251,8 +244,9 @@ export function useAdminAuth() {
       queryKeys.admin.auth.me(),
       (oldUser: AdminUser | null) => {
         if (!oldUser) return null;
+
         return { ...oldUser, ...updatedUser };
-      }
+      },
     );
   };
 
@@ -379,8 +373,6 @@ export function useAdminUsers() {
 
 // Individual User Hook
 export function useAdminUser(userId: string) {
-  const queryClient = useQueryClient();
-
   const {
     data: userData,
     isLoading,

@@ -30,7 +30,7 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const pathname = usePathname();
 
   // Don't apply regular AuthProvider to admin routes
-  const isAdminRoute = pathname?.startsWith('/admin');
+  const isAdminRoute = pathname?.startsWith("/admin");
 
   const content = (
     <HeroUIProvider navigate={router.replace}>

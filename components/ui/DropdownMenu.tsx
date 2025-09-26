@@ -33,10 +33,21 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
   return (
     <div
-      className={`relative inline-block text-left ${className}`}
       ref={dropdownRef}
+      className={`relative inline-block text-left ${className}`}
     >
-      <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            setIsOpen(!isOpen);
+          }
+        }}
+      >
+        {trigger}
+      </div>
 
       {isOpen && (
         <div
@@ -51,14 +62,14 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   ${item.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
                   ${item.destructive ? "text-red-600 hover:text-red-700" : "text-gray-700"}
                 `}
+                disabled={item.disabled}
+                role="menuitem"
                 onClick={() => {
                   if (!item.disabled) {
                     item.onClick();
                     setIsOpen(false);
                   }
                 }}
-                disabled={item.disabled}
-                role="menuitem"
               >
                 {item.icon && <span className="mr-3">{item.icon}</span>}
                 {item.label}

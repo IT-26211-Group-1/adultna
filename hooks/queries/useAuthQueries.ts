@@ -123,15 +123,18 @@ export function useAuth() {
         }
 
         // Handle account deactivation
-        if (error instanceof ApiError &&
-            error.message?.includes("Account is not active")) {
+        if (
+          error instanceof ApiError &&
+          error.message?.includes("Account is not active")
+        ) {
           console.log("[AUTH-QUERY] Account deactivated, clearing session");
 
           // Import toast dynamically to avoid SSR issues
           import("@heroui/toast").then(({ addToast }) => {
             addToast({
               title: "Account Deactivated",
-              description: "Your account has been deactivated. Please contact support for assistance.",
+              description:
+                "Your account has been deactivated. Please contact support for assistance.",
               color: "danger",
               timeout: 6000,
             });
@@ -154,7 +157,10 @@ export function useAuth() {
       }
 
       // Don't retry on account deactivation
-      if (error instanceof ApiError && error.message?.includes("Account is not active")) {
+      if (
+        error instanceof ApiError &&
+        error.message?.includes("Account is not active")
+      ) {
         return false;
       }
 
