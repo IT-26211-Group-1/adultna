@@ -1,45 +1,30 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Table, { Column } from "@/components/ui/Table";
 import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/Badge";
 import DropdownMenu from "@/components/ui/DropdownMenu";
-import { User, UsersTableProps, UsersApiResponse } from "@/types/admin";
+import { User, UsersTableProps } from "@/types/admin";
 import { getRoleDisplayLabel, Role } from "@/validators/adminSchema";
 import { EditUserModal } from "./EditUserModal";
 import { addToast } from "@heroui/toast";
+import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 
-const UsersTable: React.FC<UsersTableProps> = ({
-  onEditUser,
-  onDeleteUser,
-}) => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("/api/admin/accounts/list-users");
-        if (response.ok) {
-          const data: UsersApiResponse = await response.json();
-          if (data.success && data.users) {
-            setUsers(data.users);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    users,
+    isLoadingUsers: loading,
+    usersError,
+    updateUserStatus,
+    isUpdatingStatus,
+    refetchUsers,
+  } = useAdminUsers();
 
-    fetchUsers();
-  }, []);
-
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -51,16 +36,37 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const handleEditAccount = (userId: string) => {
     const user = users.find((u) => u.id === userId);
     if (user) {
-      setSelectedUser(user);
+      // Map AdminUser to User type for the modal
+      const mappedUser: User = {
+        id: user.id,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        status: user.status as "active" | "inactive",
+        createdAt:
+          typeof user.createdAt === "string"
+            ? user.createdAt
+            : user.createdAt.toISOString(),
+        lastLogin: user.lastLogin
+          ? typeof user.lastLogin === "string"
+            ? user.lastLogin
+            : user.lastLogin.toISOString()
+          : null,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        displayName: user.displayName,
+        roleName: user.roleName || "",
+      };
+      setSelectedUser(mappedUser);
       setEditModalOpen(true);
     }
     onEditUser?.(userId);
   };
 
   const handleUserUpdated = (updatedUser: User) => {
-    setUsers((prev) =>
-      prev.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-    );
+    // Refresh data after user update
+    refetchUsers();
+    setEditModalOpen(false);
+    setSelectedUser(null);
   };
 
   const handleCloseEditModal = () => {
@@ -70,97 +76,81 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
   const handleResetPassword = (userId: string, email: string) => {
     if (confirm(`Reset password for ${email}?`)) {
-      console.log("Reset password for user:", userId);
       // TODO: Implement password reset functionality
+      addToast({
+        title: "Password reset functionality coming soon",
+        color: "warning",
+        timeout: 3000,
+      });
     }
   };
 
-  const handleToggleAccountStatus = async (
-    userId: string,
-    currentStatus: string
-  ) => {
+  const handleToggleAccountStatus = (userId: string, currentStatus: string) => {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
     const action = newStatus === "active" ? "activate" : "deactivate";
 
     if (confirm(`Are you sure you want to ${action} this account?`)) {
-      try {
-        setUsers((prev) =>
-          prev.map((user) =>
-            user.id === userId
-              ? { ...user, status: newStatus as "active" | "inactive" }
-              : user
-          )
-        );
-
-        const response = await fetch(
-          `/api/admin/accounts/update-status/${userId}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: newStatus }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          // Revert optimistic update on error
-          setUsers((prev) =>
-            prev.map((user) =>
-              user.id === userId
-                ? { ...user, status: currentStatus as "active" | "inactive" }
-                : user
-            )
-          );
-
-          // Show error toast
-          try {
+      updateUserStatus(
+        { userId, status: newStatus as "active" | "inactive" },
+        {
+          onSuccess: (response) => {
+            if (response.success) {
+              const actionPast =
+                newStatus === "active" ? "activated" : "deactivated";
+              addToast({
+                title: response.message || `Account ${actionPast} successfully`,
+                color: "success",
+                timeout: 4000,
+              });
+            }
+          },
+          onError: (error: any) => {
             addToast({
-              title: data.message || "Failed to update account status",
+              title: error?.message || "Failed to update account status",
               color: "danger",
               timeout: 4000,
             });
-          } catch (err) {
-            console.warn("addToast failed", err);
-          }
-        } else {
-          try {
-            const actionPast =
-              newStatus === "active" ? "activated" : "deactivated";
-            addToast({
-              title: data.message || `Account ${actionPast} successfully`,
-              color: "success",
-              timeout: 4000,
-            });
-          } catch (err) {
-            console.warn("addToast failed", err);
-          }
+          },
         }
-      } catch (error) {
-        setUsers((prev) =>
-          prev.map((user) =>
-            user.id === userId
-              ? { ...user, status: currentStatus as "active" | "inactive" }
-              : user
-          )
-        );
-
-        console.error("Error updating account status:", error);
-
-        try {
-          addToast({
-            title: "Network error: Failed to update account status",
-            color: "danger",
-            timeout: 4000,
-          });
-        } catch (err) {
-          console.warn("addToast failed", err);
-        }
-      }
+      );
     }
   };
+
+  // Handle error state
+  if (usersError) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600">Failed to load users. Please try again.</p>
+        <button
+          onClick={() => refetchUsers()}
+          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Map AdminUser[] to User[] for the table
+  const mappedUsers: User[] = users.map((user) => ({
+    id: user.id,
+    email: user.email,
+    emailVerified: user.emailVerified,
+    status: user.status as "active" | "inactive",
+    createdAt:
+      typeof user.createdAt === "string"
+        ? user.createdAt
+        : user.createdAt.toISOString(),
+    lastLogin: user.lastLogin
+      ? typeof user.lastLogin === "string"
+        ? user.lastLogin
+        : user.lastLogin.toISOString()
+      : null,
+    firstName: user.firstName || "",
+    lastName: user.lastName || "",
+    displayName: user.displayName,
+    roleName: user.roleName || "",
+  }));
 
   const columns: Column<User>[] = [
     {
@@ -170,7 +160,9 @@ const UsersTable: React.FC<UsersTableProps> = ({
           <Avatar alt={`${user.firstName} ${user.lastName}`} size="md" />
           <div>
             <div className="font-medium text-gray-900">
-              {user.displayName || `${user.firstName} ${user.lastName}`}
+              {user.displayName ||
+                `${user.firstName} ${user.lastName}`.trim() ||
+                "Unknown User"}
             </div>
             <div className="text-sm text-gray-500">{user.email}</div>
           </div>
@@ -195,7 +187,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             variant={user.status === "active" ? "success" : "error"}
             size="sm"
           >
-            {user.status === "active" ? "Active" : "Deactivated"}
+            {user.status === "active" ? "Active" : "Inactive"}
           </Badge>
           {user.emailVerified && (
             <Badge variant="info" size="sm">
@@ -227,7 +219,10 @@ const UsersTable: React.FC<UsersTableProps> = ({
       accessor: (user) => (
         <DropdownMenu
           trigger={
-            <button className="p-1 hover:bg-gray-100 rounded-full">
+            <button
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              disabled={isUpdatingStatus}
+            >
               <svg
                 className="w-5 h-5 text-gray-400"
                 fill="currentColor"
@@ -271,7 +266,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z"
                   />
                 </svg>
               ),
@@ -283,6 +278,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   : "Activate Account",
               onClick: () => handleToggleAccountStatus(user.id, user.status),
               destructive: user.status === "active",
+              disabled: isUpdatingStatus,
               icon: (
                 <svg
                   className="w-4 h-4"
@@ -317,31 +313,38 @@ const UsersTable: React.FC<UsersTableProps> = ({
   ];
 
   return (
-    <div>
-      <div className="mb-4 flex justify-between items-center">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">User Accounts</h2>
           <p className="text-sm text-gray-600">
             Manage user accounts and permissions
           </p>
         </div>
+        <div className="text-sm text-gray-500">
+          {loading ? "Loading..." : `${users.length} users`}
+        </div>
       </div>
 
-      <div className="max-h-96 overflow-auto">
-        <Table
-          data={users}
-          columns={columns}
-          loading={loading}
-          emptyMessage="No users found"
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="max-h-96 overflow-auto">
+          <Table
+            data={mappedUsers}
+            columns={columns}
+            loading={loading}
+            emptyMessage="No users found"
+          />
+        </div>
+      </div>
+
+      {selectedUser && (
+        <EditUserModal
+          open={editModalOpen}
+          onClose={handleCloseEditModal}
+          user={selectedUser}
+          onUserUpdated={handleUserUpdated}
         />
-      </div>
-
-      <EditUserModal
-        open={editModalOpen}
-        onClose={handleCloseEditModal}
-        user={selectedUser}
-        onUserUpdated={handleUserUpdated}
-      />
+      )}
     </div>
   );
 };

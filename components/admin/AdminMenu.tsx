@@ -57,13 +57,11 @@ export const AdminMenu = () => {
         </Link>
 
         <Link
-          aria-current={isActive("/admin/management") ? "page" : undefined}
+          aria-current={isActive("/admin/content") ? "page" : undefined}
           className={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 ${
-            isActive("/admin/management")
-              ? "bg-slate-100 dark:bg-slate-800"
-              : ""
+            isActive("/admin/accounts") ? "bg-slate-100 dark:bg-slate-800" : ""
           }`}
-          href="/admin/management"
+          href="/admin/accounts"
         >
           <Users className="w-4 h-4" />
           <span>User Management</span>

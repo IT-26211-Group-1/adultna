@@ -11,13 +11,6 @@ export type User = {
   roleName: string;
 };
 
-export type UsersApiResponse = {
-  success: boolean;
-  users: User[];
-};
-
 export type UsersTableProps = {
   onEditUser?: (userId: string) => void;
-  onDeleteUser?: (userId: string) => void;
-  onViewUser?: (userId: string) => void;
 };
