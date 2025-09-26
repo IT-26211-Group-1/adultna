@@ -10,22 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Set up Node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: 18
-          cache: pnpm
+          version: 6.32.9
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "pnpm"
 
       - name: Install pnpm
-        run: |
-          npm install -g pnpm
-          echo "$(npm bin -g)" >> $GITHUB_PATH
-
-      - name: Install dependencies
-        run: pnpm install
+        run: pnpm install && pnpm test
 
       - name: Build Next.js app
         run: pnpm build
