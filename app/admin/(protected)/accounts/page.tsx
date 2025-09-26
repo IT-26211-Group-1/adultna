@@ -9,7 +9,6 @@ export default function AccountsPage() {
         <div></div>
         <AddUserButton />
       </div>
-
       <UsersTable />
     </div>
   );

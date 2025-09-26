@@ -84,6 +84,13 @@ export function useLogin() {
             description: error.message,
             color: "danger",
           });
+        } else if (error?.message?.includes("Account is not active")) {
+          addToast({
+            title: "Account Deactivated",
+            description: "Your account has been deactivated. Please contact support for assistance.",
+            color: "danger",
+            timeout: 6000,
+          });
         } else {
           addToast({
             title: "Login failed",
