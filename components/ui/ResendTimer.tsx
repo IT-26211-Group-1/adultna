@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 
 type ResendTimerProps = {
   handleResendOtp: () => Promise<number>;
@@ -15,13 +21,37 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 }) => {
   const [time, setTime] = useState<number>(120);
   const [isDisabled, setDisabled] = useState<boolean>(false);
+  const initialized = useRef(false);
+
   const storageKey = useMemo(
     () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
     [verificationToken],
   );
 
-  // Sync with cooldown from hook
+  // Initialize timer on mount and sync with cooldown
   useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true;
+
+      if (typeof window === "undefined") return;
+
+      // Check for existing timer first
+      const saved = sessionStorage.getItem(storageKey);
+      const savedMs = saved ? parseInt(saved, 10) : NaN;
+
+      if (!isNaN(savedMs)) {
+        const secondsLeft = Math.max(
+          0,
+          Math.ceil((savedMs - Date.now()) / 1000),
+        );
+
+        setTime(secondsLeft || 0);
+
+        return;
+      }
+    }
+
+    // Handle cooldown updates
     if (cooldown > 0) {
       setTime(cooldown);
       const expiresAtMs = Date.now() + cooldown * 1000;
@@ -29,22 +59,6 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
       sessionStorage.setItem(storageKey, String(expiresAtMs));
     }
   }, [cooldown, storageKey]);
-
-  // Initialize from storage on mount
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const saved = sessionStorage.getItem(storageKey);
-    const savedMs = saved ? parseInt(saved, 10) : NaN;
-
-    if (!isNaN(savedMs)) {
-      const secondsLeft = Math.max(0, Math.ceil((savedMs - Date.now()) / 1000));
-
-      setTime(secondsLeft || 0);
-    } else {
-      setTime(0);
-    }
-  }, [storageKey]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;

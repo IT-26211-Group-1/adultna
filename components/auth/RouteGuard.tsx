@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo, useRef } from "react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface RouteGuardProps {
@@ -18,26 +18,19 @@ export function RouteGuard({
 }: RouteGuardProps) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const hasRedirected = useRef(false);
 
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && redirectAuthenticated) {
-      setIsRedirecting(true);
-      router.replace(redirectTo);
+  const shouldRedirect = useMemo(() => {
+    return !isLoading && isAuthenticated && redirectAuthenticated;
+  }, [isLoading, isAuthenticated, redirectAuthenticated]);
+
+  // Show loading for redirect or auth check
+  if (isLoading || shouldRedirect) {
+    if (shouldRedirect && !hasRedirected.current) {
+      hasRedirected.current = true;
+      setTimeout(() => router.replace(redirectTo), 0);
     }
-  }, [isAuthenticated, isLoading, redirectAuthenticated, redirectTo, router]);
 
-  // Show loading spinner during auth check or redirect
-  if (isLoading || isRedirecting) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  // isLoading
-  if (isAuthenticated && redirectAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <LoadingSpinner />

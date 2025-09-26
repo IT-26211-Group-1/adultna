@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { OnboardingData } from "@/types/onboarding";
@@ -46,45 +46,37 @@ export default function DashboardClient() {
     return ["not_started", "in_progress"].includes(user.onboardingStatus);
   }, [user?.onboardingStatus, getSecureItem]);
 
-  const [showOnboarding, setShowOnboarding] = useState(initialShowOnboarding);
-
-  // Update onboarding visibility when user data changes
-  useEffect(() => {
+  const showOnboarding = useMemo(() => {
     if (user?.onboardingStatus === "completed") {
-      setShowOnboarding(false);
       setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
-    } else if (
+
+      return false;
+    }
+
+    if (
       user?.onboardingStatus &&
       !["not_started", "in_progress"].includes(user.onboardingStatus)
     ) {
-      setShowOnboarding(false);
-    } else if (
-      user?.onboardingStatus &&
-      ["not_started", "in_progress"].includes(user.onboardingStatus)
-    ) {
-      setShowOnboarding(true);
+      return false;
     }
-  }, [user?.onboardingStatus, setSecureItem]);
+
+    return initialShowOnboarding;
+  }, [user?.onboardingStatus, setSecureItem, initialShowOnboarding]);
 
   const handleOnboardingComplete = useCallback(
     async (data: OnboardingData) => {
       try {
         const result = await onboardingSubmit.mutateAsync(data);
 
-        setShowOnboarding(false);
-
-        const isCompleted = result.message?.includes("Personalized Roadmap");
-
-        if (isCompleted) {
+        if (result?.message?.includes("Personalized Roadmap")) {
           setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
           addToast({
-            title: "Onboarding completed successfully!",
+            title: "Personalizing your Roadmap",
             color: "success",
           });
         } else {
           addToast({
-            title: "Progress saved!",
-            description: "You can continue your onboarding anytime.",
+            title: "Progress saved",
             color: "success",
           });
         }
@@ -133,7 +125,7 @@ export default function DashboardClient() {
         <OnboardingModal
           isOpen={showOnboarding}
           isSubmitting={onboardingSubmit.isPending}
-          onClose={() => setShowOnboarding(false)}
+          onClose={() => {}}
           onComplete={handleOnboardingComplete}
         />
       )}

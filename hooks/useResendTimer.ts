@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 
 const TIMER_KEY = "resend_timer";
 
 export function useResendTimer() {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isActive, setIsActive] = useState<boolean>(false);
+
+  const initialized = useRef(false);
 
   const checkExistingTimer = useCallback(() => {
     try {
@@ -61,9 +63,11 @@ export function useResendTimer() {
       : `${secs}s`;
   }, []);
 
-  useEffect(() => {
+  // Initialize timer on first render using ref to avoid re-running
+  if (!initialized.current) {
+    initialized.current = true;
     checkExistingTimer();
-  }, [checkExistingTimer]);
+  }
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
