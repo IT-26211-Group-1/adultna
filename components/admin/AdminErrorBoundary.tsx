@@ -12,10 +12,10 @@ interface AdminErrorBoundaryProps {
   fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>;
 }
 
-const DefaultErrorFallback: React.FC<{ error?: Error; resetError: () => void }> = ({
-  error,
-  resetError
-}) => (
+const DefaultErrorFallback: React.FC<{
+  error?: Error;
+  resetError: () => void;
+}> = ({ error, resetError }) => (
   <div className="min-h-screen flex items-center justify-center bg-slate-50">
     <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
       <div className="mb-4">
@@ -37,9 +37,10 @@ const DefaultErrorFallback: React.FC<{ error?: Error; resetError: () => void }> 
         Something went wrong
       </h2>
       <p className="text-gray-600 mb-6">
-        An unexpected error occurred in the admin panel. Please try refreshing the page.
+        An unexpected error occurred in the admin panel. Please try refreshing
+        the page.
       </p>
-      {process.env.NODE_ENV === 'development' && error && (
+      {process.env.NODE_ENV === "development" && error && (
         <details className="mb-4 text-left">
           <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
             Error details
@@ -58,7 +59,7 @@ const DefaultErrorFallback: React.FC<{ error?: Error; resetError: () => void }> 
           Try Again
         </button>
         <button
-          onClick={() => window.location.href = '/admin/dashboard'}
+          onClick={() => (window.location.href = "/admin/dashboard")}
           className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
         >
           Go to Dashboard
@@ -82,11 +83,9 @@ export class AdminErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Admin Error Boundary caught an error:', error, errorInfo);
+    console.error("Admin Error Boundary caught an error:", error, errorInfo);
 
-    // In production, you might want to log this to an error reporting service
-    if (process.env.NODE_ENV === 'production') {
-      // Example: logErrorToService(error, errorInfo);
+    if (process.env.NODE_ENV === "production") {
     }
   }
 
@@ -98,10 +97,7 @@ export class AdminErrorBoundary extends React.Component<
     if (this.state.hasError) {
       const ErrorComponent = this.props.fallback || DefaultErrorFallback;
       return (
-        <ErrorComponent
-          error={this.state.error}
-          resetError={this.resetError}
-        />
+        <ErrorComponent error={this.state.error} resetError={this.resetError} />
       );
     }
 

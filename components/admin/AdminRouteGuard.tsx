@@ -25,7 +25,7 @@ export function AdminRouteGuard({
   const shouldRedirect = useMemo(() => {
     if (isLoading) return false;
 
-    // If we want to redirect authenticated users (for login page)
+    // redirect authenticated users
     if (redirectAuthenticated && isAuthenticated) {
       return {
         type: "authenticated",
@@ -36,7 +36,7 @@ export function AdminRouteGuard({
       };
     }
 
-    // If user is not authenticated and we need authentication
+    // If user not authenticated
     if (!redirectAuthenticated && !isAuthenticated) {
       return {
         type: "unauthenticated",
@@ -44,7 +44,7 @@ export function AdminRouteGuard({
       };
     }
 
-    // If user is authenticated but doesn't have required role
+    //  user role is not authenticated
     if (!redirectAuthenticated && isAuthenticated && user) {
       if (!allowedRoles.includes(user.role)) {
         return {
@@ -57,7 +57,7 @@ export function AdminRouteGuard({
     return false;
   }, [isLoading, isAuthenticated, user, redirectAuthenticated, allowedRoles]);
 
-  // Show loading for auth check
+  // show loading
   if (isLoading || shouldRedirect) {
     if (shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;

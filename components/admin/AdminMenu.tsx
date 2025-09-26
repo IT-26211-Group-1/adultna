@@ -61,7 +61,7 @@ export const AdminMenu = () => {
           className={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 ${
             isActive("/admin/accounts") ? "bg-slate-100 dark:bg-slate-800" : ""
           }`}
-          href="/admin/accounts"
+          href="/admin/"
         >
           <Users className="w-4 h-4" />
           <span>User Management</span>
@@ -122,7 +122,7 @@ export const AdminMenu = () => {
 
         <Link
           className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
-          href="/admin/audit"
+          href="/admin/logs"
         >
           <Server className="w-4 h-4" />
           <span>Audit Logs</span>
