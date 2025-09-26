@@ -14,6 +14,7 @@ type RouteProps = {
 export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
+
   const hasRedirected = useRef(false);
 
   const shouldRedirect = useMemo(() => {
@@ -44,6 +45,7 @@ export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
 export function PublicRoute({ children, fallback }: RouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  
   const hasRedirected = useRef(false);
 
   const shouldRedirect = !isLoading && isAuthenticated;

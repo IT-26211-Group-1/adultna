@@ -28,6 +28,7 @@ export function useSecureStorage() {
         sessionStorage.setItem(`secure_${key}`, JSON.stringify(secureData));
         window.dispatchEvent(
           new CustomEvent(`secureStorage:${key}`, { detail: value })
+
         );
       } catch (error) {
         console.warn("Failed to store secure data:", error);
@@ -123,6 +124,7 @@ export function useSecureStorageListener(key: string) {
     return () => {
       window.removeEventListener(
         eventName,
+
         handleStorageChange as EventListener
       );
     };

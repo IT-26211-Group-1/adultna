@@ -21,6 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const tokenRef = useRef<string | null>(null);
   const initialized = useRef(false);
 
+
   const getToken = useCallback(() => {
     return null;
   }, []);
@@ -94,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading: isFetching,
     }),
     [tokenData?.accessToken, tokenData?.expiresAt, isFetching]
+
   );
 
   if (isLoading) {

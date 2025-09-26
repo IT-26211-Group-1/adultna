@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useRef } from "react";
 import { useSecureStorageListener } from "@/hooks/useSecureStorage";
 import EmailStep from "./InputEmail";
@@ -37,6 +38,7 @@ export default function ForgotPassword() {
   const initialized = useRef(false);
   const [loading, setLoading] = useState(() => typeof window === "undefined");
 
+
   // Listen to step changes from secure storage
   const storedStep = useSecureStorageListener("forgotPasswordStep");
   const step = (storedStep as "email" | "otp" | "reset") || "email";
@@ -55,12 +57,9 @@ export default function ForgotPassword() {
     switch (step) {
       case "email":
         return <EmailStep />;
-        return <EmailStep />;
       case "otp":
         return <OtpStep />;
-        return <OtpStep />;
       case "reset":
-        return <ResetPasswordStep />;
         return <ResetPasswordStep />;
       default:
         return null;

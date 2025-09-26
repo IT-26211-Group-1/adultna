@@ -48,7 +48,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
         return;
       }
     }
-
+    
     // Handle cooldown updates
     if (cooldown > 0) {
       setTime(cooldown);
@@ -56,6 +56,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
       sessionStorage.setItem(storageKey, String(expiresAtMs));
     }
   }, [cooldown, storageKey]);
+
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;

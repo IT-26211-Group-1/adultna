@@ -7,6 +7,7 @@ const TIMER_KEY = "resend_timer";
 export function useResendTimer() {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isActive, setIsActive] = useState<boolean>(false);
+
   const initialized = useRef(false);
 
   const checkExistingTimer = useCallback(() => {

@@ -67,8 +67,6 @@ export default function DashboardClient() {
       try {
         const result = await onboardingSubmit.mutateAsync(data);
 
-        const isCompleted = result.message?.includes("Personalized Roadmap");
-
         if (isCompleted) {
           setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
           addToast({
@@ -78,7 +76,6 @@ export default function DashboardClient() {
         } else {
           addToast({
             title: "Progress saved",
-            description: "You can continue your onboarding anytime.",
             color: "success",
           });
         }
@@ -128,7 +125,7 @@ export default function DashboardClient() {
           isOpen={showOnboarding}
           isSubmitting={onboardingSubmit.isPending}
           onClose={() => {}}
-          onComplete={handleOnboardingComplete}
+
         />
       )}
     </div>

@@ -89,7 +89,6 @@ export default function InputOtp() {
 
     if (!email) {
       addToast({ title: "Email is missing", color: "danger" });
-
       return 120;
     }
 
@@ -101,7 +100,9 @@ export default function InputOtp() {
             color: "success",
           });
           resolve(120);
+
         },
+        
         onError: (error) => {
           addToast({
             title: "Failed to resend OTP",

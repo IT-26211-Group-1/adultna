@@ -12,7 +12,9 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
+  
   const { isAuthenticated, isLoading } = useAuth();
+  
   const hasRedirected = useRef(false);
 
   const shouldRedirect = useMemo(() => {

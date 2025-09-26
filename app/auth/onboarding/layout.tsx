@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef } from "react";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+
 
 interface OnboardingLayoutProps {
   children: React.ReactNode;
@@ -12,6 +12,7 @@ interface OnboardingLayoutProps {
 export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
   const { user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
+
   const hasRedirected = useRef(false);
 
   const redirectInfo = useMemo(() => {
