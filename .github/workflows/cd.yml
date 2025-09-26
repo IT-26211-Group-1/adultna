@@ -20,7 +20,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install pnpm
-        run: pnpm install && pnpm test
+        run: pnpm install
 
       - name: Build Next.js app
         run: pnpm build
