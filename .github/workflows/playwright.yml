@@ -9,18 +9,18 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: lts/*
+          version: 6.32.9
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
       - name: Install pnpm
-        run: |
-          npm install -g pnpm
-          export PNPM_HOME="$(npm bin -g)"
-          echo "$PNPM_HOME" >> $GITHUB_PATH
-          export PATH="$PNPM_HOME:$PATH"
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install && pnpm test
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
