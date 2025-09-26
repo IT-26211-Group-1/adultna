@@ -1,6 +1,5 @@
-import React from 'react'
+import React from "react";
 
 export default function page() {
-    return <div>Admin Audit Logs</div>;
-
+  return <div>Admin Audit Logs</div>;
 }
