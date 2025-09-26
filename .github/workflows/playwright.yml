@@ -16,7 +16,9 @@ jobs:
       - name: Install pnpm
         run: |
           npm install -g pnpm
-          echo "$(npm bin -g)" >> $GITHUB_PATH
+          export PNPM_HOME="$(npm bin -g)"
+          echo "$PNPM_HOME" >> $GITHUB_PATH
+          export PATH="$PNPM_HOME:$PATH"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Install Playwright Browsers
