@@ -4,12 +4,14 @@ type ResendTimerProps = {
   handleResendOtp: () => Promise<number>;
   verificationToken: string | null;
   resending: boolean;
+  cooldown?: number;
 };
 
 export const ResendTimer: React.FC<ResendTimerProps> = ({
   handleResendOtp,
   verificationToken,
   resending,
+  cooldown = 0,
 }) => {
   const [time, setTime] = useState<number>(120);
   const [isDisabled, setDisabled] = useState<boolean>(false);
@@ -18,6 +20,17 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
     [verificationToken],
   );
 
+  // Sync with cooldown from hook
+  useEffect(() => {
+    if (cooldown > 0) {
+      setTime(cooldown);
+      const expiresAtMs = Date.now() + cooldown * 1000;
+
+      sessionStorage.setItem(storageKey, String(expiresAtMs));
+    }
+  }, [cooldown, storageKey]);
+
+  // Initialize from storage on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -29,34 +42,53 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
       setTime(secondsLeft || 0);
     } else {
-      setTime(120);
+      setTime(0);
     }
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: NodeJS.Timeout | undefined;
 
     if (time > 0 && !resending) {
       timer = setInterval(() => {
-        setTime((prev) => Math.max(0, prev - 1));
+        setTime((prev) => {
+          const newTime = Math.max(0, prev - 1);
+
+          if (newTime === 0) {
+            setDisabled(false);
+          }
+
+          return newTime;
+        });
       }, 1000);
-    } else {
+    } else if (time === 0) {
       setDisabled(false);
     }
 
-    return () => clearInterval(timer);
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
   }, [time, resending]);
 
   const handleClick = useCallback(async () => {
-    if (!verificationToken || isDisabled) return;
+    if (!verificationToken || isDisabled) {
+      return;
+    }
 
     setDisabled(true);
-    const cooldown = await handleResendOtp();
 
-    const expiresAtMs = Date.now() + cooldown * 1000;
+    try {
+      const cooldown = await handleResendOtp();
+      const expiresAtMs = Date.now() + cooldown * 1000;
 
-    sessionStorage.setItem(storageKey, String(expiresAtMs));
-    setTime(cooldown);
+      sessionStorage.setItem(storageKey, String(expiresAtMs));
+      setTime(cooldown);
+    } catch (error) {
+      console.error("Failed to resend OTP:", error);
+      setDisabled(false);
+    }
   }, [handleResendOtp, isDisabled, storageKey, verificationToken]);
 
   return (
