@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 
 type ResendTimerProps = {
   handleResendOtp: () => Promise<number>;
@@ -19,7 +25,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
   const storageKey = useMemo(
     () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
-    [verificationToken],
+    [verificationToken]
   );
 
   // Initialize timer on mount and sync with cooldown
@@ -34,7 +40,10 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
       const savedMs = saved ? parseInt(saved, 10) : NaN;
 
       if (!isNaN(savedMs)) {
-        const secondsLeft = Math.max(0, Math.ceil((savedMs - Date.now()) / 1000));
+        const secondsLeft = Math.max(
+          0,
+          Math.ceil((savedMs - Date.now()) / 1000)
+        );
         setTime(secondsLeft || 0);
         return;
       }

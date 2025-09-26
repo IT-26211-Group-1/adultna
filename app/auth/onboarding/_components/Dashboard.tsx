@@ -67,18 +67,17 @@ export default function DashboardClient() {
       try {
         const result = await onboardingSubmit.mutateAsync(data);
 
-
         const isCompleted = result.message?.includes("Personalized Roadmap");
 
         if (isCompleted) {
           setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
           addToast({
-            title: "Onboarding completed successfully!",
+            title: "Personalizing your Roadmap",
             color: "success",
           });
         } else {
           addToast({
-            title: "Progress saved!",
+            title: "Progress saved",
             description: "You can continue your onboarding anytime.",
             color: "success",
           });
@@ -119,7 +118,7 @@ export default function DashboardClient() {
         }
       }
     },
-    [onboardingSubmit, setSecureItem, router],
+    [onboardingSubmit, setSecureItem, router]
   );
 
   return (

@@ -55,9 +55,12 @@ export default function ForgotPassword() {
     switch (step) {
       case "email":
         return <EmailStep />;
+        return <EmailStep />;
       case "otp":
         return <OtpStep />;
+        return <OtpStep />;
       case "reset":
+        return <ResetPasswordStep />;
         return <ResetPasswordStep />;
       default:
         return null;

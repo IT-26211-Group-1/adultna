@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
+import { createContext, useContext, useMemo, useRef, useCallback } from "react";
 import { setTokenProvider, setRefreshTokenCallback } from "@/lib/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
@@ -50,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log(
           "AuthContext: refresh-token endpoint failed:",
           response.status,
-          response.statusText,
+          response.statusText
         );
       }
     } catch (error) {
@@ -80,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshTokenForApiClient = useCallback(async () => {
     console.log(
-      "AuthContext: refreshTokenForApiClient called - using HTTP-only cookies, no manual token needed",
+      "AuthContext: refreshTokenForApiClient called - using HTTP-only cookies, no manual token needed"
     );
 
     return null;
@@ -99,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       expiresAt: tokenData?.expiresAt || null,
       isLoading: isFetching,
     }),
-    [tokenData?.accessToken, tokenData?.expiresAt, isFetching],
+    [tokenData?.accessToken, tokenData?.expiresAt, isFetching]
   );
 
   if (isLoading) {
