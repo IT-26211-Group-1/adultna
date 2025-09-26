@@ -4,26 +4,29 @@ import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addToast } from "@heroui/react";
-import { LoadingButton } from "@/components/ui/Button";
-import { useFormSubmit } from "@/hooks/useForm";
+import { AuthButton } from "../../register/_components/AuthButton";
+import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
 import { forgotPasswordOtpSchema } from "@/validators/authSchema";
 import { ResendTimer } from "@/components/ui/ResendTimer";
 
-interface InputOtpProps {
-  token: string;
-  email: string;
-  setStep: React.Dispatch<React.SetStateAction<"email" | "otp" | "reset">>;
-}
-
 type OtpFormType = { otp: string };
 
-export default function InputOtp({ token, setStep }: InputOtpProps) {
-  const [resending, setResending] = useState(false);
-  const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+export default function InputOtp() {
+  const {
+    verifyOtp,
+    resendOtp,
+    isVerifyingOtp,
+    isResendingOtp,
+    getStoredToken,
+    getStoredEmail,
+  } = useForgotPasswordFlow();
+  const [otpValue, setOtpValue] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const initialized = useRef(false);
 
   const {
     handleSubmit,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<OtpFormType>({
@@ -31,87 +34,97 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
     defaultValues: { otp: "" },
   });
 
-  const otpString = watch("otp") as string;
-  const otp = otpString.split("").concat(Array(6).fill("")).slice(0, 6);
+  // Split OTP inpuit
+  const otpArray = otpValue.padEnd(6, " ").slice(0, 6).split("");
 
-  const handleChange = (value: string, index: number) => {
-    if (!/^\d?$/.test(value)) return;
-    const currentOtp = (watch("otp") as string).split("");
+  if (!initialized.current && hiddenInputRef.current) {
+    initialized.current = true;
+    hiddenInputRef.current.focus();
+  }
 
-    currentOtp[index] = value;
-    setValue("otp", currentOtp.join(""));
-    if (value && index < 5) inputsRef.current[index + 1]?.focus();
+  const handleOtpChange = (value: string) => {
+    // Only allow digits and limit to 6 characters
+    const cleanValue = value.replace(/[^0-9]/g, "").slice(0, 6);
+
+    setOtpValue(cleanValue);
+    setValue("otp", cleanValue);
+    setFocusedIndex(Math.min(cleanValue.length, 5));
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus();
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && otpValue.length > 0) {
+      const newValue = otpValue.slice(0, -1);
+
+      setOtpValue(newValue);
+      setValue("otp", newValue);
+      setFocusedIndex(Math.max(0, newValue.length));
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+  const handleBoxClick = (index: number) => {
+    if (hiddenInputRef.current) {
+      hiddenInputRef.current.focus();
+      setFocusedIndex(index);
+
+      if (index < otpValue.length) {
+        const newValue = otpValue.slice(0, index);
+
+        setOtpValue(newValue);
+        setValue("otp", newValue);
+      }
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
     const pasteData = e.clipboardData.getData("text").trim();
 
-    if (!/^\d{6}$/.test(pasteData)) return;
-    pasteData.split("").forEach((digit, i) => {
-      if (inputsRef.current[i]) inputsRef.current[i]!.value = digit;
-    });
-    setValue("otp", pasteData);
+    if (/^\d{6}$/.test(pasteData)) {
+      handleOtpChange(pasteData);
+    }
   };
 
-  const { loading, onSubmit } = useFormSubmit<OtpFormType>({
-    apiUrl: "/api/auth/forgot-password/verify-otp",
-    schema: forgotPasswordOtpSchema,
-    requireCaptcha: false,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "OTP verified successfully", color: "success" },
-      error: { title: "OTP verification failed", color: "danger" },
-    },
-    onSuccess: () => setStep("reset"),
-  });
+  const handleResendOtp = async (): Promise<number> => {
+    const email = getStoredEmail();
 
-  const handleResendOtp = async () => {
-    try {
-      const email = sessionStorage.getItem("forgotPasswordEmail");
+    if (!email) {
+      addToast({ title: "Email is missing", color: "danger" });
 
-      if (!email) {
-        addToast({ title: "Email is missing", color: "danger" });
-
-        return;
-      }
-
-      setResending(true);
-
-      const res = await fetch("/api/auth/forgot-password/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ verificationToken: token, email }),
-      });
-
-      const data = await res.json();
-
-      addToast({
-        title: data.message || (res.ok ? "OTP sent" : "Failed to resend"),
-        color: res.ok ? "success" : "danger",
-      });
-
-      return data.cooldownLeft ?? 120;
-    } catch (err) {
-      console.error("Resend OTP error:", err);
-      addToast({ title: "Internal server error", color: "danger" });
-    } finally {
-      setResending(false);
+      return 120;
     }
+
+    return new Promise((resolve) => {
+      resendOtp(undefined, {
+        onSuccess: () => {
+          addToast({
+            title: "OTP sent to your email",
+            color: "success",
+          });
+          resolve(120);
+        },
+
+        onError: (error) => {
+          addToast({
+            title: "Failed to resend OTP",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+          resolve(120);
+        },
+      });
+    });
   };
 
   const handleFormSubmit = (data: OtpFormType) => {
-    onSubmit({ ...data, verificationToken: token } as unknown as OtpFormType & {
-      verificationToken: string;
-    });
+    const token = getStoredToken();
+
+    if (!token) {
+      addToast({ title: "Verification token is missing", color: "danger" });
+
+      return;
+    }
+
+    verifyOtp({ otp: data.otp, verificationToken: token });
   };
 
   return (
@@ -119,36 +132,76 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
       className="w-full max-w-md mx-auto p-6 rounded-lg"
       onSubmit={handleSubmit(handleFormSubmit)}
     >
-      <h2 className="text-xl font-semibold text-center mb-4">Enter OTP</h2>
-      <div className="flex gap-2 justify-center mb-4">
-        {otp.map((digit, i) => (
-          <input
-            key={i}
-            ref={(el) => {
-              inputsRef.current[i] = el;
-            }}
-            className="w-12 h-12 text-center border rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            inputMode="numeric"
-            maxLength={1}
-            type="text"
-            value={digit}
-            onChange={(e) => handleChange(e.target.value, i)}
-            onKeyDown={(e) => handleKeyDown(e, i)}
-            onPaste={handlePaste}
-          />
-        ))}
+      <div className="relative mb-6">
+        {/* Hidden input for actual typing */}
+        <input
+          ref={hiddenInputRef}
+          autoComplete="one-time-code"
+          className="absolute opacity-0 pointer-events-none"
+          inputMode="numeric"
+          maxLength={6}
+          type="text"
+          value={otpValue}
+          onChange={(e) => handleOtpChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
+        />
+
+        {/* Visual OTP boxes */}
+        <div className="flex gap-3 justify-center">
+          {otpArray.map((digit, index) => (
+            <div
+              key={index}
+              aria-label={`OTP digit ${index + 1} of 6`}
+              className={`
+                w-14 h-14 
+                border-2 rounded-xl 
+                flex items-center justify-center 
+                text-xl font-semibold
+                cursor-pointer
+                transition-all duration-200
+                focus:outline-none focus:ring-2 focus:ring-[#3C5A3A]/30
+                ${
+                  focusedIndex === index
+                    ? "border-[#3C5A3A] bg-[#3C5A3A]/5 ring-2 ring-[#3C5A3A]/20"
+                    : digit.trim()
+                      ? "border-[#3C5A3A] bg-[#3C5A3A]/10"
+                      : "border-gray-300 bg-white hover:border-gray-400"
+                }
+              `}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleBoxClick(index)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleBoxClick(index);
+                }
+              }}
+            >
+              {digit.trim() && <span className="text-gray-800">{digit}</span>}
+              {focusedIndex === index && !digit.trim() && (
+                <div className="w-0.5 h-6 bg-[#3C5A3A] animate-pulse" />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
+
       {errors.otp && (
-        <p className="text-red-500 text-center mb-2">{errors.otp.message}</p>
+        <p className="text-red-500 text-center mb-4 text-sm">
+          {errors.otp.message}
+        </p>
       )}
-      <LoadingButton className="w-full mb-2" loading={loading} type="submit">
+
+      <AuthButton loading={isVerifyingOtp} type="submit">
         Verify OTP
-      </LoadingButton>
+      </AuthButton>
 
       <ResendTimer
         handleResendOtp={handleResendOtp}
-        resending={resending}
-        verificationToken={token}
+        resending={isResendingOtp}
+        verificationToken={getStoredToken() || ""}
       />
     </form>
   );

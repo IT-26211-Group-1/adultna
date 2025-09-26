@@ -1,156 +1,150 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { registerSchema } from "@/validators/authSchema";
-import { addToast } from "@heroui/react";
-import ReCAPTCHA from "react-google-recaptcha";
-import { useFormSubmit } from "@/hooks/useForm";
-import { useRouter } from "next/navigation";
-import { LoadingButton } from "@/components/ui/Button";
+import dynamic from "next/dynamic";
+import { useRegister } from "../hooks/useRegister";
+
+const LazyRecaptcha = dynamic(() => import("@/components/ui/LazyRecaptcha"), {
+  loading: () => (
+    <div className="flex justify-center items-center h-[78px] w-[304px] bg-gray-100 rounded border">
+      <div className="animate-pulse w-full h-full bg-gray-200 rounded" />
+    </div>
+  ),
+  ssr: false,
+});
+
+// Component imports
+import { UserAuthTitle } from "../_components/UserAuthTitle";
+import { FormInput } from "../_components/FormInput";
+import { CheckboxField } from "../_components/CheckboxField";
+import { AuthButton } from "../_components/AuthButton";
+import { GoogleSignInButton } from "../_components/GoogleSignInButton";
+import { ImageContainer } from "../_components/ImageContainer";
+import { AuthFooter } from "../_components/AuthFooter";
 
 export const RegisterForm = () => {
-  const router = useRouter();
   const {
     register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<z.infer<typeof registerSchema> & { emailVerified?: boolean }>({
-    resolver: zodResolver(registerSchema),
-    mode: "onBlur",
-  });
-
-  const {
+    errors,
     loading,
+    onSubmit,
+    watch,
+    showCaptcha,
+    setShowCaptcha,
     recaptchaRef,
     handleCaptchaChange,
     handleCaptchaExpired,
-    onSubmit,
-  } = useFormSubmit<z.infer<typeof registerSchema>>({
-    apiUrl: "/api/auth/register",
-    schema: registerSchema,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "Registration Successful!", color: "success" },
-      error: { title: "Registration Failed", color: "danger" },
-      captcha: { title: "Please verify captcha", color: "warning" },
-    },
-    onSuccess: (res) => {
-      const response = res as {
-        data: { verificationToken: string; userId: string };
-      };
+  } = useRegister();
 
-      localStorage.setItem(
-        "verificationToken",
-        response.data.verificationToken,
-      );
-      localStorage.setItem("userId", response.data.userId);
-      router.push("/auth/verify-email");
-    },
-  });
+  const watchedValues = watch();
+
+  const areFieldsFilled =
+    watchedValues.firstName &&
+    watchedValues.lastName &&
+    watchedValues.email &&
+    watchedValues.password &&
+    watchedValues.confirmPassword &&
+    watchedValues.acceptedTerms;
+
+  const handleClick = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!showCaptcha && areFieldsFilled) {
+      setShowCaptcha(true);
+
+      return;
+    }
+    onSubmit();
+  };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
-      <form
-        className="space-y-4 w-full max-w-md bg-white p-6 rounded-2xl shadow-md"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <h2 className="text-2xl font-semibold text-center mb-4">Register</h2>
+    <div className="min-h-screen flex">
+      {/* Left Side - Registration Form */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="w-full max-w-md">
+          <UserAuthTitle
+            subtitle="Hi there! Please enter your details."
+            title="Get Started!"
+          />
 
-        {/* First and Last Name */}
-        <div className="flex flex-col md:flex-row gap-3">
-          <div className="flex-1">
-            <input
-              {...register("firstName")}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="First Name"
+          <form className="space-y-6" onSubmit={handleClick}>
+            {/* Name Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormInput
+                error={errors.firstName?.message}
+                name="firstName"
+                placeholder="First Name"
+                register={register}
+              />
+              <FormInput
+                error={errors.lastName?.message}
+                name="lastName"
+                placeholder="Last Name"
+                register={register}
+              />
+            </div>
+
+            {/* Email Field */}
+            <FormInput
+              error={errors.email?.message}
+              name="email"
+              placeholder="Email"
+              register={register}
+              type="email"
             />
-            <p className="text-sm text-red-500 mt-1">
-              {errors.firstName?.message}
-            </p>
-          </div>
 
-          <div className="flex-1">
-            <input
-              {...register("lastName")}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Last Name"
+            {/* Password Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormInput
+                error={errors.password?.message}
+                name="password"
+                placeholder="Password"
+                register={register}
+                type="password"
+              />
+              <FormInput
+                error={errors.confirmPassword?.message}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                register={register}
+                type="password"
+              />
+            </div>
+
+            {/* Terms and Conditions */}
+            <CheckboxField
+              error={errors.acceptedTerms?.message}
+              label="I accept the terms and conditions"
+              name="acceptedTerms"
+              register={register}
             />
-            <p className="text-sm text-red-500 mt-1">
-              {errors.lastName?.message}
-            </p>
-          </div>
-        </div>
 
-        {/* Email */}
-        <div>
-          <input
-            {...register("email")}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Email"
-            type="email"
-          />
-          <p className="text-sm text-red-500 mt-1">{errors.email?.message}</p>
-        </div>
+            {/* reCAPTCHA */}
+            {showCaptcha && (
+              <div className="flex justify-center">
+                <LazyRecaptcha
+                  ref={recaptchaRef}
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                  onChange={handleCaptchaChange}
+                  onExpired={handleCaptchaExpired}
+                />
+              </div>
+            )}
 
-        {/* Password */}
-        <div>
-          <input
-            {...register("password")}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Password"
-            type="password"
-          />
-          <p className="text-sm text-red-500 mt-1">
-            {errors.password?.message}
-          </p>
-        </div>
+            {/* Auth Buttons - No spacing between them */}
+            <div className="space-y-3">
+              <AuthButton className="" loading={loading} type="submit">
+                Register
+              </AuthButton>
+              <GoogleSignInButton />
+            </div>
 
-        {/* Confirm Password */}
-        <div>
-          <input
-            {...register("confirmPassword")}
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Confirm Password"
-            type="password"
-          />
-          <p className="text-sm text-red-500 mt-1">
-            {errors.confirmPassword?.message}
-          </p>
+            {/* Footer */}
+            <AuthFooter />
+          </form>
         </div>
+      </div>
 
-        {/* Accepted Terms */}
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            {...register("acceptedTerms")}
-            className="w-4 h-4"
-            id="acceptedTerms"
-          />
-          <label className="text-sm" htmlFor="acceptedTerms">
-            I accept the terms and conditions
-          </label>
-        </div>
-        <p className="text-sm text-red-500 mt-1">
-          {errors.acceptedTerms?.message}
-        </p>
-
-        {/* reCAPTCHA */}
-        <div>
-          <ReCAPTCHA
-            ref={recaptchaRef}
-            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-            onChange={handleCaptchaChange}
-            onExpired={handleCaptchaExpired}
-          />
-        </div>
-
-        {/* Submit Button */}
-        <LoadingButton loading={loading} type="submit">
-          Register
-        </LoadingButton>
-      </form>
+      {/* Right Side - Image Container */}
+      <ImageContainer />
     </div>
   );
 };

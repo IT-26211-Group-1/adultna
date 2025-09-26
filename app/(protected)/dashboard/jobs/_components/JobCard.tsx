@@ -31,9 +31,7 @@ const JobCard = memo(({ job }: JobCardProps) => {
 
     return `${Math.floor(diffMs / day)}d ago`;
   })();
-  const handleApplyClick = () => {
-    console.log(`User clicked apply for job: ${job.id}`);
-  };
+  const handleApplyClick = () => {};
 
   return (
     <article className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white">

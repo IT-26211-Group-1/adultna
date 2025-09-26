@@ -4,34 +4,43 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/react";
-import { LoadingButton } from "@/components/ui/Button";
-import { useFormSubmit } from "@/hooks/useForm";
+import { AuthButton } from "../../register/_components/AuthButton";
+import { FormInput } from "../../register/_components/FormInput";
+import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
 import { z } from "zod";
-
-interface Props {
-  token: string;
-  setStep: (step: "email" | "otp" | "reset") => void;
-}
 
 type ResetPasswordFormType = {
   password: string;
   confirmPassword: string;
-  verificationToken: string;
 };
 
 export const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/\d/, "Password must contain at least one number")
+      .regex(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        "Password must contain at least one special character",
+      ),
     confirmPassword: z.string(),
-    verificationToken: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-export default function ResetPassword({ token }: Props) {
+export default function ResetPassword() {
   const router = useRouter();
+  const {
+    resetPassword,
+    isResettingPassword,
+    getStoredToken,
+    clearForgotPasswordData,
+  } = useForgotPasswordFlow();
 
   const {
     handleSubmit,
@@ -43,65 +52,66 @@ export default function ResetPassword({ token }: Props) {
     defaultValues: {
       password: "",
       confirmPassword: "",
-      verificationToken: token,
-    },
-  });
-
-  const { loading, onSubmit } = useFormSubmit<ResetPasswordFormType>({
-    apiUrl: "/api/auth/forgot-password/reset-password",
-    schema: resetPasswordSchema,
-    requireCaptcha: false,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "Password reset successful", color: "success" },
-      error: { title: "Error resetting password", color: "danger" },
-    },
-    onSuccess: () => {
-      sessionStorage.removeItem("forgotPasswordEmail");
-      sessionStorage.removeItem("forgotPasswordStep");
-      sessionStorage.removeItem("forgotPasswordToken");
-      router.replace("/auth/login");
     },
   });
 
   const handleFormSubmit = (data: ResetPasswordFormType) => {
-    if (!token) return addToast({ title: "Missing token", color: "danger" });
-    sessionStorage.removeItem("forgotPasswordEmail");
-    sessionStorage.removeItem("forgotPasswordStep");
-    sessionStorage.removeItem("forgotPasswordToken");
-    onSubmit({ ...data, verificationToken: token });
+    const token = getStoredToken();
+
+    if (!token) {
+      addToast({ title: "Missing verification token", color: "danger" });
+
+      return;
+    }
+
+    resetPassword(
+      { verificationToken: token, password: data.password },
+      {
+        onSuccess: () => {
+          addToast({
+            title: "Password reset successful",
+            color: "success",
+          });
+          clearForgotPasswordData();
+          router.replace("/auth/login");
+        },
+        onError: (error) => {
+          addToast({
+            title: "Error resetting password",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+        },
+      },
+    );
   };
 
   return (
     <form
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-6"
       onSubmit={handleSubmit(handleFormSubmit)}
     >
-      <h2 className="text-2xl font-semibold text-center">Reset Password</h2>
+      <div className="space-y-4">
+        <FormInput
+          error={errors.password?.message}
+          name="password"
+          placeholder="New Password"
+          register={register}
+          type="password"
+        />
 
-      <input
-        type="password"
-        {...register("password")}
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="New Password"
-      />
-      {errors.password && (
-        <p className="text-sm text-red-500">{errors.password.message}</p>
-      )}
+        <FormInput
+          error={errors.confirmPassword?.message}
+          name="confirmPassword"
+          placeholder="Confirm New Password"
+          register={register}
+          type="password"
+        />
+      </div>
 
-      <input
-        type="password"
-        {...register("confirmPassword")}
-        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Retype New Password"
-      />
-      {errors.confirmPassword && (
-        <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
-      )}
-
-      <LoadingButton loading={loading} type="submit">
+      <AuthButton loading={isResettingPassword} type="submit">
         Reset Password
-      </LoadingButton>
+      </AuthButton>
     </form>
   );
 }
