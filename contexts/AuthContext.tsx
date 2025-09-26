@@ -3,7 +3,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useCallback,
@@ -26,6 +25,7 @@ const REFRESH_URL = `${API_CONFIG.API_URL}/auth/refresh-token`;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const tokenRef = useRef<string | null>(null);
+  const initialized = useRef(false);
 
   const getToken = useCallback(() => {
     return null;
@@ -86,11 +86,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null;
   }, []);
 
-  // Initialize providers once on mount
-  useEffect(() => {
+  // Initialize providers once on mount using a ref to ensure it only runs once
+  if (!initialized.current) {
     setTokenProvider(getToken);
     setRefreshTokenCallback(refreshTokenForApiClient);
-  }, [getToken, refreshTokenForApiClient]);
+    initialized.current = true;
+  }
 
   const contextValue = useMemo(
     () => ({

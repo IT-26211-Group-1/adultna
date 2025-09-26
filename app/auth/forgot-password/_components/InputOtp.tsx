@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addToast } from "@heroui/react";
@@ -23,6 +23,7 @@ export default function InputOtp() {
   const [otpValue, setOtpValue] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const initialized = useRef(false);
 
   const {
     handleSubmit,
@@ -33,15 +34,13 @@ export default function InputOtp() {
     defaultValues: { otp: "" },
   });
 
-  // Split OTP value into array of 6 digits
+  // Split OTP inpuit
   const otpArray = otpValue.padEnd(6, " ").slice(0, 6).split("");
 
-  // Auto-focus the hidden input when component mounts
-  useEffect(() => {
-    if (hiddenInputRef.current) {
-      hiddenInputRef.current.focus();
-    }
-  }, []);
+  if (!initialized.current && hiddenInputRef.current) {
+    initialized.current = true;
+    hiddenInputRef.current.focus();
+  }
 
   const handleOtpChange = (value: string) => {
     // Only allow digits and limit to 6 characters
@@ -67,7 +66,6 @@ export default function InputOtp() {
       hiddenInputRef.current.focus();
       setFocusedIndex(index);
 
-      // If clicking on an earlier position, truncate the OTP to that position
       if (index < otpValue.length) {
         const newValue = otpValue.slice(0, index);
 
@@ -92,7 +90,7 @@ export default function InputOtp() {
     if (!email) {
       addToast({ title: "Email is missing", color: "danger" });
 
-      return 120; // Return default cooldown
+      return 120;
     }
 
     return new Promise((resolve) => {
@@ -102,8 +100,7 @@ export default function InputOtp() {
             title: "OTP sent to your email",
             color: "success",
           });
-          // Return cooldown from response data if available, otherwise default to 120 seconds
-          resolve(120); // Default cooldown since response structure may vary
+          resolve(120);
         },
         onError: (error) => {
           addToast({
@@ -111,7 +108,7 @@ export default function InputOtp() {
             description: error?.message || "Please try again",
             color: "danger",
           });
-          resolve(120); // Return default cooldown on error
+          resolve(120);
         },
       });
     });

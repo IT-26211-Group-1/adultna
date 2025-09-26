@@ -46,32 +46,27 @@ export default function DashboardClient() {
     return ["not_started", "in_progress"].includes(user.onboardingStatus);
   }, [user?.onboardingStatus, getSecureItem]);
 
-  const [showOnboarding, setShowOnboarding] = useState(initialShowOnboarding);
-
-  // Update onboarding visibility when user data changes
-  useEffect(() => {
+  const showOnboarding = useMemo(() => {
     if (user?.onboardingStatus === "completed") {
-      setShowOnboarding(false);
       setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
-    } else if (
+      return false;
+    }
+
+    if (
       user?.onboardingStatus &&
       !["not_started", "in_progress"].includes(user.onboardingStatus)
     ) {
-      setShowOnboarding(false);
-    } else if (
-      user?.onboardingStatus &&
-      ["not_started", "in_progress"].includes(user.onboardingStatus)
-    ) {
-      setShowOnboarding(true);
+      return false;
     }
-  }, [user?.onboardingStatus, setSecureItem]);
+
+    return initialShowOnboarding;
+  }, [user?.onboardingStatus, setSecureItem, initialShowOnboarding]);
 
   const handleOnboardingComplete = useCallback(
     async (data: OnboardingData) => {
       try {
         const result = await onboardingSubmit.mutateAsync(data);
 
-        setShowOnboarding(false);
 
         const isCompleted = result.message?.includes("Personalized Roadmap");
 
@@ -133,7 +128,7 @@ export default function DashboardClient() {
         <OnboardingModal
           isOpen={showOnboarding}
           isSubmitting={onboardingSubmit.isPending}
-          onClose={() => setShowOnboarding(false)}
+          onClose={() => {}}
           onComplete={handleOnboardingComplete}
         />
       )}

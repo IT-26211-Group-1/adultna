@@ -3,8 +3,7 @@ name: Deploy Frontend to S3
 on:
   push:
     branches:
-      - 46-hotfix/api-fetch
-
+      - master
 jobs:
   deploy:
     runs-on: ubuntu-latest

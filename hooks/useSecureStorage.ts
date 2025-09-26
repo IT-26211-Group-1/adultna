@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 
 export function useSecureStorage() {
   const encrypt = useCallback((data: string): string => {
@@ -102,10 +102,15 @@ export function useSecureStorage() {
 export function useSecureStorageListener(key: string) {
   const [value, setValue] = useState<string | null>(null);
   const { getSecureItem } = useSecureStorage();
+  const initialized = useRef(false);
+
+  // Initialize value on first render
+  if (!initialized.current) {
+    initialized.current = true;
+    setValue(getSecureItem(key));
+  }
 
   useEffect(() => {
-    setValue(getSecureItem(key));
-
     // Listen for changes
     const handleStorageChange = (event: CustomEvent) => {
       setValue(event.detail);
@@ -121,7 +126,7 @@ export function useSecureStorageListener(key: string) {
         handleStorageChange as EventListener,
       );
     };
-  }, [key, getSecureItem]);
+  }, [key]);
 
   return value;
 }
