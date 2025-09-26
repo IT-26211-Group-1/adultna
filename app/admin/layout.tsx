@@ -12,7 +12,7 @@ export default function AdminLayout(
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-900">
       <AdminMenu />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-6 overflow-auto h-screen">
         <AdminHeader />
         <div className="max-w-7xl mx-auto">{children}</div>
       </main>
