@@ -25,7 +25,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
   const storageKey = useMemo(
     () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
-    [verificationToken]
+    [verificationToken],
   );
 
   // Initialize timer on mount and sync with cooldown
@@ -42,21 +42,23 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
       if (!isNaN(savedMs)) {
         const secondsLeft = Math.max(
           0,
-          Math.ceil((savedMs - Date.now()) / 1000)
+          Math.ceil((savedMs - Date.now()) / 1000),
         );
+
         setTime(secondsLeft || 0);
+
         return;
       }
     }
-    
+
     // Handle cooldown updates
     if (cooldown > 0) {
       setTime(cooldown);
       const expiresAtMs = Date.now() + cooldown * 1000;
+
       sessionStorage.setItem(storageKey, String(expiresAtMs));
     }
   }, [cooldown, storageKey]);
-
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;

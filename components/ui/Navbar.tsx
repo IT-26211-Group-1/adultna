@@ -92,7 +92,7 @@ export const Navbar = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "block w-full text-left text-base"
+                  "block w-full text-left text-base",
                 )}
                 href={item.href}
               >

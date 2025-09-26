@@ -21,7 +21,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const tokenRef = useRef<string | null>(null);
   const initialized = useRef(false);
 
-
   const getToken = useCallback(() => {
     return null;
   }, []);
@@ -45,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log(
           "AuthContext: refresh-token endpoint failed:",
           response.status,
-          response.statusText
+          response.statusText,
         );
       }
     } catch (error) {
@@ -75,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshTokenForApiClient = useCallback(async () => {
     console.log(
-      "AuthContext: refreshTokenForApiClient called - using HTTP-only cookies, no manual token needed"
+      "AuthContext: refreshTokenForApiClient called - using HTTP-only cookies, no manual token needed",
     );
 
     return null;
@@ -94,8 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       expiresAt: tokenData?.expiresAt || null,
       isLoading: isFetching,
     }),
-    [tokenData?.accessToken, tokenData?.expiresAt, isFetching]
-
+    [tokenData?.accessToken, tokenData?.expiresAt, isFetching],
   );
 
   if (isLoading) {

@@ -36,6 +36,7 @@ export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
       hasRedirected.current = true;
       setTimeout(() => router.replace(shouldRedirect.to!), 0);
     }
+
     return fallback || <LoadingSpinner />;
   }
 
@@ -45,7 +46,7 @@ export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
 export function PublicRoute({ children, fallback }: RouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
-  
+
   const hasRedirected = useRef(false);
 
   const shouldRedirect = !isLoading && isAuthenticated;
@@ -55,6 +56,7 @@ export function PublicRoute({ children, fallback }: RouteProps) {
       hasRedirected.current = true;
       setTimeout(() => router.replace("/dashboard"), 0);
     }
+
     return fallback || <LoadingSpinner />;
   }
 
@@ -85,6 +87,7 @@ export function OnboardingRoute({ children, fallback }: RouteProps) {
       hasRedirected.current = true;
       setTimeout(() => router.replace(shouldRedirect.to!), 0);
     }
+
     return fallback || <LoadingSpinner />;
   }
 

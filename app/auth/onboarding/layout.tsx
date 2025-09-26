@@ -1,9 +1,9 @@
 "use client";
 
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef } from "react";
-
 
 interface OnboardingLayoutProps {
   children: React.ReactNode;

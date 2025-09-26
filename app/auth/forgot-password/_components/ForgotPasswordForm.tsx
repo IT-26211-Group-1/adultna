@@ -38,7 +38,6 @@ export default function ForgotPassword() {
   const initialized = useRef(false);
   const [loading, setLoading] = useState(() => typeof window === "undefined");
 
-
   // Listen to step changes from secure storage
   const storedStep = useSecureStorageListener("forgotPasswordStep");
   const step = (storedStep as "email" | "otp" | "reset") || "email";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { OnboardingData } from "@/types/onboarding";
@@ -49,6 +49,7 @@ export default function DashboardClient() {
   const showOnboarding = useMemo(() => {
     if (user?.onboardingStatus === "completed") {
       setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
+
       return false;
     }
 
@@ -67,7 +68,7 @@ export default function DashboardClient() {
       try {
         const result = await onboardingSubmit.mutateAsync(data);
 
-        if (isCompleted) {
+        if (result?.message?.includes("Personalized Roadmap")) {
           setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
           addToast({
             title: "Personalizing your Roadmap",
@@ -115,7 +116,7 @@ export default function DashboardClient() {
         }
       }
     },
-    [onboardingSubmit, setSecureItem, router]
+    [onboardingSubmit, setSecureItem, router],
   );
 
   return (
@@ -125,7 +126,7 @@ export default function DashboardClient() {
           isOpen={showOnboarding}
           isSubmitting={onboardingSubmit.isPending}
           onClose={() => {}}
-
+          onComplete={handleOnboardingComplete}
         />
       )}
     </div>
