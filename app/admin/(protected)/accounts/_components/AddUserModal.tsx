@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo, useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
@@ -18,8 +18,18 @@ interface AddUserModalProps {
   onClose: () => void;
 }
 
-export function AddUserModal({ open, onClose }: AddUserModalProps) {
+function AddUserModal({ open, onClose }: AddUserModalProps) {
   const { createUser, isCreatingUser } = useAdminUsers();
+
+  // Memoized role options to prevent creation on rerender
+  const roleOptions = useMemo(
+    () =>
+      Object.entries(roleDisplayLabels).map(([value, label]) => ({
+        value,
+        label,
+      })),
+    [],
+  );
 
   const {
     register,
@@ -36,33 +46,38 @@ export function AddUserModal({ open, onClose }: AddUserModalProps) {
     },
   });
 
-  const onSubmit = handleSubmit(async (data: AddUserForm) => {
-    createUser(data, {
-      onSuccess: (response) => {
-        if (response.success) {
-          handleClose();
+  // Memoized submit handler
+  const onSubmit = useCallback(
+    handleSubmit(async (data: AddUserForm) => {
+      createUser(data, {
+        onSuccess: (response) => {
+          if (response.success) {
+            handleClose();
 
+            addToast({
+              title: response.message || "Account created successfully",
+              color: "success",
+              timeout: 4000,
+            });
+          }
+        },
+        onError: (error: any) => {
           addToast({
-            title: response.message || "Account created successfully",
-            color: "success",
+            title: error?.message || "Failed to create account",
+            color: "danger",
             timeout: 4000,
           });
-        }
-      },
-      onError: (error: any) => {
-        addToast({
-          title: error?.message || "Failed to create account",
-          color: "danger",
-          timeout: 4000,
-        });
-      },
-    });
-  });
+        },
+      });
+    }),
+    [createUser, handleSubmit],
+  );
 
-  const handleClose = () => {
-    reset(); // Clear form state
+  // Memoized close handler
+  const handleClose = useCallback(() => {
+    reset();
     onClose();
-  };
+  }, [reset, onClose]);
 
   return (
     <Modal open={open} title="Add New User" onClose={handleClose}>
@@ -140,7 +155,7 @@ export function AddUserModal({ open, onClose }: AddUserModalProps) {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
             id="role"
           >
-            {Object.entries(roleDisplayLabels).map(([value, label]) => (
+            {roleOptions.map(({ value, label }) => (
               <option key={value} value={value}>
                 {label}
               </option>
@@ -179,3 +194,5 @@ export function AddUserModal({ open, onClose }: AddUserModalProps) {
     </Modal>
   );
 }
+
+export default memo(AddUserModal);

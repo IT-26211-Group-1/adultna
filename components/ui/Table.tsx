@@ -1,25 +1,28 @@
-import React from "react";
+import React, { useMemo, memo } from "react";
 import { Column, TableProps } from "@/types/table";
 
 export type { Column };
 
-export default function Table<T>({
+const getAlignmentClass = (align?: "left" | "center" | "right") => {
+  switch (align) {
+    case "center":
+      return "text-center";
+    case "right":
+      return "text-right";
+    default:
+      return "text-left";
+  }
+};
+
+function Table<T>({
   columns,
   data,
   loading = false,
   emptyMessage = "No data available",
   className = "",
 }: TableProps<T>) {
-  const getAlignmentClass = (align?: "left" | "center" | "right") => {
-    switch (align) {
-      case "center":
-        return "text-center";
-      case "right":
-        return "text-right";
-      default:
-        return "text-left";
-    }
-  };
+  const memoizedColumns = useMemo(() => columns, [columns]);
+  const memoizedData = useMemo(() => data, [data]);
 
   if (loading) {
     return (
@@ -40,7 +43,7 @@ export default function Table<T>({
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
-              {columns.map((col, idx) => (
+              {memoizedColumns.map((col, idx) => (
                 <th
                   key={idx}
                   className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider ${getAlignmentClass(col.align)}`}
@@ -52,39 +55,46 @@ export default function Table<T>({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data.length > 0 ? (
-              data.map((row, rowIndex) => (
-                <tr
-                  key={rowIndex}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  {columns.map((col, colIndex) => {
-                    const value =
-                      typeof col.accessor === "function"
-                        ? col.accessor(row)
-                        : row[col.accessor];
+            {memoizedData.length > 0 ? (
+              memoizedData.map((row, rowIndex) => {
+                const rowKey =
+                  typeof row === "object" && row !== null && "id" in row
+                    ? (row as any).id
+                    : rowIndex;
 
-                    return (
-                      <td
-                        key={colIndex}
-                        className={`px-6 py-4 whitespace-nowrap text-sm ${getAlignmentClass(col.align)}`}
-                      >
-                        {value === null || value === undefined
-                          ? "-"
-                          : typeof value === "object" &&
-                              !React.isValidElement(value)
-                            ? JSON.stringify(value)
-                            : (value as React.ReactNode)}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))
+                return (
+                  <tr
+                    key={rowKey}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    {memoizedColumns.map((col, colIndex) => {
+                      const value =
+                        typeof col.accessor === "function"
+                          ? col.accessor(row)
+                          : row[col.accessor];
+
+                      return (
+                        <td
+                          key={`${rowKey}-${colIndex}`}
+                          className={`px-6 py-4 whitespace-nowrap text-sm ${getAlignmentClass(col.align)}`}
+                        >
+                          {value === null || value === undefined
+                            ? "-"
+                            : typeof value === "object" &&
+                                !React.isValidElement(value)
+                              ? JSON.stringify(value)
+                              : (value as React.ReactNode)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td
                   className="px-6 py-12 text-center text-gray-500"
-                  colSpan={columns.length}
+                  colSpan={memoizedColumns.length}
                 >
                   {emptyMessage}
                 </td>
@@ -96,3 +106,5 @@ export default function Table<T>({
     </div>
   );
 }
+
+export default memo(Table) as typeof Table;

@@ -30,13 +30,8 @@ export function useAdminLogin() {
             color: "success",
           });
 
-          // Wait for auth state to update, then navigate based on role
           setTimeout(() => {
-            if (response.user?.role === "verifier_admin") {
-              router.replace("/admin/content");
-            } else {
-              router.replace("/admin/dashboard");
-            }
+            router.replace("/admin/dashboard");
           }, 300);
         }
       },

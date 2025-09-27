@@ -7,11 +7,11 @@ import Badge from "@/components/ui/Badge";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import { User, UsersTableProps } from "@/types/admin";
 import { getRoleDisplayLabel, Role } from "@/validators/adminSchema";
-import { EditUserModal } from "./EditUserModal";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
+import EditUserModal from "./EditUserModal";
 
-// Memoized user avatar component
+// Memoized avatar
 const UserAvatar = React.memo<{ user: User }>(({ user }) => (
   <div className="flex items-center space-x-3">
     <Avatar alt={`${user.firstName} ${user.lastName}`} size="md" />
@@ -28,7 +28,7 @@ const UserAvatar = React.memo<{ user: User }>(({ user }) => (
 
 UserAvatar.displayName = "UserAvatar";
 
-// Memoized status badges component
+// Memoized status
 const StatusBadges = React.memo<{ user: User }>(({ user }) => (
   <div className="flex items-center space-x-2">
     <Badge size="sm" variant={user.status === "active" ? "success" : "error"}>
@@ -44,7 +44,7 @@ const StatusBadges = React.memo<{ user: User }>(({ user }) => (
 
 StatusBadges.displayName = "StatusBadges";
 
-// Memoized actions dropdown component
+// Memoized actions dropdown
 const UserActions = React.memo<{
   user: User;
   onEdit: (userId: string) => void;
@@ -156,7 +156,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     refetchUsers,
   } = useAdminUsers();
 
-  // Memoized date formatter
+  // Memoized date
   const formatDate = useCallback((dateString: string | Date) => {
     const date = new Date(dateString);
 
@@ -167,7 +167,6 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     });
   }, []);
 
-  // Memoized event handlers
   const handleEditAccount = useCallback(
     (userId: string) => {
       const user = users.find((u) => u.id === userId);
@@ -262,7 +261,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     [updateUserStatus],
   );
 
-  // Memoized user list mapping
+  // Memoized user list
   const mappedUsers: User[] = useMemo(
     () =>
       users.map((user) => ({

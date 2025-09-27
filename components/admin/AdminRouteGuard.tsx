@@ -31,7 +31,7 @@ export function AdminRouteGuard({
         type: "authenticated",
         to:
           user?.role === "verifier_admin"
-            ? "/admin/content"
+            ? "/admin/dashboard"
             : "/admin/dashboard",
       };
     }
@@ -44,12 +44,12 @@ export function AdminRouteGuard({
       };
     }
 
-    //  user role is not authenticated
+    // If user role is not authorized for this route
     if (!redirectAuthenticated && isAuthenticated && user) {
       if (!allowedRoles.includes(user.role)) {
         return {
           type: "unauthorized",
-          to: "/admin/unauthorized",
+          to: "/admin/dashboard",
         };
       }
     }

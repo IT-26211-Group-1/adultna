@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, memo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
@@ -17,7 +17,7 @@ interface EditUserModalProps {
   onUserUpdated: (updatedUser: User) => void;
 }
 
-export function EditUserModal({
+function EditUserModal({
   open,
   onClose,
   user,
@@ -25,7 +25,6 @@ export function EditUserModal({
 }: EditUserModalProps) {
   const { updateUser, isUpdatingUser } = useAdminUsers();
 
-  // Derive initial form data from user prop - no useEffect needed
   const defaultValues = useMemo<UpdateUserForm>(
     () => ({
       firstName: user?.firstName || "",
@@ -33,7 +32,7 @@ export function EditUserModal({
       email: user?.email || "",
     }),
     [user?.id, open],
-  ); // Reset when user changes or modal opens
+  );
 
   const {
     register,
@@ -45,54 +44,57 @@ export function EditUserModal({
     defaultValues,
   });
 
-  // Reset form when modal opens or user changes
+  // Reset form
   React.useEffect(() => {
     if (open && user) {
       reset(defaultValues);
     }
   }, [open, user?.id, reset, defaultValues]);
 
-  const onSubmit = handleSubmit(async (data: UpdateUserForm) => {
-    if (!user?.id) return;
+  // Memoized submit handler
+  const onSubmit = useCallback(
+    handleSubmit(async (data: UpdateUserForm) => {
+      if (!user?.id) return;
 
-    updateUser(
-      { userId: user.id, ...data },
-      {
-        onSuccess: (response) => {
-          if (response.success && response.user) {
-            // Update user object with new data
-            const updatedUser: User = {
-              ...user,
-              firstName: response.user.firstName,
-              lastName: response.user.lastName,
-              email: response.user.email,
-            };
+      updateUser(
+        { userId: user.id, ...data },
+        {
+          onSuccess: (response) => {
+            if (response.success && response.user) {
+              const updatedUser: User = {
+                ...user,
+                firstName: response.user.firstName,
+                lastName: response.user.lastName,
+                email: response.user.email,
+              };
 
-            onUserUpdated(updatedUser);
-            onClose();
+              onUserUpdated(updatedUser);
+              onClose();
 
+              addToast({
+                title: response.message || "User updated successfully",
+                color: "success",
+                timeout: 4000,
+              });
+            }
+          },
+          onError: (error: any) => {
             addToast({
-              title: response.message || "User updated successfully",
-              color: "success",
+              title: error?.message || "Failed to update user",
+              color: "danger",
               timeout: 4000,
             });
-          }
+          },
         },
-        onError: (error: any) => {
-          addToast({
-            title: error?.message || "Failed to update user",
-            color: "danger",
-            timeout: 4000,
-          });
-        },
-      },
-    );
-  });
+      );
+    }),
+    [user?.id, updateUser, onUserUpdated, onClose, handleSubmit],
+  );
 
-  const handleClose = () => {
-    reset(); // Clear form state
+  const handleClose = useCallback(() => {
+    reset();
     onClose();
-  };
+  }, [reset, onClose]);
 
   if (!user) return null;
 
@@ -181,3 +183,5 @@ export function EditUserModal({
     </Modal>
   );
 }
+
+export default memo(EditUserModal);
