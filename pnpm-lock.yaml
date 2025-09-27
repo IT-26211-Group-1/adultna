@@ -107,9 +107,6 @@ importers:
       react-hook-form:
         specifier: ^7.62.0
         version: 7.62.0(react@18.3.1)
-      react-spline:
-        specifier: ^1.2.1
-        version: 1.2.1(react@18.3.1)
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
@@ -3150,12 +3147,6 @@ packages:
   react-merge-refs@2.1.1:
     resolution: {integrity: sha512-jLQXJ/URln51zskhgppGJ2ub7b2WFKGq3cl3NYKtlHoTG+dN2q7EzWrn3hN3EgPsTMvpR9tpq5ijdp7YwFZkag==}
 
-  react-spline@1.2.1:
-    resolution: {integrity: sha512-d17gOvoKjWfHmsXm7H1YbK715dDEVuIc72eNcrrpNp7T/H8zH2yfNvk1NSJQSuGchTXaa90hbiGRC3FGpJHMZA==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      react: ^16.0.0
-
   react-textarea-autosize@8.5.9:
     resolution: {integrity: sha512-U1DGlIQN5AwgjTyOEnI1oCcMuEr1pv1qOtklB2l4nyMGbHzWrI0eFsYK0zos2YWqAolJyG0IWJaqWmWj5ETh0A==}
     engines: {node: '>=10'}
@@ -3376,9 +3367,6 @@ packages:
   tar@7.4.3:
     resolution: {integrity: sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==}
     engines: {node: '>=18'}
-
-  three@0.123.0:
-    resolution: {integrity: sha512-KNnx/IbilvoHRkxOtL0ouozoDoElyuvAXhFB21RK7F5IPWSmqyFelICK6x3hJerLNSlAdHxR0hkuvMMhH9pqXg==}
 
   thumbhash@0.1.1:
     resolution: {integrity: sha512-kH5pKeIIBPQXAOni2AiY/Cu/NKdkFREdpH+TLdM0g6WA7RriCv0kPLgP731ady67MhTAqrVG/4mnEeibVuCJcg==}
@@ -7311,11 +7299,6 @@ snapshots:
 
   react-merge-refs@2.1.1: {}
 
-  react-spline@1.2.1(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      three: 0.123.0
-
   react-textarea-autosize@8.5.9(@types/react@18.3.3)(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.28.3
@@ -7603,8 +7586,6 @@ snapshots:
       minizlib: 3.0.2
       mkdirp: 3.0.1
       yallist: 5.0.0
-
-  three@0.123.0: {}
 
   thumbhash@0.1.1: {}
 
