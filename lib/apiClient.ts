@@ -151,6 +151,23 @@ export class ApiClient {
   ): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" }, baseUrl);
   }
+
+  static patch<T>(
+    endpoint: string,
+    data?: any,
+    options?: RequestInit,
+    baseUrl?: string,
+  ): Promise<T> {
+    return this.request<T>(
+      endpoint,
+      {
+        ...options,
+        method: "PATCH",
+        body: data ? JSON.stringify(data) : undefined,
+      },
+      baseUrl,
+    );
+  }
 }
 
 // Custom API Error class
@@ -201,22 +218,33 @@ export const queryKeys = {
   // Auth queries
   auth: {
     all: ["auth"] as const,
-    me: () => [...queryKeys.auth.all, "me"] as const,
-    token: () => [...queryKeys.auth.all, "token"] as const,
+    me: () => ["auth", "me"] as const,
+    token: () => ["auth", "token"] as const,
   },
 
   // User queries
   user: {
     all: ["user"] as const,
-    profile: (userId: string) =>
-      [...queryKeys.user.all, "profile", userId] as const,
+    profile: (userId: string) => ["user", "profile", userId] as const,
   },
 
   // Onboarding queries
   onboarding: {
     all: ["onboarding"] as const,
-    questions: () => [...queryKeys.onboarding.all, "questions"] as const,
-    responses: (userId: string) =>
-      [...queryKeys.onboarding.all, "responses", userId] as const,
+    questions: () => ["onboarding", "questions"] as const,
+    responses: (userId: string) => ["onboarding", "responses", userId] as const,
+  },
+  // Admin queries
+  admin: {
+    all: ["admin"] as const,
+    auth: {
+      all: ["admin", "auth"] as const,
+      me: () => ["admin", "auth", "me"] as const,
+    },
+    users: {
+      all: ["admin", "users"] as const,
+      list: () => ["admin", "users", "list"] as const,
+      detail: (userId: string) => ["admin", "users", "detail", userId] as const,
+    },
   },
 } as const;

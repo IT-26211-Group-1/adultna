@@ -1,47 +1,17 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { loginSchema } from "@/validators/authSchema";
-import { addToast } from "@heroui/react";
-import { useFormSubmit } from "@/hooks/useForm";
-// import { useRouter } from "next/navigation";
 import { LoadingButton } from "@/components/ui/Button";
 import Link from "next/link";
+import { useAdminLogin } from "@/hooks/queries/admin/useAdminLogin";
 
 export const AdminLoginForm = () => {
-  // const router = useRouter();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    mode: "onBlur",
-  });
-
-  const { loading, onSubmit } = useFormSubmit<z.infer<typeof loginSchema>>({
-    apiUrl: "/api/auth/", //No API endpoint yet
-    schema: loginSchema,
-    requireCaptcha: false,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "Login Successful!", color: "success" },
-      error: { title: "Login Failed", color: "danger" },
-    },
-
-    // onSuccess: (res) => {
-    //   router.replace("/admin/dashboard");
-    // },
-  });
+  const { register, errors, loading, onSubmit } = useAdminLogin();
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#F1F8F5] px-4">
       <form
         className="w-full max-w-md bg-white p-8 rounded-lg shadow-md space-y-6"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={onSubmit}
       >
         {/* Change font */}
         <h1 className="text-6xl font-bold text-center font-songmyung text-adult-green">
