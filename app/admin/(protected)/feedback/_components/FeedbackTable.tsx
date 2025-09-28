@@ -12,6 +12,7 @@ import {
   FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
+import { CheckCircleIcon, ClockIcon, TrashIcon } from "@/components/admin/ActionIcons";
 
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
   const getTypeColor = (type: FeedbackType) => {
