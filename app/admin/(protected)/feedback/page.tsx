@@ -11,7 +11,7 @@ export default function FeedbackPage() {
         <AdminAddButton
           label="Add Feedback"
           variant="green"
-          modalComponent={<AddFeedbackModal open={false} onClose={() => {}} />}
+          modalComponent={<AddFeedbackModal />}
         />
       </div>
       <FeedbackTable />

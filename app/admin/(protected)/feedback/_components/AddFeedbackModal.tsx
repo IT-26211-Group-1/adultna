@@ -8,8 +8,8 @@ import { addToast } from "@heroui/toast";
 import { useFeedback, CreateFeedbackRequest } from "@/hooks/queries/admin/useFeedbackQueries";
 
 interface AddFeedbackModalProps {
-  open: boolean;
-  onClose: () => void;
+  open?: boolean;
+  onClose?: () => void;
   onFeedbackCreated?: () => void;
 }
 
@@ -29,8 +29,8 @@ const featureOptions = [
 ];
 
 export default function AddFeedbackModal({
-  open,
-  onClose,
+  open = false,
+  onClose = () => {},
   onFeedbackCreated,
 }: AddFeedbackModalProps) {
   const { createFeedback, isCreatingFeedback } = useFeedback();

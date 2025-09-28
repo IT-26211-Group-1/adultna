@@ -70,8 +70,10 @@ const FeedbackActions = React.memo<{
   feedback: Feedback;
   onEdit: (feedbackId: string) => void;
   onToggleStatus: (feedbackId: string, currentStatus: FeedbackStatus) => void;
+  onDelete: (feedbackId: string) => void;
   isUpdating: boolean;
-}>(({ feedback, onEdit, onToggleStatus, isUpdating }) => (
+  isDeleting: boolean;
+}>(({ feedback, onEdit, onToggleStatus, onDelete, isUpdating, isDeleting }) => (
   <DropdownMenu
     items={[
       {
@@ -80,7 +82,7 @@ const FeedbackActions = React.memo<{
             ? "Mark as Resolved"
             : "Mark as Pending",
         onClick: () => onToggleStatus(feedback.id, feedback.status),
-        disabled: isUpdating,
+        disabled: isUpdating || isDeleting,
         icon: (
           <svg
             className="w-4 h-4"
@@ -106,11 +108,32 @@ const FeedbackActions = React.memo<{
           </svg>
         ),
       },
+      {
+        label: "Delete",
+        onClick: () => onDelete(feedback.id),
+        disabled: isUpdating || isDeleting,
+        destructive: true,
+        icon: (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
+          </svg>
+        ),
+      },
     ]}
     trigger={
       <button
         className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-        disabled={isUpdating}
+        disabled={isUpdating || isDeleting}
       >
         <svg
           className="w-5 h-5 text-gray-400"
@@ -139,6 +162,8 @@ const FeedbackTable: React.FC = () => {
     feedbackError,
     updateFeedbackStatus,
     isUpdatingStatus,
+    deleteFeedback,
+    isDeletingFeedback,
     refetchFeedback,
   } = useFeedback();
 
@@ -180,38 +205,102 @@ const FeedbackTable: React.FC = () => {
 
   const handleToggleStatus = useCallback(
     (feedbackId: string, currentStatus: FeedbackStatus) => {
+      // Validate feedbackId
+      if (!feedbackId || typeof feedbackId !== 'string') {
+        addToast({
+          title: "Invalid feedback ID",
+          color: "danger",
+          timeout: 4000,
+        });
+        return;
+      }
+
       const newStatus: FeedbackStatus =
         currentStatus === "pending" ? "resolved" : "pending";
       const action = newStatus === "resolved" ? "resolve" : "reopen";
 
       if (confirm(`Are you sure you want to ${action} this feedback?`)) {
-        updateFeedbackStatus(
-          { feedbackId, status: newStatus },
+        const performUpdate = () => {
+          updateFeedbackStatus(
+            { feedbackId, status: newStatus },
+            {
+              onSuccess: (response) => {
+                if (response.success) {
+                  const actionPast =
+                    newStatus === "resolved" ? "resolved" : "reopened";
+                  addToast({
+                    title:
+                      response.message || `Feedback ${actionPast} successfully`,
+                    color: "success",
+                    timeout: 4000,
+                  });
+                }
+              },
+              onError: (error: any) => {
+                console.error('Feedback update error:', error);
+                const isServerError = error?.response?.status >= 500;
+                addToast({
+                  title: isServerError
+                    ? "Server error: The backend is experiencing issues. Please contact support if this persists."
+                    : error?.message || "Failed to update feedback status",
+                  color: "danger",
+                  timeout: 8000,
+                });
+              },
+            }
+          );
+        };
+        performUpdate();
+      }
+    },
+    [updateFeedbackStatus]
+  );
+
+  const handleDeleteFeedback = useCallback(
+    (feedbackId: string) => {
+      // Validate feedbackId
+      if (!feedbackId || typeof feedbackId !== 'string') {
+        addToast({
+          title: "Invalid feedback ID",
+          color: "danger",
+          timeout: 4000,
+        });
+        return;
+      }
+
+      if (
+        confirm(
+          "Are you sure you want to delete this feedback? This action cannot be undone."
+        )
+      ) {
+        deleteFeedback(
+          { feedbackId },
           {
             onSuccess: (response) => {
               if (response.success) {
-                const actionPast =
-                  newStatus === "resolved" ? "resolved" : "reopened";
                 addToast({
-                  title:
-                    response.message || `Feedback ${actionPast} successfully`,
+                  title: response.message || "Feedback deleted successfully",
                   color: "success",
                   timeout: 4000,
                 });
               }
             },
             onError: (error: any) => {
+              console.error('Feedback delete error:', error);
+              const isServerError = error?.response?.status >= 500;
               addToast({
-                title: error?.message || "Failed to update feedback status",
+                title: isServerError
+                  ? "Server error: The backend is experiencing issues. Please contact support if this persists."
+                  : error?.message || "Failed to delete feedback",
                 color: "danger",
-                timeout: 4000,
+                timeout: 8000,
               });
             },
           }
         );
       }
     },
-    [updateFeedbackStatus]
+    [deleteFeedback]
   );
 
   const columns: Column<Feedback>[] = useMemo(
@@ -268,14 +357,23 @@ const FeedbackTable: React.FC = () => {
             feedback={feedback}
             onEdit={handleEditFeedback}
             onToggleStatus={handleToggleStatus}
+            onDelete={handleDeleteFeedback}
             isUpdating={isUpdatingStatus}
+            isDeleting={isDeletingFeedback}
           />
         ),
         width: "80px",
         align: "center" as const,
       },
     ],
-    [formatDate, handleEditFeedback, handleToggleStatus, isUpdatingStatus]
+    [
+      formatDate,
+      handleEditFeedback,
+      handleToggleStatus,
+      handleDeleteFeedback,
+      isUpdatingStatus,
+      isDeletingFeedback,
+    ]
   );
 
   // Error state

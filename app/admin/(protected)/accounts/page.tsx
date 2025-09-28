@@ -11,7 +11,7 @@ export default function AccountsPage() {
         <AdminAddButton
           label="Add User"
           variant="green"
-          modalComponent={<AddUserModal open={false} onClose={() => {}} />}
+          modalComponent={<AddUserModal />}
         />
       </div>
       <UsersTable />

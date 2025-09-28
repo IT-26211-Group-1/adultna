@@ -14,11 +14,11 @@ import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 
 interface AddUserModalProps {
-  open: boolean;
-  onClose: () => void;
+  open?: boolean;
+  onClose?: () => void;
 }
 
-function AddUserModal({ open, onClose }: AddUserModalProps) {
+function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
   const { createUser, isCreatingUser } = useAdminUsers();
 
   // Memoized role options to prevent creation on rerender
@@ -28,7 +28,7 @@ function AddUserModal({ open, onClose }: AddUserModalProps) {
         value,
         label,
       })),
-    [],
+    []
   );
 
   const {
@@ -70,7 +70,7 @@ function AddUserModal({ open, onClose }: AddUserModalProps) {
         },
       });
     }),
-    [createUser, handleSubmit],
+    [createUser, handleSubmit]
   );
 
   // Memoized close handler

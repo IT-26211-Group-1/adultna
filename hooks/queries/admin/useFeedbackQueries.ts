@@ -151,86 +151,99 @@ export function useFeedback() {
     },
   });
 
-  // Ensure feedback data is properly structured
   const safeProcess = (data: FeedbackListResponse | undefined): Feedback[] => {
-    if (!data?.feedback || !Array.isArray(data.feedback)) {
+    if (
+      !data?.feedback ||
+      !Array.isArray(data.feedback) ||
+      data.feedback.length === 0
+    ) {
       return [];
     }
 
-    const processedFeedback = data.feedback.map((item: any) => {
-      let featureName = item.feature;
-      let statusName = item.status;
-      let userName = item.submittedByName;
-      let userEmail = item.submittedByEmail;
+    try {
+      const processedFeedback = data.feedback.map((item: any) => {
+        if (!item || typeof item !== "object") {
+          return null;
+        }
+        let featureName = item.feature;
+        let statusName = item.status;
+        let userName = item.submittedByName;
+        let userEmail = item.submittedByEmail;
 
-      if (featureName && featureName !== "Unknown Feature") {
-        featureName = featureName
-          .split("_")
-          .map(
-            (word: string) =>
-              word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-          )
-          .join(" ");
-      }
+        if (featureName && featureName !== "Unknown Feature") {
+          featureName = featureName
+            .split("_")
+            .map(
+              (word: string) =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            )
+            .join(" ");
+        }
 
-      if (!featureName && item.featureId) {
-        const featureMap: Record<string, string> = {
-          "1": "GovMap",
-          "2": "FileBox",
-          "3": "Process Guides",
-          "4": "AI Gabay Agent",
-          "5": "Mock Interview Coach",
+        if (!featureName && item.featureId) {
+          const featureMap: Record<string, string> = {
+            "1": "GovMap",
+            "2": "FileBox",
+            "3": "Process Guides",
+            "4": "AI Gabay Agent",
+            "5": "Mock Interview Coach",
+          };
+          featureName =
+            featureMap[item.featureId] || `Feature ${item.featureId}`;
+        }
+
+        if (!statusName && item.statusId) {
+          const statusMap: Record<string, string> = {
+            "1": "pending",
+            "2": "resolved",
+          };
+          statusName = statusMap[item.statusId] || `Status ${item.statusId}`;
+        }
+
+        if (!userName && item.userId) {
+          userName = `User ${item.userId.substring(0, 8)}...`;
+        }
+
+        if (!userEmail) {
+          userEmail = item.submittedByEmail || "Email not available";
+        }
+
+        const mappedItem: Feedback = {
+          id: item.id || "",
+          type: (item.type as FeedbackType) || "feedback",
+          feature: featureName || "Unknown Feature",
+          title: item.title || "No Title",
+          description: item.description || "No Description",
+          status: (statusName as FeedbackStatus) || "pending",
+          submittedBy: item.submittedBy || item.userId || "",
+          submittedByEmail: userEmail || "No Email",
+          submittedByName: userName || "Unknown User",
+          createdAt: item.createdAt
+            ? new Date(item.createdAt).toISOString()
+            : new Date().toISOString(),
+          updatedAt: item.updatedAt
+            ? new Date(item.updatedAt).toISOString()
+            : new Date().toISOString(),
         };
-        featureName = featureMap[item.featureId] || `Feature ${item.featureId}`;
-      }
 
-      if (!statusName && item.statusId) {
-        const statusMap: Record<string, string> = {
-          "1": "pending",
-          "2": "resolved",
-        };
-        statusName = statusMap[item.statusId] || `Status ${item.statusId}`;
-      }
+        return mappedItem;
+      });
 
-      if (!userName && item.userId) {
-        userName = `User ${item.userId.substring(0, 8)}...`;
-      }
+      const validItems = processedFeedback.filter(
+        (item): item is Feedback =>
+          item !== null &&
+          item &&
+          typeof item.id === "string" &&
+          typeof item.title === "string" &&
+          typeof item.status === "string" &&
+          typeof item.type === "string"
+      );
 
-      if (!userEmail) {
-        userEmail = item.submittedByEmail || "Email not available";
-      }
-
-      const mappedItem: Feedback = {
-        id: item.id || "",
-        type: (item.type as FeedbackType) || "feedback",
-        feature: featureName || "Unknown Feature",
-        title: item.title || "No Title",
-        description: item.description || "No Description",
-        status: (statusName as FeedbackStatus) || "pending",
-        submittedBy: item.submittedBy || item.userId || "",
-        submittedByEmail: userEmail || "No Email",
-        submittedByName: userName || "Unknown User",
-        createdAt: item.createdAt
-          ? new Date(item.createdAt).toISOString()
-          : new Date().toISOString(),
-        updatedAt: item.updatedAt
-          ? new Date(item.updatedAt).toISOString()
-          : new Date().toISOString(),
-      };
-
-      return mappedItem;
-    });
-
-    const validItems = processedFeedback.filter(
-      (item) =>
-        item &&
-        typeof item.id === "string" &&
-        typeof item.title === "string" &&
-        typeof item.status === "string" &&
-        typeof item.type === "string"
-    );
-
-    return validItems;
+      return validItems;
+    } catch (error) {
+      console.error("Error processing feedback data:", error);
+      return [];
+    }
   };
 
   const safeFeedback = safeProcess(feedbackData);
