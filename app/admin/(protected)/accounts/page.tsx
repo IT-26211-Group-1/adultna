@@ -1,5 +1,6 @@
 import React from "react";
-import AddUserButton from "./_components/AddUserButton";
+import { AdminAddButton } from "@/components/admin/AdminAddButton";
+import AddUserModal from "./_components/AddUserModal";
 import UsersTable from "./_components/UsersTable";
 
 export default function AccountsPage() {
@@ -7,7 +8,11 @@ export default function AccountsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div />
-        <AddUserButton />
+        <AdminAddButton
+          label="Add User"
+          variant="green"
+          modalComponent={<AddUserModal open={false} onClose={() => {}} />}
+        />
       </div>
       <UsersTable />
     </div>

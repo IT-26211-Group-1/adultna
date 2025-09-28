@@ -45,6 +45,15 @@ export type UpdateFeedbackStatusResponse = {
   message: string;
 };
 
+export type DeleteFeedbackRequest = {
+  feedbackId: string;
+};
+
+export type DeleteFeedbackResponse = {
+  success: boolean;
+  message: string;
+};
+
 export type FeedbackListResponse = {
   success: boolean;
   feedback: Feedback[];
@@ -67,7 +76,9 @@ const feedbackApi = {
     ApiClient.get(`/feedback/view/${feedbackId}`),
 
   // Create feedback
-  createFeedback: (data: CreateFeedbackRequest): Promise<CreateFeedbackResponse> =>
+  createFeedback: (
+    data: CreateFeedbackRequest
+  ): Promise<CreateFeedbackResponse> =>
     ApiClient.post("/feedback/create", data),
 
   // Update feedback status (admin only)
@@ -77,6 +88,12 @@ const feedbackApi = {
     ApiClient.put(`/feedback/update/${data.feedbackId}`, {
       status: data.status,
     }),
+
+  // Delete feedback (admin only)
+  deleteFeedback: (
+    data: DeleteFeedbackRequest
+  ): Promise<DeleteFeedbackResponse> =>
+    ApiClient.delete(`/feedback/delete/${data.feedbackId}`),
 };
 
 // Feedback Management Hook
@@ -124,56 +141,53 @@ export function useFeedback() {
     },
   });
 
+  // Delete Feedback Mutation
+  const deleteFeedbackMutation = useMutation({
+    mutationFn: feedbackApi.deleteFeedback,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.feedback?.all || ["admin", "feedback"],
+      });
+    },
+  });
+
   // Ensure feedback data is properly structured
   const safeProcess = (data: FeedbackListResponse | undefined): Feedback[] => {
-    console.log("Raw feedback data received:", data);
-  console.log("Full API response structure:", JSON.stringify(data, null, 2));
-
     if (!data?.feedback || !Array.isArray(data.feedback)) {
-      console.log("No feedback array found in response");
       return [];
     }
 
-    console.log("Processing feedback items:", data.feedback.length);
-
-    const processedFeedback = data.feedback.map((item: any, index) => {
-      console.log(`Processing item ${index}:`, item);
-      console.log(`Raw feature value:`, item.feature);
-      console.log(`Raw submittedByName:`, item.submittedByName);
-      console.log(`Raw submittedByEmail:`, item.submittedByEmail);
-      console.log(`Raw status:`, item.status);
-
-      // Map the data structure to match our expected format
-      // Handle both old structure (with IDs) and new structure (with resolved names)
+    const processedFeedback = data.feedback.map((item: any) => {
       let featureName = item.feature;
       let statusName = item.status;
       let userName = item.submittedByName;
       let userEmail = item.submittedByEmail;
 
-      // Sanitize feature name: capitalize first letter of every word
-      if (featureName && featureName !== 'Unknown Feature') {
+      if (featureName && featureName !== "Unknown Feature") {
         featureName = featureName
-          .split('_')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' ');
+          .split("_")
+          .map(
+            (word: string) =>
+              word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          )
+          .join(" ");
       }
 
-      // If we have raw IDs but no resolved names, create descriptive labels
       if (!featureName && item.featureId) {
         const featureMap: Record<string, string> = {
-          '1': 'GovMap',
-          '2': 'FileBox',
-          '3': 'Process Guides',
-          '4': 'AI Gabay Agent',
-          '5': 'Mock Interview Coach'
+          "1": "GovMap",
+          "2": "FileBox",
+          "3": "Process Guides",
+          "4": "AI Gabay Agent",
+          "5": "Mock Interview Coach",
         };
         featureName = featureMap[item.featureId] || `Feature ${item.featureId}`;
       }
 
       if (!statusName && item.statusId) {
         const statusMap: Record<string, string> = {
-          '1': 'pending',
-          '2': 'resolved'
+          "1": "pending",
+          "2": "resolved",
         };
         statusName = statusMap[item.statusId] || `Status ${item.statusId}`;
       }
@@ -182,38 +196,40 @@ export function useFeedback() {
         userName = `User ${item.userId.substring(0, 8)}...`;
       }
 
-      // Use submittedByEmail from JOIN with users table
       if (!userEmail) {
-        userEmail = item.submittedByEmail || 'Email not available';
+        userEmail = item.submittedByEmail || "Email not available";
       }
 
       const mappedItem: Feedback = {
-        id: item.id || '',
-        type: item.type as FeedbackType || 'feedback',
-        feature: featureName || 'Unknown Feature',
-        title: item.title || 'No Title',
-        description: item.description || 'No Description',
-        status: statusName as FeedbackStatus || 'pending',
-        submittedBy: item.submittedBy || item.userId || '',
-        submittedByEmail: userEmail || 'No Email',
-        submittedByName: userName || 'Unknown User',
-        createdAt: item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString(),
-        updatedAt: item.updatedAt ? new Date(item.updatedAt).toISOString() : new Date().toISOString(),
+        id: item.id || "",
+        type: (item.type as FeedbackType) || "feedback",
+        feature: featureName || "Unknown Feature",
+        title: item.title || "No Title",
+        description: item.description || "No Description",
+        status: (statusName as FeedbackStatus) || "pending",
+        submittedBy: item.submittedBy || item.userId || "",
+        submittedByEmail: userEmail || "No Email",
+        submittedByName: userName || "Unknown User",
+        createdAt: item.createdAt
+          ? new Date(item.createdAt).toISOString()
+          : new Date().toISOString(),
+        updatedAt: item.updatedAt
+          ? new Date(item.updatedAt).toISOString()
+          : new Date().toISOString(),
       };
 
-      console.log(`Mapped item ${index}:`, mappedItem);
       return mappedItem;
     });
 
-    const validItems = processedFeedback.filter(item =>
-      item &&
-      typeof item.id === 'string' &&
-      typeof item.title === 'string' &&
-      typeof item.status === 'string' &&
-      typeof item.type === 'string'
+    const validItems = processedFeedback.filter(
+      (item) =>
+        item &&
+        typeof item.id === "string" &&
+        typeof item.title === "string" &&
+        typeof item.status === "string" &&
+        typeof item.type === "string"
     );
 
-    console.log("Valid items after filtering:", validItems);
     return validItems;
   };
 
@@ -229,22 +245,27 @@ export function useFeedback() {
     isLoadingFeedback,
     isCreatingFeedback: createFeedbackMutation.isPending,
     isUpdatingStatus: updateFeedbackStatusMutation.isPending,
+    isDeletingFeedback: deleteFeedbackMutation.isPending,
 
     // Errors
     feedbackError,
     createFeedbackError: createFeedbackMutation.error,
     updateStatusError: updateFeedbackStatusMutation.error,
+    deleteFeedbackError: deleteFeedbackMutation.error,
 
     // Actions
     createFeedback: createFeedbackMutation.mutate,
     createFeedbackAsync: createFeedbackMutation.mutateAsync,
     updateFeedbackStatus: updateFeedbackStatusMutation.mutate,
     updateFeedbackStatusAsync: updateFeedbackStatusMutation.mutateAsync,
+    deleteFeedback: deleteFeedbackMutation.mutate,
+    deleteFeedbackAsync: deleteFeedbackMutation.mutateAsync,
     refetchFeedback,
 
     // Mutation data
     createFeedbackData: createFeedbackMutation.data,
     updateStatusData: updateFeedbackStatusMutation.data,
+    deleteFeedbackData: deleteFeedbackMutation.data,
   };
 }
 

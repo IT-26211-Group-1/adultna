@@ -5,10 +5,14 @@ import Table, { Column } from "@/components/ui/Table";
 import Badge from "@/components/ui/Badge";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import { addToast } from "@heroui/toast";
-import { useFeedback, Feedback, FeedbackStatus, FeedbackType } from "@/hooks/queries/admin/useFeedbackQueries";
+import {
+  useFeedback,
+  Feedback,
+  FeedbackStatus,
+  FeedbackType,
+} from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
 
-// Memoized feedback type badge
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
   const getTypeColor = (type: FeedbackType) => {
     switch (type) {
@@ -30,16 +34,16 @@ const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
 
 FeedbackTypeBadge.displayName = "FeedbackTypeBadge";
 
-// Memoized status badge
-const FeedbackStatusBadge = React.memo<{ status: FeedbackStatus }>(({ status }) => (
-  <Badge size="sm" variant={status === "resolved" ? "success" : "warning"}>
-    {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
-  </Badge>
-));
+const FeedbackStatusBadge = React.memo<{ status: FeedbackStatus }>(
+  ({ status }) => (
+    <Badge size="sm" variant={status === "resolved" ? "success" : "warning"}>
+      {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
+    </Badge>
+  )
+);
 
 FeedbackStatusBadge.displayName = "FeedbackStatusBadge";
 
-// Memoized feedback info
 const FeedbackInfo = React.memo<{ feedback: Feedback }>(({ feedback }) => (
   <div className="space-y-1">
     <div className="font-medium text-gray-900">{feedback.title}</div>
@@ -52,7 +56,6 @@ const FeedbackInfo = React.memo<{ feedback: Feedback }>(({ feedback }) => (
 
 FeedbackInfo.displayName = "FeedbackInfo";
 
-// Memoized submitter info
 const SubmitterInfo = React.memo<{ feedback: Feedback }>(({ feedback }) => (
   <div className="text-gray-900">
     {feedback.submittedByEmail && feedback.submittedByEmail !== "No Email"
@@ -63,7 +66,6 @@ const SubmitterInfo = React.memo<{ feedback: Feedback }>(({ feedback }) => (
 
 SubmitterInfo.displayName = "SubmitterInfo";
 
-// Memoized actions dropdown
 const FeedbackActions = React.memo<{
   feedback: Feedback;
   onEdit: (feedbackId: string) => void;
@@ -73,26 +75,10 @@ const FeedbackActions = React.memo<{
   <DropdownMenu
     items={[
       {
-        label: "Edit Feedback",
-        onClick: () => onEdit(feedback.id),
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        ),
-      },
-      {
-        label: feedback.status === "pending" ? "Mark as Resolved" : "Mark as Pending",
+        label:
+          feedback.status === "pending"
+            ? "Mark as Resolved"
+            : "Mark as Pending",
         onClick: () => onToggleStatus(feedback.id, feedback.status),
         disabled: isUpdating,
         icon: (
@@ -142,7 +128,9 @@ FeedbackActions.displayName = "FeedbackActions";
 
 const FeedbackTable: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
+  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
+    null
+  );
 
   const {
     feedback,
@@ -154,7 +142,6 @@ const FeedbackTable: React.FC = () => {
     refetchFeedback,
   } = useFeedback();
 
-  // Memoized date formatter
   const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -174,7 +161,7 @@ const FeedbackTable: React.FC = () => {
         setEditModalOpen(true);
       }
     },
-    [feedback],
+    [feedback]
   );
 
   const handleFeedbackUpdated = useCallback(
@@ -183,7 +170,7 @@ const FeedbackTable: React.FC = () => {
       setEditModalOpen(false);
       setSelectedFeedback(null);
     },
-    [refetchFeedback],
+    [refetchFeedback]
   );
 
   const handleCloseEditModal = useCallback(() => {
@@ -193,7 +180,8 @@ const FeedbackTable: React.FC = () => {
 
   const handleToggleStatus = useCallback(
     (feedbackId: string, currentStatus: FeedbackStatus) => {
-      const newStatus: FeedbackStatus = currentStatus === "pending" ? "resolved" : "pending";
+      const newStatus: FeedbackStatus =
+        currentStatus === "pending" ? "resolved" : "pending";
       const action = newStatus === "resolved" ? "resolve" : "reopen";
 
       if (confirm(`Are you sure you want to ${action} this feedback?`)) {
@@ -202,9 +190,11 @@ const FeedbackTable: React.FC = () => {
           {
             onSuccess: (response) => {
               if (response.success) {
-                const actionPast = newStatus === "resolved" ? "resolved" : "reopened";
+                const actionPast =
+                  newStatus === "resolved" ? "resolved" : "reopened";
                 addToast({
-                  title: response.message || `Feedback ${actionPast} successfully`,
+                  title:
+                    response.message || `Feedback ${actionPast} successfully`,
                   color: "success",
                   timeout: 4000,
                 });
@@ -217,14 +207,13 @@ const FeedbackTable: React.FC = () => {
                 timeout: 4000,
               });
             },
-          },
+          }
         );
       }
     },
-    [updateFeedbackStatus],
+    [updateFeedbackStatus]
   );
 
-  // Memoized table columns
   const columns: Column<Feedback>[] = useMemo(
     () => [
       {
@@ -244,7 +233,10 @@ const FeedbackTable: React.FC = () => {
       {
         header: "Description",
         accessor: (feedback) => (
-          <div className="text-gray-600 text-sm truncate max-w-xs" title={feedback.description}>
+          <div
+            className="text-gray-600 text-sm truncate max-w-xs"
+            title={feedback.description}
+          >
             {feedback.description}
           </div>
         ),
@@ -252,7 +244,9 @@ const FeedbackTable: React.FC = () => {
       },
       {
         header: "Status",
-        accessor: (feedback) => <FeedbackStatusBadge status={feedback.status} />,
+        accessor: (feedback) => (
+          <FeedbackStatusBadge status={feedback.status} />
+        ),
         width: "100px",
       },
       {
@@ -281,14 +275,16 @@ const FeedbackTable: React.FC = () => {
         align: "center" as const,
       },
     ],
-    [formatDate, handleEditFeedback, handleToggleStatus, isUpdatingStatus],
+    [formatDate, handleEditFeedback, handleToggleStatus, isUpdatingStatus]
   );
 
   // Error state
   if (feedbackError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Failed to load feedback. Please try again.</p>
+        <p className="text-red-600">
+          Failed to load feedback. Please try again.
+        </p>
         <button
           className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
           onClick={() => refetchFeedback()}
@@ -303,7 +299,9 @@ const FeedbackTable: React.FC = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Feedback Management</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Feedback Management
+          </h2>
           <p className="text-sm text-gray-600">
             Manage user feedback and feature requests
           </p>
@@ -317,7 +315,7 @@ const FeedbackTable: React.FC = () => {
         <div className="max-h-96 overflow-auto">
           <Table
             columns={columns}
-            data={feedback.filter(item => item && item.id)} // Filter out invalid items
+            data={feedback.filter((item) => item?.id)}
             emptyMessage="No feedback found"
             loading={loading}
           />

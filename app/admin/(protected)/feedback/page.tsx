@@ -1,5 +1,6 @@
 import React from "react";
-import AddFeedbackButton from "./_components/AddFeedbackButton";
+import { AdminAddButton } from "@/components/admin/AdminAddButton";
+import AddFeedbackModal from "./_components/AddFeedbackModal";
 import FeedbackTable from "./_components/FeedbackTable";
 
 export default function FeedbackPage() {
@@ -7,7 +8,11 @@ export default function FeedbackPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div />
-        <AddFeedbackButton />
+        <AdminAddButton
+          label="Add Feedback"
+          variant="green"
+          modalComponent={<AddFeedbackModal open={false} onClose={() => {}} />}
+        />
       </div>
       <FeedbackTable />
     </div>
