@@ -5,7 +5,10 @@ import { useForm } from "react-hook-form";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
-import { useFeedback, CreateFeedbackRequest } from "@/hooks/queries/admin/useFeedbackQueries";
+import {
+  useFeedback,
+  CreateFeedbackRequest,
+} from "@/hooks/queries/admin/useFeedbackQueries";
 
 interface AddFeedbackModalProps {
   open?: boolean;
@@ -82,7 +85,7 @@ export default function AddFeedbackModal({
         });
       }
     },
-    [createFeedback, reset, onFeedbackCreated, onClose]
+    [createFeedback, reset, onFeedbackCreated, onClose],
   );
 
   const handleClose = useCallback(() => {
@@ -94,7 +97,7 @@ export default function AddFeedbackModal({
 
   return (
     <Modal open={open} title="Add Feedback" onClose={handleClose}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label
             className="block text-sm font-medium text-gray-700"
@@ -111,15 +114,13 @@ export default function AddFeedbackModal({
               },
             })}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            disabled={isLoading}
             id="title"
             placeholder="Enter feedback title"
             type="text"
-            disabled={isLoading}
           />
           {errors.title && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.title.message}
-            </p>
+            <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
           )}
         </div>
 
@@ -139,10 +140,10 @@ export default function AddFeedbackModal({
               },
             })}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            disabled={isLoading}
             id="description"
             placeholder="Enter detailed feedback description"
             rows={4}
-            disabled={isLoading}
           />
           {errors.description && (
             <p className="mt-1 text-sm text-red-600">
@@ -161,8 +162,8 @@ export default function AddFeedbackModal({
           <select
             {...register("type", { required: "Type is required" })}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-            id="type"
             disabled={isLoading}
+            id="type"
           >
             {feedbackTypeOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -171,9 +172,7 @@ export default function AddFeedbackModal({
             ))}
           </select>
           {errors.type && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.type.message}
-            </p>
+            <p className="mt-1 text-sm text-red-600">{errors.type.message}</p>
           )}
         </div>
 
@@ -187,8 +186,8 @@ export default function AddFeedbackModal({
           <select
             {...register("feature", { required: "Feature is required" })}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-            id="feature"
             disabled={isLoading}
+            id="feature"
           >
             {featureOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -205,18 +204,14 @@ export default function AddFeedbackModal({
 
         <div className="flex justify-end space-x-3 pt-4 border-t">
           <button
-            type="button"
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green"
-            onClick={handleClose}
             disabled={isLoading}
+            type="button"
+            onClick={handleClose}
           >
             Cancel
           </button>
-          <LoadingButton
-            type="submit"
-            disabled={isLoading}
-            loading={isLoading}
-          >
+          <LoadingButton disabled={isLoading} loading={isLoading} type="submit">
             Create Feedback
           </LoadingButton>
         </div>

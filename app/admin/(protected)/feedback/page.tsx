@@ -10,8 +10,8 @@ export default function FeedbackPage() {
         <div />
         <AdminAddButton
           label="Add Feedback"
-          variant="green"
           modalComponent={<AddFeedbackModal />}
+          variant="green"
         />
       </div>
       <FeedbackTable />

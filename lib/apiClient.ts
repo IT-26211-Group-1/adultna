@@ -249,7 +249,8 @@ export const queryKeys = {
     feedback: {
       all: ["admin", "feedback"] as const,
       list: () => ["admin", "feedback", "list"] as const,
-      detail: (feedbackId: string) => ["admin", "feedback", "detail", feedbackId] as const,
+      detail: (feedbackId: string) =>
+        ["admin", "feedback", "detail", feedbackId] as const,
     },
   },
 } as const;

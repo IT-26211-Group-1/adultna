@@ -70,10 +70,10 @@ export function AdminAddButton({
           viewBox="0 0 24 24"
         >
           <path
+            d="M12 4v16m8-8H4"
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M12 4v16m8-8H4"
           />
         </svg>
         <span>{label}</span>

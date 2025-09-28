@@ -10,8 +10,8 @@ export default function AccountsPage() {
         <div />
         <AdminAddButton
           label="Add User"
-          variant="green"
           modalComponent={<AddUserModal />}
+          variant="green"
         />
       </div>
       <UsersTable />

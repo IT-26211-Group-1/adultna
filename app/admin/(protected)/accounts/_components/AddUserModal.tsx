@@ -28,7 +28,7 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
         value,
         label,
       })),
-    []
+    [],
   );
 
   const {
@@ -70,7 +70,7 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
         },
       });
     }),
-    [createUser, handleSubmit]
+    [createUser, handleSubmit],
   );
 
   // Memoized close handler
