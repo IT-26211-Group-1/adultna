@@ -1,48 +1,14 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import Table, { Column } from "@/components/ui/Table";
-import Avatar from "@/components/ui/Avatar";
-import Badge from "@/components/ui/Badge";
+import Table from "@/components/ui/Table";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import { User, UsersTableProps } from "@/types/admin";
-import { getRoleDisplayLabel, Role } from "@/validators/adminSchema";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
-
-// Memoized avatar
-const UserAvatar = React.memo<{ user: User }>(({ user }) => (
-  <div className="flex items-center space-x-3">
-    <Avatar alt={`${user.firstName} ${user.lastName}`} size="md" />
-    <div>
-      <div className="font-medium text-gray-900">
-        {user.displayName ||
-          `${user.firstName} ${user.lastName}`.trim() ||
-          "Unknown User"}
-      </div>
-      <div className="text-sm text-gray-500">{user.email}</div>
-    </div>
-  </div>
-));
-
-UserAvatar.displayName = "UserAvatar";
-
-// Memoized status
-const StatusBadges = React.memo<{ user: User }>(({ user }) => (
-  <div className="flex items-center space-x-2">
-    <Badge size="sm" variant={user.status === "active" ? "success" : "error"}>
-      {user.status === "active" ? "Active" : "Inactive"}
-    </Badge>
-    {user.emailVerified && (
-      <Badge size="sm" variant="info">
-        Verified
-      </Badge>
-    )}
-  </div>
-));
-
-StatusBadges.displayName = "StatusBadges";
+import { TableSkeleton } from "../../feedback/_components/LoadingComponents";
+import { getUsersTableColumns } from "@/constants/adminTables";
 
 // Memoized actions dropdown
 const UserActions = React.memo<{
@@ -287,58 +253,16 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
   );
 
   // Memoized table columns
-  const columns: Column<User>[] = useMemo(
-    () => [
-      {
-        header: "User",
-        accessor: (user) => <UserAvatar user={user} />,
-        width: "300px",
-      },
-      {
-        header: "Role",
-        accessor: (user) => (
-          <span className="text-gray-900">
-            {getRoleDisplayLabel(user.roleName as Role)}
-          </span>
-        ),
-        width: "120px",
-      },
-      {
-        header: "Status",
-        accessor: (user) => <StatusBadges user={user} />,
-        width: "140px",
-      },
-      {
-        header: "Join Date",
-        accessor: (user) => (
-          <div className="text-gray-900">{formatDate(user.createdAt)}</div>
-        ),
-        width: "140px",
-      },
-      {
-        header: "Last Login",
-        accessor: (user) => (
-          <div className="text-gray-900">
-            {user.lastLogin ? formatDate(user.lastLogin) : "Never"}
-          </div>
-        ),
-        width: "140px",
-      },
-      {
-        header: "Actions",
-        accessor: (user) => (
-          <UserActions
-            isUpdating={isUpdatingStatus}
-            user={user}
-            onEdit={handleEditAccount}
-            onResetPassword={handleResetPassword}
-            onToggleStatus={handleToggleAccountStatus}
-          />
-        ),
-        width: "80px",
-        align: "center" as const,
-      },
-    ],
+  const columns = useMemo(
+    () =>
+      getUsersTableColumns(
+        formatDate,
+        handleEditAccount,
+        handleResetPassword,
+        handleToggleAccountStatus,
+        isUpdatingStatus,
+        UserActions,
+      ),
     [
       formatDate,
       handleEditAccount,
@@ -379,12 +303,15 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
 
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="max-h-96 overflow-auto">
-          <Table
-            columns={columns}
-            data={mappedUsers}
-            emptyMessage="No users found"
-            loading={loading}
-          />
+          {loading ? (
+            <TableSkeleton />
+          ) : (
+            <Table
+              columns={columns}
+              data={mappedUsers}
+              emptyMessage="No users found"
+            />
+          )}
         </div>
       </div>
 
