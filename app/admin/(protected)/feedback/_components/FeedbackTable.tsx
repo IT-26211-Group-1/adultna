@@ -12,6 +12,7 @@ import {
   FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
+import { TableSkeleton } from "./LoadingComponents";
 
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
   const getTypeColor = (type: FeedbackType) => {
@@ -43,18 +44,6 @@ const FeedbackStatusBadge = React.memo<{ status: FeedbackStatus }>(
 );
 
 FeedbackStatusBadge.displayName = "FeedbackStatusBadge";
-
-const FeedbackInfo = React.memo<{ feedback: Feedback }>(({ feedback }) => (
-  <div className="space-y-1">
-    <div className="font-medium text-gray-900">{feedback.title}</div>
-    <div className="text-sm text-gray-500 truncate max-w-md">
-      {feedback.description}
-    </div>
-    <div className="text-xs text-gray-400">Feature: {feedback.feature}</div>
-  </div>
-));
-
-FeedbackInfo.displayName = "FeedbackInfo";
 
 const SubmitterInfo = React.memo<{ feedback: Feedback }>(({ feedback }) => (
   <div className="text-gray-900">
@@ -90,7 +79,7 @@ const FeedbackActions = React.memo<{
               ? "Mark as Resolved"
               : "Mark as Pending",
           onClick: () => onToggleStatus(feedback.id, feedback.status),
-          disabled: isUpdating || isDeleting,
+          disabled: isUpdating || isDeleting || feedback.status === "resolved",
           icon: (
             <svg
               className="w-4 h-4"
@@ -428,12 +417,15 @@ const FeedbackTable: React.FC = () => {
 
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="max-h-96 overflow-auto">
-          <Table
-            columns={columns}
-            data={feedback.filter((item) => item?.id)}
-            emptyMessage="No feedback found"
-            loading={loading}
-          />
+          {loading ? (
+            <TableSkeleton />
+          ) : (
+            <Table
+              columns={columns}
+              data={feedback.filter((item) => item?.id)}
+              emptyMessage="No feedback found"
+            />
+          )}
         </div>
       </div>
 

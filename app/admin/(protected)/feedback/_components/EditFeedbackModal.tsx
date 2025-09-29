@@ -34,10 +34,19 @@ const feedbackTypeOptions = [
   { value: "general", label: "General Feedback" },
 ];
 
-const statusOptions = [
-  { value: "pending", label: "Pending" },
-  { value: "resolved", label: "Resolved" },
-];
+const getStatusOptions = (currentStatus: FeedbackStatus) => {
+  const allOptions = [
+    { value: "pending", label: "Pending" },
+    { value: "resolved", label: "Resolved" },
+  ];
+
+  // If feedback is already resolved, disable status
+  if (currentStatus === "resolved") {
+    return allOptions.filter((option) => option.value !== "pending");
+  }
+
+  return allOptions;
+};
 
 export default function EditFeedbackModal({
   open,
@@ -68,9 +77,6 @@ export default function EditFeedbackModal({
   const onSubmit = useCallback(
     async (data: EditFeedbackFormData) => {
       try {
-        // For now, we only support status updates from the backend
-        // Title, description, type, and feature updates would need additional API endpoints
-
         if (data.status !== feedback.status) {
           await updateFeedbackStatus(
             {
@@ -98,7 +104,6 @@ export default function EditFeedbackModal({
             },
           );
         } else {
-          // No changes made
           addToast({
             title: "No changes to save",
             color: "warning",
@@ -156,7 +161,7 @@ export default function EditFeedbackModal({
               },
             })}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500"
-            disabled={true} // Read-only for now
+            disabled={true}
             id="title"
             placeholder="Enter feedback title"
             type="text"
@@ -185,7 +190,7 @@ export default function EditFeedbackModal({
               },
             })}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500"
-            disabled={true} // Read-only for now
+            disabled={true}
             id="description"
             placeholder="Enter feedback description"
             rows={4}
@@ -271,7 +276,7 @@ export default function EditFeedbackModal({
             disabled={isLoading}
             id="status"
           >
-            {statusOptions.map((option) => (
+            {getStatusOptions(feedback.status).map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -281,7 +286,9 @@ export default function EditFeedbackModal({
             <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
           )}
           <p className="text-xs text-gray-500 mt-1">
-            Update the feedback status
+            {feedback.status === "resolved"
+              ? "Resolved feedback cannot be changed back to pending"
+              : "Update the feedback status"}
           </p>
         </div>
 
