@@ -4,66 +4,81 @@ import { Input, Textarea } from "@heroui/react";
 import { SkillFormData, skillSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { EditorFormProps } from "@/lib/resume/types";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
+export default function SkillsForm({
+  resumeData,
+  setResumeData,
+}: EditorFormProps) {
+  const [skillsText, setSkillsText] = useState<string>(
+    resumeData.skills?.join(", ") || ""
+  );
 
-export default function SkillsForm() {
   const form = useForm<SkillFormData>({
     resolver: zodResolver(skillSchema),
     defaultValues: {
-      skill: "",
+      skills: resumeData.skills || [],
     },
   });
 
-  // Function to parse comma-separated skills into an array Ilalagay ito sa preview/frontend na currently
-  // This will store it in the database as a string and display as array in the frontend
-  const parseSkills = (skillsText: string): string[] => {
+  // Memoized function to parse comma-separated skills into an array
+  const parseSkills = useCallback((skillsText: string): string[] => {
     return skillsText
-      .split(',')
-      .map(skill => skill.trim())
-      .filter(skill => skill.length > 0);
-  };
-  // Function to get skills count for display
-  const getSkillsCount = (skillsText: string): number => {
+      .split(",")
+      .map((skill) => skill.trim())
+      .filter((skill) => skill.length > 0);
+  }, []);
+
+  // Memoized skills array - only recalculates when skillsText changes
+  const skillsArray = useMemo(() => parseSkills(skillsText), [skillsText, parseSkills]);
+
+  // Function to get skills count for display not rendered by default will finalize once the final UI is decided
+  const getSkillsCount = useCallback((skillsText: string): number => {
     return parseSkills(skillsText).length;
-  };
+  }, [parseSkills]);
+
+  // Update form when skillsArray changes
+  useEffect(() => {
+    form.setValue("skills", skillsArray);
+  }, [skillsArray, form]);
+
+  useEffect(() => {
+    const { unsubscribe } = form.watch(async (values) => {
+      const isValid = await form.trigger();
+      if (!isValid) return;
+      setResumeData({
+        ...resumeData,
+        skills: values.skills?.filter((skill): skill is string => 
+          skill !== undefined && skill.trim() !== ""
+        ) || [],
+      });
+    });
+    return unsubscribe;
+  }, [form, resumeData, setResumeData]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Skills</h2>
         <p className="text-sm text-default-500">
-          Nice Work! You’re almost there. Best if you add 4-6 skills for the job you’re applying for..
+          Nice Work! You’re almost there. Best if you add 4-6 skills for the job
+          you’re applying for..
         </p>
       </div>
 
       <form className="space-y-3">
         <Textarea
-          {...form.register("skill")}
           label="Skills"
           placeholder="JavaScript, React, Node.js, Python, SQL, Git"
-          description={`Enter skills separated by commas. ${form.watch("skill") ? `${getSkillsCount(form.watch("skill") || "")} skill(s) detected.` : ""}`}
+          description="Enter skills separated by commas."
           minRows={4}
           autoFocus
-          isInvalid={!!form.formState.errors.skill}
-          errorMessage={form.formState.errors.skill?.message}
+          value={skillsText}
+          onChange={(e) => setSkillsText(e.target.value)}
+          isInvalid={!!form.formState.errors.skills}
+          errorMessage={form.formState.errors.skills?.message}
         />
-
-        {/* Checks the parseSkills function */}
-        {/* {form.watch("skill") && (
-          <div className="mt-4">
-            <p className="text-sm font-medium text-default-700 mb-2">Preview:</p>
-            <div className="flex flex-wrap gap-2">
-              {parseSkills(form.watch("skill") || "").map((skill, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-primary-100 text-primary-800 rounded-md text-sm"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-        )} */}
       </form>
     </div>
   );
