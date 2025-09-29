@@ -4,15 +4,29 @@ import { Input, Textarea } from "@heroui/react";
 import { SummaryFormData, summarySchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { EditorFormProps } from "@/lib/resume/types";
+import { useEffect } from "react";
 
-
-export default function SummaryForm() {
+export default function SummaryForm({
+  resumeData,
+  setResumeData,
+}: EditorFormProps) {
   const form = useForm<SummaryFormData>({
     resolver: zodResolver(summarySchema),
     defaultValues: {
       summary: "",
     },
   });
+
+  
+  useEffect(() => {
+    const { unsubscribe } = form.watch(async (values) => {
+      const isValid = await form.trigger();
+      if (!isValid) return;
+      setResumeData({ ...resumeData, ...values });
+    });
+    return unsubscribe;
+  }, [form, resumeData, setResumeData]);
 
   // Function to count words in the summary
   const getWordCount = (text: string): number => {
@@ -25,7 +39,8 @@ export default function SummaryForm() {
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Professional Summary</h2>
         <p className="text-sm text-default-500">
-          Write a short introduction for your resume. Don’t worry! Our AI will help you out and give recommendations.
+          Write a short introduction for your resume. Don’t worry! Our AI will
+          help you out and give recommendations.
         </p>
       </div>
 
