@@ -1,5 +1,10 @@
+import { LogoutButton } from "@/components/ui/LogoutButton";
 import React from "react";
 
 export default function page() {
-  return <div>Dashboard</div>;
+  return (
+    <div>
+      Dashboard <LogoutButton />
+    </div>
+  );
 }

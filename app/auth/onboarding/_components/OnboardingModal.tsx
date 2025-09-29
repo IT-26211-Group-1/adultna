@@ -7,76 +7,108 @@ import ProgressIndicator from "./ProgressIndicator";
 import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
 import YourPathStep from "./YourPathStep";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 
 type OnboardingModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onComplete: (data: any) => void;
+  onComplete: (data: any) => Promise<void>;
+  isSubmitting?: boolean;
 };
 
 export default function OnboardingModal({
   isOpen,
   onComplete,
+  isSubmitting = false,
 }: OnboardingModalProps) {
   const [hydrated, setHydrated] = useState(false);
+  const { getSecureItem, setSecureItem } = useSecureStorage();
 
   useEffect(() => {
     setHydrated(true);
   }, []);
 
-  const [currentStep, setCurrentStep] = useLocalStorage<number>(
-    "onboarding-currentStep",
-    STEPS.INTRODUCTION,
-  );
-  const [displayName, setDisplayName] = useLocalStorage<string>(
-    "onboarding-displayName",
-    "",
-  );
-  const [selectedLifeStage, setSelectedLifeStage] = useLocalStorage<{
+  // Use secure storage for onboarding data
+  const [currentStep, setCurrentStep] = useState<number>(() => {
+    const stored = getSecureItem("onboarding-currentStep");
+
+    return stored ? parseInt(stored) : STEPS.INTRODUCTION;
+  });
+
+  const [displayName, setDisplayName] = useState<string>(() => {
+    return getSecureItem("onboarding-displayName") || "";
+  });
+
+  const [selectedLifeStage, setSelectedLifeStage] = useState<{
     questionId: number;
     optionId: number;
-  } | null>("onboarding-lifeStage", null);
-  const [selectedPriorities, setSelectedPriorities] = useLocalStorage<
+  } | null>(() => {
+    const stored = getSecureItem("onboarding-lifeStage");
+
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  const [selectedPriorities, setSelectedPriorities] = useState<
     { questionId: number; optionId: number }[]
-  >("onboarding-priorities", []);
+  >(() => {
+    const stored = getSecureItem("onboarding-priorities");
+
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  // Helper functions to update state and storage
+  const updateCurrentStep = (step: number) => {
+    setCurrentStep(step);
+    setSecureItem("onboarding-currentStep", step.toString(), 1440); // 24 hours
+  };
+
+  const updateDisplayName = (name: string) => {
+    setDisplayName(name);
+    setSecureItem("onboarding-displayName", name, 1440); // 24 hours
+  };
+
+  const updateSelectedLifeStage = (
+    lifeStage: { questionId: number; optionId: number } | null,
+  ) => {
+    setSelectedLifeStage(lifeStage);
+    setSecureItem("onboarding-lifeStage", JSON.stringify(lifeStage), 1440); // 24 hours
+  };
+
+  const updateSelectedPriorities = (
+    priorities: { questionId: number; optionId: number }[],
+  ) => {
+    setSelectedPriorities(priorities);
+    setSecureItem("onboarding-priorities", JSON.stringify(priorities), 1440); // 24 hours
+  };
 
   const nextStep = useCallback(() => {
-    setCurrentStep((prev) => (prev < STEPS.YOUR_PATH ? prev + 1 : prev));
-  }, [setCurrentStep]);
+    updateCurrentStep(
+      currentStep < STEPS.YOUR_PATH ? currentStep + 1 : currentStep,
+    );
+  }, [currentStep, updateCurrentStep]);
 
   const skipStep = useCallback(() => {
     nextStep();
   }, [nextStep]);
 
-  const handleComplete = useCallback(() => {
-    const payload = {
-      displayName: displayName || undefined,
-      ...(selectedLifeStage
-        ? {
-            questionId: selectedLifeStage.questionId,
-            optionId: selectedLifeStage.optionId,
-          }
-        : {}),
-      priorities: selectedPriorities,
-    };
+  const handleComplete = useCallback(
+    async (data: any) => {
+      await onComplete(data);
 
-    onComplete(payload);
-
-    setCurrentStep(STEPS.INTRODUCTION);
-    setDisplayName("");
-    setSelectedLifeStage(null);
-    setSelectedPriorities([]);
-  }, [
-    displayName,
-    selectedLifeStage,
-    selectedPriorities,
-    onComplete,
-    setCurrentStep,
-    setDisplayName,
-    setSelectedLifeStage,
-    setSelectedPriorities,
-  ]);
+      // Reset onboarding state after successful submission
+      updateCurrentStep(STEPS.INTRODUCTION);
+      updateDisplayName("");
+      updateSelectedLifeStage(null);
+      updateSelectedPriorities([]);
+    },
+    [
+      onComplete,
+      updateCurrentStep,
+      updateDisplayName,
+      updateSelectedLifeStage,
+      updateSelectedPriorities,
+    ],
+  );
 
   if (!isOpen || !hydrated) return null;
 
@@ -86,7 +118,7 @@ export default function OnboardingModal({
         return (
           <IntroductionStep
             displayName={displayName}
-            setDisplayName={setDisplayName}
+            setDisplayName={updateDisplayName}
             onNext={nextStep}
           />
         );
@@ -94,7 +126,7 @@ export default function OnboardingModal({
         return (
           <LifeStageStep
             selectedLifeStage={selectedLifeStage}
-            setSelectedLifeStage={setSelectedLifeStage}
+            setSelectedLifeStage={updateSelectedLifeStage}
             onNext={nextStep}
             onSkip={skipStep}
           />
@@ -112,6 +144,7 @@ export default function OnboardingModal({
         return (
           <YourPathStep
             displayName={displayName}
+            isSubmitting={isSubmitting}
             lifeStage={selectedLifeStage}
             priorities={selectedPriorities}
             onComplete={handleComplete}

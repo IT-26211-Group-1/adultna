@@ -67,6 +67,7 @@ export const AdminHeader = () => {
 
     document.addEventListener("click", onDocClick);
     document.addEventListener("keydown", onKey);
+
     return () => {
       document.removeEventListener("click", onDocClick);
       document.removeEventListener("keydown", onKey);
@@ -79,7 +80,7 @@ export const AdminHeader = () => {
 
       <div className="flex items-center gap-3">
         {/* Notifications dropdown */}
-        <div className="relative" ref={dropdownRef}>
+        <div ref={dropdownRef} className="relative">
           {open ? (
             <button
               aria-expanded="true"
@@ -104,23 +105,38 @@ export const AdminHeader = () => {
 
           {open && (
             <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md shadow-lg z-50">
-              <div className="p-3 border-b border-slate-100 dark:border-slate-800 font-medium">Notifications</div>
+              <div className="p-3 border-b border-slate-100 dark:border-slate-800 font-medium">
+                Notifications
+              </div>
               <div className="max-h-56 overflow-auto">
                 {notifications.map((n) => (
-                  <div key={n.id} className="px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">
+                  <div
+                    key={n.id}
+                    className="px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  >
                     <div className="text-sm font-semibold">{n.title}</div>
-                    {n.body && <div className="text-xs text-slate-500 dark:text-slate-400">{n.body}</div>}
-                    {n.time && <div className="text-xs text-slate-400 mt-1">{n.time}</div>}
+                    {n.body && (
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        {n.body}
+                      </div>
+                    )}
+                    {n.time && (
+                      <div className="text-xs text-slate-400 mt-1">
+                        {n.time}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {notifications.length === 0 && (
-                  <div className="p-3 text-sm text-slate-500">No notifications</div>
+                  <div className="p-3 text-sm text-slate-500">
+                    No notifications
+                  </div>
                 )}
               </div>
               <div className="p-2 border-t border-slate-100 dark:border-slate-800 text-center">
                 <button
-                  onClick={() => setOpen(false)}
                   className="text-sm text-sky-600 hover:underline"
+                  onClick={() => setOpen(false)}
                 >
                   Close
                 </button>
