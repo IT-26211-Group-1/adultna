@@ -44,17 +44,25 @@ export const workSchema = z.object({
 export type WorkExperienceData = z.infer<typeof workSchema>;
 
 export const educationSchema = z.object({
-    schoolName: z.string().min(1, "School name is required").max(100, "School name must be less than 100 characters"),
-    schoolLocation: z.string().max(100, "School location must be less than 100 characters").optional(),
-    degree: z.string().max(100, "Degree must be less than 100 characters").optional(),
-    fieldOfStudy: z.string().max(100, "Field of study must be less than 100 characters").optional(),
-    graduationDate: calendarDateToDate.optional(),
+    educationItems: z.array(
+        z.object({
+            schoolName: z.string().max(100, "School name must be less than 100 characters").optional(),
+            schoolLocation: z.string().max(100, "School location must be less than 100 characters").optional(),
+            degree: z.string().max(100, "Degree must be less than 100 characters").optional(),
+            fieldOfStudy: z.string().max(100, "Field of study must be less than 100 characters").optional(),
+            graduationDate: calendarDateToDate.optional(),
+        })
+    ).optional(),
 });
 export type EducationFormData = z.infer<typeof educationSchema>;
 
 export const certificationSchema = z.object({
-    certificate: z.string().min(1, "Certificate name is required").max(100, "Certificate name must be less than 100 characters"),
-    issuingOrganization: z.string().max(100, "Issuing organization must be less than 100 characters").optional(),
+    certificates: z.array(
+        z.object({
+            certificate: z.string().min(1, "Certificate name is required").max(100, "Certificate name must be less than 100 characters"),
+            issuingOrganization: z.string().max(100, "Issuing organization must be less than 100 characters").optional(),
+        })
+    ).optional(),
 });
 export type CertificationFormData = z.infer<typeof certificationSchema>;
 
