@@ -26,17 +26,19 @@ export const contactSchema = z.object({
 export type ContactFormData = z.infer<typeof contactSchema>;
 
 export const workSchema = z.object({
-    workExperiences: z.array(z.object({
-        jobTitle: z.string().max(100, "Job title must be less than 100 characters").optional(),
-        employer: z.string().max(100, "Employer must be less than 100 characters").optional(),
-        startDate: calendarDateToDate.optional(),
-        endDate: calendarDateToDate.optional(),
-        isCurrentlyWorkingHere: z.boolean().optional(),
-        description: z.string().optional().refine((value) => {
-            if (!value) return true;
-            const wordCount = value.trim().split(/\s+/).length;
-            return wordCount <= 100;
-            }, "Summary must be less than 100 words"),
+    workExperiences: z.array(
+        z.object({
+            
+            jobTitle: z.string().max(100, "Job title must be less than 100 characters").optional(),
+            employer: z.string().max(100, "Employer must be less than 100 characters").optional(),
+            startDate: calendarDateToDate.optional(),
+            endDate: calendarDateToDate.optional(),
+            isCurrentlyWorkingHere: z.boolean().optional(),
+            description: z.string().optional().refine((value) => {
+                if (!value) return true;
+                const wordCount = value.trim().split(/\s+/).length;
+                return wordCount <= 100;
+                }, "Summary must be less than 100 words"),
     })).optional(),
 });
 export type WorkExperienceData = z.infer<typeof workSchema>;
@@ -57,7 +59,7 @@ export const certificationSchema = z.object({
 export type CertificationFormData = z.infer<typeof certificationSchema>;
 
 export const skillSchema = z.object({
-    skill: z.string().max(50, "Skill must be less than 50 characters").optional(),
+    skills: z.array(z.string().max(50, "Skill must be less than 50 characters")).optional(),
 });
 export type SkillFormData = z.infer<typeof skillSchema>;
 
