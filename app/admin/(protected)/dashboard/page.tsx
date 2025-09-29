@@ -1,8 +1,6 @@
-"use client"; 
-
 import React from "react";
 
-import { Stats } from "./_components/Stats";
+import { Stats } from "./_components/Stat";
 import { Activity } from "./_components/Activity";
 
 export default function page() {

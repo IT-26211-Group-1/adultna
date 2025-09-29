@@ -41,7 +41,7 @@ export const AdminHeader = () => {
 
   // derive simple page title from pathname
   const getTitle = (path: string) => {
-    if (path.includes("/admin/dashboard")) return "Welcome to Dashboard";
+    if (path.includes("/admin/dashboard")) return "Admin Dashboard";
     if (path.includes("/admin/feedback")) return "User Feedback & Reports";
     if (path.includes("/admin/management")) return "User Management";
     if (path.includes("/admin/audit")) return "Audit Logs";
