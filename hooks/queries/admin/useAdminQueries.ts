@@ -9,6 +9,8 @@ export type AdminUser = {
   id: string;
   email: string;
   role: string;
+  firstName?: string;
+  lastName?: string;
 };
 
 export type AdminAuthMeResponse = {
@@ -105,6 +107,19 @@ export type UserDetailResponse = {
   user: User;
 };
 
+export type ReportStats = {
+  totalReports: number;
+  pendingReports: number;
+  resolvedReports: number;
+  reportsToday: number;
+  reportsThisWeek: number;
+};
+
+export type ReportStatsResponse = {
+  success: boolean;
+  stats: ReportStats;
+};
+
 // API Functions
 const adminApi = {
   me: (): Promise<AdminAuthMeResponse> => ApiClient.get("/admin/verify-token"),
@@ -138,6 +153,10 @@ const adminApi = {
     ApiClient.patch(`/admin/update-status/${data.userId}`, {
       status: data.status,
     }),
+
+  // Report statistics
+  getReportStats: (): Promise<ReportStatsResponse> =>
+    ApiClient.get("/feedback/stats"),
 };
 
 // Query Hooks
@@ -392,5 +411,30 @@ export function useAdminUser(userId: string) {
     isLoading,
     error,
     refetch,
+  };
+}
+
+// Report Statistics Hook
+export function useReportStats() {
+  const {
+    data: reportStatsData,
+    isLoading: isLoadingStats,
+    error: statsError,
+    refetch: refetchStats,
+  } = useQuery({
+    queryKey: ["admin", "report-stats"],
+    queryFn: adminApi.getReportStats,
+    staleTime: 30 * 1000, // 30 seconds - refresh frequently for real-time data
+    gcTime: 1 * 60 * 1000, // 1 minute
+    refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds
+    refetchIntervalInBackground: true, // Keep refreshing even when tab is not active
+  });
+
+  return {
+    reportStats: reportStatsData?.stats,
+    reportStatsData,
+    isLoadingStats,
+    statsError,
+    refetchStats,
   };
 }
