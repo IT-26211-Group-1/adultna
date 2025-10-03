@@ -20,8 +20,8 @@ export const contactSchema = z.object({
     city: z.string().max(50, "City must be less than 50 characters").optional(),
     region: z.string().max(100, "Region must be less than 100 characters").optional(),
     birthDate: calendarDateToDate.optional(),
-    linkedin: z.string().url("Please enter a valid URL").max(100, "LinkedIn URL must be less than 100 characters").optional(),
-    portfolio: z.string().url("Please enter a valid URL").max(100, "Portfolio URL must be less than 100 characters").optional(),
+    linkedin: z.string().max(255, "LinkedIn URL must be less than 255 characters").optional(),
+    portfolio: z.string().max(255, "Portfolio URL must be less than 255 characters").optional(),
 });
 export type ContactFormData = z.infer<typeof contactSchema>;
 

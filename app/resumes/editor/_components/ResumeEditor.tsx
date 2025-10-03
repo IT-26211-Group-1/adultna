@@ -16,6 +16,7 @@ import SkillsForm from "./forms/SkillsForm";
 import SummaryForm from "./forms/SummaryForm";
 import Navigator from "./Navigator";
 import { ResumeData } from "@/validators/resumeSchema";
+import ResumePreviewSection from "./ResumePreviewSection";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
@@ -43,7 +44,7 @@ export default function ResumeEditor() {
       </header>
       <main className="relative grow">
         <div className="absolute bottom-0 top-0 flex w-full">
-          <div className="w-full space-y-6 overflow-y-auto p-3 md:block md:w-1/2">
+          <div className="w-full space-y-6 overflow-y-auto p-3 md:w-1/2">
             {/* <ContactForm /> */}
             {/* <WorkExperienceForm /> */}
             {/* <EducationForm /> */}
@@ -56,10 +57,16 @@ export default function ResumeEditor() {
               setResumeData={setResumeData}
             />}
           </div>
-          <div className="grow md:border-r" />
-          <div className="hidden w-1/2 overflow-y-auto border-l p-3 md:flex">
-            <pre>{JSON.stringify(resumeData, null, 2)}</pre>
+          <div className="hidden md:flex md:w-1/2 md:border-l">
+            <ResumePreviewSection
+              resumeData={resumeData}
+              setResumeData={setResumeData}
+              className="w-full"
+            />
           </div>
+          {/* <div className="hidden w-1/2 overflow-y-auto border-l p-3 md:flex">
+            <pre>{JSON.stringify(resumeData, null, 2)}</pre>
+          </div> */}
         </div>
       </main>
       <footer>
