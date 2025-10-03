@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Bell, CircleUser } from "lucide-react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { Bell, CircleUser, LogOut, User } from "lucide-react";
+import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
+import Link from "next/link";
 
 type Notification = {
   id: string;
@@ -15,7 +16,10 @@ type Notification = {
 export const AdminHeader = () => {
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const { logout, isLoggingOut } = useAdminAuth();
 
   // Dummy notifications placeholder
   const notifications: Notification[] = [
@@ -40,31 +44,50 @@ export const AdminHeader = () => {
   ];
 
   // derive simple page title from pathname
-  const getTitle = (path: string) => {
-    if (path.includes("/admin/dashboard")) return "Admin Dashboard";
-    if (path.includes("/admin/feedback")) return "User Feedback & Reports";
-    if (path.includes("/admin/management")) return "User Management";
-    if (path.includes("/admin/audit")) return "Audit Logs";
-    if (path.includes("/admin/content")) return "Content Management";
+  const title = useMemo(() => {
+    if (pathname.includes("/admin/dashboard")) return "Admin Dashboard";
+    if (pathname.includes("/admin/feedback")) return "User Feedback & Reports";
+    if (pathname.includes("/admin/management")) return "User Management";
+    if (pathname.includes("/admin/audit")) return "Audit Logs";
+    if (pathname.includes("/admin/content")) return "Content Management";
 
     return "Admin Information Panel";
-  };
+  }, [pathname]);
 
-  const title = getTitle(pathname);
+  const handleLogout = useCallback(() => {
+    const confirmed = window.confirm("Are you sure you want to logout?");
+
+    if (confirmed) {
+      logout();
+    }
+  }, [logout]);
 
   // Close on outside click or Escape
+  const onDocClick = useCallback((e: MouseEvent) => {
+    if (
+      dropdownRef.current &&
+      e.target instanceof Node &&
+      !dropdownRef.current.contains(e.target)
+    ) {
+      setOpen(false);
+    }
+    if (
+      userMenuRef.current &&
+      e.target instanceof Node &&
+      !userMenuRef.current.contains(e.target)
+    ) {
+      setUserMenuOpen(false);
+    }
+  }, []);
+
+  const onKey = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setOpen(false);
+      setUserMenuOpen(false);
+    }
+  }, []);
+
   useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (!dropdownRef.current) return;
-      if (e.target instanceof Node && !dropdownRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    }
-
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-
     document.addEventListener("click", onDocClick);
     document.addEventListener("keydown", onKey);
 
@@ -72,10 +95,10 @@ export const AdminHeader = () => {
       document.removeEventListener("click", onDocClick);
       document.removeEventListener("keydown", onKey);
     };
-  }, []);
+  }, [onDocClick, onKey]);
 
   return (
-    <header className="w-full flex items-center justify-between border border-slate-200 dark:border-slate-800 rounded-md px-4 py-2 bg-white dark:bg-slate-900">
+    <header className="w-full flex items-center justify-between border border-slate-200 dark:border-slate-800 rounded-md px-4 py-2 mt-0 bg-white dark:bg-slate-900">
       <h1 className="text-2xl font-semibold">{title}</h1>
 
       <div className="flex items-center gap-3">
@@ -145,14 +168,39 @@ export const AdminHeader = () => {
           )}
         </div>
 
-        {/* User profile link */}
-        <Link
-          aria-label="User profile"
-          className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
-          href="/admin/user"
-        >
-          <CircleUser className="w-5 h-5" />
-        </Link>
+        {/* User menu dropdown */}
+        <div ref={userMenuRef} className="relative">
+          <button
+            aria-expanded={userMenuOpen}
+            aria-haspopup="true"
+            aria-label="User menu"
+            className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+            onClick={() => setUserMenuOpen(!userMenuOpen)}
+          >
+            <CircleUser className="w-5 h-5" />
+          </button>
+
+          {userMenuOpen && (
+            <div className="absolute right-0 mt-3 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md shadow-lg z-50">
+              <Link
+                className="w-full px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-300"
+                href="/admin/profile"
+                onClick={() => setUserMenuOpen(false)}
+              >
+                <User className="w-4 h-4" />
+                <span>Profile</span>
+              </Link>
+              <button
+                className="w-full px-4 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-red-600 dark:text-red-400 border-t border-slate-100 dark:border-slate-800"
+                disabled={isLoggingOut}
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4" />
+                <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

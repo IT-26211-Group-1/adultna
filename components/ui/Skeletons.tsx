@@ -17,9 +17,7 @@ export const TableSkeleton = () => (
   </div>
 );
 
-export const StatSkeleton = () => (
-  <Skeleton className="h-16" />
-);
+export const StatSkeleton = () => <Skeleton className="h-16" />;
 
 export const ButtonSkeleton = ({ className }: SkeletonProps) => (
   <Skeleton className={`h-10 w-32 ${className}`} />
