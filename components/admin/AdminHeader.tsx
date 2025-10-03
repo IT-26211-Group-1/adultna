@@ -1,10 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Bell, CircleUser, LogOut, User } from "lucide-react";
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
-import Link from "next/link";
 
 type Notification = {
   id: string;
@@ -19,7 +19,7 @@ export const AdminHeader = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
-  const { logout, isLoggingOut } = useAdminAuth();
+  const { user, logout, isLoggingOut } = useAdminAuth();
 
   // Dummy notifications placeholder
   const notifications: Notification[] = [
@@ -174,10 +174,20 @@ export const AdminHeader = () => {
             aria-expanded={userMenuOpen}
             aria-haspopup="true"
             aria-label="User menu"
-            className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="rounded hover:bg-slate-100 dark:hover:bg-slate-800 p-1"
             onClick={() => setUserMenuOpen(!userMenuOpen)}
           >
-            <CircleUser className="w-5 h-5" />
+            {/* First letter of first and last name */}
+            {user?.firstName || user?.lastName ? (
+              <div className="w-7 h-7 rounded-full bg-adult-green text-white flex items-center justify-center text-xs font-semibold uppercase">
+                {(user.firstName?.charAt(0) || "") +
+                  (user.lastName?.charAt(0) || "")}
+              </div>
+            ) : (
+              <div className="w-7 h-7 flex items-center justify-center">
+                <CircleUser className="w-5 h-5" />
+              </div>
+            )}
           </button>
 
           {userMenuOpen && (
