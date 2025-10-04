@@ -1,17 +1,23 @@
 'use client'
 
-import React, { useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-export default function Calendar() {
-  const [currentDate, setCurrentDate] = useState(new Date()) // Today's date
+export default function DashboardCalendar() {
+  const [currentDate, setCurrentDate] = useState(new Date())
 
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
   const today = new Date()
-
-  const completedDays = [1, 2, 3, 4, 5, 6, 7] // Example completed days
-  const weekDays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+  const weekDays = [
+    { short: 'S', full: 'Sunday' },
+    { short: 'M', full: 'Monday' },
+    { short: 'T', full: 'Tuesday' },
+    { short: 'W', full: 'Wednesday' },
+    { short: 'T', full: 'Thursday' },
+    { short: 'F', full: 'Friday' },
+    { short: 'S', full: 'Saturday' }
+  ]
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
   const generateCalendarDays = () => {
@@ -19,9 +25,9 @@ export default function Calendar() {
     const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 0).getDate()
 
     // Previous month days
-    for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+    for (let i = firstDayOfMonth; i > 0; i--) {
       days.push({
-        day: prevMonth - i,
+        day: prevMonth - i + 1,
         isCurrentMonth: false,
         isToday: false
       })
@@ -55,43 +61,43 @@ export default function Calendar() {
   const calendarDays = generateCalendarDays()
 
   return (
-    <div className="backdrop-blur-md bg-white/30 rounded-2xl p-5 border border-white/20 shadow-lg">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-semibold text-gray-900">
+    <div className="mb-4 bg-white/70 backdrop-blur-sm rounded-xl p-3 border border-white/30 flex-shrink-0">
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="font-semibold text-gray-900 text-sm">
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-        </h3>
+        </h4>
         <div className="flex space-x-1">
           <button
             onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
-            className="p-1 hover:bg-white/50 rounded"
+            className="p-1 hover:bg-white/50 rounded transition-colors"
           >
-            <ChevronLeft size={14} />
+            <ChevronLeft size={12} className="text-gray-600" />
           </button>
           <button
             onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-            className="p-1 hover:bg-white/50 rounded"
+            className="p-1 hover:bg-white/50 rounded transition-colors"
           >
-            <ChevronRight size={14} />
+            <ChevronRight size={12} className="text-gray-600" />
           </button>
         </div>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1">
-        {weekDays.map(day => (
-          <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
-            {day}
+      <div className="grid grid-cols-7 gap-0.5 text-center">
+        {weekDays.map((day, index) => (
+          <div key={`${day.full}-${index}`} className="text-gray-500 py-1 font-medium text-xs">
+            {day.short}
           </div>
         ))}
         {calendarDays.map((date, index) => (
           <div
             key={index}
-            className={`
-              text-center text-xs py-1.5 cursor-pointer rounded
-              ${date.isCurrentMonth ? 'text-gray-900' : 'text-gray-400'}
-              ${date.isToday ? 'bg-teal-600 text-white font-semibold' : 'hover:bg-white/40'}
-              ${completedDays.includes(date.day) && date.isCurrentMonth ? 'bg-teal-100/60 text-teal-800' : ''}
-            `}
+            className={`py-1 text-xs cursor-pointer transition-all duration-200 ${
+              date.isToday
+                ? 'bg-adult-green text-white rounded font-bold'
+                : date.isCurrentMonth
+                  ? 'text-gray-700 hover:bg-white/60 rounded font-medium'
+                  : 'text-gray-400 hover:bg-white/30 rounded'
+            }`}
           >
             {date.day}
           </div>
