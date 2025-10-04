@@ -25,6 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
+import AISuggestions from "../AISuggestions";
 
 export default function WorkExperienceForm({ resumeData, setResumeData }: EditorFormProps) {
   const form = useForm<WorkExperienceData>({
@@ -92,6 +93,19 @@ export default function WorkExperienceForm({ resumeData, setResumeData }: Editor
     });
   };
 
+  // Test data for the design replace with the actual API 
+  const aiWorkDescriptions: string[] = [
+    "Developed and maintained web applications using JavaScript, React, and Node.js."
+  ];
+
+  const handleApplyDescription = (description: string, currentIndex: number) => {
+    const currentDescription = form.watch(`workExperiences.${currentIndex}.description`) || "";
+    const newDescription = currentDescription.trim() 
+      ? `${currentDescription}\n• ${description}`
+      : `• ${description}`;
+    form.setValue(`workExperiences.${currentIndex}.description`, newDescription);
+  };
+
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">
@@ -120,6 +134,8 @@ export default function WorkExperienceForm({ resumeData, setResumeData }: Editor
                 form={form}
                 remove={remove}
                 getWordCount={getWordCount}
+                aiSuggestions={aiWorkDescriptions}
+                onApplyDescription={handleApplyDescription}
               />
             ))}
           </SortableContext>
@@ -147,6 +163,8 @@ interface WorkExperienceItemProps {
   index: number;
   remove: (index: number) => void;
   getWordCount: (text: string) => number;
+  aiSuggestions: string[];
+  onApplyDescription: (description: string, index: number) => void;
 }
 
 function WorkExperienceItem({
@@ -155,6 +173,8 @@ function WorkExperienceItem({
   index,
   remove,
   getWordCount,
+  aiSuggestions,
+  onApplyDescription,
 }: WorkExperienceItemProps) {
   const {
     attributes,
@@ -302,6 +322,18 @@ function WorkExperienceItem({
         isInvalid={!!form.formState.errors.workExperiences?.[index]?.description}
         errorMessage={form.formState.errors.workExperiences?.[index]?.description?.message}
       />
+
+      {/* Only show AISuggestions when aiSuggestions has data */}
+      {aiSuggestions.length > 0 && (
+        <AISuggestions
+          title="AI Recommendations for Juan Miguel's Work Description"
+          subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
+          suggestions={aiSuggestions}
+          onApplySuggestion={(suggestion: string) => onApplyDescription(suggestion, index)}
+          buttonType="plus"
+          className="mt-4"
+        />
+      )}
     </div>
   );
 }
