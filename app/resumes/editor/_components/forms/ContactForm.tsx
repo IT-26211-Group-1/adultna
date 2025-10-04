@@ -4,12 +4,16 @@
 import { Input, DatePicker } from "@heroui/react";
 import { ContactFormData, contactSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
 
 export default function ContactForm({ resumeData, setResumeData }: EditorFormProps) {
+  const [showBirthDate, setShowBirthDate] = useState(!!resumeData.birthDate);
+  const [showLinkedIn, setShowLinkedIn] = useState(!!resumeData.linkedin);
+  const [showPortfolio, setShowPortfolio] = useState(!!resumeData.portfolio);
+
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -98,58 +102,95 @@ export default function ContactForm({ resumeData, setResumeData }: EditorFormPro
           isInvalid={!!form.formState.errors.phone}
           errorMessage={form.formState.errors.phone?.message}
         />
-              
-        {/* Double check the implementation of DatePicker and CalendarDate when backend is complete */}
-        <Controller
-          control={form.control}
-          name="birthDate"
-          render={({ field, fieldState }) => {
-            let value = field.value;
-            // Only allow CalendarDate, null, or undefined for value
-            if (!(value instanceof CalendarDate)) {
-              value = undefined;
-            }
-            const handleChange = (val: unknown) => {
-              if (val instanceof Date) {
-                field.onChange(
-                  new CalendarDate(
-                    val.getFullYear(),
-                    val.getMonth() + 1,
-                    val.getDate()
-                  )
-                );
-              } else {
-                field.onChange(val);
+
+        {/* Optional Fields */}
+        {showBirthDate && (
+          <Controller
+            control={form.control}
+            name="birthDate"
+            render={({ field, fieldState }) => {
+              let value = field.value;
+              // Only allow CalendarDate, null, or undefined for value
+              if (!(value instanceof CalendarDate)) {
+                value = undefined;
               }
-            };
-            return (
-              <DatePicker
-                label="Birth date"
-                value={value}
-                onChange={handleChange}
-                onBlur={field.onBlur}
-                isInvalid={!!fieldState.error}
-                errorMessage={fieldState.error?.message}
-              />
-            );
-          }}
-        />
+              const handleChange = (val: unknown) => {
+                if (val instanceof Date) {
+                  field.onChange(
+                    new CalendarDate(
+                      val.getFullYear(),
+                      val.getMonth() + 1,
+                      val.getDate()
+                    )
+                  );
+                } else {
+                  field.onChange(val);
+                }
+              };
+              return (
+                <DatePicker
+                  label="Birth date"
+                  value={value}
+                  onChange={handleChange}
+                  onBlur={field.onBlur}
+                  isInvalid={!!fieldState.error}
+                  errorMessage={fieldState.error?.message}
+                />
+              );
+            }}
+          />
+        )}
 
-        <Input
-          {...form.register("linkedin")}
-          label="LinkedIn"
-          placeholder="https://linkedin.com/in/yourprofile"
-          isInvalid={!!form.formState.errors.linkedin}
-          errorMessage={form.formState.errors.linkedin?.message}
-        />
+        {showLinkedIn && (
+          <Input
+            {...form.register("linkedin")}
+            label="LinkedIn"
+            placeholder="https://linkedin.com/in/yourprofile"
+            isInvalid={!!form.formState.errors.linkedin}
+            errorMessage={form.formState.errors.linkedin?.message}
+          />
+        )}
 
-        <Input
-          {...form.register("portfolio")}
-          label="Portfolio"
-          placeholder="https://yourportfolio.com"
-          isInvalid={!!form.formState.errors.portfolio}
-          errorMessage={form.formState.errors.portfolio?.message}
-        />
+        {showPortfolio && (
+          <Input
+            {...form.register("portfolio")}
+            label="Portfolio"
+            placeholder="https://yourportfolio.com"
+            isInvalid={!!form.formState.errors.portfolio}
+            errorMessage={form.formState.errors.portfolio?.message}
+          />
+        )}
+
+        {/* Optional Fields Section */}
+        <div className="flex flex-wrap gap-2 mt-4">
+          {!showBirthDate && (
+            <button
+              type="button"
+              onClick={() => setShowBirthDate(true)}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+            >
+              + Date of Birth
+            </button>
+          )}
+          {!showLinkedIn && (
+            <button
+              type="button"
+              onClick={() => setShowLinkedIn(true)}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+            >
+              + LinkedIn
+            </button>
+          )}
+          {!showPortfolio && (
+            <button
+              type="button"
+              onClick={() => setShowPortfolio(true)}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+            >
+              + Portfolio/Website
+            </button>
+          )}
+        </div>
         
       </form>
     </div>
