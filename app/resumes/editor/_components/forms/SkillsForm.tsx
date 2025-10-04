@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
 import { useEffect, useState, useCallback, useMemo } from "react";
+import AISuggestions from "../AISuggestions";
 
 export default function SkillsForm({
   resumeData,
@@ -38,6 +39,21 @@ export default function SkillsForm({
     return parseSkills(skillsText).length;
   }, [parseSkills]);
 
+  // Test lang for the design
+  const aiSuggestedSkills: string[] = [
+    "JavaScript",
+    "React",
+    "Node.js",
+  ];
+
+  const handleApplySkill = (skill: string) => {
+    const currentSkills = skillsText.trim();
+    const newSkillsText = currentSkills 
+      ? `${currentSkills}, ${skill}`
+      : skill;
+    setSkillsText(newSkillsText);
+  };
+
   // Update preview when skillsArray changes
   useEffect(() => {
     form.setValue("skills", skillsArray);
@@ -67,7 +83,7 @@ export default function SkillsForm({
         </p>
       </div>
 
-      <form className="space-y-3">
+      <form className="space-y-6">
         <Textarea
           label="Skills"
           placeholder="JavaScript, React, Node.js, Python, SQL, Git"
@@ -79,6 +95,16 @@ export default function SkillsForm({
           isInvalid={!!form.formState.errors.skills}
           errorMessage={form.formState.errors.skills?.message}
         />
+
+        {/* TODO: Backend Developer - Only show AISuggestions when aiSuggestedSkills has data */}
+        {aiSuggestedSkills.length > 0 && (
+          <AISuggestions
+            title="AI Recommendations for Juan Miguel's Skills"
+            subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
+            suggestions={aiSuggestedSkills}
+            onApplySuggestion={handleApplySkill}
+          />
+        )}
       </form>
     </div>
   );
