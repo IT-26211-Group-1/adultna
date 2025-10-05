@@ -1,4 +1,5 @@
 import { MemberCardProps } from "@/types/faq";
+import { Divider } from "@heroui/divider";
 import Image from "next/image";
 
 export function MemberCard({
@@ -24,6 +25,9 @@ export function MemberCard({
 
       <h3>{name}</h3>
       <p className="text-sm text-gray-600">{description}</p>
+
+      <Divider className="my-2" />
+
       <div className="flex space-x-2 mt-2">
         <a
           aria-label="LinkedIn"
