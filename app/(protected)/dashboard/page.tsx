@@ -29,7 +29,7 @@ export default function Page() {
               />
 
               {/* Dashboard Cards */}
-              <DashboardCards />
+              <DashboardCards activeTab={activeTab} />
             </div>
 
             {/* Profile Sidebar */}
