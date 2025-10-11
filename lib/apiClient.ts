@@ -253,4 +253,10 @@ export const queryKeys = {
         ["admin", "feedback", "detail", feedbackId] as const,
     },
   },
+
+  // Jobs queries
+  jobs: {
+    all: ["jobs"] as const,
+    search: (query: string) => ["jobs", "search", query] as const,
+  },
 } as const;

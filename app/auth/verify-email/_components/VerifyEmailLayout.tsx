@@ -11,8 +11,8 @@ export const VerifyEmailLayout = () => {
           {/* Title and Subtitle */}
           <div className="text-center mb-6">
             <UserAuthTitle
-              title="Verify Your Email"
               subtitle="Enter the 6-digit code sent to your email"
+              title="Verify Your Email"
             />
           </div>
 

@@ -2,6 +2,7 @@
 
 import { useCallback, memo } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { FolderOpen, Briefcase, ChevronDown, ChevronRight } from "lucide-react";
 
 interface SectionItem {
@@ -49,7 +50,7 @@ const careerCenterItems: SectionItem[] = [
   {
     id: "job-board",
     label: "Job Board",
-    href: "/dashboard/jobs",
+    href: "/jobs",
   },
 ];
 
@@ -103,7 +104,7 @@ function SidebarCollapsibleSection({
 
                     return (
                       <li key={item.id}>
-                        <a
+                        <Link
                           aria-current={isActive ? "page" : undefined}
                           className={`block px-3 py-2 rounded-xl transition-colors duration-200 text-sm ${
                             isActive
@@ -113,7 +114,7 @@ function SidebarCollapsibleSection({
                           href={item.href}
                         >
                           {item.label}
-                        </a>
+                        </Link>
                       </li>
                     );
                   })}
