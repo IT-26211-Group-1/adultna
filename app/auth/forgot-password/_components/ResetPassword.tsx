@@ -6,18 +6,12 @@ import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/react";
 import { AuthButton } from "../../register/_components/AuthButton";
 import { FormInput } from "../../register/_components/FormInput";
-import { useFormSubmit } from "@/hooks/useForm";
+import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
 import { z } from "zod";
-
-interface Props {
-  token: string;
-  setStep: (step: "email" | "otp" | "reset") => void;
-}
 
 type ResetPasswordFormType = {
   password: string;
   confirmPassword: string;
-  verificationToken: string;
 };
 
 export const resetPasswordSchema = z
@@ -33,15 +27,20 @@ export const resetPasswordSchema = z
         "Password must contain at least one special character",
       ),
     confirmPassword: z.string(),
-    verificationToken: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-export default function ResetPassword({ token }: Props) {
+export default function ResetPassword() {
   const router = useRouter();
+  const {
+    resetPassword,
+    isResettingPassword,
+    getStoredToken,
+    clearForgotPasswordData,
+  } = useForgotPasswordFlow();
 
   const {
     handleSubmit,
@@ -53,33 +52,38 @@ export default function ResetPassword({ token }: Props) {
     defaultValues: {
       password: "",
       confirmPassword: "",
-      verificationToken: token,
-    },
-  });
-
-  const { loading, onSubmit } = useFormSubmit<ResetPasswordFormType>({
-    apiUrl: "/api/auth/forgot-password/reset-password",
-    schema: resetPasswordSchema,
-    requireCaptcha: false,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "Password reset successful", color: "success" },
-      error: { title: "Error resetting password", color: "danger" },
-    },
-    onSuccess: () => {
-      sessionStorage.removeItem("forgotPasswordEmail");
-      sessionStorage.removeItem("forgotPasswordStep");
-      sessionStorage.removeItem("forgotPasswordToken");
-      router.replace("/auth/login");
     },
   });
 
   const handleFormSubmit = (data: ResetPasswordFormType) => {
-    if (!token) return addToast({ title: "Missing token", color: "danger" });
-    sessionStorage.removeItem("forgotPasswordEmail");
-    sessionStorage.removeItem("forgotPasswordStep");
-    sessionStorage.removeItem("forgotPasswordToken");
-    onSubmit({ ...data, verificationToken: token });
+    const token = getStoredToken();
+
+    if (!token) {
+      addToast({ title: "Missing verification token", color: "danger" });
+
+      return;
+    }
+
+    resetPassword(
+      { verificationToken: token, password: data.password },
+      {
+        onSuccess: () => {
+          addToast({
+            title: "Password reset successful",
+            color: "success",
+          });
+          clearForgotPasswordData();
+          router.replace("/auth/login");
+        },
+        onError: (error) => {
+          addToast({
+            title: "Error resetting password",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -105,7 +109,7 @@ export default function ResetPassword({ token }: Props) {
         />
       </div>
 
-      <AuthButton loading={loading} type="submit">
+      <AuthButton loading={isResettingPassword} type="submit">
         Reset Password
       </AuthButton>
     </form>

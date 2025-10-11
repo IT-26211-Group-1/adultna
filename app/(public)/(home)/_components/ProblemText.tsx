@@ -3,7 +3,7 @@ import TextType from "../../../../components/TextType";
 export function ProblemText() {
   return (
     <div
-      className="max-w-l m-auto text-center pt-35 z-10"
+      className="max-w-l m-auto text-center z-10"
       style={{
         fontFamily: "Playfair Display",
         color: "#FFFF",

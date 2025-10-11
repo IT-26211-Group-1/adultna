@@ -1,27 +1,29 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addToast } from "@heroui/react";
 import { AuthButton } from "../../register/_components/AuthButton";
-import { useFormSubmit } from "@/hooks/useForm";
+import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
 import { forgotPasswordOtpSchema } from "@/validators/authSchema";
 import { ResendTimer } from "@/components/ui/ResendTimer";
 
-interface InputOtpProps {
-  token: string;
-  email: string;
-  setStep: React.Dispatch<React.SetStateAction<"email" | "otp" | "reset">>;
-}
-
 type OtpFormType = { otp: string };
 
-export default function InputOtp({ token, setStep }: InputOtpProps) {
-  const [resending, setResending] = useState(false);
+export default function InputOtp() {
+  const {
+    verifyOtp,
+    resendOtp,
+    isVerifyingOtp,
+    isResendingOtp,
+    getStoredToken,
+    getStoredEmail,
+  } = useForgotPasswordFlow();
   const [otpValue, setOtpValue] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const initialized = useRef(false);
 
   const {
     handleSubmit,
@@ -32,15 +34,13 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
     defaultValues: { otp: "" },
   });
 
-  // Split OTP value into array of 6 digits
+  // Split OTP inpuit
   const otpArray = otpValue.padEnd(6, " ").slice(0, 6).split("");
 
-  // Auto-focus the hidden input when component mounts
-  useEffect(() => {
-    if (hiddenInputRef.current) {
-      hiddenInputRef.current.focus();
-    }
-  }, []);
+  if (!initialized.current && hiddenInputRef.current) {
+    initialized.current = true;
+    hiddenInputRef.current.focus();
+  }
 
   const handleOtpChange = (value: string) => {
     // Only allow digits and limit to 6 characters
@@ -66,7 +66,6 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
       hiddenInputRef.current.focus();
       setFocusedIndex(index);
 
-      // If clicking on an earlier position, truncate the OTP to that position
       if (index < otpValue.length) {
         const newValue = otpValue.slice(0, index);
 
@@ -85,56 +84,47 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
     }
   };
 
-  const { loading, onSubmit } = useFormSubmit<OtpFormType>({
-    apiUrl: "/api/auth/forgot-password/verify-otp",
-    schema: forgotPasswordOtpSchema,
-    requireCaptcha: false,
-    toastLib: { addToast },
-    toastMessages: {
-      success: { title: "OTP verified successfully", color: "success" },
-      error: { title: "OTP verification failed", color: "danger" },
-    },
-    onSuccess: () => setStep("reset"),
-  });
+  const handleResendOtp = async (): Promise<number> => {
+    const email = getStoredEmail();
 
-  const handleResendOtp = async () => {
-    try {
-      const email = sessionStorage.getItem("forgotPasswordEmail");
+    if (!email) {
+      addToast({ title: "Email is missing", color: "danger" });
 
-      if (!email) {
-        addToast({ title: "Email is missing", color: "danger" });
-
-        return;
-      }
-
-      setResending(true);
-
-      const res = await fetch("/api/auth/forgot-password/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ verificationToken: token, email }),
-      });
-
-      const data = await res.json();
-
-      addToast({
-        title: data.message || (res.ok ? "OTP sent" : "Failed to resend"),
-        color: res.ok ? "success" : "danger",
-      });
-
-      return data.cooldownLeft ?? 120;
-    } catch (err) {
-      console.error("Resend OTP error:", err);
-      addToast({ title: "Internal server error", color: "danger" });
-    } finally {
-      setResending(false);
+      return 120;
     }
+
+    return new Promise((resolve) => {
+      resendOtp(undefined, {
+        onSuccess: () => {
+          addToast({
+            title: "OTP sent to your email",
+            color: "success",
+          });
+          resolve(120);
+        },
+
+        onError: (error) => {
+          addToast({
+            title: "Failed to resend OTP",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+          resolve(120);
+        },
+      });
+    });
   };
 
   const handleFormSubmit = (data: OtpFormType) => {
-    onSubmit({ ...data, verificationToken: token } as unknown as OtpFormType & {
-      verificationToken: string;
-    });
+    const token = getStoredToken();
+
+    if (!token) {
+      addToast({ title: "Verification token is missing", color: "danger" });
+
+      return;
+    }
+
+    verifyOtp({ otp: data.otp, verificationToken: token });
   };
 
   return (
@@ -204,14 +194,14 @@ export default function InputOtp({ token, setStep }: InputOtpProps) {
         </p>
       )}
 
-      <AuthButton loading={loading} type="submit">
+      <AuthButton loading={isVerifyingOtp} type="submit">
         Verify OTP
       </AuthButton>
 
       <ResendTimer
         handleResendOtp={handleResendOtp}
-        resending={resending}
-        verificationToken={token}
+        resending={isResendingOtp}
+        verificationToken={getStoredToken() || ""}
       />
     </form>
   );
