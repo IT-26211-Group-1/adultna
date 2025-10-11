@@ -1,4 +1,5 @@
 "use client";
+
 import { JobCardProps } from "@/types/job";
 import { memo } from "react";
 

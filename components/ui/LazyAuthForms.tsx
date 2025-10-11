@@ -53,7 +53,12 @@ export const LazyForgotPasswordForm = dynamic(
 );
 
 export const LazyVerifyEmail = dynamic(
-  () => import("@/app/auth/verify-email/_components/VerifyEmail"),
+  () =>
+    import("@/app/auth/verify-email/_components/VerifyEmailLayout").then(
+      (mod) => ({
+        default: mod.VerifyEmailLayout,
+      }),
+    ),
   {
     loading: () => <AuthFormSkeleton />,
     ssr: false,

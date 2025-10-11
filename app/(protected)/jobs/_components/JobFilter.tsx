@@ -1,16 +1,19 @@
 "use client";
+
 import { useState, useCallback, ChangeEvent } from "react";
 
 interface JobFiltersProps {
   onSearch: (query: string) => void;
   isLoading?: boolean;
+  defaultValue?: string;
 }
 
 export default function JobFilters({
   onSearch,
   isLoading = false,
+  defaultValue = "",
 }: JobFiltersProps) {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(defaultValue);
 
   const handleInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -23,9 +26,9 @@ export default function JobFilters({
   );
 
   const handleClearSearch = useCallback(() => {
-    setInputValue("");
-    onSearch("");
-  }, [onSearch]);
+    setInputValue(defaultValue);
+    onSearch(defaultValue);
+  }, [onSearch, defaultValue]);
 
   return (
     <div className="space-y-3">
