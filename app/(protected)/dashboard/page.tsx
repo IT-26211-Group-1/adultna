@@ -1,10 +1,44 @@
-import { LogoutButton } from "@/components/ui/LogoutButton";
-import React from "react";
+"use client";
 
-export default function page() {
+import React, { useState } from "react";
+import ProtectedPageWrapper from "../../../components/ui/ProtectedPageWrapper";
+import DashboardHeader from "./components/DashboardHeader";
+import DashboardTabs from "./components/DashboardTabs";
+import DashboardCards from "./components/DashboardCards";
+import ProfileSidebar from "./components/ProfileSidebar";
+
+export default function Page() {
+  const [activeTab, setActiveTab] = useState("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <div>
-      Dashboard <LogoutButton />
-    </div>
+    <ProtectedPageWrapper isModalOpen={isModalOpen}>
+      {({ sidebarCollapsed }) => (
+        <>
+          {/* Main Layout */}
+          <div
+            className={`flex p-6 gap-8 transition-all duration-300 ${sidebarCollapsed ? "ml-8" : "ml-1"} ${isModalOpen ? "blur-sm" : ""}`}
+          >
+            {/* Left Content Area */}
+            <div className="flex-1 flex flex-col lg:h-[calc(100vh-3rem)]">
+              {/* Header */}
+              <DashboardHeader />
+
+              {/* Category Tabs */}
+              <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+              {/* Dashboard Cards */}
+              <DashboardCards activeTab={activeTab} />
+            </div>
+
+            {/* Profile Sidebar */}
+            <ProfileSidebar
+              sidebarCollapsed={sidebarCollapsed}
+              onModalStateChange={setIsModalOpen}
+            />
+          </div>
+        </>
+      )}
+    </ProtectedPageWrapper>
   );
 }

@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { AdminAddButton } from "@/components/admin/AdminAddButton";
-import { TableSkeleton, ModalSkeleton } from "./_components/LoadingComponents";
+import { TableSkeleton, ModalSkeleton } from "@/components/ui/Skeletons";
 
 const AddFeedbackModal = lazy(() => import("./_components/AddFeedbackModal"));
 const FeedbackTable = lazy(() => import("./_components/FeedbackTable"));

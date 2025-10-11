@@ -28,8 +28,7 @@ export default function AdminPublicLayout({
     }
 
     return {
-      to:
-        user?.role === "verifier_admin" ? "/admin/content" : "/admin/dashboard",
+      to: "/admin/dashboard",
     };
   }, [isLoading, isAuthenticated, pathname, user]);
 

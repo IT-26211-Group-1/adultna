@@ -7,7 +7,7 @@ import { User, UsersTableProps } from "@/types/admin";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
-import { TableSkeleton } from "../../feedback/_components/LoadingComponents";
+import { TableSkeleton } from "@/components/ui/Skeletons";
 import { getUsersTableColumns } from "@/constants/adminTables";
 
 // Memoized actions dropdown

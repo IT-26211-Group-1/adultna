@@ -12,7 +12,7 @@ import {
   FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
-import { TableSkeleton } from "./LoadingComponents";
+import { TableSkeleton } from "@/components/ui/Skeletons";
 
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
   const getTypeColor = (type: FeedbackType) => {
