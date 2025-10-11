@@ -9,16 +9,18 @@ import ProfileSidebar from "./components/ProfileSidebar"
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState('all')
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
-    <ProtectedPageWrapper>
+    <ProtectedPageWrapper isModalOpen={isModalOpen}>
       {({ sidebarCollapsed }) => (
         <>
-          {/* Main Layout - Flex Container */}
-          <div className={`flex p-6 gap-8 transition-all duration-300 ${sidebarCollapsed ? 'ml-8' : 'ml-1'}`}>
+          {/* Main Layout */}
+          <div className={`flex p-6 gap-8 transition-all duration-300 ${sidebarCollapsed ? 'ml-8' : 'ml-1'} ${isModalOpen ? 'blur-sm' : ''}`}>
 
             {/* Left Content Area */}
             <div className="flex-1 flex flex-col lg:h-[calc(100vh-3rem)]">
+              
               {/* Header */}
               <DashboardHeader />
 
@@ -33,7 +35,10 @@ export default function Page() {
             </div>
 
             {/* Profile Sidebar */}
-            <ProfileSidebar sidebarCollapsed={sidebarCollapsed} />
+            <ProfileSidebar
+              sidebarCollapsed={sidebarCollapsed}
+              onModalStateChange={setIsModalOpen}
+            />
           </div>
         </>
       )}

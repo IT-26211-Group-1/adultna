@@ -29,6 +29,30 @@ export default function DashboardNotifications() {
       title: "Great job!",
       message: "You maintained your streak for 12 days",
       time: "3 hours ago"
+    },
+    {
+      id: 4,
+      title: "Skills Assessment Available",
+      message: "Take the new career readiness quiz",
+      time: "5 hours ago"
+    },
+    {
+      id: 5,
+      title: "Document Updated",
+      message: "Your resume has been reviewed",
+      time: "1 day ago"
+    },
+    {
+      id: 6,
+      title: "New Opportunity",
+      message: "Job posting matches your profile",
+      time: "2 days ago"
+    },
+    {
+      id: 7,
+      title: "Training Reminder",
+      message: "Complete your professional development course",
+      time: "3 days ago"
     }
   ])
 
@@ -37,8 +61,8 @@ export default function DashboardNotifications() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
-      <div className="flex items-center justify-between mb-3">
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <div className="flex items-center space-x-2">
           <Bell size={16} className="text-gray-600" />
           <h4 className="font-semibold text-gray-900">My Notifications</h4>
@@ -53,10 +77,16 @@ export default function DashboardNotifications() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto" style={{
-        scrollbarWidth: 'thin',
-        scrollbarColor: 'rgba(156, 163, 175, 0.5) transparent'
-      }}>
+      <div
+        className="overflow-y-auto"
+        style={{
+          height: 'calc(100% - 40px)',
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(156, 163, 175, 0.5) transparent',
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain'
+        }}
+      >
         <style jsx>{`
           div::-webkit-scrollbar {
             width: 6px;

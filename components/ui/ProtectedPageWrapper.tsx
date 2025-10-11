@@ -5,9 +5,10 @@ import UserSidebar from "./sidebar/UserSidebar"
 
 interface ProtectedPageWrapperProps {
   children: React.ReactNode | ((props: { sidebarCollapsed: boolean }) => React.ReactNode)
+  isModalOpen?: boolean
 }
 
-export default function ProtectedPageWrapper({ children }: ProtectedPageWrapperProps) {
+export default function ProtectedPageWrapper({ children, isModalOpen }: ProtectedPageWrapperProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
@@ -15,16 +16,18 @@ export default function ProtectedPageWrapper({ children }: ProtectedPageWrapperP
     <div
       className="min-h-screen relative"
       style={{
-        backgroundColor: 'rgba(172,189,111, 0.1)' 
+        backgroundColor: 'white' 
       }}
     >
       {/* Sidebar */}
-      <UserSidebar
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-        isCollapsed={sidebarCollapsed}
-        onCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
+      <div className={`transition-all duration-300 ${isModalOpen ? 'blur-sm' : ''}`}>
+        <UserSidebar
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          isCollapsed={sidebarCollapsed}
+          onCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+      </div>
       
       {/* Main Content Wrapper */}
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'} relative z-10`}>
