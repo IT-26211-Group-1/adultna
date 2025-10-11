@@ -18,7 +18,7 @@ export function FeatureNav() {
   }
 
   return (
-    <section className="w-full min-h-[50px] top-10 py-8 md:py-16 bg-transparent relative flex flex-col gap-2 px-2 md:px-22 max-w-6xl items-center justify-center">
+    <section className="w-full min-h-[50px] top-10 py-8 md:py-16 bg-white relative flex flex-col gap-2 px-2 md:px-22 max-w-6xl items-center justify-center">
       <nav
         className="w-full md:w-5xl py-4 bg-gradient-to-r from-crayola-orange/60 to-periwinkle/70 shadow-md flex justify-center rounded-4xl"
         id="feature-nav"

@@ -1,6 +1,6 @@
 export function AboutText() {
   return (
-    <section className="w-full min-h-[500px] top-10 py-16 bg-transparent relative flex flex-col gap-8 px-4 md:px-22 max-w-6xl text-justify">
+    <section className="w-full min-h-[500px] top-10 py-16 bg-white relative flex flex-col gap-8 px-4 md:px-22 max-w-6xl text-justify">
       <h2 className="text-3xl md:text-4xl lg:text-5xl text-ultra-violet leading-tight font-playfair text-center ">
         The Journey of <span className="text-olivine">AdultNa</span>
       </h2>
