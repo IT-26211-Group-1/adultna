@@ -33,7 +33,7 @@ UserAvatar.displayName = "UserAvatar";
 export const StatusBadges = React.memo<{ user: User }>(({ user }) => (
   <div className="flex items-center space-x-2">
     <Badge size="sm" variant={user.status === "active" ? "success" : "error"}>
-      {user.status === "active" ? "Active" : "Inactive"}
+      {user.status === "active" ? "Active" : "Deactivated"}
     </Badge>
     {user.emailVerified && (
       <Badge size="sm" variant="info">
@@ -51,7 +51,7 @@ export const FeedbackStatusBadge = React.memo<{ status: FeedbackStatus }>(
     <Badge size="sm" variant={status === "resolved" ? "success" : "warning"}>
       {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
     </Badge>
-  ),
+  )
 );
 
 FeedbackStatusBadge.displayName = "FeedbackStatusBadge";
@@ -63,7 +63,7 @@ export const getUsersTableColumns = (
   handleResetPassword: (userId: string, email: string) => void,
   handleToggleAccountStatus: (userId: string, status: string) => void,
   isUpdatingStatus: boolean,
-  UserActionsComponent: React.ComponentType<any>,
+  UserActionsComponent: React.ComponentType<any>
 ): Column<User>[] => [
   {
     header: "User",
@@ -122,12 +122,12 @@ export const getFeedbackTableColumns = (
   handleEditFeedback: (feedbackId: string) => void,
   handleToggleStatus: (
     feedbackId: string,
-    currentStatus: FeedbackStatus,
+    currentStatus: FeedbackStatus
   ) => void,
   handleDeleteFeedback: (feedbackId: string) => void,
   isUpdatingStatus: boolean,
   isDeletingFeedback: boolean,
-  FeedbackActionsComponent: React.ComponentType<any>,
+  FeedbackActionsComponent: React.ComponentType<any>
 ): Column<Feedback>[] => [
   {
     header: "Feature",

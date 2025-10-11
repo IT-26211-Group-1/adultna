@@ -1,0 +1,242 @@
+"use client";
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiClient, queryKeys } from "@/lib/apiClient";
+
+// Types
+export type QuestionStatus = "pending" | "accepted" | "rejected" | "to_revise";
+
+export type QuestionCategory = "personal" | "career" | "education" | "preferences";
+
+export type AnswerOption = {
+  id: number;
+  questionId: number;
+  optionText: string;
+  outcomeId: number | null;
+  outcomeTagName?: string;
+  createdAt: string;
+  updatedAt: string | null;
+};
+
+export type OnboardingQuestion = {
+  id: number;
+  question: string;
+  category: QuestionCategory;
+  status: QuestionStatus;
+  createdAt: string;
+  updatedAt: string | null;
+  options?: AnswerOption[];
+};
+
+export type CreateQuestionRequest = {
+  question: string;
+  category: string;
+  options: {
+    optionText: string;
+    outcomeTagName?: string;
+  }[];
+};
+
+export type CreateQuestionResponse = {
+  success: boolean;
+  message: string;
+  questionId?: number;
+};
+
+export type UpdateQuestionRequest = {
+  questionId: number;
+  question?: string;
+  category?: string;
+};
+
+export type UpdateQuestionResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type UpdateQuestionStatusRequest = {
+  questionId: number;
+  status: QuestionStatus;
+  reason?: string;
+};
+
+export type UpdateQuestionStatusResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type DeleteQuestionRequest = {
+  questionId: number;
+};
+
+export type DeleteQuestionResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type QuestionsListResponse = {
+  success: boolean;
+  data: OnboardingQuestion[];
+  count: number;
+};
+
+export type QuestionDetailResponse = {
+  success: boolean;
+  data: OnboardingQuestion;
+};
+
+// API Functions
+const onboardingApi = {
+  listQuestions: (): Promise<QuestionsListResponse> =>
+    ApiClient.get("/admin/onboarding/questions"),
+
+  getQuestionById: (questionId: number): Promise<QuestionDetailResponse> =>
+    ApiClient.get(`/admin/onboarding/questions/${questionId}`),
+
+  createQuestion: (data: CreateQuestionRequest): Promise<CreateQuestionResponse> =>
+    ApiClient.post("/onboarding/create", data),
+
+  updateQuestion: (data: UpdateQuestionRequest): Promise<UpdateQuestionResponse> =>
+    ApiClient.put(`/admin/onboarding/questions/${data.questionId}`, {
+      question: data.question,
+      category: data.category,
+    }),
+
+  updateQuestionStatus: (
+    data: UpdateQuestionStatusRequest,
+  ): Promise<UpdateQuestionStatusResponse> =>
+    ApiClient.patch("/admin/onboarding/questions/status", data),
+
+  deleteQuestion: (data: DeleteQuestionRequest): Promise<DeleteQuestionResponse> =>
+    ApiClient.delete(`/admin/onboarding/questions/${data.questionId}`),
+};
+
+// Onboarding Questions Management Hook
+export function useOnboardingQuestions() {
+  const queryClient = useQueryClient();
+
+  const {
+    data: questionsData,
+    isLoading: isLoadingQuestions,
+    error: questionsError,
+    refetch: refetchQuestions,
+  } = useQuery({
+    queryKey: queryKeys.admin.onboarding?.list() || ["admin", "onboarding", "list"],
+    queryFn: onboardingApi.listQuestions,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  const createQuestionMutation = useMutation({
+    mutationFn: onboardingApi.createQuestion,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+    },
+  });
+
+  const updateQuestionMutation = useMutation({
+    mutationFn: onboardingApi.updateQuestion,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.detail?.(variables.questionId) || [
+          "admin",
+          "onboarding",
+          "detail",
+          variables.questionId,
+        ],
+      });
+    },
+  });
+
+  const updateQuestionStatusMutation = useMutation({
+    mutationFn: onboardingApi.updateQuestionStatus,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.detail?.(variables.questionId) || [
+          "admin",
+          "onboarding",
+          "detail",
+          variables.questionId,
+        ],
+      });
+    },
+  });
+
+  const deleteQuestionMutation = useMutation({
+    mutationFn: onboardingApi.deleteQuestion,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+    },
+  });
+
+  return {
+    questions: questionsData?.data || [],
+    questionsCount: questionsData?.count || 0,
+    questionsData,
+
+    isLoadingQuestions,
+    isCreating: createQuestionMutation.isPending,
+    isUpdating: updateQuestionMutation.isPending,
+    isUpdatingStatus: updateQuestionStatusMutation.isPending,
+    isDeleting: deleteQuestionMutation.isPending,
+
+    questionsError,
+    createQuestionError: createQuestionMutation.error,
+    updateQuestionError: updateQuestionMutation.error,
+    updateStatusError: updateQuestionStatusMutation.error,
+    deleteQuestionError: deleteQuestionMutation.error,
+
+    createQuestion: createQuestionMutation.mutate,
+    createQuestionAsync: createQuestionMutation.mutateAsync,
+    updateQuestion: updateQuestionMutation.mutate,
+    updateQuestionAsync: updateQuestionMutation.mutateAsync,
+    updateQuestionStatus: updateQuestionStatusMutation.mutate,
+    updateQuestionStatusAsync: updateQuestionStatusMutation.mutateAsync,
+    deleteQuestion: deleteQuestionMutation.mutate,
+    deleteQuestionAsync: deleteQuestionMutation.mutateAsync,
+    refetchQuestions,
+
+    createQuestionData: createQuestionMutation.data,
+    updateQuestionData: updateQuestionMutation.data,
+    updateStatusData: updateQuestionStatusMutation.data,
+    deleteQuestionData: deleteQuestionMutation.data,
+  };
+}
+
+export function useOnboardingQuestionDetail(questionId: number) {
+  const {
+    data: questionData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.admin.onboarding?.detail?.(questionId) || [
+      "admin",
+      "onboarding",
+      "detail",
+      questionId,
+    ],
+    queryFn: () => onboardingApi.getQuestionById(questionId),
+    enabled: !!questionId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  return {
+    question: questionData?.data,
+    questionData,
+    isLoading,
+    error,
+    refetch,
+  };
+}

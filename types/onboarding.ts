@@ -53,3 +53,35 @@ export type YourPathStepProps = {
   onComplete: (data: OnboardingData) => Promise<void>;
   isSubmitting?: boolean;
 };
+
+// Admin Form Types
+export type OptionField = {
+  optionText: string;
+  outcomeTagName?: string;
+};
+
+export type AddQuestionForm = {
+  question: string;
+  category: string;
+  options: OptionField[];
+  optionsText?: string;
+};
+
+export type EditQuestionForm = {
+  question?: string;
+  category?: string;
+};
+
+// Admin Modal Props Types
+export type AddOnboardingQuestionModalProps = {
+  open?: boolean;
+  onClose?: () => void;
+  onQuestionCreated?: () => void;
+};
+
+export type EditOnboardingQuestionModalProps = {
+  open?: boolean;
+  onClose?: () => void;
+  onQuestionUpdated?: () => void;
+  questionId: number;
+};

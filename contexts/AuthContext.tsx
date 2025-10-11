@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const initialized = useRef(false);
 
   const getToken = useCallback(() => {
-    return null;
+    return tokenRef.current;
   }, []);
 
   const refreshToken = useCallback(async () => {

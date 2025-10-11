@@ -85,7 +85,7 @@ export type UpdateUserResponse = {
 
 export type UpdateUserStatusRequest = {
   userId: string;
-  status: "active" | "inactive";
+  status: "active" | "deactivated";
 };
 
 export type UpdateUserStatusResponse = {
@@ -148,7 +148,7 @@ const adminApi = {
     }),
 
   updateUserStatus: (
-    data: UpdateUserStatusRequest,
+    data: UpdateUserStatusRequest
   ): Promise<UpdateUserStatusResponse> =>
     ApiClient.patch(`/admin/update-status/${data.userId}`, {
       status: data.status,
@@ -162,7 +162,6 @@ const adminApi = {
 // Query Hooks
 export function useAdminAuth() {
   const queryClient = useQueryClient();
-  // const pathname = usePathname();
 
   const {
     data: user,
@@ -171,7 +170,7 @@ export function useAdminAuth() {
     refetch: checkAuth,
   } = useQuery({
     queryKey: queryKeys.admin.auth.me(),
-    enabled: true, // Always check auth status for proper redirects
+    enabled: true,
     queryFn: async () => {
       try {
         const response = await adminApi.me();
@@ -265,7 +264,7 @@ export function useAdminAuth() {
         if (!oldUser) return null;
 
         return { ...oldUser, ...updatedUser };
-      },
+      }
     );
   };
 
@@ -424,10 +423,10 @@ export function useReportStats() {
   } = useQuery({
     queryKey: ["admin", "report-stats"],
     queryFn: adminApi.getReportStats,
-    staleTime: 30 * 1000, // 30 seconds - refresh frequently for real-time data
+    staleTime: 60 * 1000,
     gcTime: 1 * 60 * 1000, // 1 minute
-    refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds
-    refetchIntervalInBackground: true, // Keep refreshing even when tab is not active
+    refetchInterval: 60 * 1000,
+    refetchIntervalInBackground: true,
   });
 
   return {

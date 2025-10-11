@@ -61,7 +61,7 @@ export function useRegister() {
             credentials: "include",
             body: JSON.stringify({ ...data, token: captchaToken }),
             signal: controller.signal,
-          },
+          }
         );
 
         const result: RegisterResponse = await res.json();
@@ -80,7 +80,7 @@ export function useRegister() {
         }
 
         if (result.verificationToken) {
-          setSecureItem("verification_token", result.verificationToken, 60); // 1 hour expiry
+          setSecureItem("verification_token", result.verificationToken, 60);
         }
 
         // Store initial cooldown
@@ -90,7 +90,7 @@ export function useRegister() {
             JSON.stringify({
               cooldown: result.data.cooldownLeft,
               timestamp: Date.now(),
-            }),
+            })
           );
         }
 
@@ -114,7 +114,7 @@ export function useRegister() {
         }
         setCaptchaToken(null);
       }
-    },
+    }
   );
 
   return {

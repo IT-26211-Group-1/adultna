@@ -1,8 +1,8 @@
 import React, { Suspense, lazy } from "react";
 import { AdminAddButton } from "@/components/admin/AdminAddButton";
-import { TableSkeleton, ModalSkeleton } from "@/components/ui/Skeletons";
+import { TableSkeleton } from "@/components/ui/Skeletons";
+import AddFeedbackModal from "./_components/AddFeedbackModal";
 
-const AddFeedbackModal = lazy(() => import("./_components/AddFeedbackModal"));
 const FeedbackTable = lazy(() => import("./_components/FeedbackTable"));
 
 export default function FeedbackPage() {
@@ -12,11 +12,7 @@ export default function FeedbackPage() {
         <div />
         <AdminAddButton
           label="Add Feedback"
-          modalComponent={
-            <Suspense fallback={<ModalSkeleton />}>
-              <AddFeedbackModal />
-            </Suspense>
-          }
+          modalComponent={<AddFeedbackModal />}
           variant="green"
         />
       </div>

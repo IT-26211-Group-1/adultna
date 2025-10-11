@@ -1,9 +1,26 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
+import { AdminAddButton } from "@/components/admin/AdminAddButton";
+import { TableSkeleton } from "@/components/ui/Skeletons";
+import AddOnboardingQuestionModal from "./_components/AddOnboardingQuestionModal";
 
-export default function page() {
+const OnboardingQuestionsTable = lazy(
+  () => import("./_components/OnboardingQuestionsTable")
+);
+
+export default function OnboardingQuestionsPage() {
   return (
-    <div>
-      <h1>Add Onboarding Question</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div />
+        <AdminAddButton
+          label="Add Question"
+          modalComponent={<AddOnboardingQuestionModal />}
+          variant="green"
+        />
+      </div>
+      <Suspense fallback={<TableSkeleton />}>
+        <OnboardingQuestionsTable />
+      </Suspense>
     </div>
   );
 }
