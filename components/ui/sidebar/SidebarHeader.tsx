@@ -1,7 +1,7 @@
-import Image from 'next/image'
+import Image from "next/image";
 
 interface SidebarHeaderProps {
-  isCollapsed: boolean
+  isCollapsed: boolean;
 }
 
 export default function SidebarHeader({ isCollapsed }: SidebarHeaderProps) {
@@ -9,21 +9,21 @@ export default function SidebarHeader({ isCollapsed }: SidebarHeaderProps) {
     <div className="p-6 flex items-center rounded-t-xl">
       {isCollapsed ? (
         <Image
-          src="/AdultNa-Logo-Icon.png"
           alt="AdultNa Logo"
-          width={40}
-          height={40}
           className="object-contain"
+          height={40}
+          src="/AdultNa-Logo-Icon.png"
+          width={40}
         />
       ) : (
         <Image
-          src="/AdultNa-Logo.png"
           alt="AdultNa Logo"
-          width={120}
-          height={40}
           className="object-contain"
+          height={40}
+          src="/AdultNa-Logo.png"
+          width={120}
         />
       )}
     </div>
-  )
+  );
 }

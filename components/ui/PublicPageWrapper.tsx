@@ -1,12 +1,14 @@
-'use client'
+"use client";
 
-import React from "react"
+import React from "react";
 
 interface PublicPageWrapperProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-export default function PublicPageWrapper({ children }: PublicPageWrapperProps) {
+export default function PublicPageWrapper({
+  children,
+}: PublicPageWrapperProps) {
   return (
     <div
       className="min-h-screen relative"
@@ -20,7 +22,7 @@ export default function PublicPageWrapper({ children }: PublicPageWrapperProps) 
             rgba(236, 72, 153, 0.02) 80%,
             rgba(139, 92, 246, 0.02) 100%
           )
-        `
+        `,
       }}
     >
       {/* Fixed Background Circles */}
@@ -30,12 +32,10 @@ export default function PublicPageWrapper({ children }: PublicPageWrapperProps) 
           background: `
             radial-gradient(circle at 95% 30%, rgba(34, 197, 94, 0.25) 0%, rgba(34, 197, 94, 0.1) 25%, transparent 90%),
             radial-gradient(circle at 15% 80%, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 30%, transparent 70%)
-          `
+          `,
         }}
       />
-      <div className="relative z-10">
-        {children}
-      </div>
+      <div className="relative z-10">{children}</div>
     </div>
-  )
+  );
 }

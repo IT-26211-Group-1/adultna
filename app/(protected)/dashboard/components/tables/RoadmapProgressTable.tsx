@@ -1,9 +1,14 @@
-import { Button } from "@nextui-org/react"
+import { Button } from "@nextui-org/react";
 
 export default function RoadmapProgressTable() {
   return (
-    <div className="backdrop-blur-md border border-white/40 rounded-3xl p-6 relative overflow-hidden" style={{ backgroundColor: 'rgba(203, 203, 231, 0.30)' }}>
-      <div className="absolute -bottom-4 -right-4 text-6xl opacity-5 pointer-events-none">📍</div>
+    <div
+      className="backdrop-blur-md border border-white/40 rounded-3xl p-6 relative overflow-hidden"
+      style={{ backgroundColor: "rgba(203, 203, 231, 0.30)" }}
+    >
+      <div className="absolute -bottom-4 -right-4 text-6xl opacity-5 pointer-events-none">
+        📍
+      </div>
 
       {/* Overall Progress Section */}
       <div className="mb-6">
@@ -13,30 +18,40 @@ export default function RoadmapProgressTable() {
         </div>
 
         <div className="w-full bg-white/30 rounded-full h-2 mb-3">
-          <div className="bg-green-600 h-2 rounded-full" style={{ width: '24%' }}></div>
+          <div
+            className="bg-green-600 h-2 rounded-full"
+            style={{ width: "24%" }}
+          />
         </div>
 
         <p className="text-gray-700 text-sm">
-          You've completed <strong>2 out of 25</strong> essential adulting tasks. Keep going!
+          You&apos;ve completed <strong>2 out of 25</strong> essential adulting
+          tasks. Keep going!
         </p>
       </div>
 
       {/* Your Next Steps Section */}
       <div>
-        <h3 className="text-lg font-bold text-gray-900 mb-2">Your Next Steps</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-2">
+          Your Next Steps
+        </h3>
 
         <div className="space-y-3">
           {/* High Priority Task */}
           <div className="backdrop-blur-md bg-white/60 h-16 border-white/40 border-t border-r border-b rounded-xl p-4 border-l-4 border-l-red-500 flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Apply for SSS ID</h4>
-              <p className="text-red-600 font-medium text-xs">Due this week • High Priority</p>
+              <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                Apply for SSS ID
+              </h4>
+              <p className="text-red-600 font-medium text-xs">
+                Due this week • High Priority
+              </p>
             </div>
             <Button
-              color="danger"
-              variant="bordered"
-              size="sm"
               className="font-medium text-xs h-6 min-h-6"
+              color="danger"
+              size="sm"
+              variant="bordered"
             >
               Start Now
             </Button>
@@ -45,14 +60,18 @@ export default function RoadmapProgressTable() {
           {/* Medium Priority Task */}
           <div className="backdrop-blur-md bg-white/60 h-16 border-white/40 border-t border-r border-b rounded-xl p-4 border-l-4 border-l-yellow-500 flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Open Bank Account</h4>
-              <p className="text-yellow-600 font-medium text-xs">Due next week • Medium Priority</p>
+              <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                Open Bank Account
+              </h4>
+              <p className="text-yellow-600 font-medium text-xs">
+                Due next week • Medium Priority
+              </p>
             </div>
             <Button
-              color="warning"
-              variant="bordered"
-              size="sm"
               className="font-medium text-xs h-6 min-h-6"
+              color="warning"
+              size="sm"
+              variant="bordered"
             >
               Learn How
             </Button>
@@ -61,14 +80,18 @@ export default function RoadmapProgressTable() {
           {/* Additional Tasks */}
           <div className="backdrop-blur-md bg-white/60 h-16 border-white/40 border-t border-r border-b rounded-xl p-4 border-l-4 border-l-blue-500 flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">Register to Vote</h4>
-              <p className="text-blue-600 font-medium text-xs">Due next month • Low Priority</p>
+              <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                Register to Vote
+              </h4>
+              <p className="text-blue-600 font-medium text-xs">
+                Due next month • Low Priority
+              </p>
             </div>
             <Button
-              color="primary"
-              variant="bordered"
-              size="sm"
               className="font-medium text-xs h-6 min-h-6"
+              color="primary"
+              size="sm"
+              variant="bordered"
             >
               Plan Ahead
             </Button>
@@ -76,5 +99,5 @@ export default function RoadmapProgressTable() {
         </div>
       </div>
     </div>
-  )
+  );
 }
