@@ -259,4 +259,10 @@ export const queryKeys = {
     all: ["jobs"] as const,
     search: (query: string) => ["jobs", "search", query] as const,
   },
+
+  // Gabay queries
+  gabay: {
+    all: ["gabay"] as const,
+    chat: () => ["gabay", "chat"] as const,
+  },
 } as const;
