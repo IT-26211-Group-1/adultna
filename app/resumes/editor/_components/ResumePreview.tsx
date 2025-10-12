@@ -13,9 +13,6 @@ export default function ResumePreview({ resumeData, classsName }: ResumePreviewP
   const containerRef = useRef<HTMLDivElement>(null);
   const { width } = useDimensions(containerRef);
 
-  // A4 paper aspect ratio is approximately 1:1.414 (width:height)
-  const paperHeight = width * 1.414;
-
   // Helper function to safely format dates
   const formatDate = (dateValue: any): string => {
     if (!dateValue) return "";
