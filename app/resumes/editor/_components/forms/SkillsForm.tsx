@@ -1,9 +1,9 @@
 "use client";
 
-import { Input, Textarea } from "@heroui/react";
+import { Textarea } from "@heroui/react";
 import { SkillFormData, skillSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import AISuggestions from "../AISuggestions";
@@ -13,7 +13,7 @@ export default function SkillsForm({
   setResumeData,
 }: EditorFormProps) {
   const [skillsText, setSkillsText] = useState<string>(
-    resumeData.skills?.join(", ") || ""
+    resumeData.skills?.join(", ") || "",
   );
 
   const form = useForm<SkillFormData>({
@@ -32,25 +32,18 @@ export default function SkillsForm({
   }, []);
 
   // Memoized skills array - only recalculates when skillsText changes
-  const skillsArray = useMemo(() => parseSkills(skillsText), [skillsText, parseSkills]);
-
-  // Function to get skills count for display not rendered by default will finalize once the final UI is decided
-  const getSkillsCount = useCallback((skillsText: string): number => {
-    return parseSkills(skillsText).length;
-  }, [parseSkills]);
+  const skillsArray = useMemo(
+    () => parseSkills(skillsText),
+    [skillsText, parseSkills],
+  );
 
   // Test lang for the design
-  const aiSuggestedSkills: string[] = [
-    "JavaScript",
-    "React",
-    "Node.js",
-  ];
+  const aiSuggestedSkills: string[] = ["JavaScript", "React", "Node.js"];
 
   const handleApplySkill = (skill: string) => {
     const currentSkills = skillsText.trim();
-    const newSkillsText = currentSkills 
-      ? `${currentSkills}, ${skill}`
-      : skill;
+    const newSkillsText = currentSkills ? `${currentSkills}, ${skill}` : skill;
+
     setSkillsText(newSkillsText);
   };
 
@@ -62,14 +55,18 @@ export default function SkillsForm({
   useEffect(() => {
     const { unsubscribe } = form.watch(async (values) => {
       const isValid = await form.trigger();
+
       if (!isValid) return;
       setResumeData({
         ...resumeData,
-        skills: values.skills?.filter((skill): skill is string => 
-          skill !== undefined && skill.trim() !== ""
-        ) || [],
+        skills:
+          values.skills?.filter(
+            (skill): skill is string =>
+              skill !== undefined && skill.trim() !== "",
+          ) || [],
       });
     });
+
     return unsubscribe;
   }, [form, resumeData, setResumeData]);
 
@@ -85,23 +82,22 @@ export default function SkillsForm({
 
       <form className="space-y-6">
         <Textarea
-          label="Skills"
-          placeholder="JavaScript, React, Node.js, Python, SQL, Git"
           description="Enter skills separated by commas."
+          errorMessage={form.formState.errors.skills?.message}
+          isInvalid={!!form.formState.errors.skills}
+          label="Skills"
           minRows={4}
-          autoFocus
+          placeholder="JavaScript, React, Node.js, Python, SQL, Git"
           value={skillsText}
           onChange={(e) => setSkillsText(e.target.value)}
-          isInvalid={!!form.formState.errors.skills}
-          errorMessage={form.formState.errors.skills?.message}
         />
 
         {/* TODO: Backend Developer - Only show AISuggestions when aiSuggestedSkills has data */}
         {aiSuggestedSkills.length > 0 && (
           <AISuggestions
-            title="AI Recommendations for Juan Miguel's Skills"
             subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
             suggestions={aiSuggestedSkills}
+            title="AI Recommendations for Juan Miguel's Skills"
             onApplySuggestion={handleApplySkill}
           />
         )}
