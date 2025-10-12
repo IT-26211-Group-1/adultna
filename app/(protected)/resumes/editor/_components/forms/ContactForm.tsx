@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Input, DatePicker } from "@heroui/react";
@@ -9,7 +8,10 @@ import { Controller, useForm } from "react-hook-form";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
 
-export default function ContactForm({ resumeData, setResumeData }: EditorFormProps) {
+export default function ContactForm({
+  resumeData,
+  setResumeData,
+}: EditorFormProps) {
   const [showBirthDate, setShowBirthDate] = useState(!!resumeData.birthDate);
   const [showLinkedIn, setShowLinkedIn] = useState(!!resumeData.linkedin);
   const [showPortfolio, setShowPortfolio] = useState(!!resumeData.portfolio);
@@ -32,9 +34,11 @@ export default function ContactForm({ resumeData, setResumeData }: EditorFormPro
   useEffect(() => {
     const { unsubscribe } = form.watch(async (values) => {
       const isValid = await form.trigger();
+
       if (!isValid) return;
       setResumeData({ ...resumeData, ...values });
     });
+
     return unsubscribe;
   }, [form, resumeData, setResumeData]);
 
@@ -43,7 +47,8 @@ export default function ContactForm({ resumeData, setResumeData }: EditorFormPro
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Contact Information</h2>
         <p className="text-sm text-default-500">
-          Let’s kick things off! Start by entering your name, email, and phone number to set up your resume and keep everything organized.
+          Let&apos;s kick things off! Start by entering your name, email, and phone
+          number to set up your resume and keep everything organized.
         </p>
       </div>
 
@@ -51,56 +56,55 @@ export default function ContactForm({ resumeData, setResumeData }: EditorFormPro
         <div className="grid grid-cols-2 gap-3">
           <Input
             {...form.register("firstName")}
+            errorMessage={form.formState.errors.firstName?.message}
+            isInvalid={!!form.formState.errors.firstName}
             label="First Name"
             placeholder="Juan"
-            autoFocus
-            isInvalid={!!form.formState.errors.firstName}
-            errorMessage={form.formState.errors.firstName?.message}
           />
 
           <Input
             {...form.register("lastName")}
+            errorMessage={form.formState.errors.lastName?.message}
+            isInvalid={!!form.formState.errors.lastName}
             label="Last Name"
             placeholder="Dela Cruz"
-            isInvalid={!!form.formState.errors.lastName}
-            errorMessage={form.formState.errors.lastName?.message}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <Input
             {...form.register("city")}
+            errorMessage={form.formState.errors.city?.message}
+            isInvalid={!!form.formState.errors.city}
             label="City"
             placeholder="Manila"
-            isInvalid={!!form.formState.errors.city}
-            errorMessage={form.formState.errors.city?.message}
           />
 
           <Input
             {...form.register("region")}
+            errorMessage={form.formState.errors.region?.message}
+            isInvalid={!!form.formState.errors.region}
             label="Region"
             placeholder="NCR"
-            isInvalid={!!form.formState.errors.region}
-            errorMessage={form.formState.errors.region?.message}
           />
         </div>
 
         <Input
           {...form.register("email")}
-          label="Email"
-          type="email"
-          placeholder="your@email.com"
-          isInvalid={!!form.formState.errors.email}
           errorMessage={form.formState.errors.email?.message}
+          isInvalid={!!form.formState.errors.email}
+          label="Email"
+          placeholder="your@email.com"
+          type="email"
         />
 
         <Input
           {...form.register("phone")}
-          label="Phone"
-          type="tel"
-          placeholder="09XXXXXXXXX"
-          isInvalid={!!form.formState.errors.phone}
           errorMessage={form.formState.errors.phone?.message}
+          isInvalid={!!form.formState.errors.phone}
+          label="Phone"
+          placeholder="09XXXXXXXXX"
+          type="tel"
         />
 
         {/* Optional Fields */}
@@ -110,6 +114,7 @@ export default function ContactForm({ resumeData, setResumeData }: EditorFormPro
             name="birthDate"
             render={({ field, fieldState }) => {
               let value = field.value;
+
               // Only allow CalendarDate, null, or undefined for value
               if (!(value instanceof CalendarDate)) {
                 value = undefined;
@@ -120,21 +125,22 @@ export default function ContactForm({ resumeData, setResumeData }: EditorFormPro
                     new CalendarDate(
                       val.getFullYear(),
                       val.getMonth() + 1,
-                      val.getDate()
-                    )
+                      val.getDate(),
+                    ),
                   );
                 } else {
                   field.onChange(val);
                 }
               };
+
               return (
                 <DatePicker
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={!!fieldState.error}
                   label="Birth date"
                   value={value}
-                  onChange={handleChange}
                   onBlur={field.onBlur}
-                  isInvalid={!!fieldState.error}
-                  errorMessage={fieldState.error?.message}
+                  onChange={handleChange}
                 />
               );
             }}
@@ -144,20 +150,20 @@ export default function ContactForm({ resumeData, setResumeData }: EditorFormPro
         {showLinkedIn && (
           <Input
             {...form.register("linkedin")}
+            errorMessage={form.formState.errors.linkedin?.message}
+            isInvalid={!!form.formState.errors.linkedin}
             label="LinkedIn"
             placeholder="https://linkedin.com/in/yourprofile"
-            isInvalid={!!form.formState.errors.linkedin}
-            errorMessage={form.formState.errors.linkedin?.message}
           />
         )}
 
         {showPortfolio && (
           <Input
             {...form.register("portfolio")}
+            errorMessage={form.formState.errors.portfolio?.message}
+            isInvalid={!!form.formState.errors.portfolio}
             label="Portfolio"
             placeholder="https://yourportfolio.com"
-            isInvalid={!!form.formState.errors.portfolio}
-            errorMessage={form.formState.errors.portfolio?.message}
           />
         )}
 
@@ -165,33 +171,32 @@ export default function ContactForm({ resumeData, setResumeData }: EditorFormPro
         <div className="flex flex-wrap gap-2 mt-4">
           {!showBirthDate && (
             <button
+              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowBirthDate(true)}
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
             >
               + Date of Birth
             </button>
           )}
           {!showLinkedIn && (
             <button
+              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowLinkedIn(true)}
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
             >
               + LinkedIn
             </button>
           )}
           {!showPortfolio && (
             <button
+              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowPortfolio(true)}
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
             >
               + Portfolio/Website
             </button>
           )}
         </div>
-        
       </form>
     </div>
   );

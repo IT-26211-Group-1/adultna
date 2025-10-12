@@ -2,7 +2,7 @@
 
 import NextLink from "next/link";
 import { Card, CardBody, Button } from "@heroui/react";
-import { ArrowLeft, Files , FileText } from "lucide-react";
+import { ArrowLeft, Files, FileText } from "lucide-react";
 import { useState, useRef } from "react";
 
 export function ImportResume() {
@@ -41,8 +41,10 @@ export function ImportResume() {
     setIsDragOver(false);
 
     const files = e.dataTransfer.files;
+
     if (files.length > 0) {
       const file = files[0];
+
       // Only accept PDF and DOCX files
       if (isValidFileType(file)) {
         setUploadedFile(file);
@@ -54,8 +56,10 @@ export function ImportResume() {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+
     if (files && files.length > 0) {
       const file = files[0];
+
       if (isValidFileType(file)) {
         setUploadedFile(file);
       } else {
@@ -81,10 +85,10 @@ export function ImportResume() {
         {/* Back Button */}
         <div className="absolute top-6 left-6">
           <NextLink
-            href="/resumes"
             className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+            href="/resumes"
           >
-            <ArrowLeft size={20} className="mr-2" />
+            <ArrowLeft className="mr-2" size={20} />
             Back
           </NextLink>
         </div>
@@ -95,10 +99,10 @@ export function ImportResume() {
               Import your existing resume here
             </h1>
             <p className="text-center text-gray-500 mb-8">
-              Don't have a resume yet?{" "}
+              Don&apos;t have a resume yet?{" "}
               <NextLink
-                href="/resumes/editor"
                 className="text-green-700 hover:text-green-800 underline"
+                href="/resumes/editor"
               >
                 build one
               </NextLink>{" "}
@@ -117,10 +121,10 @@ export function ImportResume() {
             >
               <CardBody
                 className="p-12 text-center cursor-pointer"
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
                 onClick={handleBrowseClick}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
               >
                 {uploadedFile ? (
                   // File uploaded state
@@ -192,10 +196,10 @@ export function ImportResume() {
             {/* Hidden file input */}
             <input
               ref={fileInputRef}
-              type="file"
               accept=".pdf,.docx,.doc"
-              onChange={handleFileSelect}
               className="hidden"
+              type="file"
+              onChange={handleFileSelect}
             />
           </div>
         </div>
