@@ -6,9 +6,10 @@ import { FileItem } from "./FileItem";
 
 interface FileActionsProps {
     file: FileItem;
+    viewType?: "grid" | "list";
 }
 
-export function FileActions({ file }: FileActionsProps) {
+export function FileActions({ file, viewType = "grid" }: FileActionsProps) {
     const handleView = () => {
         console.log("View file:", file.name);
     };
@@ -21,10 +22,10 @@ export function FileActions({ file }: FileActionsProps) {
         console.log("Delete file:", file.name);
     };
 
-    return (
-        <div className="flex items-center space-x-2">
-            {/* Quick Actions - Visible in grid view or larger screens */}
-            <div className="hidden sm:flex items-center space-x-1">
+    if (viewType === "list") {
+        // List view - show plain buttons
+        return (
+            <div className="flex items-center space-x-1">
                 <Button
                     isIconOnly
                     size="sm"
@@ -53,8 +54,12 @@ export function FileActions({ file }: FileActionsProps) {
                     <Trash2 className="w-4 h-4" />
                 </Button>
             </div>
+        );
+    }
 
-            {/* Dropdown Menu - Always visible */}
+    // Grid view - show dropdown only
+    return (
+        <div>
             <Dropdown>
                 <DropdownTrigger>
                     <Button

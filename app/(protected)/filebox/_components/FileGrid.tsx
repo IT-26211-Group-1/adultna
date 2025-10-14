@@ -15,27 +15,31 @@ export function FileGrid({ files, onFileClick }: FileGridProps) {
             {files.map((file) => (
                 <Card
                     key={file.id}
-                    className="hover:shadow-lg transition-shadow cursor-pointer"
-                    isPressable
-                    onPress={() => onFileClick?.(file)}
+                    className="hover:shadow-lg transition-shadow"
                 >
                     <CardBody className="p-4">
                         <div className="flex flex-col items-center space-y-3">
-                            {/* File Name */}
-                            <h3 className="font-medium text-gray-900 text-center truncate w-full">
-                                {file.name}
-                            </h3>
-                            
-                            {/* File Details */}
-                            <div className="text-xs text-gray-500 text-center space-y-1">
-                                <p>{file.category}</p>
-                                <p>Uploaded: {file.uploadDate}</p>
-                                <p>Last accessed: {file.lastAccessed}</p>
-                                <span className="text-last">{file.size}</span>
+                            {/* Clickable content area */}
+                            <div 
+                                className="flex flex-col items-center space-y-3 cursor-pointer w-full"
+                                onClick={() => onFileClick?.(file)}
+                            >
+                                {/* File Name */}
+                                <h3 className="font-medium text-gray-900 text-center truncate w-full">
+                                    {file.name}
+                                </h3>
+                                
+                                {/* File Details */}
+                                <div className="text-xs text-gray-500 text-center space-y-1">
+                                    <p>{file.category}</p>
+                                    <p>Uploaded: {file.uploadDate}</p>
+                                    <p>Last accessed: {file.lastAccessed}</p>
+                                    <span className="text-last">{file.size}</span>
+                                </div>
                             </div>
                             
-                            {/* Actions */}
-                            <FileActions file={file} />
+                            {/* Actions - separate from clickable area */}
+                            <FileActions file={file} viewType="grid" />
                         </div>
                     </CardBody>
                 </Card>
