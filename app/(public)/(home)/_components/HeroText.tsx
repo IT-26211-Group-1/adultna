@@ -2,7 +2,7 @@ import { HeroActions } from "./HeroActions";
 
 export function HeroText() {
   return (
-    <div className="flex-1 flex flex-col items-start justify-center gap-6 z-10 max-w-2xl pl-20">
+    <div className="flex-1 flex flex-col items-start justify-center gap-6 z-10 max-w-2xl pl-0 md:pl-20">
       <h1 className="text-4xl md:text-5xl lg:text-6xl text-black text-left leading-tight font-playfair">
         Graduation is just the{" "}
         <span className="italic text-crayola-orange">beginning</span> but

@@ -1,62 +1,108 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 
 type ResendTimerProps = {
   handleResendOtp: () => Promise<number>;
   verificationToken: string | null;
   resending: boolean;
+  cooldown?: number;
 };
 
 export const ResendTimer: React.FC<ResendTimerProps> = ({
   handleResendOtp,
   verificationToken,
   resending,
+  cooldown = 0,
 }) => {
   const [time, setTime] = useState<number>(120);
   const [isDisabled, setDisabled] = useState<boolean>(false);
+  const initialized = useRef(false);
+
   const storageKey = useMemo(
     () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
     [verificationToken],
   );
 
+  // Initialize timer on mount and sync with cooldown
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (!initialized.current) {
+      initialized.current = true;
 
-    const saved = sessionStorage.getItem(storageKey);
-    const savedMs = saved ? parseInt(saved, 10) : NaN;
+      if (typeof window === "undefined") return;
 
-    if (!isNaN(savedMs)) {
-      const secondsLeft = Math.max(0, Math.ceil((savedMs - Date.now()) / 1000));
+      // Check for existing timer first
+      const saved = sessionStorage.getItem(storageKey);
+      const savedMs = saved ? parseInt(saved, 10) : NaN;
 
-      setTime(secondsLeft || 0);
-    } else {
-      setTime(120);
+      if (!isNaN(savedMs)) {
+        const secondsLeft = Math.max(
+          0,
+          Math.ceil((savedMs - Date.now()) / 1000),
+        );
+
+        setTime(secondsLeft || 0);
+
+        return;
+      }
     }
-  }, []);
+
+    // Handle cooldown updates
+    if (cooldown > 0) {
+      setTime(cooldown);
+      const expiresAtMs = Date.now() + cooldown * 1000;
+
+      sessionStorage.setItem(storageKey, String(expiresAtMs));
+    }
+  }, [cooldown, storageKey]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: NodeJS.Timeout | undefined;
 
     if (time > 0 && !resending) {
       timer = setInterval(() => {
-        setTime((prev) => Math.max(0, prev - 1));
+        setTime((prev) => {
+          const newTime = Math.max(0, prev - 1);
+
+          if (newTime === 0) {
+            setDisabled(false);
+          }
+
+          return newTime;
+        });
       }, 1000);
-    } else {
+    } else if (time === 0) {
       setDisabled(false);
     }
 
-    return () => clearInterval(timer);
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
   }, [time, resending]);
 
   const handleClick = useCallback(async () => {
-    if (!verificationToken || isDisabled) return;
+    if (!verificationToken || isDisabled) {
+      return;
+    }
 
     setDisabled(true);
-    const cooldown = await handleResendOtp();
 
-    const expiresAtMs = Date.now() + cooldown * 1000;
+    try {
+      const cooldown = await handleResendOtp();
+      const expiresAtMs = Date.now() + cooldown * 1000;
 
-    sessionStorage.setItem(storageKey, String(expiresAtMs));
-    setTime(cooldown);
+      sessionStorage.setItem(storageKey, String(expiresAtMs));
+      setTime(cooldown);
+    } catch (error) {
+      console.error("Failed to resend OTP:", error);
+      setDisabled(false);
+    }
   }, [handleResendOtp, isDisabled, storageKey, verificationToken]);
 
   return (
