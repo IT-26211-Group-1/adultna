@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import JobList from "./JobList";
 import JobFilters from "./JobFilter";
+import JobCardSkeleton from "./JobCardSkeleton";
 import { useJobSearch } from "@/hooks/queries/useJobQueries";
 
 const DEBOUNCE_DELAY = 400;
@@ -48,13 +49,15 @@ export default function JobBoard() {
   return (
     <div className="space-y-4">
       <JobFilters
+        defaultValue={DEFAULT_SEARCH_QUERY}
         isLoading={isLoading}
         onSearch={handleSearch}
-        defaultValue={DEFAULT_SEARCH_QUERY}
       />
       {isLoading && jobs.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">Loading jobs...</p>
+        <div className="space-y-4" aria-label="Loading jobs">
+          {[...Array(6)].map((_, index) => (
+            <JobCardSkeleton key={index} />
+          ))}
         </div>
       ) : (
         <JobList jobs={displayJobs} />
