@@ -14,7 +14,6 @@ import {
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditOnboardingQuestionModal from "./EditOnboardingQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
-import { TableSkeleton } from "@/components/ui/Skeletons";
 
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
   ({ status }) => {
@@ -105,9 +104,10 @@ const QuestionActions = React.memo<QuestionActionsProps>(
     }
 
     const menuItems = [];
+    const isDeleted = !!question.deletedAt;
 
     // Technical admins can edit and delete
-    if (userRole === "technical_admin") {
+    if (userRole === "technical_admin" && !isDeleted) {
       menuItems.push(
         {
           label: "Edit",
@@ -130,7 +130,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
           ),
         },
         {
-          label: "Delete",
+          label: "Archive",
           onClick: () => onDelete(question.id),
           disabled: isUpdating || isDeleting,
           destructive: true,
@@ -142,7 +142,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               viewBox="0 0 24 24"
             >
               <path
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
@@ -154,7 +154,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
     }
 
     // Verifier admins can only update status
-    if (userRole === "verifier_admin") {
+    if (userRole === "verifier_admin" && !isDeleted) {
       menuItems.push({
         label: "Update Status",
         onClick: () => onUpdateStatus(question.id),
@@ -175,6 +175,11 @@ const QuestionActions = React.memo<QuestionActionsProps>(
           </svg>
         ),
       });
+    }
+
+    // If deleted, show a disabled info message
+    if (isDeleted) {
+      return <div className="text-xs text-gray-400 text-center">Archived</div>;
     }
 
     return (
@@ -211,6 +216,7 @@ const OnboardingQuestionsTable: React.FC = () => {
   const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(
     null
   );
+  const [showArchived, setShowArchived] = useState(false);
 
   const { user } = useAdminAuth();
 
@@ -226,8 +232,17 @@ const OnboardingQuestionsTable: React.FC = () => {
     refetchQuestions,
   } = useOnboardingQuestions();
 
+  // Filter questions based on view mode
+  const activeQuestions = questions.filter(q => !q.deletedAt);
+  const archivedQuestions = questions.filter(q => q.deletedAt);
+
+  // Select which questions to display based on toggle
+  const displayQuestions = showArchived ? archivedQuestions : activeQuestions;
+
   // Debug: log questions data
   console.log("Questions with options:", questions);
+  console.log("Active questions:", activeQuestions.length);
+  console.log("Archived questions:", archivedQuestions.length);
 
   const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
@@ -242,13 +257,13 @@ const OnboardingQuestionsTable: React.FC = () => {
 
   const handleEditQuestion = useCallback(
     (questionId: number) => {
-      const question = questions.find((q) => q.id === questionId);
+      const question = displayQuestions.find((q) => q.id === questionId);
       if (question) {
         setSelectedQuestion(question);
         setEditModalOpen(true);
       }
     },
-    [questions]
+    [displayQuestions]
   );
 
   const handleQuestionUpdated = useCallback(() => {
@@ -264,13 +279,13 @@ const OnboardingQuestionsTable: React.FC = () => {
 
   const handleUpdateStatus = useCallback(
     (questionId: number) => {
-      const question = questions.find((q) => q.id === questionId);
+      const question = displayQuestions.find((q) => q.id === questionId);
       if (question) {
         setSelectedQuestionForStatus(question);
         setStatusModalOpen(true);
       }
     },
-    [questions]
+    [displayQuestions]
   );
 
   const handleStatusUpdated = useCallback(() => {
@@ -286,7 +301,7 @@ const OnboardingQuestionsTable: React.FC = () => {
 
   const handleDelete = useCallback(
     (questionId: number) => {
-      if (!confirm("Are you sure you want to delete this question?")) return;
+      if (!confirm("Are you sure you want to archive this question?")) return;
 
       setDeletingQuestionId(questionId);
       deleteQuestion(
@@ -295,7 +310,7 @@ const OnboardingQuestionsTable: React.FC = () => {
           onSuccess: (response) => {
             if (response.success) {
               addToast({
-                title: response.message || "Question deleted successfully",
+                title: response.message || "Question archived successfully",
                 color: "success",
                 timeout: 4000,
               });
@@ -304,7 +319,7 @@ const OnboardingQuestionsTable: React.FC = () => {
           },
           onError: (error: any) => {
             addToast({
-              title: error?.message || "Failed to delete question",
+              title: error?.message || "Failed to archive question",
               color: "danger",
               timeout: 4000,
             });
@@ -322,7 +337,15 @@ const OnboardingQuestionsTable: React.FC = () => {
         header: "Question",
         accessor: (question: OnboardingQuestion) => (
           <div className="max-w-md">
-            <p className="text-gray-900 font-medium">{question.question}</p>
+            <p
+              className={`font-medium ${
+                question.deletedAt
+                  ? "text-gray-400 line-through"
+                  : "text-gray-900"
+              }`}
+            >
+              {question.question}
+            </p>
           </div>
         ),
         width: "250px",
@@ -346,44 +369,80 @@ const OnboardingQuestionsTable: React.FC = () => {
         ),
         width: "200px",
       },
+
       {
-        header: "Outcome Tag",
+        header: "Status",
         accessor: (question: OnboardingQuestion) => (
-          <div className="text-gray-600 text-sm">
-            {question.options && question.options.length > 0 ? (
-              <ul className="list-disc list-inside">
-                {question.options.map((option: AnswerOption, index: number) => (
-                  <li key={option.id || index} className="truncate max-w-xs">
-                    {option.outcomeTagName || (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+          <div className="flex flex-col gap-1">
+            <QuestionStatusBadge status={question.status} />
+            {question.deletedAt && (
+              <Badge size="sm" variant="error">
+                Archived
+              </Badge>
+            )}
+          </div>
+        ),
+        width: "120px",
+      },
+      {
+        header: "Notes/Reason",
+        accessor: (question: OnboardingQuestion) => (
+          <div className="text-gray-600 text-sm max-w-[250px]">
+            {question.reason ? (
+              <div className="italic break-words">
+                {question.reason}
+              </div>
             ) : (
               <span className="text-gray-400">-</span>
             )}
           </div>
         ),
-        width: "150px",
+        width: "250px",
       },
       {
-        header: "Status",
+        header: "Created At",
         accessor: (question: OnboardingQuestion) => (
-          <QuestionStatusBadge status={question.status} />
+          <div className="text-gray-600 text-sm">
+            <div>{formatDate(question.createdAt)}</div>
+            {question.createdByEmail && (
+              <div className="text-xs text-gray-500 mt-1">
+                by: {question.createdByEmail}
+              </div>
+            )}
+          </div>
         ),
-        width: "120px",
+        width: "180px",
       },
       {
-        header: "Last Updated At",
+        header: "Updated At",
         accessor: (question: OnboardingQuestion) => (
-          <span className="text-gray-600 text-sm">
-            {question.updatedAt
-              ? formatDate(question.updatedAt)
-              : formatDate(question.createdAt)}
-          </span>
+          <div className="text-gray-600 text-sm">
+            {question.deletedAt ? (
+              <>
+                <div className="text-red-600 font-medium">
+                  {formatDate(question.deletedAt)}
+                </div>
+                {question.deletedByEmail && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    Archived by: {question.deletedByEmail}
+                  </div>
+                )}
+              </>
+            ) : question.updatedAt ? (
+              <>
+                <div>{formatDate(question.updatedAt)}</div>
+                {question.updatedByEmail && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    by: {question.updatedByEmail}
+                  </div>
+                )}
+              </>
+            ) : (
+              <span className="text-gray-400">-</span>
+            )}
+          </div>
         ),
-        width: "150px",
+        width: "180px",
       },
       {
         header: "",
@@ -429,11 +488,39 @@ const OnboardingQuestionsTable: React.FC = () => {
 
   return (
     <>
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowArchived(false)}
+            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+              !showArchived
+                ? "bg-adult-green text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            Active Questions ({activeQuestions.length})
+          </button>
+          <button
+            onClick={() => setShowArchived(true)}
+            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+              showArchived
+                ? "bg-adult-green text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            Archived Questions ({archivedQuestions.length})
+          </button>
+        </div>
+      </div>
       <Table
         columns={columns}
-        data={questions}
+        data={displayQuestions}
         loading={loading}
-        emptyMessage="No onboarding questions found"
+        emptyMessage={
+          showArchived
+            ? "No archived questions found"
+            : "No onboarding questions found"
+        }
       />
       {selectedQuestion && (
         <EditOnboardingQuestionModal

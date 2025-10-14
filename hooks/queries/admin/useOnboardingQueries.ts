@@ -6,7 +6,11 @@ import { ApiClient, queryKeys } from "@/lib/apiClient";
 // Types
 export type QuestionStatus = "pending" | "accepted" | "rejected" | "to_revise";
 
-export type QuestionCategory = "personal" | "career" | "education" | "preferences";
+export type QuestionCategory =
+  | "personal"
+  | "career"
+  | "education"
+  | "preferences";
 
 export type AnswerOption = {
   id: number;
@@ -25,6 +29,14 @@ export type OnboardingQuestion = {
   status: QuestionStatus;
   createdAt: string;
   updatedAt: string | null;
+  createdBy?: string | null;
+  createdByEmail?: string | null;
+  updatedBy?: string | null;
+  updatedByEmail?: string | null;
+  deletedBy?: string | null;
+  deletedByEmail?: string | null;
+  deletedAt?: string | null;
+  reason?: string | null;
   options?: AnswerOption[];
 };
 
@@ -93,21 +105,27 @@ const onboardingApi = {
   getQuestionById: (questionId: number): Promise<QuestionDetailResponse> =>
     ApiClient.get(`/admin/onboarding/questions/${questionId}`),
 
-  createQuestion: (data: CreateQuestionRequest): Promise<CreateQuestionResponse> =>
+  createQuestion: (
+    data: CreateQuestionRequest
+  ): Promise<CreateQuestionResponse> =>
     ApiClient.post("/onboarding/create", data),
 
-  updateQuestion: (data: UpdateQuestionRequest): Promise<UpdateQuestionResponse> =>
+  updateQuestion: (
+    data: UpdateQuestionRequest
+  ): Promise<UpdateQuestionResponse> =>
     ApiClient.put(`/admin/onboarding/questions/${data.questionId}`, {
       question: data.question,
       category: data.category,
     }),
 
   updateQuestionStatus: (
-    data: UpdateQuestionStatusRequest,
+    data: UpdateQuestionStatusRequest
   ): Promise<UpdateQuestionStatusResponse> =>
     ApiClient.patch("/admin/onboarding/questions/status", data),
 
-  deleteQuestion: (data: DeleteQuestionRequest): Promise<DeleteQuestionResponse> =>
+  deleteQuestion: (
+    data: DeleteQuestionRequest
+  ): Promise<DeleteQuestionResponse> =>
     ApiClient.delete(`/admin/onboarding/questions/${data.questionId}`),
 };
 
@@ -121,7 +139,11 @@ export function useOnboardingQuestions() {
     error: questionsError,
     refetch: refetchQuestions,
   } = useQuery({
-    queryKey: queryKeys.admin.onboarding?.list() || ["admin", "onboarding", "list"],
+    queryKey: queryKeys.admin.onboarding?.list() || [
+      "admin",
+      "onboarding",
+      "list",
+    ],
     queryFn: onboardingApi.listQuestions,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
@@ -143,12 +165,9 @@ export function useOnboardingQuestions() {
         queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.admin.onboarding?.detail?.(variables.questionId) || [
-          "admin",
-          "onboarding",
-          "detail",
-          variables.questionId,
-        ],
+        queryKey: queryKeys.admin.onboarding?.detail?.(
+          variables.questionId
+        ) || ["admin", "onboarding", "detail", variables.questionId],
       });
     },
   });
@@ -160,12 +179,9 @@ export function useOnboardingQuestions() {
         queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.admin.onboarding?.detail?.(variables.questionId) || [
-          "admin",
-          "onboarding",
-          "detail",
-          variables.questionId,
-        ],
+        queryKey: queryKeys.admin.onboarding?.detail?.(
+          variables.questionId
+        ) || ["admin", "onboarding", "detail", variables.questionId],
       });
     },
   });
