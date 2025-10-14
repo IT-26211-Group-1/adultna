@@ -30,6 +30,7 @@ export function SecureDocument() {
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Backspace" && otpValue.length > 0) {
+            e.preventDefault();
             const newValue = otpValue.slice(0, -1);
             setOtpValue(newValue);
             setFocusedIndex(Math.max(0, newValue.length));
