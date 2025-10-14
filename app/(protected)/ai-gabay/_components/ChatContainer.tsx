@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatMessage } from "./ChatMessage";
 import { AgentWelcome } from "./AgentWelcome";
 import { SuggestionButton } from "./SuggestionButton";
@@ -16,6 +16,25 @@ const INITIAL_SUGGESTIONS = [
 
 export function ChatContainer() {
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
+
+  // Add confirmation before refresh/close when there are messages
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Only show confirmation if there are messages in the chat
+      if (messages.length > 0) {
+        e.preventDefault();
+        // Modern browsers require returnValue to be set
+        e.returnValue = "";
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [messages.length]);
 
   const { sendMessage, isPending, error } = useGabayChat({
     onSuccess: (response, userMessage, conversationHistory) => {
@@ -33,7 +52,9 @@ export function ChatContainer() {
         const errorMessage: ConversationMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: response.blockReason || "Your message was blocked due to content policy.",
+          content:
+            response.blockReason ||
+            "Your message was blocked due to content policy.",
           timestamp: new Date(),
           error: "Content blocked",
         };
@@ -43,7 +64,8 @@ export function ChatContainer() {
         const errorMessage: ConversationMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: "Sorry, I encountered an error processing your request. Please try again.",
+          content:
+            "Sorry, I encountered an error processing your request. Please try again.",
           timestamp: new Date(),
           error: response.error,
         };
@@ -51,11 +73,10 @@ export function ChatContainer() {
       }
     },
     onError: (error) => {
-      // Handle network or other errors
       const errorMessage: ConversationMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: "Sorry, I'm having trouble connecting. Please check your connection and try again.",
+        content: "Something went wrong. Please try again.",
         timestamp: new Date(),
         error: error.message,
       };
