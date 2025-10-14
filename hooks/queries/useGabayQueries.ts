@@ -3,10 +3,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
 import { gabayApi } from "@/lib/api/gabay";
-import type { ChatRequest, ChatResponse, ConversationMessage } from "@/types/gabay";
+import type {
+  ChatRequest,
+  ChatResponse,
+  ConversationMessage,
+} from "@/types/gabay";
 
 interface UseChatMutationOptions {
-  onSuccess?: (response: ChatResponse, message: string, conversationHistory: ConversationMessage[]) => void;
+  onSuccess?: (
+    response: ChatResponse,
+    message: string,
+    conversationHistory: ConversationMessage[],
+  ) => void;
   onError?: (error: Error) => void;
 }
 
@@ -21,7 +29,10 @@ interface ChatMutationVariables {
 export function useGabayChat(options?: UseChatMutationOptions) {
   const chatMutation = useMutation({
     mutationKey: queryKeys.gabay.chat(),
-    mutationFn: async ({ message, conversationHistory }: ChatMutationVariables) => {
+    mutationFn: async ({
+      message,
+      conversationHistory,
+    }: ChatMutationVariables) => {
       // Transform ConversationMessage to ChatMessage format for API
       const historyForApi = conversationHistory.map((msg) => ({
         role: msg.role,
@@ -37,7 +48,11 @@ export function useGabayChat(options?: UseChatMutationOptions) {
     },
     onSuccess: (data, variables) => {
       if (options?.onSuccess) {
-        options.onSuccess(data, variables.message, variables.conversationHistory);
+        options.onSuccess(
+          data,
+          variables.message,
+          variables.conversationHistory,
+        );
       }
     },
     onError: (error: Error) => {

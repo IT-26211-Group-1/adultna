@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChatMessage } from "./ChatMessage";
 import { AgentWelcome } from "./AgentWelcome";
 import { SuggestionButton } from "./SuggestionButton";
@@ -17,27 +17,8 @@ const INITIAL_SUGGESTIONS = [
 export function ChatContainer() {
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
 
-  // Add confirmation before refresh/close when there are messages
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Only show confirmation if there are messages in the chat
-      if (messages.length > 0) {
-        e.preventDefault();
-        // Modern browsers require returnValue to be set
-        e.returnValue = "";
-        return "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [messages.length]);
-
-  const { sendMessage, isPending, error } = useGabayChat({
-    onSuccess: (response, userMessage, conversationHistory) => {
+  const { sendMessage, isPending } = useGabayChat({
+    onSuccess: (response) => {
       if (response.success && response.message) {
         // Add AI response to messages
         const aiMessage: ConversationMessage = {
@@ -46,6 +27,7 @@ export function ChatContainer() {
           content: response.message,
           timestamp: new Date(),
         };
+
         setMessages((prev) => [...prev, aiMessage]);
       } else if (response.blocked) {
         // Handle blocked content
@@ -58,6 +40,7 @@ export function ChatContainer() {
           timestamp: new Date(),
           error: "Content blocked",
         };
+
         setMessages((prev) => [...prev, errorMessage]);
       } else if (response.error) {
         // Handle API error
@@ -69,6 +52,7 @@ export function ChatContainer() {
           timestamp: new Date(),
           error: response.error,
         };
+
         setMessages((prev) => [...prev, errorMessage]);
       }
     },
@@ -80,6 +64,7 @@ export function ChatContainer() {
         timestamp: new Date(),
         error: error.message,
       };
+
       setMessages((prev) => [...prev, errorMessage]);
     },
   });
@@ -92,6 +77,7 @@ export function ChatContainer() {
       content: text,
       timestamp: new Date(),
     };
+
     setMessages((prev) => [...prev, userMessage]);
 
     // Send to API with conversation history
@@ -117,8 +103,8 @@ export function ChatContainer() {
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
-              message={message.content}
               isUser={message.role === "user"}
+              message={message.content}
             />
           ))}
 
@@ -127,9 +113,9 @@ export function ChatContainer() {
             <div className="flex w-full justify-start">
               <div className="flex items-center gap-2 rounded-2xl bg-gray-100 px-4 py-3 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-100">
                 <div className="flex gap-1">
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]"></div>
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]"></div>
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400"></div>
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]" />
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400" />
                 </div>
               </div>
             </div>
@@ -154,7 +140,7 @@ export function ChatContainer() {
           )}
 
           {/* Chat Input */}
-          <ChatInput onSubmit={handleSendMessage} disabled={isPending} />
+          <ChatInput disabled={isPending} onSubmit={handleSendMessage} />
         </div>
       </div>
     </div>
