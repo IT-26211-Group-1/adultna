@@ -15,14 +15,15 @@ export function FileList({ files, onFileClick }: FileListProps) {
             {files.map((file) => (
                 <Card
                     key={file.id}
-                    className="hover:shadow-md transition-shadow cursor-pointer"
-                    isPressable
-                    onPress={() => onFileClick?.(file)}
+                    className="hover:shadow-md transition-shadow"
                 >
                     <CardBody className="p-4">
                         <div className="flex items-center justify-between">
                             {/* Left Section - Icon and Details */}
-                            <div className="flex items-center space-x-4 flex-1">
+                            <div 
+                                className="flex items-center space-x-4 flex-1"
+                                onClick={() => onFileClick?.(file)}
+                            >
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-medium text-gray-900 truncate">
                                         {file.name}
@@ -44,7 +45,7 @@ export function FileList({ files, onFileClick }: FileListProps) {
                                 <span className="text-sm text-gray-500 hidden sm:block">
                                     {file.size}
                                 </span>
-                                <FileActions file={file} />
+                                <FileActions file={file} viewType="list" />
                             </div>
                         </div>
                     </CardBody>
