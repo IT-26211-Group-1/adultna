@@ -102,7 +102,6 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
-  
 export const secureDocumentAccessOtpSchema = z.object({
   otp: z
     .string()
