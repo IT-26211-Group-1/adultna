@@ -1,7 +1,7 @@
 import JobBoard from "./_components/JobBoard";
-import ProtectedPageWrapper from "../../../../components/ui/ProtectedPageWrapper";
+import ProtectedPageWrapper from "../../../components/ui/ProtectedPageWrapper";
 
-export default function page() {
+export default function Page() {
   return (
     <ProtectedPageWrapper>
       <div className="p-6">
