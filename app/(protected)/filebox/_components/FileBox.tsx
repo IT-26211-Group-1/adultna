@@ -13,6 +13,7 @@ export function FileBox() {
     const [showUpload, setShowUpload] = useState(false);
     const [showSecureAccess, setShowSecureAccess] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string>("all");
+    const [searchTerm, setSearchTerm] = useState<string>("");
     
     const fakeFiles: FileItem[] = [
         {
@@ -73,10 +74,21 @@ export function FileBox() {
         setSelectedCategory(category);
     };
 
-    // Filter files based on selected category
-    const filteredFiles = selectedCategory === "all" 
-        ? fakeFiles 
-        : fakeFiles.filter(file => file.category === selectedCategory);
+    const handleSearchChange = (search: string) => {
+        setSearchTerm(search);
+    };
+
+    // Filter files based on selected category and search term
+    const filteredFiles = fakeFiles.filter(file => {
+        // Category filter
+        const categoryMatch = selectedCategory === "all" || file.category === selectedCategory;
+        
+        // Search filter
+        const searchMatch = searchTerm === "" || 
+            file.name.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        return categoryMatch && searchMatch;
+    });
 
     return (
         <div className="p-6">
@@ -86,6 +98,8 @@ export function FileBox() {
                 onUploadClick={handleUploadClick}
                 onCategoryChange={handleCategoryChange}
                 selectedCategory={selectedCategory}
+                onSearchChange={handleSearchChange}
+                searchTerm={searchTerm}
             />
             
             {/* Files Section */}
