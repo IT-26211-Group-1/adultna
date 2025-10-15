@@ -12,6 +12,7 @@ export function FileBox() {
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   const [showUpload, setShowUpload] = useState(false);
   const [showSecureAccess, setShowSecureAccess] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -60,6 +61,7 @@ export function FileBox() {
 
   const handleFileClick = (file: FileItem) => {
     if (file.isSecure) {
+      setSelectedFile(file);
       setShowSecureAccess(true);
     } else {
       console.log("Opening file:", file.name);
@@ -117,8 +119,14 @@ export function FileBox() {
       {/* Modals */}
       {showUpload && <UploadDocument onClose={() => setShowUpload(false)} />}
 
-      {showSecureAccess && (
-        <SecureDocument onClose={() => setShowSecureAccess(false)} />
+      {showSecureAccess && selectedFile && (
+        <SecureDocument 
+          file={selectedFile}
+          onClose={() => {
+            setShowSecureAccess(false);
+            setSelectedFile(null);
+          }} 
+        />
       )}
     </div>
   );

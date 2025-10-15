@@ -9,7 +9,7 @@ interface FileGridProps {
   onFileClick?: (file: FileItem) => void;
 }
 
-export function FileGrid({ files }: FileGridProps) {
+export function FileGrid({ files, onFileClick }: FileGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {files.map((file) => (
@@ -21,10 +21,21 @@ export function FileGrid({ files }: FileGridProps) {
             <div className="space-y-3">
               {/* Header - File Name and Actions */}
               <div className="flex items-start justify-between">
-                <h3 className="font-semibold text-gray-900 text-lg flex-1 pr-2">
+                <h3 
+                  className="font-semibold text-gray-900 text-lg flex-1 pr-2 cursor-pointer hover:text-blue-600 transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onFileClick?.(file)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onFileClick?.(file);
+                    }
+                  }}
+                >
                   {file.name}
                 </h3>
-                <FileActions file={file} viewType="grid" />
+                <FileActions file={file} viewType="grid" onViewFile={onFileClick} />
               </div>
 
               {/* Category Badge */}

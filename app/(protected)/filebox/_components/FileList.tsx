@@ -46,7 +46,7 @@ export function FileList({ files, onFileClick }: FileListProps) {
 
           {/* Right Section - Actions */}
           <div className="flex items-center">
-            <FileActions file={file} viewType="list" />
+            <FileActions file={file} viewType="list" onViewFile={onFileClick} />
           </div>
         </div>
       ))}

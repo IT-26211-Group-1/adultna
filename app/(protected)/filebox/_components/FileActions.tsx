@@ -13,18 +13,25 @@ import { FileItem } from "./FileItem";
 interface FileActionsProps {
   file: FileItem;
   viewType?: "grid" | "list";
+  onViewFile?: (file: FileItem) => void;
 }
 
-export function FileActions({ file, viewType = "grid" }: FileActionsProps) {
+export function FileActions({ file, viewType = "grid", onViewFile }: FileActionsProps) {
   const handleView = () => {
-    console.log("View file:", file.name);
+    if (onViewFile) {
+      onViewFile(file);
+    } else {
+      console.log("View file:", file.name);
+    }
   };
 
   const handleDownload = () => {
+    //Palitan pag may Backend na
     console.log("Download file:", file.name);
   };
 
   const handleDelete = () => {
+    //Palitan pag may Backend na
     console.log("Delete file:", file.name);
   };
 

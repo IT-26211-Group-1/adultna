@@ -5,14 +5,16 @@ import { Button } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { secureDocumentAccessOtpSchema } from "@/validators/fileBoxSchema";
+import { FileItem } from "./FileItem";
 
 type OtpFormType = { otp: string };
 
 interface SecureDocumentProps {
+  file: FileItem;
   onClose?: () => void;
 }
 
-export function SecureDocument({ onClose }: SecureDocumentProps) {
+export function SecureDocument({ file, onClose }: SecureDocumentProps) {
   const [otpValue, setOtpValue] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
@@ -24,6 +26,7 @@ export function SecureDocument({ onClose }: SecureDocumentProps) {
     formState: { errors, isSubmitting, isValid },
   } = useForm<OtpFormType>({
     resolver: zodResolver(secureDocumentAccessOtpSchema),
+    mode: "onChange",
     defaultValues: { otp: "" },
   });
 
@@ -40,7 +43,7 @@ export function SecureDocument({ onClose }: SecureDocumentProps) {
     const cleanValue = value.replace(/[^0-9]/g, "").slice(0, 6);
 
     setOtpValue(cleanValue);
-    setValue("otp", cleanValue);
+    setValue("otp", cleanValue, { shouldValidate: true });
     setFocusedIndex(Math.min(cleanValue.length, 5));
   };
 
@@ -50,7 +53,7 @@ export function SecureDocument({ onClose }: SecureDocumentProps) {
       const newValue = otpValue.slice(0, -1);
 
       setOtpValue(newValue);
-      setValue("otp", newValue);
+      setValue("otp", newValue, { shouldValidate: true });
       setFocusedIndex(Math.max(0, newValue.length));
     }
   };
@@ -64,7 +67,7 @@ export function SecureDocument({ onClose }: SecureDocumentProps) {
         const newValue = otpValue.slice(0, index);
 
         setOtpValue(newValue);
-        setValue("otp", newValue);
+        setValue("otp", newValue, { shouldValidate: true });
       }
     }
   };
@@ -81,7 +84,7 @@ export function SecureDocument({ onClose }: SecureDocumentProps) {
   const handleResendOtp = () => {
     // Reset OTP and focus
     setOtpValue("");
-    setValue("otp", "");
+    setValue("otp", "", { shouldValidate: true });
     setFocusedIndex(0);
     if (hiddenInputRef.current) {
       hiddenInputRef.current.focus();
@@ -95,7 +98,9 @@ export function SecureDocument({ onClose }: SecureDocumentProps) {
   const handleFormSubmit = (data: OtpFormType) => {
     // Verify OTP and grant access
     console.log("Valid OTP data:", data);
+    console.log("Accessing secure file:", file.name);
     // Handle OTP verification logic here
+    // TODO: Open/download the secure file
     onClose?.();
   };
 
@@ -117,8 +122,7 @@ export function SecureDocument({ onClose }: SecureDocumentProps) {
               <p className="text-sm text-gray-700">
                 We&apos;ve sent a 6-digit OTP code to your registered email
                 address. Enter the code below to{" "}
-                <span className="font-medium">access</span> &quot;New
-                Document.pdf&quot;.
+                <span className="font-medium">access</span> &quot;{file.name}&quot;.
               </p>
             </div>
           </div>
@@ -223,7 +227,7 @@ export function SecureDocument({ onClose }: SecureDocumentProps) {
             </Button>
             <Button
               className="flex-1 py-3 bg-adult-green hover:bg-adult-green/90 text-white font-medium"
-              isDisabled={isSubmitting || !isValid}
+              isDisabled={isSubmitting || otpValue.length !== 6}
               type="submit"
               variant="solid"
             >
