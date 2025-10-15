@@ -33,3 +33,10 @@ jobs:
 
       - name: Deploy to S3
         run: aws s3 sync ./out s3://adultna --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          DISTRIBUTION_ID=E166MALGQ8HYU9
+          aws cloudfront create-invalidation \
+            --distribution-id $DISTRIBUTION_ID \
+            --paths "/*"
