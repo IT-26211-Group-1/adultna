@@ -1,12 +1,13 @@
 "use client";
 
 import { Button, ButtonGroup } from "@heroui/react";
-import { useState } from "react";
 
-export function ViewType() {
-    // State to track selected view type default view is grid
-    const [selectedView, setSelectedView] = useState<"grid" | "list">("grid");
+interface ViewTypeProps {
+    selectedView: "grid" | "list";
+    onViewChange: (view: "grid" | "list") => void;
+}
 
+export function ViewType({ selectedView, onViewChange }: ViewTypeProps) {
     return (
         <ButtonGroup 
             variant="flat"
@@ -22,7 +23,7 @@ export function ViewType() {
                         : "text-gray-600 hover:text-gray-900"
                     }
                 `}
-                onPress={() => setSelectedView("grid")}
+                onPress={() => onViewChange("grid")}
             >
                 Grid View
             </Button>
@@ -36,7 +37,7 @@ export function ViewType() {
                         : "text-gray-600 hover:text-gray-900"
                     }
                 `}
-                onPress={() => setSelectedView("list")}
+                onPress={() => onViewChange("list")}
             >
                 List View
             </Button>

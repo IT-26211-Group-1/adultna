@@ -11,45 +11,39 @@ interface FileListProps {
 
 export function FileList({ files, onFileClick }: FileListProps) {
     return (
-        <div className="space-y-3">
+        <div className="space-y-2">
             {files.map((file) => (
-                <Card
+                <div
                     key={file.id}
-                    className="hover:shadow-md transition-shadow"
+                    className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                    <CardBody className="p-4">
-                        <div className="flex items-center justify-between">
-                            {/* Left Section - Icon and Details */}
-                            <div 
-                                className="flex items-center space-x-4 flex-1"
-                                onClick={() => onFileClick?.(file)}
-                            >
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-medium text-gray-900 truncate">
-                                        {file.name}
-                                    </h3>
-                                    <p className="text-sm text-gray-500">
-                                        {file.category}
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            {/* Middle Section - File Info */}
-                            <div className="hidden md:flex flex-col items-end space-y-1 text-sm text-gray-500 mr-4">
-                                <p>Uploaded: {file.uploadDate}</p>
-                                <p>Last accessed: {file.lastAccessed}</p>
-                            </div>
-                            
-                            {/* Right Section - Size and Actions */}
-                            <div className="flex items-center space-x-4">
-                                <span className="text-sm text-gray-500 hidden sm:block">
-                                    {file.size}
-                                </span>
-                                <FileActions file={file} viewType="list" />
-                            </div>
+                    {/* Left Section - File Details */}
+                    <div 
+                        className="flex items-center space-x-4 flex-1 cursor-pointer"
+                        onClick={() => onFileClick?.(file)}
+                    >
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-gray-900 truncate">
+                                {file.name}
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                {file.category}
+                            </p>
                         </div>
-                    </CardBody>
-                </Card>
+                    </div>
+                    
+                    {/* Middle Section - File Info */}
+                    <div className="hidden md:flex items-center space-x-8 text-sm text-gray-500">
+                        <span>{file.size}</span>
+                        <span>Uploaded: {file.uploadDate}</span>
+                        <span>Last accessed: {file.lastAccessed}</span>
+                    </div>
+                    
+                    {/* Right Section - Actions */}
+                    <div className="flex items-center">
+                        <FileActions file={file} viewType="list" />
+                    </div>
+                </div>
             ))}
         </div>
     );
