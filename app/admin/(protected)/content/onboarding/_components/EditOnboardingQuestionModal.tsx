@@ -59,6 +59,7 @@ export default function EditOnboardingQuestionModal({
             timeout: 3000,
           });
           onClose();
+
           return;
         }
 
@@ -86,9 +87,9 @@ export default function EditOnboardingQuestionModal({
                 timeout: 4000,
               });
             },
-          }
+          },
         );
-      } catch (error) {
+      } catch {
         addToast({
           title: "Failed to update question",
           color: "danger",
@@ -96,7 +97,7 @@ export default function EditOnboardingQuestionModal({
         });
       }
     },
-    [question, questionId, updateQuestion, onQuestionUpdated, onClose]
+    [question, questionId, updateQuestion, onQuestionUpdated, onClose],
   );
 
   const handleClose = useCallback(() => {

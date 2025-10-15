@@ -39,7 +39,7 @@ const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
           .join(" ")}
       </Badge>
     );
-  }
+  },
 );
 
 QuestionStatusBadge.displayName = "QuestionStatusBadge";
@@ -49,7 +49,7 @@ const QuestionCategoryBadge = React.memo<{ category: string }>(
     <Badge size="sm" variant="default">
       {category.charAt(0).toUpperCase() + category.slice(1)}
     </Badge>
-  )
+  ),
 );
 
 QuestionCategoryBadge.displayName = "QuestionCategoryBadge";
@@ -93,9 +93,9 @@ const QuestionActions = React.memo<QuestionActionsProps>(
         <div className="flex items-center justify-center">
           <svg
             className="animate-spin h-5 w-5 text-red-600"
-            xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
             <circle
               className="opacity-25"
@@ -104,12 +104,12 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               r="10"
               stroke="currentColor"
               strokeWidth="4"
-            ></circle>
+            />
             <path
               className="opacity-75"
-              fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
+              fill="currentColor"
+            />
           </svg>
         </div>
       );
@@ -120,9 +120,9 @@ const QuestionActions = React.memo<QuestionActionsProps>(
         <div className="flex items-center justify-center">
           <svg
             className="animate-spin h-5 w-5 text-adult-green"
-            xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
             <circle
               className="opacity-25"
@@ -131,12 +131,12 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               r="10"
               stroke="currentColor"
               strokeWidth="4"
-            ></circle>
+            />
             <path
               className="opacity-75"
-              fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
+              fill="currentColor"
+            />
           </svg>
         </div>
       );
@@ -188,7 +188,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               />
             </svg>
           ),
-        }
+        },
       );
     }
 
@@ -235,7 +235,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               />
             </svg>
           ),
-        }
+        },
       );
     }
 
@@ -290,7 +290,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
         }
       />
     );
-  }
+  },
 );
 
 QuestionActions.displayName = "QuestionActions";
@@ -303,10 +303,10 @@ const OnboardingQuestionsTable: React.FC = () => {
   const [selectedQuestionForStatus, setSelectedQuestionForStatus] =
     useState<OnboardingQuestion | null>(null);
   const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(
-    null
+    null,
   );
   const [restoringQuestionId, setRestoringQuestionId] = useState<number | null>(
-    null
+    null,
   );
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
     useState<number | null>(null);
@@ -318,7 +318,6 @@ const OnboardingQuestionsTable: React.FC = () => {
     questions,
     isLoadingQuestions: loading,
     questionsError,
-    updateQuestionStatus,
     isUpdatingStatus,
     deleteQuestion,
     isDeleting,
@@ -338,6 +337,7 @@ const OnboardingQuestionsTable: React.FC = () => {
 
   const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
+
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -350,12 +350,13 @@ const OnboardingQuestionsTable: React.FC = () => {
   const handleEditQuestion = useCallback(
     (questionId: number) => {
       const question = displayQuestions.find((q) => q.id === questionId);
+
       if (question) {
         setSelectedQuestion(question);
         setEditModalOpen(true);
       }
     },
-    [displayQuestions]
+    [displayQuestions],
   );
 
   const handleQuestionUpdated = useCallback(() => {
@@ -372,12 +373,13 @@ const OnboardingQuestionsTable: React.FC = () => {
   const handleUpdateStatus = useCallback(
     (questionId: number) => {
       const question = displayQuestions.find((q) => q.id === questionId);
+
       if (question) {
         setSelectedQuestionForStatus(question);
         setStatusModalOpen(true);
       }
     },
-    [displayQuestions]
+    [displayQuestions],
   );
 
   const handleStatusUpdated = useCallback(() => {
@@ -417,10 +419,10 @@ const OnboardingQuestionsTable: React.FC = () => {
             });
             setDeletingQuestionId(null);
           },
-        }
+        },
       );
     },
-    [deleteQuestion]
+    [deleteQuestion],
   );
 
   const handleRestore = useCallback(
@@ -449,17 +451,17 @@ const OnboardingQuestionsTable: React.FC = () => {
             });
             setRestoringQuestionId(null);
           },
-        }
+        },
       );
     },
-    [restoreQuestion]
+    [restoreQuestion],
   );
 
   const handlePermanentDelete = useCallback(
     (questionId: number) => {
       if (
         !confirm(
-          "Are you sure you want to permanently delete this question? This action cannot be undone!"
+          "Are you sure you want to permanently delete this question? This action cannot be undone!",
         )
       )
         return;
@@ -486,10 +488,10 @@ const OnboardingQuestionsTable: React.FC = () => {
             });
             setPermanentDeletingQuestionId(null);
           },
-        }
+        },
       );
     },
-    [permanentDeleteQuestion]
+    [permanentDeleteQuestion],
   );
 
   const columns: Column<OnboardingQuestion>[] = useMemo(
@@ -607,22 +609,22 @@ const OnboardingQuestionsTable: React.FC = () => {
         header: "",
         accessor: (question: OnboardingQuestion) => (
           <QuestionActions
-            question={question}
-            onEdit={handleEditQuestion}
-            onUpdateStatus={handleUpdateStatus}
-            onDelete={handleDelete}
-            onRestore={handleRestore}
-            onPermanentDelete={handlePermanentDelete}
-            isUpdating={isUpdatingStatus}
             isDeleting={isDeleting}
-            isRestoring={isRestoring}
-            isPermanentDeleting={isPermanentDeleting}
             isDeletingThisQuestion={deletingQuestionId === question.id}
-            isRestoringThisQuestion={restoringQuestionId === question.id}
+            isPermanentDeleting={isPermanentDeleting}
             isPermanentDeletingThisQuestion={
               permanentDeletingQuestionId === question.id
             }
+            isRestoring={isRestoring}
+            isRestoringThisQuestion={restoringQuestionId === question.id}
+            isUpdating={isUpdatingStatus}
+            question={question}
             userRole={user?.role}
+            onDelete={handleDelete}
+            onEdit={handleEditQuestion}
+            onPermanentDelete={handlePermanentDelete}
+            onRestore={handleRestore}
+            onUpdateStatus={handleUpdateStatus}
           />
         ),
         width: "80px",
@@ -643,7 +645,7 @@ const OnboardingQuestionsTable: React.FC = () => {
       permanentDeletingQuestionId,
       user?.role,
       formatDate,
-    ]
+    ],
   );
 
   if (questionsError) {
@@ -651,8 +653,8 @@ const OnboardingQuestionsTable: React.FC = () => {
       <div className="text-center py-8">
         <p className="text-red-600">Error loading questions</p>
         <button
-          onClick={() => refetchQuestions()}
           className="mt-4 px-4 py-2 bg-adult-green text-white rounded-md hover:bg-adult-green/90"
+          onClick={() => refetchQuestions()}
         >
           Retry
         </button>
@@ -665,22 +667,22 @@ const OnboardingQuestionsTable: React.FC = () => {
       <div className="mb-4 flex justify-between items-center">
         <div className="flex gap-2">
           <button
-            onClick={() => setShowArchived(false)}
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
               !showArchived
                 ? "bg-adult-green text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
+            onClick={() => setShowArchived(false)}
           >
             Active Questions ({activeQuestions.length})
           </button>
           <button
-            onClick={() => setShowArchived(true)}
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
               showArchived
                 ? "bg-adult-green text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
+            onClick={() => setShowArchived(true)}
           >
             Archived Questions ({archivedQuestions.length})
           </button>
@@ -689,19 +691,19 @@ const OnboardingQuestionsTable: React.FC = () => {
       <Table
         columns={columns}
         data={displayQuestions}
-        loading={loading}
         emptyMessage={
           showArchived
             ? "No archived questions found"
             : "No onboarding questions found"
         }
+        loading={loading}
       />
       {selectedQuestion && (
         <EditOnboardingQuestionModal
           open={editModalOpen}
+          questionId={selectedQuestion.id}
           onClose={handleCloseEditModal}
           onQuestionUpdated={handleQuestionUpdated}
-          questionId={selectedQuestion.id}
         />
       )}
       <UpdateQuestionStatusModal

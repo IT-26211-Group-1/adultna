@@ -124,12 +124,12 @@ const onboardingApi = {
     ApiClient.get(`/admin/onboarding/questions/${questionId}`),
 
   createQuestion: (
-    data: CreateQuestionRequest
+    data: CreateQuestionRequest,
   ): Promise<CreateQuestionResponse> =>
     ApiClient.post("/onboarding/create", data),
 
   updateQuestion: (
-    data: UpdateQuestionRequest
+    data: UpdateQuestionRequest,
   ): Promise<UpdateQuestionResponse> =>
     ApiClient.put(`/admin/onboarding/questions/${data.questionId}`, {
       question: data.question,
@@ -137,22 +137,25 @@ const onboardingApi = {
     }),
 
   updateQuestionStatus: (
-    data: UpdateQuestionStatusRequest
+    data: UpdateQuestionStatusRequest,
   ): Promise<UpdateQuestionStatusResponse> =>
     ApiClient.patch("/admin/onboarding/questions/status", data),
 
   deleteQuestion: (
-    data: DeleteQuestionRequest
+    data: DeleteQuestionRequest,
   ): Promise<DeleteQuestionResponse> =>
     ApiClient.delete(`/admin/onboarding/questions/${data.questionId}`),
 
   restoreQuestion: (
-    data: RestoreQuestionRequest
+    data: RestoreQuestionRequest,
   ): Promise<RestoreQuestionResponse> =>
-    ApiClient.patch(`/admin/onboarding/questions/${data.questionId}/restore`, {}),
+    ApiClient.patch(
+      `/admin/onboarding/questions/${data.questionId}/restore`,
+      {},
+    ),
 
   permanentDeleteQuestion: (
-    data: PermanentDeleteQuestionRequest
+    data: PermanentDeleteQuestionRequest,
   ): Promise<PermanentDeleteQuestionResponse> =>
     ApiClient.delete(`/admin/onboarding/questions/${data.questionId}/delete`),
 };
@@ -194,7 +197,7 @@ export function useOnboardingQuestions() {
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.onboarding?.detail?.(
-          variables.questionId
+          variables.questionId,
         ) || ["admin", "onboarding", "detail", variables.questionId],
       });
     },
@@ -208,7 +211,7 @@ export function useOnboardingQuestions() {
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.onboarding?.detail?.(
-          variables.questionId
+          variables.questionId,
         ) || ["admin", "onboarding", "detail", variables.questionId],
       });
     },
@@ -231,7 +234,7 @@ export function useOnboardingQuestions() {
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.admin.onboarding?.detail?.(
-          variables.questionId
+          variables.questionId,
         ) || ["admin", "onboarding", "detail", variables.questionId],
       });
     },

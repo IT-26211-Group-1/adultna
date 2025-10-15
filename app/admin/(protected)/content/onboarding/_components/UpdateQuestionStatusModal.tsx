@@ -52,7 +52,8 @@ export default function UpdateQuestionStatusModal({
   });
 
   const currentStatus = watch("status");
-  const requiresReason = currentStatus === "rejected" || currentStatus === "to_revise";
+  const requiresReason =
+    currentStatus === "rejected" || currentStatus === "to_revise";
 
   const onSubmit = useCallback(
     async (data: UpdateStatusForm) => {
@@ -68,6 +69,7 @@ export default function UpdateQuestionStatusModal({
             timeout: 3000,
           });
           onClose();
+
           return;
         }
 
@@ -78,6 +80,7 @@ export default function UpdateQuestionStatusModal({
             color: "danger",
             timeout: 3000,
           });
+
           return;
         }
 
@@ -107,9 +110,9 @@ export default function UpdateQuestionStatusModal({
                 timeout: 4000,
               });
             },
-          }
+          },
         );
-      } catch (error) {
+      } catch {
         addToast({
           title: "Failed to update status",
           color: "danger",
@@ -117,7 +120,14 @@ export default function UpdateQuestionStatusModal({
         });
       }
     },
-    [question, requiresReason, updateQuestionStatus, onStatusUpdated, onClose, reset]
+    [
+      question,
+      requiresReason,
+      updateQuestionStatus,
+      onStatusUpdated,
+      onClose,
+      reset,
+    ],
   );
 
   const handleClose = useCallback(() => {
@@ -137,9 +147,7 @@ export default function UpdateQuestionStatusModal({
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {question && (
           <div className="bg-gray-50 p-3 rounded-lg mb-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">
-              Question
-            </h4>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">Question</h4>
             <p className="text-sm text-gray-700">{question.question}</p>
           </div>
         )}
@@ -164,9 +172,7 @@ export default function UpdateQuestionStatusModal({
             ))}
           </select>
           {errors.status && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.status.message}
-            </p>
+            <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
           )}
         </div>
 
@@ -180,7 +186,9 @@ export default function UpdateQuestionStatusModal({
             </label>
             <textarea
               {...register("reason", {
-                required: requiresReason ? "Reason is required for this status" : false,
+                required: requiresReason
+                  ? "Reason is required for this status"
+                  : false,
                 minLength: {
                   value: 10,
                   message: "Reason must be at least 10 characters",

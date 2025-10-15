@@ -54,7 +54,7 @@ export default function JobBoard() {
         onSearch={handleSearch}
       />
       {isLoading && jobs.length === 0 ? (
-        <div className="space-y-4" aria-label="Loading jobs">
+        <div aria-label="Loading jobs" className="space-y-4">
           {[...Array(6)].map((_, index) => (
             <JobCardSkeleton key={index} />
           ))}

@@ -4,7 +4,7 @@ import { TableSkeleton } from "@/components/ui/Skeletons";
 import AddOnboardingQuestionModal from "./_components/AddOnboardingQuestionModal";
 
 const OnboardingQuestionsTable = lazy(
-  () => import("./_components/OnboardingQuestionsTable")
+  () => import("./_components/OnboardingQuestionsTable"),
 );
 
 export default function OnboardingQuestionsPage() {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
@@ -45,6 +45,7 @@ export default function AddOnboardingQuestionModal({
 
   // Debug: watch form values
   const formValues = watch();
+
   console.log("Current form values:", formValues);
 
   const handleRemoveOption = useCallback(
@@ -53,7 +54,7 @@ export default function AddOnboardingQuestionModal({
         remove(index);
       }
     },
-    [fields.length, remove]
+    [fields.length, remove],
   );
 
   const onSubmit = useCallback(
@@ -81,7 +82,7 @@ export default function AddOnboardingQuestionModal({
             });
           },
         });
-      } catch (error) {
+      } catch {
         addToast({
           title: "Failed to create question",
           color: "danger",
@@ -89,7 +90,7 @@ export default function AddOnboardingQuestionModal({
         });
       }
     },
-    [createQuestion, reset, onQuestionCreated, onClose]
+    [createQuestion, reset, onQuestionCreated, onClose],
   );
 
   const handleClose = useCallback(() => {
@@ -158,14 +159,14 @@ export default function AddOnboardingQuestionModal({
 
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <span className="block text-sm font-medium text-gray-700">
               Answer Options *
-            </label>
+            </span>
             <button
+              className="text-sm text-adult-green hover:text-adult-green/80 font-medium"
+              disabled={isLoading}
               type="button"
               onClick={() => append({ optionText: "", outcomeTagName: "" })}
-              disabled={isLoading}
-              className="text-sm text-adult-green hover:text-adult-green/80 font-medium"
             >
               + Add Option
             </button>
@@ -179,7 +180,10 @@ export default function AddOnboardingQuestionModal({
                 <div className="flex gap-3">
                   <div className="flex-1 space-y-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                      <label
+                        className="block text-xs font-medium text-gray-600 mb-1"
+                        htmlFor={`option-text-${index}`}
+                      >
                         Option Text *
                       </label>
                       <input
@@ -188,6 +192,7 @@ export default function AddOnboardingQuestionModal({
                         })}
                         className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
                         disabled={isLoading}
+                        id={`option-text-${index}`}
                         placeholder="e.g., 18-25"
                         type="text"
                       />
@@ -198,13 +203,17 @@ export default function AddOnboardingQuestionModal({
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                      <label
+                        className="block text-xs font-medium text-gray-600 mb-1"
+                        htmlFor={`outcome-tag-${index}`}
+                      >
                         Outcome Tag
                       </label>
                       <input
                         {...register(`options.${index}.outcomeTagName`)}
                         className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
                         disabled={isLoading}
+                        id={`outcome-tag-${index}`}
                         placeholder="e.g., young_adult"
                         type="text"
                       />
@@ -212,15 +221,15 @@ export default function AddOnboardingQuestionModal({
                   </div>
                   {fields.length > 1 && (
                     <button
+                      className="p-2 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded self-start"
+                      disabled={isLoading}
+                      title="Remove option"
                       type="button"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         handleRemoveOption(index);
                       }}
-                      disabled={isLoading}
-                      className="p-2 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded self-start"
-                      title="Remove option"
                     >
                       <svg
                         className="w-4 h-4"
@@ -229,10 +238,10 @@ export default function AddOnboardingQuestionModal({
                         viewBox="0 0 24 24"
                       >
                         <path
+                          d="M6 18L18 6M6 6l12 12"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
                     </button>

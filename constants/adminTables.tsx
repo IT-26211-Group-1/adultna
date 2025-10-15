@@ -51,7 +51,7 @@ export const FeedbackStatusBadge = React.memo<{ status: FeedbackStatus }>(
     <Badge size="sm" variant={status === "resolved" ? "success" : "warning"}>
       {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
     </Badge>
-  )
+  ),
 );
 
 FeedbackStatusBadge.displayName = "FeedbackStatusBadge";
@@ -63,7 +63,7 @@ export const getUsersTableColumns = (
   handleResetPassword: (userId: string, email: string) => void,
   handleToggleAccountStatus: (userId: string, status: string) => void,
   isUpdatingStatus: boolean,
-  UserActionsComponent: React.ComponentType<any>
+  UserActionsComponent: React.ComponentType<any>,
 ): Column<User>[] => [
   {
     header: "User",
@@ -122,12 +122,12 @@ export const getFeedbackTableColumns = (
   handleEditFeedback: (feedbackId: string) => void,
   handleToggleStatus: (
     feedbackId: string,
-    currentStatus: FeedbackStatus
+    currentStatus: FeedbackStatus,
   ) => void,
   handleDeleteFeedback: (feedbackId: string) => void,
   isUpdatingStatus: boolean,
   isDeletingFeedback: boolean,
-  FeedbackActionsComponent: React.ComponentType<any>
+  FeedbackActionsComponent: React.ComponentType<any>,
 ): Column<Feedback>[] => [
   {
     header: "Feature",
