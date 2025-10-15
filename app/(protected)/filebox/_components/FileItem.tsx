@@ -1,13 +1,3 @@
-"use client";
-
-import { FileGrid } from "./FileGrid";
-import { FileList } from "./FileList";
-
-interface FileDisplayProps {
-  viewType: "grid" | "list";
-  files: FileItem[];
-}
-
 export interface FileItem {
   id: string;
   name: string;
@@ -17,16 +7,4 @@ export interface FileItem {
   lastAccessed: string;
   type: "pdf" | "jpg" | "doc" | "png" | "docx";
   isSecure?: boolean;
-}
-
-export function FileDisplay({ viewType, files }: FileDisplayProps) {
-  return (
-    <div className="w-full">
-      {viewType === "grid" ? (
-        <FileGrid files={files} />
-      ) : (
-        <FileList files={files} />
-      )}
-    </div>
-  );
 }

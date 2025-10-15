@@ -47,7 +47,7 @@ export function FileBox() {
     const categoryMatch =
       selectedCategory === "all" || file.category === selectedCategory;
 
-    // Search filter
+    // Search filter can change this to include the category if needed add nalang or ||
     const searchMatch =
       searchTerm === "" ||
       file.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -114,7 +114,6 @@ export function FileBox() {
         )}
       </div>
 
-      {/* Modals */}
       {showUpload && <UploadDocument onClose={() => setShowUpload(false)} />}
 
       {showSecureAccess && selectedFile && (

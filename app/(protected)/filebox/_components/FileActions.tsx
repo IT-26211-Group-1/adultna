@@ -40,7 +40,7 @@ export function FileActions({
   };
 
   if (viewType === "list") {
-    // List view - show plain buttons
+    // List view - show plain buttons based on the figma design
     return (
       <div className="flex items-center space-x-1">
         <Button
