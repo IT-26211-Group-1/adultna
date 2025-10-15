@@ -241,10 +241,13 @@ const QuestionActions = React.memo<QuestionActionsProps>(
 
     // Verifier admins can only update status for active questions
     if (userRole === "verifier_admin" && !isDeleted) {
+      const isStatusLocked =
+        question.status === "accepted" || question.status === "rejected";
+
       menuItems.push({
-        label: "Update Status",
+        label: isStatusLocked ? "Update Status" : "Update Status",
         onClick: () => onUpdateStatus(question.id),
-        disabled: isUpdating || isDeleting,
+        disabled: isUpdating || isDeleting || isStatusLocked,
         icon: (
           <svg
             className="w-4 h-4"
@@ -305,16 +308,14 @@ const OnboardingQuestionsTable: React.FC = () => {
   const [restoringQuestionId, setRestoringQuestionId] = useState<number | null>(
     null
   );
-  const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] = useState<number | null>(
-    null
-  );
+  const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
+    useState<number | null>(null);
   const [showArchived, setShowArchived] = useState(false);
 
   const { user } = useAdminAuth();
 
   const {
     questions,
-    questionsCount,
     isLoadingQuestions: loading,
     questionsError,
     updateQuestionStatus,
@@ -329,16 +330,11 @@ const OnboardingQuestionsTable: React.FC = () => {
   } = useOnboardingQuestions();
 
   // Filter questions based on view mode
-  const activeQuestions = questions.filter(q => !q.deletedAt);
-  const archivedQuestions = questions.filter(q => q.deletedAt);
+  const activeQuestions = questions.filter((q) => !q.deletedAt);
+  const archivedQuestions = questions.filter((q) => q.deletedAt);
 
   // Select which questions to display based on toggle
   const displayQuestions = showArchived ? archivedQuestions : activeQuestions;
-
-  // Debug: log questions data
-  console.log("Questions with options:", questions);
-  console.log("Active questions:", activeQuestions.length);
-  console.log("Archived questions:", archivedQuestions.length);
 
   const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
@@ -461,7 +457,12 @@ const OnboardingQuestionsTable: React.FC = () => {
 
   const handlePermanentDelete = useCallback(
     (questionId: number) => {
-      if (!confirm("Are you sure you want to permanently delete this question? This action cannot be undone!")) return;
+      if (
+        !confirm(
+          "Are you sure you want to permanently delete this question? This action cannot be undone!"
+        )
+      )
+        return;
 
       setPermanentDeletingQuestionId(questionId);
       permanentDeleteQuestion(
@@ -549,9 +550,7 @@ const OnboardingQuestionsTable: React.FC = () => {
         accessor: (question: OnboardingQuestion) => (
           <div className="text-gray-600 text-sm max-w-[250px]">
             {question.reason ? (
-              <div className="italic break-words">
-                {question.reason}
-              </div>
+              <div className="italic break-words">{question.reason}</div>
             ) : (
               <span className="text-gray-400">-</span>
             )}
@@ -620,7 +619,9 @@ const OnboardingQuestionsTable: React.FC = () => {
             isPermanentDeleting={isPermanentDeleting}
             isDeletingThisQuestion={deletingQuestionId === question.id}
             isRestoringThisQuestion={restoringQuestionId === question.id}
-            isPermanentDeletingThisQuestion={permanentDeletingQuestionId === question.id}
+            isPermanentDeletingThisQuestion={
+              permanentDeletingQuestionId === question.id
+            }
             userRole={user?.role}
           />
         ),
