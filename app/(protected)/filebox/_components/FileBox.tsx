@@ -56,62 +56,66 @@ export function FileBox() {
   });
 
   return (
-    <div className="p-6">
-      <SearchSection
-        searchTerm={searchTerm}
-        selectedCategory={selectedCategory}
-        viewType={viewType}
-        onCategoryChange={handleCategoryChange}
-        onSearchChange={handleSearchChange}
-        onUploadClick={handleUploadClick}
-        onViewTypeChange={setViewType}
-      />
+    <div className="h-full flex flex-col">
+      <div className="flex-shrink-0 p-6 pb-0">
+        <SearchSection
+          searchTerm={searchTerm}
+          selectedCategory={selectedCategory}
+          viewType={viewType}
+          onCategoryChange={handleCategoryChange}
+          onSearchChange={handleSearchChange}
+          onUploadClick={handleUploadClick}
+          onViewTypeChange={setViewType}
+        />
+      </div>
 
       {/* Files Section */}
-      <div className="bg-white rounded-lg p-6">
-        {/* Error Message */}
-        {error && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-red-500 text-center">
-              <p className="mb-2">{error}</p>
+      <div className="flex-1 overflow-y-auto px-6 pb-6">
+        <div className="bg-white rounded-lg p-6">
+          {/* Error Message */}
+          {error && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-red-500 text-center">
+                <p className="mb-2">{error}</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Empty State */}
-        {!error && files.length === 0 && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500 text-center">
-              <p className="mb-2">No files found</p>
-              <p className="text-sm">
-                Upload your first document to get started
-              </p>
+          {/* Empty State */}
+          {!error && files.length === 0 && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-500 text-center">
+                <p className="mb-2">No files found</p>
+                <p className="text-sm">
+                  Upload your first document to get started
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* No Results State */}
-        {!error && files.length > 0 && filteredFiles.length === 0 && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500 text-center">
-              <p className="mb-2">No files match your search criteria</p>
-              <p className="text-sm">
-                Try adjusting your search or category filter
-              </p>
+          {/* No Results State */}
+          {!error && files.length > 0 && filteredFiles.length === 0 && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-500 text-center">
+                <p className="mb-2">No files match your search criteria</p>
+                <p className="text-sm">
+                  Try adjusting your search or category filter
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* File Display */}
-        {!error && filteredFiles.length > 0 && (
-          <>
-            {viewType === "grid" ? (
-              <FileGrid files={filteredFiles} onFileClick={handleFileClick} />
-            ) : (
-              <FileList files={filteredFiles} onFileClick={handleFileClick} />
-            )}
-          </>
-        )}
+          {/* File Display */}
+          {!error && filteredFiles.length > 0 && (
+            <>
+              {viewType === "grid" ? (
+                <FileGrid files={filteredFiles} onFileClick={handleFileClick} />
+              ) : (
+                <FileList files={filteredFiles} onFileClick={handleFileClick} />
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {showUpload && <UploadDocument onClose={() => setShowUpload(false)} />}
