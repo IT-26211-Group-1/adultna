@@ -1,6 +1,9 @@
+"use client";
+
 import { MemberCardProps } from "@/types/faq";
 import { Divider } from "@heroui/divider";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 export function MemberCard({
   name,
@@ -8,9 +11,40 @@ export function MemberCard({
   linkedin,
   github,
   bg = "bg-white",
-}: MemberCardProps) {
+  staggerIndex = 0,
+  staggerStepMs = 120,
+}: MemberCardProps & { staggerIndex?: number; staggerStepMs?: number }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setVisible(true);
+          setHasAnimated(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasAnimated]);
+
   return (
-    <div className={`${bg} border p-4 rounded-lg shadow-md`}>
+    <div
+      ref={ref}
+      className={`${bg} border p-4 rounded-lg shadow-md transform transition-all duration-700 ease-out will-change-transform motion-reduce:transition-none motion-reduce:transform-none ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+      style={{ transitionDelay: visible ? `${staggerIndex * staggerStepMs}ms` : "0ms" }}
+    >
       <div className="flex justify-center mb-3">
         <div className="w-50 h-50 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
           <Image
@@ -28,21 +62,21 @@ export function MemberCard({
 
       <Divider className="my-2" />
 
-      <div className="flex space-x-2 mt-2">
+      <div className="flex space-x-2 mt-2 ">
         <a
           aria-label="LinkedIn"
           href={linkedin}
           rel="noopener noreferrer"
           target="_blank"
         >
-          <svg
-            className="text-blue-700 hover:text-blue-900"
-            fill="black"
+            <svg
+            className="text-black hover:text-[#F16F33] transition-colors duration-300"
+            fill="currentColor"
             height="24"
             width="24"
-          >
+            >
             <path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-9h3v9zm-1.5-10.28c-.97 0-1.75-.79-1.75-1.75s.78-1.75 1.75-1.75 1.75.79 1.75 1.75-.78 1.75-1.75 1.75zm13.5 10.28h-3v-4.5c0-1.08-.02-2.47-1.5-2.47s-1.73 1.17-1.73 2.39v4.58h-3v-9h2.88v1.23h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.6 2 3.6 4.59v4.74z" />
-          </svg>
+            </svg>
         </a>
         <a
           aria-label="GitHub"
@@ -51,8 +85,8 @@ export function MemberCard({
           target="_blank"
         >
           <svg
-            className="text-gray-800 hover:text-black"
-            fill="black"
+            className="text-black hover:text-[#595880] transition-colors duration-300"
+            fill="currentColor"
             height="24"
             width="24"
           >

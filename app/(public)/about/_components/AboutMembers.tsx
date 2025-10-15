@@ -38,7 +38,7 @@ export function AboutMembers() {
         The <span className="text-crayola-orange">Team</span> Behind The Dream
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {membersInfo.map((member) => (
+        {membersInfo.map((member, idx) => (
           <MemberCard
             key={member.name}
             bg={member.bg}
@@ -46,6 +46,8 @@ export function AboutMembers() {
             github={member.github}
             linkedin={member.linkedin}
             name={member.name}
+            staggerIndex={idx}
+            staggerStepMs={120}
           />
         ))}
       </div>

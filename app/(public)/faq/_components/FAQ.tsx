@@ -25,10 +25,17 @@ export default function FAQ() {
           </div>
         </div>
         {/* Purple background section starts immediately */}
-        <div className="w-full z-0 bg-olivine/80">
+        <div className="w-full z-0 bg-olivine/80 relative">
           <div className="w-full min-h-[600px] max-w-6xl mx-auto px-10 sm:px-6 py-8 sm:py-12">
             <FAQAccordion />
           </div>
+          {/* Gradient fade at bottom */}
+          <div
+            className="absolute left-0 w-full h-20 pointer-events-none"
+            style={{
+              background: "linear-gradient(to bottom, rgba(172,189,111,0.8) 40%, rgba(255,255,255,0.7) 100%)",
+            }}
+          />
         </div>
       </div>
     </section>

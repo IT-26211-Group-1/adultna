@@ -1,6 +1,7 @@
 "use client";
 import { Accordion, AccordionItem } from "@heroui/react";
 export function FAQAccordion() {
+  // Sample questions and answers (to be replaced with actual FAQ data - to be connected to a database or API)
   const questionTitles = [
     "What is AdultNa?",
     "How does AdultNa work?",
@@ -14,16 +15,16 @@ export function FAQAccordion() {
     "What should I do if I encounter a problem while using AdultNa?"
   ];
   const faqAnswers = [
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content.",
-    "This is the content of the accordion item. You can replace this with your own content."
+    "AdultNa is a comprehensive platform designed to assist young adults in navigating various aspects of adulthood, including government services, financial literacy, career development, and personal growth.",
+    "AdultNa works by providing a user-friendly interface that connects young adults with the resources and information they need to make informed decisions.",
+    "Yes, AdultNa is completely free to use. We believe in providing accessible resources for all young adults.",
+    "Absolutely! AdultNa is designed to be mobile-friendly, allowing you to access information and resources on the go.",
+    "Yes, AdultNa is beneficial for individuals of all ages, as it covers a wide range of topics relevant to adulthood.",
+    "AdultNa is designed to for Manila residents, but we are working on expanding our resources to cover other regions in the future.",
+    "AdultNa is committed to regularly updating its content to ensure that users have access to the most current and relevant information.",
+    "Yes, we welcome contributions from users who want to share their knowledge and expertise to help others in the community.",
+    "AdultNa takes user privacy and data security seriously. We implement strict measures to protect your personal information.",
+    "If you encounter any issues while using AdultNa, please reach out to our support team for assistance."
   ];
   return (
     <>
