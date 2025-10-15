@@ -6,8 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { secureDocumentAccessOtpSchema } from "@/validators/authSchema";
 import NextLink from "next/link";
 
+interface SecureDocumentProps {
+    onClose?: () => void;
+}
 
-export function SecureDocument() {
+export function SecureDocument({ onClose }: SecureDocumentProps) {
     const [otpValue, setOtpValue] = useState("");
     const [focusedIndex, setFocusedIndex] = useState(0);
     const hiddenInputRef = useRef<HTMLInputElement>(null);

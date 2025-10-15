@@ -5,7 +5,11 @@ import NextLink from 'next/link';
 import { Card, CardBody, Button, Checkbox } from '@heroui/react';
 import { useRef, useState } from 'react';
 
-export function UploadDocument() {
+interface UploadDocumentProps {
+    onClose?: () => void;
+}
+
+export function UploadDocument({ onClose }: UploadDocumentProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -46,8 +50,7 @@ export function UploadDocument() {
     //     </div>
     // );
     const handleCancel = () => {
-        // Close modal or navigate back
-        console.log("Cancel clicked");
+        onClose?.();
     };
 
     const handleUploadDocument = () => {
