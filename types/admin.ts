@@ -2,7 +2,7 @@ export type User = {
   id: string;
   email: string;
   emailVerified: boolean;
-  status: "active" | "inactive";
+  status: "active" | "deactivated";
   createdAt: string;
   lastLogin: string | null;
   firstName: string;

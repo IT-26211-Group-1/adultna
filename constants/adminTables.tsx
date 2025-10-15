@@ -33,7 +33,7 @@ UserAvatar.displayName = "UserAvatar";
 export const StatusBadges = React.memo<{ user: User }>(({ user }) => (
   <div className="flex items-center space-x-2">
     <Badge size="sm" variant={user.status === "active" ? "success" : "error"}>
-      {user.status === "active" ? "Active" : "Inactive"}
+      {user.status === "active" ? "Active" : "Deactivated"}
     </Badge>
     {user.emailVerified && (
       <Badge size="sm" variant="info">

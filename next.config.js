@@ -68,12 +68,18 @@ const nextConfig = {
       unoptimized: true,
     },
     async rewrites() {
-      return [
-        {
-          source: "/api/:path*",
-          destination: `${process.env.NEXT_PUBLIC_API}/auth/:path*`,
-        },
-      ];
+      const apiUrl = process.env.NEXT_PUBLIC_API;
+
+      if (apiUrl && apiUrl !== "undefined") {
+        return [
+          {
+            source: "/api/:path*",
+            destination: `${apiUrl}/auth/:path*`,
+          },
+        ];
+      }
+
+      return [];
     },
   }),
 };

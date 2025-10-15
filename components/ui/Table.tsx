@@ -24,17 +24,6 @@ function Table<T>({
   const memoizedColumns = useMemo(() => columns, [columns]);
   const memoizedData = useMemo(() => data, [data]);
 
-  if (loading) {
-    return (
-      <div className={`bg-white rounded-lg shadow-sm border ${className}`}>
-        <div className="p-8 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto" />
-          <p className="mt-2 text-gray-500">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       className={`bg-white rounded-lg shadow-sm border overflow-hidden ${className}`}
@@ -55,7 +44,21 @@ function Table<T>({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {memoizedData.length > 0 ? (
+            {loading ? (
+              // Skeleton loading rows
+              Array.from({ length: 5 }).map((_, rowIndex) => (
+                <tr key={`skeleton-${rowIndex}`}>
+                  {memoizedColumns.map((_, colIndex) => (
+                    <td
+                      key={`skeleton-${rowIndex}-${colIndex}`}
+                      className="px-6 py-4 whitespace-nowrap"
+                    >
+                      <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : memoizedData.length > 0 ? (
               memoizedData.map((row, rowIndex) => {
                 const rowKey =
                   typeof row === "object" && row !== null && "id" in row

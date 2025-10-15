@@ -46,15 +46,13 @@ export function useLogin() {
           setSecureItem(
             "verification_token",
             response.verificationToken,
-            60, // 1 hour expiry
+            60 // 1 hour expiry
           );
 
           router.replace("/auth/verify-email");
         }
       },
       onError: (error: any) => {
-        console.log("Login error:", error);
-
         if (error?.message === "Please verify your email first") {
           addToast({
             title: "Email not verified",
@@ -69,7 +67,7 @@ export function useLogin() {
               JSON.stringify({
                 cooldown: error.data.cooldownLeft,
                 timestamp: Date.now(),
-              }),
+              })
             );
           }
         } else if (error?.message?.includes("Too many failed attempts")) {

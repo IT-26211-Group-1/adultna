@@ -203,9 +203,9 @@ export function useQuestionByCategory(category: string) {
 
 // hooks to get question categories
 export function useLifeStageQuestion() {
-  return useQuestionByCategory("Life Stage");
+  return useQuestionByCategory("life_stage");
 }
 
 export function usePrioritiesQuestion() {
-  return useQuestionByCategory("Priorities");
+  return useQuestionByCategory("priorities");
 }

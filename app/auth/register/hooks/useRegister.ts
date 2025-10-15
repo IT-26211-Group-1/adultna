@@ -80,7 +80,7 @@ export function useRegister() {
         }
 
         if (result.verificationToken) {
-          setSecureItem("verification_token", result.verificationToken, 60); // 1 hour expiry
+          setSecureItem("verification_token", result.verificationToken, 60);
         }
 
         // Store initial cooldown
