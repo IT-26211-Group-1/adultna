@@ -86,6 +86,24 @@ export type DeleteQuestionResponse = {
   message: string;
 };
 
+export type RestoreQuestionRequest = {
+  questionId: number;
+};
+
+export type RestoreQuestionResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type PermanentDeleteQuestionRequest = {
+  questionId: number;
+};
+
+export type PermanentDeleteQuestionResponse = {
+  success: boolean;
+  message: string;
+};
+
 export type QuestionsListResponse = {
   success: boolean;
   data: OnboardingQuestion[];
@@ -127,6 +145,16 @@ const onboardingApi = {
     data: DeleteQuestionRequest
   ): Promise<DeleteQuestionResponse> =>
     ApiClient.delete(`/admin/onboarding/questions/${data.questionId}`),
+
+  restoreQuestion: (
+    data: RestoreQuestionRequest
+  ): Promise<RestoreQuestionResponse> =>
+    ApiClient.patch(`/admin/onboarding/questions/${data.questionId}/restore`, {}),
+
+  permanentDeleteQuestion: (
+    data: PermanentDeleteQuestionRequest
+  ): Promise<PermanentDeleteQuestionResponse> =>
+    ApiClient.delete(`/admin/onboarding/questions/${data.questionId}/delete`),
 };
 
 // Onboarding Questions Management Hook
@@ -195,6 +223,29 @@ export function useOnboardingQuestions() {
     },
   });
 
+  const restoreQuestionMutation = useMutation({
+    mutationFn: onboardingApi.restoreQuestion,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.detail?.(
+          variables.questionId
+        ) || ["admin", "onboarding", "detail", variables.questionId],
+      });
+    },
+  });
+
+  const permanentDeleteQuestionMutation = useMutation({
+    mutationFn: onboardingApi.permanentDeleteQuestion,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+    },
+  });
+
   return {
     questions: questionsData?.data || [],
     questionsCount: questionsData?.count || 0,
@@ -205,12 +256,16 @@ export function useOnboardingQuestions() {
     isUpdating: updateQuestionMutation.isPending,
     isUpdatingStatus: updateQuestionStatusMutation.isPending,
     isDeleting: deleteQuestionMutation.isPending,
+    isRestoring: restoreQuestionMutation.isPending,
+    isPermanentDeleting: permanentDeleteQuestionMutation.isPending,
 
     questionsError,
     createQuestionError: createQuestionMutation.error,
     updateQuestionError: updateQuestionMutation.error,
     updateStatusError: updateQuestionStatusMutation.error,
     deleteQuestionError: deleteQuestionMutation.error,
+    restoreQuestionError: restoreQuestionMutation.error,
+    permanentDeleteQuestionError: permanentDeleteQuestionMutation.error,
 
     createQuestion: createQuestionMutation.mutate,
     createQuestionAsync: createQuestionMutation.mutateAsync,
@@ -220,12 +275,18 @@ export function useOnboardingQuestions() {
     updateQuestionStatusAsync: updateQuestionStatusMutation.mutateAsync,
     deleteQuestion: deleteQuestionMutation.mutate,
     deleteQuestionAsync: deleteQuestionMutation.mutateAsync,
+    restoreQuestion: restoreQuestionMutation.mutate,
+    restoreQuestionAsync: restoreQuestionMutation.mutateAsync,
+    permanentDeleteQuestion: permanentDeleteQuestionMutation.mutate,
+    permanentDeleteQuestionAsync: permanentDeleteQuestionMutation.mutateAsync,
     refetchQuestions,
 
     createQuestionData: createQuestionMutation.data,
     updateQuestionData: updateQuestionMutation.data,
     updateStatusData: updateQuestionStatusMutation.data,
     deleteQuestionData: deleteQuestionMutation.data,
+    restoreQuestionData: restoreQuestionMutation.data,
+    permanentDeleteQuestionData: permanentDeleteQuestionMutation.data,
   };
 }
 

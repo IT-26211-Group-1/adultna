@@ -59,9 +59,15 @@ type QuestionActionsProps = {
   onEdit: (questionId: number) => void;
   onUpdateStatus: (questionId: number) => void;
   onDelete: (questionId: number) => void;
+  onRestore: (questionId: number) => void;
+  onPermanentDelete: (questionId: number) => void;
   isUpdating: boolean;
   isDeleting: boolean;
+  isRestoring: boolean;
+  isPermanentDeleting: boolean;
   isDeletingThisQuestion: boolean;
+  isRestoringThisQuestion: boolean;
+  isPermanentDeletingThisQuestion: boolean;
   userRole?: string;
 };
 
@@ -71,12 +77,18 @@ const QuestionActions = React.memo<QuestionActionsProps>(
     onEdit,
     onUpdateStatus,
     onDelete,
+    onRestore,
+    onPermanentDelete,
     isUpdating,
     isDeleting,
+    isRestoring,
+    isPermanentDeleting,
     isDeletingThisQuestion,
+    isRestoringThisQuestion,
+    isPermanentDeletingThisQuestion,
     userRole,
   }) => {
-    if (isDeletingThisQuestion) {
+    if (isDeletingThisQuestion || isPermanentDeletingThisQuestion) {
       return (
         <div className="flex items-center justify-center">
           <svg
@@ -103,10 +115,84 @@ const QuestionActions = React.memo<QuestionActionsProps>(
       );
     }
 
+    if (isRestoringThisQuestion) {
+      return (
+        <div className="flex items-center justify-center">
+          <svg
+            className="animate-spin h-5 w-5 text-adult-green"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        </div>
+      );
+    }
+
     const menuItems = [];
     const isDeleted = !!question.deletedAt;
 
-    // Technical admins can edit and delete
+    // If archived, only technical admins can restore or permanently delete
+    if (isDeleted && userRole === "technical_admin") {
+      menuItems.push(
+        {
+          label: "Restore",
+          onClick: () => onRestore(question.id),
+          disabled: isRestoring || isPermanentDeleting,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        },
+        {
+          label: "Delete Permanently",
+          onClick: () => onPermanentDelete(question.id),
+          disabled: isRestoring || isPermanentDeleting,
+          destructive: true,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        }
+      );
+    }
+
+    // Technical admins can edit and delete active questions
     if (userRole === "technical_admin" && !isDeleted) {
       menuItems.push(
         {
@@ -153,7 +239,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
       );
     }
 
-    // Verifier admins can only update status
+    // Verifier admins can only update status for active questions
     if (userRole === "verifier_admin" && !isDeleted) {
       menuItems.push({
         label: "Update Status",
@@ -177,8 +263,8 @@ const QuestionActions = React.memo<QuestionActionsProps>(
       });
     }
 
-    // If deleted, show a disabled info message
-    if (isDeleted) {
+    // If no menu items, show archived message
+    if (menuItems.length === 0) {
       return <div className="text-xs text-gray-400 text-center">Archived</div>;
     }
 
@@ -216,6 +302,12 @@ const OnboardingQuestionsTable: React.FC = () => {
   const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(
     null
   );
+  const [restoringQuestionId, setRestoringQuestionId] = useState<number | null>(
+    null
+  );
+  const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] = useState<number | null>(
+    null
+  );
   const [showArchived, setShowArchived] = useState(false);
 
   const { user } = useAdminAuth();
@@ -229,6 +321,10 @@ const OnboardingQuestionsTable: React.FC = () => {
     isUpdatingStatus,
     deleteQuestion,
     isDeleting,
+    restoreQuestion,
+    isRestoring,
+    permanentDeleteQuestion,
+    isPermanentDeleting,
     refetchQuestions,
   } = useOnboardingQuestions();
 
@@ -329,6 +425,70 @@ const OnboardingQuestionsTable: React.FC = () => {
       );
     },
     [deleteQuestion]
+  );
+
+  const handleRestore = useCallback(
+    (questionId: number) => {
+      if (!confirm("Are you sure you want to restore this question?")) return;
+
+      setRestoringQuestionId(questionId);
+      restoreQuestion(
+        { questionId },
+        {
+          onSuccess: (response) => {
+            if (response.success) {
+              addToast({
+                title: response.message || "Question restored successfully",
+                color: "success",
+                timeout: 4000,
+              });
+            }
+            setRestoringQuestionId(null);
+          },
+          onError: (error: any) => {
+            addToast({
+              title: error?.message || "Failed to restore question",
+              color: "danger",
+              timeout: 4000,
+            });
+            setRestoringQuestionId(null);
+          },
+        }
+      );
+    },
+    [restoreQuestion]
+  );
+
+  const handlePermanentDelete = useCallback(
+    (questionId: number) => {
+      if (!confirm("Are you sure you want to permanently delete this question? This action cannot be undone!")) return;
+
+      setPermanentDeletingQuestionId(questionId);
+      permanentDeleteQuestion(
+        { questionId },
+        {
+          onSuccess: (response) => {
+            if (response.success) {
+              addToast({
+                title: response.message || "Question permanently deleted",
+                color: "success",
+                timeout: 4000,
+              });
+            }
+            setPermanentDeletingQuestionId(null);
+          },
+          onError: (error: any) => {
+            addToast({
+              title: error?.message || "Failed to permanently delete question",
+              color: "danger",
+              timeout: 4000,
+            });
+            setPermanentDeletingQuestionId(null);
+          },
+        }
+      );
+    },
+    [permanentDeleteQuestion]
   );
 
   const columns: Column<OnboardingQuestion>[] = useMemo(
@@ -452,9 +612,15 @@ const OnboardingQuestionsTable: React.FC = () => {
             onEdit={handleEditQuestion}
             onUpdateStatus={handleUpdateStatus}
             onDelete={handleDelete}
+            onRestore={handleRestore}
+            onPermanentDelete={handlePermanentDelete}
             isUpdating={isUpdatingStatus}
             isDeleting={isDeleting}
+            isRestoring={isRestoring}
+            isPermanentDeleting={isPermanentDeleting}
             isDeletingThisQuestion={deletingQuestionId === question.id}
+            isRestoringThisQuestion={restoringQuestionId === question.id}
+            isPermanentDeletingThisQuestion={permanentDeletingQuestionId === question.id}
             userRole={user?.role}
           />
         ),
@@ -465,10 +631,17 @@ const OnboardingQuestionsTable: React.FC = () => {
       handleEditQuestion,
       handleUpdateStatus,
       handleDelete,
+      handleRestore,
+      handlePermanentDelete,
       isUpdatingStatus,
       isDeleting,
+      isRestoring,
+      isPermanentDeleting,
       deletingQuestionId,
+      restoringQuestionId,
+      permanentDeletingQuestionId,
       user?.role,
+      formatDate,
     ]
   );
 
