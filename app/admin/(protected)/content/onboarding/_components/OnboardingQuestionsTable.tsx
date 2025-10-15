@@ -701,7 +701,7 @@ const OnboardingQuestionsTable: React.FC = () => {
       {selectedQuestion && (
         <EditOnboardingQuestionModal
           open={editModalOpen}
-          questionId={selectedQuestion.id}
+          question={selectedQuestion}
           onClose={handleCloseEditModal}
           onQuestionUpdated={handleQuestionUpdated}
         />

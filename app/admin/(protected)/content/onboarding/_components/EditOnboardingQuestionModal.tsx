@@ -5,10 +5,7 @@ import { useForm } from "react-hook-form";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
-import {
-  useOnboardingQuestionDetail,
-  useOnboardingQuestions,
-} from "@/hooks/queries/admin/useOnboardingQueries";
+import { useOnboardingQuestions } from "@/hooks/queries/admin/useOnboardingQueries";
 import {
   EditOnboardingQuestionModalProps,
   EditQuestionForm,
@@ -21,12 +18,60 @@ const categoryOptions = [
 
 export default function EditOnboardingQuestionModal({
   open = false,
-  questionId,
+  question,
   onClose = () => {},
   onQuestionUpdated,
 }: EditOnboardingQuestionModalProps) {
-  const { question, isLoading: isLoadingQuestion } =
-    useOnboardingQuestionDetail(questionId);
+  if (!question) {
+    return (
+      <Modal open={open} title="Edit Onboarding Question" onClose={onClose}>
+        <div className="flex items-center justify-center py-8">
+          <svg
+            className="animate-spin h-8 w-8 text-adult-green"
+            fill="none"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      </Modal>
+    );
+  }
+
+  return (
+    <EditForm
+      question={question}
+      open={open}
+      onClose={onClose}
+      onQuestionUpdated={onQuestionUpdated}
+    />
+  );
+}
+
+function EditForm({
+  question,
+  open,
+  onClose,
+  onQuestionUpdated,
+}: {
+  question: NonNullable<EditOnboardingQuestionModalProps["question"]>;
+  open: boolean;
+  onClose: () => void;
+  onQuestionUpdated?: () => void;
+}) {
   const { updateQuestion, isUpdating } = useOnboardingQuestions();
 
   const {
@@ -37,8 +82,8 @@ export default function EditOnboardingQuestionModal({
     formState: { errors, isSubmitting },
   } = useForm<EditQuestionForm>({
     defaultValues: {
-      question: question?.question || "",
-      category: question?.category || "Life Stage",
+      question: question.question,
+      category: question.category,
     },
   });
 
@@ -49,8 +94,8 @@ export default function EditOnboardingQuestionModal({
     async (data: EditQuestionForm) => {
       try {
         const hasChanges =
-          data.question !== question?.question ||
-          data.category !== question?.category;
+          data.question !== question.question ||
+          data.category !== question.category;
 
         if (!hasChanges) {
           addToast({
@@ -65,7 +110,7 @@ export default function EditOnboardingQuestionModal({
 
         updateQuestion(
           {
-            questionId,
+            questionId: question.id,
             question: data.question,
             category: data.category,
           },
@@ -82,12 +127,15 @@ export default function EditOnboardingQuestionModal({
             },
             onError: (error: any) => {
               addToast({
-                title: error?.message || "Failed to update question",
+                title:
+                  error?.data?.message ||
+                  error?.message ||
+                  "Failed to update question",
                 color: "danger",
                 timeout: 4000,
               });
             },
-          },
+          }
         );
       } catch {
         addToast({
@@ -97,26 +145,30 @@ export default function EditOnboardingQuestionModal({
         });
       }
     },
-    [question, questionId, updateQuestion, onQuestionUpdated, onClose],
+    [question, updateQuestion, onQuestionUpdated, onClose]
   );
 
   const handleClose = useCallback(() => {
     reset({
-      question: question?.question || "",
-      category: question?.category || "personal",
+      question: question.question,
+      category: question.category,
     });
     onClose();
   }, [reset, question, onClose]);
 
-  const isLoading = isSubmitting || isUpdating || isLoadingQuestion;
+  const isLoading = isSubmitting || isUpdating;
 
   const hasChanges =
-    currentQuestion !== question?.question ||
-    currentCategory !== question?.category;
+    currentQuestion !== question.question ||
+    currentCategory !== question.category;
 
   return (
     <Modal open={open} title="Edit Onboarding Question" onClose={handleClose}>
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        key={question.id}
+        className="space-y-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <div>
           <label
             className="block text-sm font-medium text-gray-700"
@@ -184,19 +236,18 @@ export default function EditOnboardingQuestionModal({
                 <strong>Status:</strong>{" "}
                 <span className="capitalize">
                   {question.status
-                    .split("_")
+                    ?.split("_")
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")}
+                    .join(" ") || "N/A"}
                 </span>
               </p>
               <p>
-                <strong>Options:</strong> {question.options?.length || 0}
-              </p>
-              <p>
                 <strong>Created:</strong>{" "}
-                {new Date(question.createdAt).toLocaleString()}
+                {question.createdAt
+                  ? new Date(question.createdAt).toLocaleString()
+                  : "N/A"}
               </p>
-              {question.updatedAt && (
+              {question.updatedAt && question.updatedAt !== null && (
                 <p>
                   <strong>Updated:</strong>{" "}
                   {new Date(question.updatedAt).toLocaleString()}

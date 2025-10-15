@@ -132,6 +132,7 @@ const onboardingApi = {
     data: UpdateQuestionRequest,
   ): Promise<UpdateQuestionResponse> =>
     ApiClient.put(`/admin/onboarding/questions/${data.questionId}`, {
+      questionId: data.questionId,
       question: data.question,
       category: data.category,
     }),

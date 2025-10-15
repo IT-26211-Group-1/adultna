@@ -68,8 +68,8 @@ export type AddQuestionForm = {
 };
 
 export type EditQuestionForm = {
-  question?: string;
-  category?: string;
+  question: string;
+  category: string;
 };
 
 // Admin Modal Props Types
@@ -83,5 +83,13 @@ export type EditOnboardingQuestionModalProps = {
   open?: boolean;
   onClose?: () => void;
   onQuestionUpdated?: () => void;
-  questionId: number;
+  question: {
+    id: number;
+    question: string;
+    category: string;
+    status?: string;
+    options?: any[];
+    createdAt?: string;
+    updatedAt?: string | null;
+  } | null;
 };
