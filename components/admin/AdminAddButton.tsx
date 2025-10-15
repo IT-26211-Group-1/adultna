@@ -52,6 +52,7 @@ export function AdminAddButton({
         onClose: handleCloseModal,
         onFeedbackCreated: handleCreated,
         onUserCreated: handleCreated,
+        onQuestionCreated: handleCreated,
         onCreated: handleCreated,
         ...modalComponent.props,
       })

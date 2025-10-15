@@ -18,11 +18,12 @@ jobs:
           node-version: "22"
           cache: "pnpm"
 
-      - name: Install pnpm
+      - name: Install dependencies
         run: pnpm install
 
       - name: Install Playwright Browsers
-        run: npx playwright install-deps --with-deps
+        run: npx playwright install --with-deps
+
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
