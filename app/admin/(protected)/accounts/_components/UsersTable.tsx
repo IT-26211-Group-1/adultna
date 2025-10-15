@@ -163,7 +163,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       }
       onEditUser?.(userId);
     },
-    [users, onEditUser],
+    [users, onEditUser]
   );
 
   const handleUserUpdated = useCallback(
@@ -172,7 +172,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       setEditModalOpen(false);
       setSelectedUser(null);
     },
-    [refetchUsers],
+    [refetchUsers]
   );
 
   const handleCloseEditModal = useCallback(() => {
@@ -182,7 +182,6 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
 
   const handleResetPassword = useCallback((userId: string, email: string) => {
     if (confirm(`Reset password for ${email}?`)) {
-      console.log("Reset password for user:", userId);
       addToast({
         title: "Password reset functionality coming soon",
         color: "warning",
@@ -220,11 +219,11 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
                 timeout: 4000,
               });
             },
-          },
+          }
         );
       }
     },
-    [updateUserStatus],
+    [updateUserStatus]
   );
 
   // Memoized user list
@@ -249,7 +248,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         displayName: user.displayName,
         roleName: user.roleName || "",
       })),
-    [users],
+    [users]
   );
 
   // Memoized table columns
@@ -261,7 +260,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         handleResetPassword,
         handleToggleAccountStatus,
         isUpdatingStatus,
-        UserActions,
+        UserActions
       ),
     [
       formatDate,
@@ -269,7 +268,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       handleResetPassword,
       handleToggleAccountStatus,
       isUpdatingStatus,
-    ],
+    ]
   );
 
   // Error state

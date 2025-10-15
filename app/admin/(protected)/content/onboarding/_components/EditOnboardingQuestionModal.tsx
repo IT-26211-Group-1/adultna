@@ -53,8 +53,8 @@ export default function EditOnboardingQuestionModal({
 
   return (
     <EditForm
-      question={question}
       open={open}
+      question={question}
       onClose={onClose}
       onQuestionUpdated={onQuestionUpdated}
     />
@@ -135,7 +135,7 @@ function EditForm({
                 timeout: 4000,
               });
             },
-          }
+          },
         );
       } catch {
         addToast({
@@ -145,7 +145,7 @@ function EditForm({
         });
       }
     },
-    [question, updateQuestion, onQuestionUpdated, onClose]
+    [question, updateQuestion, onQuestionUpdated, onClose],
   );
 
   const handleClose = useCallback(() => {

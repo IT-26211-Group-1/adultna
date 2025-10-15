@@ -43,24 +43,18 @@ export default function AddOnboardingQuestionModal({
     name: "options",
   });
 
-  // Debug: watch form values
-  const formValues = watch();
-
-  console.log("Current form values:", formValues);
-
   const handleRemoveOption = useCallback(
     (index: number) => {
       if (fields.length > 1) {
         remove(index);
       }
     },
-    [fields.length, remove],
+    [fields.length, remove]
   );
 
   const onSubmit = useCallback(
     async (data: AddQuestionForm) => {
       try {
-        console.log("Form data being submitted:", data);
         createQuestion(data, {
           onSuccess: (response) => {
             if (response.success) {
@@ -90,7 +84,7 @@ export default function AddOnboardingQuestionModal({
         });
       }
     },
-    [createQuestion, reset, onQuestionCreated, onClose],
+    [createQuestion, reset, onQuestionCreated, onClose]
   );
 
   const handleClose = useCallback(() => {
