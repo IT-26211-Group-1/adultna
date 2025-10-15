@@ -23,7 +23,7 @@ export function SecureDocument({ file, onClose }: SecureDocumentProps) {
   const {
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting, isValid },
+    formState: { errors, isSubmitting },
   } = useForm<OtpFormType>({
     resolver: zodResolver(secureDocumentAccessOtpSchema),
     mode: "onChange",
@@ -122,7 +122,8 @@ export function SecureDocument({ file, onClose }: SecureDocumentProps) {
               <p className="text-sm text-gray-700">
                 We&apos;ve sent a 6-digit OTP code to your registered email
                 address. Enter the code below to{" "}
-                <span className="font-medium">access</span> &quot;{file.name}&quot;.
+                <span className="font-medium">access</span> &quot;{file.name}
+                &quot;.
               </p>
             </div>
           </div>

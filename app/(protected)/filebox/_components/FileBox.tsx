@@ -120,12 +120,12 @@ export function FileBox() {
       {showUpload && <UploadDocument onClose={() => setShowUpload(false)} />}
 
       {showSecureAccess && selectedFile && (
-        <SecureDocument 
+        <SecureDocument
           file={selectedFile}
           onClose={() => {
             setShowSecureAccess(false);
             setSelectedFile(null);
-          }} 
+          }}
         />
       )}
     </div>

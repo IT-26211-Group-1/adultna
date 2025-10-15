@@ -21,7 +21,7 @@ export function FileGrid({ files, onFileClick }: FileGridProps) {
             <div className="space-y-3">
               {/* Header - File Name and Actions */}
               <div className="flex items-start justify-between">
-                <h3 
+                <div
                   className="font-semibold text-gray-900 text-lg flex-1 pr-2 cursor-pointer hover:text-blue-600 transition-colors"
                   role="button"
                   tabIndex={0}
@@ -34,8 +34,12 @@ export function FileGrid({ files, onFileClick }: FileGridProps) {
                   }}
                 >
                   {file.name}
-                </h3>
-                <FileActions file={file} viewType="grid" onViewFile={onFileClick} />
+                </div>
+                <FileActions
+                  file={file}
+                  viewType="grid"
+                  onViewFile={onFileClick}
+                />
               </div>
 
               {/* Category Badge */}

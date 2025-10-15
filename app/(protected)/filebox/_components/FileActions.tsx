@@ -16,7 +16,11 @@ interface FileActionsProps {
   onViewFile?: (file: FileItem) => void;
 }
 
-export function FileActions({ file, viewType = "grid", onViewFile }: FileActionsProps) {
+export function FileActions({
+  file,
+  viewType = "grid",
+  onViewFile,
+}: FileActionsProps) {
   const handleView = () => {
     if (onViewFile) {
       onViewFile(file);
