@@ -5,9 +5,7 @@ const nextConfig = {
 
   // Performance optimizations
   images: {
-    unoptimized: false,
-    formats: ["image/webp", "image/avif"],
-    minimumCacheTTL: 31536000,
+    unoptimized: true,
   },
 
   // Compression
@@ -64,10 +62,6 @@ const nextConfig = {
   },
 
   ...(process.env.NODE_ENV === "development" && {
-    images: {
-      unoptimized: true,
-    },
-    trailingSlash: true,
     async rewrites() {
       const apiUrl = process.env.NEXT_PUBLIC_API;
 
