@@ -48,6 +48,11 @@ export const RegisterForm = () => {
   const handleClick = (e: React.FormEvent) => {
     e.preventDefault();
     if (!showCaptcha && areFieldsFilled) {
+      console.log("Showing captcha...", {
+        recaptchaKey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+          ? "Set"
+          : "Missing",
+      });
       setShowCaptcha(true);
 
       return;
@@ -118,16 +123,20 @@ export const RegisterForm = () => {
             />
 
             {/* reCAPTCHA */}
-            {showCaptcha && (
+            {showCaptcha && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ? (
               <div className="flex justify-center">
                 <LazyRecaptcha
                   ref={recaptchaRef}
-                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
                   onChange={handleCaptchaChange}
                   onExpired={handleCaptchaExpired}
                 />
               </div>
-            )}
+            ) : showCaptcha ? (
+              <div className="flex justify-center text-red-500 text-sm">
+                reCAPTCHA configuration missing
+              </div>
+            ) : null}
 
             {/* Auth Buttons - No spacing between them */}
             <div className="space-y-3">
