@@ -3,13 +3,19 @@
 import { Card, CardBody } from "@heroui/react";
 import { FileActions } from "./FileActions";
 import { FileItem } from "./FileItem";
+import { FileMetadata } from "@/types/filebox";
 
 interface FileGridProps {
   files: FileItem[];
+  fileMetadataMap: Map<string, FileMetadata>;
   onFileClick?: (file: FileItem) => void;
 }
 
-export function FileGrid({ files, onFileClick }: FileGridProps) {
+export function FileGrid({
+  files,
+  fileMetadataMap,
+  onFileClick,
+}: FileGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {files.map((file) => (
@@ -37,6 +43,7 @@ export function FileGrid({ files, onFileClick }: FileGridProps) {
                 </div>
                 <FileActions
                   file={file}
+                  fileMetadata={fileMetadataMap.get(file.id)}
                   viewType="grid"
                   onViewFile={onFileClick}
                 />

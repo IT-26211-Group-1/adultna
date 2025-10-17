@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SearchSection } from "./SearchSection";
 import { UploadDocument } from "./UploadDocument";
 import { SecureDocument } from "./SecureDocument";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
 import { FileItem } from "./FileItem";
+import {
+  useFileboxFiles,
+  useFileboxQuota,
+} from "@/hooks/queries/useFileboxQueries";
+import {
+  formatFileSize,
+  getFileType,
+  DISPLAY_CATEGORY_MAPPING,
+} from "@/types/filebox";
+import { FileBoxSkeleton } from "./FileBoxSkeleton";
 
 export function FileBox() {
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
@@ -16,9 +26,51 @@ export function FileBox() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  // Nandito yung remaining lint warnings which will be gone once backend integration is done
-  const [files, setFiles] = useState<FileItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  // Fetch files from API
+  const {
+    data: filesResponse,
+    isLoading: filesLoading,
+    error: filesError,
+  } = useFileboxFiles(
+    selectedCategory === "all" ? undefined : selectedCategory
+  );
+
+  // Fetch user quota
+  const { data: quotaResponse } = useFileboxQuota();
+
+  // Transform backend files to frontend FileItem format
+  const { files, fileMetadataMap } = useMemo(() => {
+    if (!filesResponse?.success || !filesResponse.data?.files) {
+      return { files: [], fileMetadataMap: new Map() };
+    }
+
+    const transformedFiles: FileItem[] = [];
+    const metadataMap = new Map();
+
+    filesResponse.data.files.forEach((file) => {
+      const fileItem: FileItem = {
+        id: file.id,
+        name: file.fileName,
+        category: DISPLAY_CATEGORY_MAPPING[file.category] || "Personal",
+        size: formatFileSize(file.fileSize),
+        uploadDate: new Date(file.uploadedAt).toLocaleDateString(),
+        lastAccessed: new Date(file.uploadedAt).toLocaleDateString(),
+        type: getFileType(file.mimeType),
+        isSecure: false, // TODO: Implement secure file detection when backend supports it
+      };
+
+      transformedFiles.push(fileItem);
+      metadataMap.set(file.id, file);
+    });
+
+    return { files: transformedFiles, fileMetadataMap: metadataMap };
+  }, [filesResponse]);
+
+  const error = filesError
+    ? filesError instanceof Error
+      ? filesError.message
+      : "Failed to load files"
+    : null;
 
   const handleFileClick = (file: FileItem) => {
     if (file.isSecure) {
@@ -72,8 +124,11 @@ export function FileBox() {
       {/* Files Section */}
       <div className="flex-1 overflow-y-auto px-6 pb-6">
         <div className="bg-white rounded-lg p-6">
+          {/* Loading State */}
+          {filesLoading && <FileBoxSkeleton viewType={viewType} />}
+
           {/* Error Message */}
-          {error && (
+          {!filesLoading && error && (
             <div className="flex items-center justify-center py-12">
               <div className="text-red-500 text-center">
                 <p className="mb-2">{error}</p>
@@ -82,7 +137,7 @@ export function FileBox() {
           )}
 
           {/* Empty State */}
-          {!error && files.length === 0 && (
+          {!filesLoading && !error && files.length === 0 && (
             <div className="flex items-center justify-center py-12">
               <div className="text-gray-500 text-center">
                 <p className="mb-2">No files found</p>
@@ -94,24 +149,35 @@ export function FileBox() {
           )}
 
           {/* No Results State */}
-          {!error && files.length > 0 && filteredFiles.length === 0 && (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-gray-500 text-center">
-                <p className="mb-2">No files match your search criteria</p>
-                <p className="text-sm">
-                  Try adjusting your search or category filter
-                </p>
+          {!filesLoading &&
+            !error &&
+            files.length > 0 &&
+            filteredFiles.length === 0 && (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-gray-500 text-center">
+                  <p className="mb-2">No files match your search criteria</p>
+                  <p className="text-sm">
+                    Try adjusting your search or category filter
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* File Display */}
-          {!error && filteredFiles.length > 0 && (
+          {!filesLoading && !error && filteredFiles.length > 0 && (
             <>
               {viewType === "grid" ? (
-                <FileGrid files={filteredFiles} onFileClick={handleFileClick} />
+                <FileGrid
+                  fileMetadataMap={fileMetadataMap}
+                  files={filteredFiles}
+                  onFileClick={handleFileClick}
+                />
               ) : (
-                <FileList files={filteredFiles} onFileClick={handleFileClick} />
+                <FileList
+                  fileMetadataMap={fileMetadataMap}
+                  files={filteredFiles}
+                  onFileClick={handleFileClick}
+                />
               )}
             </>
           )}

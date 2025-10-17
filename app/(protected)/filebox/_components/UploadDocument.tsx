@@ -9,6 +9,9 @@ import {
   uploadDocumentSchema,
   type UploadDocumentForm,
 } from "@/validators/fileBoxSchema";
+import { useFileboxUpload } from "@/hooks/queries/useFileboxQueries";
+import { addToast } from "@heroui/toast";
+import { ApiError } from "@/lib/apiClient";
 
 interface UploadDocumentProps {
   onClose?: () => void;
@@ -72,17 +75,41 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     }
   };
 
+  const uploadMutation = useFileboxUpload();
+
   const handleCancel = () => {
     onClose?.();
   };
 
-  const onSubmit = (data: UploadDocumentForm) => {
-    console.log("Valid form data:", data);
-    // Handle upload logic here
-    onClose?.();
-  };
+  const onSubmit = async (data: UploadDocumentForm) => {
+    try {
+      await uploadMutation.mutateAsync({
+        file: data.file,
+        category: data.category,
+      });
 
-  return (
+      addToast({
+        title: "Document uploaded successfully",
+        color: "success",
+      });
+
+      onClose?.();
+    } catch (error) {
+      console.error("Upload error:", error);
+      
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to upload document",
+          color: "danger",
+        });
+      } else {
+        addToast({
+          title: "An unexpected error occurred",
+          color: "danger",
+        });
+      }
+    }
+  };  return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -237,11 +264,12 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
             </Button>
             <Button
               className="flex-1 py-3 bg-adult-green hover:bg-adult-green/90 text-white font-medium"
-              isDisabled={!isValid}
+              isDisabled={!isValid || uploadMutation.isPending}
+              isLoading={uploadMutation.isPending}
               type="submit"
               variant="solid"
             >
-              Upload Document
+              {uploadMutation.isPending ? "Uploading..." : "Upload Document"}
             </Button>
           </div>
         </form>

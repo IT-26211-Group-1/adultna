@@ -1,42 +1,160 @@
 "use client";
 
+import { useState } from "react";
 import {
   Button,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@heroui/react";
 import { Eye, Download, Trash2, EllipsisVertical } from "lucide-react";
 import { FileItem } from "./FileItem";
+import {
+  useFileboxDownload,
+  useFileboxDelete,
+} from "@/hooks/queries/useFileboxQueries";
+import { addToast } from "@heroui/toast";
+import { ApiError, ApiClient } from "@/lib/apiClient";
+import { FileMetadata } from "@/types/filebox";
+import { API_CONFIG } from "@/config/api";
 
 interface FileActionsProps {
   file: FileItem;
+  fileMetadata?: FileMetadata; // Backend file metadata
   viewType?: "grid" | "list";
   onViewFile?: (file: FileItem) => void;
 }
 
 export function FileActions({
   file,
+  fileMetadata,
   viewType = "grid",
   onViewFile,
 }: FileActionsProps) {
-  const handleView = () => {
-    if (onViewFile) {
-      onViewFile(file);
-    } else {
-      console.log("View file:", file.name);
+  const downloadMutation = useFileboxDownload();
+  const deleteMutation = useFileboxDelete();
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onOpenChange: onDeleteOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: isPreviewOpen,
+    onOpen: onPreviewOpen,
+    onClose: onPreviewClose,
+  } = useDisclosure();
+
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+
+  const handleView = async () => {
+    if (!fileMetadata) {
+      addToast({
+        title: "File metadata not available",
+        color: "danger",
+      });
+
+      return;
+    }
+
+    setIsLoadingPreview(true);
+    try {
+      // Get presigned URL for preview
+      const response: any = await ApiClient.get(
+        `/filebox/download/${fileMetadata.id}`,
+        {},
+        API_CONFIG.API_URL
+      );
+
+      if (response.success && response.data?.downloadUrl) {
+        setPreviewUrl(response.data.downloadUrl);
+        onPreviewOpen();
+      } else {
+        throw new Error("Failed to generate preview URL");
+      }
+    } catch (error) {
+      console.error("View error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to open file",
+          color: "danger",
+        });
+      } else {
+        addToast({
+          title: "Failed to open file",
+          color: "danger",
+        });
+      }
+    } finally {
+      setIsLoadingPreview(false);
     }
   };
 
-  const handleDownload = () => {
-    //Palitan pag may Backend na
-    console.log("Download file:", file.name);
+  const handleDownload = async () => {
+    if (!fileMetadata) {
+      addToast({
+        title: "File metadata not available",
+        color: "danger",
+      });
+
+      return;
+    }
+
+    try {
+      await downloadMutation.mutateAsync(fileMetadata);
+      addToast({
+        title: "Download started",
+        color: "success",
+      });
+    } catch (error) {
+      console.error("Download error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to download file",
+          color: "danger",
+        });
+      }
+    }
   };
 
+  const handleDeleteConfirm = async () => {
+    if (!fileMetadata) {
+      addToast({
+        title: "File metadata not available",
+        color: "danger",
+      });
+
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync(fileMetadata.id);
+      addToast({
+        title: "File deleted successfully",
+        color: "success",
+      });
+    } catch (error) {
+      console.error("Delete error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to delete file",
+          color: "danger",
+        });
+      }
+    }
+  };
   const handleDelete = () => {
-    //Palitan pag may Backend na
-    console.log("Delete file:", file.name);
+    onDeleteOpen();
   };
 
   if (viewType === "list") {
@@ -46,6 +164,7 @@ export function FileActions({
         <Button
           isIconOnly
           className="text-gray-600 hover:text-blue-600"
+          isDisabled={isLoadingPreview}
           size="sm"
           variant="light"
           onPress={handleView}
@@ -55,6 +174,7 @@ export function FileActions({
         <Button
           isIconOnly
           className="text-gray-600 hover:text-green-600"
+          isDisabled={downloadMutation.isPending}
           size="sm"
           variant="light"
           onPress={handleDownload}
@@ -76,44 +196,82 @@ export function FileActions({
 
   // Grid view - show dropdown only
   return (
-    <div>
-      <Dropdown>
-        <DropdownTrigger>
-          <Button
-            isIconOnly
-            className="text-gray-600"
-            size="sm"
-            variant="light"
-          >
-            <EllipsisVertical className="w-4 h-4" />
-          </Button>
-        </DropdownTrigger>
-        <DropdownMenu aria-label="File actions">
-          <DropdownItem
-            key="view"
-            startContent={<Eye className="w-4 h-4" />}
-            onPress={handleView}
-          >
-            View
-          </DropdownItem>
-          <DropdownItem
-            key="download"
-            startContent={<Download className="w-4 h-4" />}
-            onPress={handleDownload}
-          >
-            Download
-          </DropdownItem>
-          <DropdownItem
-            key="delete"
-            className="text-danger"
-            color="danger"
-            startContent={<Trash2 className="w-4 h-4" />}
-            onPress={handleDelete}
-          >
-            Delete
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-    </div>
+    <>
+      <div>
+        <Dropdown>
+          <DropdownTrigger>
+            <Button
+              isIconOnly
+              className="text-gray-600"
+              size="sm"
+              variant="light"
+            >
+              <EllipsisVertical className="w-4 h-4" />
+            </Button>
+          </DropdownTrigger>
+          <DropdownMenu aria-label="File actions">
+            <DropdownItem
+              key="view"
+              isDisabled={isLoadingPreview}
+              startContent={<Eye className="w-4 h-4" />}
+              onPress={handleView}
+            >
+              {isLoadingPreview ? "Opening..." : "View"}
+            </DropdownItem>
+            <DropdownItem
+              key="download"
+              isDisabled={downloadMutation.isPending}
+              startContent={<Download className="w-4 h-4" />}
+              onPress={handleDownload}
+            >
+              {downloadMutation.isPending ? "Downloading..." : "Download"}
+            </DropdownItem>
+            <DropdownItem
+              key="delete"
+              className="text-danger"
+              color="danger"
+              startContent={<Trash2 className="w-4 h-4" />}
+              onPress={handleDelete}
+            >
+              Delete
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Delete File
+              </ModalHeader>
+              <ModalBody>
+                <p>
+                  Are you sure you want to delete <strong>{file.name}</strong>?
+                  This action cannot be undone.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color="danger"
+                  isLoading={deleteMutation.isPending}
+                  onPress={async () => {
+                    await handleDeleteConfirm();
+                    onClose();
+                  }}
+                >
+                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
   );
 }

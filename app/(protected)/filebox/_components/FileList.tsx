@@ -2,13 +2,19 @@
 
 import { FileActions } from "./FileActions";
 import { FileItem } from "./FileItem";
+import { FileMetadata } from "@/types/filebox";
 
 interface FileListProps {
   files: FileItem[];
+  fileMetadataMap: Map<string, FileMetadata>;
   onFileClick?: (file: FileItem) => void;
 }
 
-export function FileList({ files, onFileClick }: FileListProps) {
+export function FileList({
+  files,
+  fileMetadataMap,
+  onFileClick,
+}: FileListProps) {
   return (
     <div className="space-y-2">
       {files.map((file) => (
@@ -46,7 +52,12 @@ export function FileList({ files, onFileClick }: FileListProps) {
 
           {/* Right Section - Actions */}
           <div className="flex items-center">
-            <FileActions file={file} viewType="list" onViewFile={onFileClick} />
+            <FileActions
+              file={file}
+              fileMetadata={fileMetadataMap.get(file.id)}
+              viewType="list"
+              onViewFile={onFileClick}
+            />
           </div>
         </div>
       ))}
