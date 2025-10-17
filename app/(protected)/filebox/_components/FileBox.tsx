@@ -29,7 +29,7 @@ export function FileBox() {
     isLoading: filesLoading,
     error: filesError,
   } = useFileboxFiles(
-    selectedCategory === "all" ? undefined : selectedCategory,
+    selectedCategory === "all" ? undefined : selectedCategory
   );
 
   const { files, fileMetadataMap } = useMemo(() => {
@@ -46,8 +46,8 @@ export function FileBox() {
         name: file.fileName,
         category: DISPLAY_CATEGORY_MAPPING[file.category] || "Personal",
         size: formatFileSize(file.fileSize),
-        uploadDate: new Date(file.uploadedAt).toLocaleDateString(),
-        lastAccessed: new Date(file.uploadedAt).toLocaleDateString(),
+        uploadDate: new Date(file.uploadDate).toLocaleDateString(),
+        lastAccessed: new Date(file.lastModified).toLocaleDateString(),
         type: getFileType(file.mimeType),
         isSecure: false, // TODO: Implement secure file detection when backend supports it
       };
