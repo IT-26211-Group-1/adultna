@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
+  trailingSlash: true,
 
   // Performance optimizations
   images: {
-    unoptimized: false,
-    formats: ["image/webp", "image/avif"],
-    minimumCacheTTL: 31536000,
+    unoptimized: true,
   },
 
   // Compression
@@ -63,10 +62,6 @@ const nextConfig = {
   },
 
   ...(process.env.NODE_ENV === "development" && {
-    output: undefined,
-    images: {
-      unoptimized: true,
-    },
     async rewrites() {
       const apiUrl = process.env.NEXT_PUBLIC_API;
 
