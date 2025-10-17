@@ -12,6 +12,7 @@ import {
 } from "@heroui/react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
+import Image from "next/image";
 import { FileItem } from "./FileItem";
 import { FileMetadata } from "@/types/filebox";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -88,16 +89,16 @@ export function FilePreview({
 
   return (
     <Modal
-      isOpen={isOpen}
-      onOpenChange={onClose}
-      size="5xl"
-      scrollBehavior="inside"
       classNames={{
         base: "max-h-[85vh] bg-white",
         body: "p-6",
         header: "border-b border-gray-200",
         footer: "border-t border-gray-200",
       }}
+      isOpen={isOpen}
+      scrollBehavior="inside"
+      size="5xl"
+      onOpenChange={onClose}
     >
       <ModalContent>
         {(onClose) => (
@@ -133,25 +134,25 @@ export function FilePreview({
                     <div className="flex flex-col items-center">
                       <Document
                         file={previewUrl}
-                        onLoadSuccess={onDocumentLoadSuccess}
-                        onLoadError={onDocumentLoadError}
                         loading={
                           <div className="flex items-center justify-center py-12">
-                            <Spinner size="lg" color="success" />
+                            <Spinner color="success" size="lg" />
                           </div>
                         }
                         options={PDF_OPTIONS}
+                        onLoadError={onDocumentLoadError}
+                        onLoadSuccess={onDocumentLoadSuccess}
                       >
                         <Page
-                          pageNumber={pageNumber}
-                          renderTextLayer={true}
-                          renderAnnotationLayer={true}
                           className="shadow-lg rounded-lg"
+                          pageNumber={pageNumber}
+                          renderAnnotationLayer={true}
+                          renderTextLayer={true}
                           width={Math.min(
                             typeof window !== "undefined"
                               ? window.innerWidth * 0.8
                               : 800,
-                            800
+                            800,
                           )}
                         />
                       </Document>
@@ -160,9 +161,9 @@ export function FilePreview({
                         <div className="flex items-center justify-center gap-4 mt-6 pb-4">
                           <Button
                             isIconOnly
-                            size="sm"
                             className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                             isDisabled={pageNumber <= 1}
+                            size="sm"
                             onPress={goToPrevPage}
                           >
                             <ChevronLeft className="w-4 h-4" />
@@ -172,9 +173,9 @@ export function FilePreview({
                           </span>
                           <Button
                             isIconOnly
-                            size="sm"
                             className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                             isDisabled={pageNumber >= numPages}
+                            size="sm"
                             onPress={goToNextPage}
                           >
                             <ChevronRight className="w-4 h-4" />
@@ -187,24 +188,31 @@ export function FilePreview({
               ) : isImage ? (
                 <div
                   key={previewUrl}
-                  className="w-full flex flex-col items-center justify-center py-8 relative min-h-[400px]"
+                  className="w-full flex flex-col items-center justify-center py-8"
                 >
                   {loading && !error && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Spinner size="lg" color="success" />
+                    <div className="flex items-center justify-center py-12">
+                      <Spinner color="success" size="lg" />
                     </div>
                   )}
                   {!error && (
-                    <img
-                      src={previewUrl}
-                      alt={file.name}
-                      className={`max-w-full max-h-[600px] object-contain rounded-lg shadow-md transition-opacity duration-300 ${loading ? "opacity-0" : "opacity-100"}`}
-                      onLoad={() => setLoading(false)}
-                      onError={() => {
-                        setLoading(false);
-                        setError("Failed to load image");
-                      }}
-                    />
+                    <div
+                      className="relative w-full max-w-4xl"
+                      style={{ height: "600px" }}
+                    >
+                      <Image
+                        fill
+                        unoptimized
+                        alt={file.name}
+                        className={`object-contain rounded-lg shadow-md transition-opacity duration-300 ${loading ? "opacity-0" : "opacity-100"}`}
+                        src={previewUrl}
+                        onError={() => {
+                          setLoading(false);
+                          setError("Failed to load image");
+                        }}
+                        onLoad={() => setLoading(false)}
+                      />
+                    </div>
                   )}
                   {error && (
                     <div className="text-center">

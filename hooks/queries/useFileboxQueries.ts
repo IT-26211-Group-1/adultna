@@ -226,7 +226,11 @@ export function useFileboxDownload() {
       const response = await fetch(downloadUrlResponse.data.downloadUrl);
 
       if (!response.ok) {
-        throw new ApiError("Failed to fetch file from storage", response.status, null);
+        throw new ApiError(
+          "Failed to fetch file from storage",
+          response.status,
+          null,
+        );
       }
 
       const blob = await response.blob();
@@ -234,6 +238,7 @@ export function useFileboxDownload() {
 
       // Trigger browser download with original filename
       const link = document.createElement("a");
+
       link.href = blobUrl;
       link.download = downloadUrlResponse.data.fileName;
       document.body.appendChild(link);

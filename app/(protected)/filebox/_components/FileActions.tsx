@@ -68,7 +68,7 @@ export function FileActions({
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL
+        API_CONFIG.API_URL,
       );
 
       if (response.success && response.data?.downloadUrl) {
@@ -195,8 +195,8 @@ export function FileActions({
         <FilePreview
           file={file}
           fileMetadata={fileMetadata}
-          previewUrl={previewUrl}
           isOpen={isPreviewOpen}
+          previewUrl={previewUrl}
           onClose={onPreviewClose}
           onDownload={handleDownload}
         />
@@ -287,8 +287,8 @@ export function FileActions({
       <FilePreview
         file={file}
         fileMetadata={fileMetadata}
-        previewUrl={previewUrl}
         isOpen={isPreviewOpen}
+        previewUrl={previewUrl}
         onClose={onPreviewClose}
         onDownload={handleDownload}
       />

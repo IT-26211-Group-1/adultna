@@ -29,7 +29,6 @@ export function FileBox() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
   const downloadMutation = useFileboxDownload();
 
@@ -39,7 +38,7 @@ export function FileBox() {
     isLoading: filesLoading,
     error: filesError,
   } = useFileboxFiles(
-    selectedCategory === "all" ? undefined : selectedCategory
+    selectedCategory === "all" ? undefined : selectedCategory,
   );
 
   const { files, fileMetadataMap } = useMemo(() => {
@@ -79,27 +78,29 @@ export function FileBox() {
     if (file.isSecure) {
       setSelectedFile(file);
       setShowSecureAccess(true);
+
       return;
     }
 
     // Handle preview for non-secure files
     const fileMetadata = fileMetadataMap.get(file.id);
+
     if (!fileMetadata) {
       addToast({
         title: "File metadata not available",
         color: "danger",
       });
+
       return;
     }
 
-    setIsLoadingPreview(true);
     setSelectedFile(file);
 
     try {
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL
+        API_CONFIG.API_URL,
       );
 
       if (response.success && response.data?.downloadUrl) {
@@ -122,8 +123,6 @@ export function FileBox() {
           color: "danger",
         });
       }
-    } finally {
-      setIsLoadingPreview(false);
     }
   };
 
@@ -246,8 +245,8 @@ export function FileBox() {
         <FilePreview
           file={selectedFile}
           fileMetadata={fileMetadataMap.get(selectedFile.id)}
-          previewUrl={previewUrl}
           isOpen={showPreview}
+          previewUrl={previewUrl}
           onClose={() => {
             setShowPreview(false);
             setSelectedFile(null);
@@ -255,6 +254,7 @@ export function FileBox() {
           }}
           onDownload={async () => {
             const fileMetadata = fileMetadataMap.get(selectedFile.id);
+
             if (fileMetadata) {
               try {
                 await downloadMutation.mutateAsync(fileMetadata);
