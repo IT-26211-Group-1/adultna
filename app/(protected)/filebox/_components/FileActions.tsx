@@ -24,6 +24,7 @@ import { addToast } from "@heroui/toast";
 import { ApiError, ApiClient } from "@/lib/apiClient";
 import { FileMetadata } from "@/types/filebox";
 import { API_CONFIG } from "@/config/api";
+import { FilePreview } from "./FilePreview";
 
 interface FileActionsProps {
   file: FileItem;
@@ -43,7 +44,13 @@ export function FileActions({
     onOpen: onDeleteOpen,
     onOpenChange: onDeleteOpenChange,
   } = useDisclosure();
+  const {
+    isOpen: isPreviewOpen,
+    onOpen: onPreviewOpen,
+    onClose: onPreviewClose,
+  } = useDisclosure();
 
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
   const handleView = async () => {
@@ -61,11 +68,12 @@ export function FileActions({
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL,
+        API_CONFIG.API_URL
       );
 
       if (response.success && response.data?.downloadUrl) {
-        window.open(response.data.downloadUrl, "_blank");
+        setPreviewUrl(response.data.downloadUrl);
+        onPreviewOpen();
       } else {
         throw new Error("Failed to generate preview URL");
       }
@@ -150,37 +158,83 @@ export function FileActions({
   if (viewType === "list") {
     // List view - show plain buttons based on the figma design
     return (
-      <div className="flex items-center space-x-1">
-        <Button
-          isIconOnly
-          className="text-gray-600 hover:text-blue-600"
-          isDisabled={isLoadingPreview}
-          size="sm"
-          variant="light"
-          onPress={handleView}
-        >
-          <Eye className="w-4 h-4" />
-        </Button>
-        <Button
-          isIconOnly
-          className="text-gray-600 hover:text-green-600"
-          isDisabled={downloadMutation.isPending}
-          size="sm"
-          variant="light"
-          onPress={handleDownload}
-        >
-          <Download className="w-4 h-4" />
-        </Button>
-        <Button
-          isIconOnly
-          className="text-gray-600 hover:text-red-600"
-          size="sm"
-          variant="light"
-          onPress={handleDelete}
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
-      </div>
+      <>
+        <div className="flex items-center space-x-1">
+          <Button
+            isIconOnly
+            className="text-gray-600 hover:text-blue-600"
+            isDisabled={isLoadingPreview}
+            size="sm"
+            variant="light"
+            onPress={handleView}
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
+          <Button
+            isIconOnly
+            className="text-gray-600 hover:text-green-600"
+            isDisabled={downloadMutation.isPending}
+            size="sm"
+            variant="light"
+            onPress={handleDownload}
+          >
+            <Download className="w-4 h-4" />
+          </Button>
+          <Button
+            isIconOnly
+            className="text-gray-600 hover:text-red-600"
+            size="sm"
+            variant="light"
+            onPress={handleDelete}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* File Preview Modal */}
+        <FilePreview
+          file={file}
+          fileMetadata={fileMetadata}
+          previewUrl={previewUrl}
+          isOpen={isPreviewOpen}
+          onClose={onPreviewClose}
+          onDownload={handleDownload}
+        />
+
+        {/* Delete Confirmation Modal */}
+        <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange}>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Delete File
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                    Are you sure you want to delete <strong>{file.name}</strong>
+                    ? This action cannot be undone.
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="default" variant="light" onPress={onClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    color="danger"
+                    isLoading={deleteMutation.isPending}
+                    onPress={async () => {
+                      await handleDeleteConfirm();
+                      onClose();
+                    }}
+                  >
+                    {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+      </>
     );
   }
 
@@ -228,6 +282,16 @@ export function FileActions({
           </DropdownMenu>
         </Dropdown>
       </div>
+
+      {/* File Preview Modal */}
+      <FilePreview
+        file={file}
+        fileMetadata={fileMetadata}
+        previewUrl={previewUrl}
+        isOpen={isPreviewOpen}
+        onClose={onPreviewClose}
+        onDownload={handleDownload}
+      />
 
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange}>

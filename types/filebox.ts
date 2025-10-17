@@ -37,20 +37,24 @@ export interface FileMetadata {
   id: string;
   fileName: string;
   category: FileCategory;
-  mimeType: string;
+  contentType: string;
   fileSize: number;
+  fileSizeMB: number;
   uploadDate: string;
   lastModified: string;
-  contentType: string;
 }
 
 export interface UserQuota {
-  usedBytes: number;
-  maxBytes: number;
-  usedPercentage: number;
-  remainingBytes: number;
+  userId: string;
+  usedStorageBytes: number;
+  usedStorageMB: number;
+  maxStorageBytes: number;
+  maxStorageMB: number;
+  remainingStorageBytes: number;
+  remainingStorageMB: number;
+  percentageUsed: number;
+  isQuotaExceeded: boolean;
   fileCount: number;
-  maxFileSize: number;
 }
 
 // API Response types
@@ -60,7 +64,8 @@ export interface UploadUrlResponse {
   data: {
     uploadUrl: string;
     fileId: string;
-    expiresAt: string;
+    fileKey: string;
+    expiresIn: number;
   };
 }
 
@@ -70,7 +75,9 @@ export interface DownloadUrlResponse {
   data: {
     downloadUrl: string;
     fileName: string;
-    expiresAt: string;
+    contentType: string;
+    fileSize: number;
+    expiresIn: number;
   };
 }
 
@@ -79,6 +86,9 @@ export interface ListFilesResponse {
   message: string;
   data: {
     files: FileMetadata[];
+    totalFiles: number;
+    totalStorageBytes: number;
+    totalStorageMB: number;
   };
 }
 
@@ -124,7 +134,7 @@ export function getFileExtension(fileName: string): string {
 
 // Helper function to get file type for icon display
 export function getFileType(
-  mimeType: string
+  contentType: string
 ): "pdf" | "doc" | "docx" | "jpg" | "png" {
   const typeMap: Record<string, "pdf" | "doc" | "docx" | "jpg" | "png"> = {
     "application/pdf": "pdf",
@@ -132,8 +142,9 @@ export function getFileType(
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
       "docx",
     "image/jpeg": "jpg",
+    "image/jpg": "jpg",
     "image/png": "png",
   };
 
-  return typeMap[mimeType] || "pdf";
+  return typeMap[contentType] || "pdf";
 }

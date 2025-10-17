@@ -11,9 +11,9 @@ export default function SidebarStorage({ isCollapsed }: SidebarStorageProps) {
   const { data: quotaResponse, isLoading } = useFileboxQuota();
 
   // Extract quota data with fallbacks
-  const usedBytes = quotaResponse?.data?.usedBytes ?? 0;
-  const maxBytes = quotaResponse?.data?.maxBytes ?? 104857600; // 100MB default
-  const usedPercentage = quotaResponse?.data?.usedPercentage ?? 0;
+  const usedBytes = quotaResponse?.data?.usedStorageBytes ?? 0;
+  const maxBytes = quotaResponse?.data?.maxStorageBytes ?? 104857600; // 100MB default
+  const usedPercentage = quotaResponse?.data?.percentageUsed ?? 0;
 
   return (
     <div className="mt-auto p-6 border-t border-gray-200 rounded-b-xl">

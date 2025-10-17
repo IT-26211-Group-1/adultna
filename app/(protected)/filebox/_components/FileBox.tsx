@@ -48,7 +48,7 @@ export function FileBox() {
         size: formatFileSize(file.fileSize),
         uploadDate: new Date(file.uploadDate).toLocaleDateString(),
         lastAccessed: new Date(file.lastModified).toLocaleDateString(),
-        type: getFileType(file.mimeType),
+        type: getFileType(file.contentType),
         isSecure: false, // TODO: Implement secure file detection when backend supports it
       };
 
