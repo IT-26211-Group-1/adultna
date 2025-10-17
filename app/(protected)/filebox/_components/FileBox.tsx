@@ -7,10 +7,7 @@ import { SecureDocument } from "./SecureDocument";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
 import { FileItem } from "./FileItem";
-import {
-  useFileboxFiles,
-  useFileboxQuota,
-} from "@/hooks/queries/useFileboxQueries";
+import { useFileboxFiles } from "@/hooks/queries/useFileboxQueries";
 import {
   formatFileSize,
   getFileType,
@@ -32,13 +29,9 @@ export function FileBox() {
     isLoading: filesLoading,
     error: filesError,
   } = useFileboxFiles(
-    selectedCategory === "all" ? undefined : selectedCategory
+    selectedCategory === "all" ? undefined : selectedCategory,
   );
 
-  // Fetch user quota
-  const { data: quotaResponse } = useFileboxQuota();
-
-  // Transform backend files to frontend FileItem format
   const { files, fileMetadataMap } = useMemo(() => {
     if (!filesResponse?.success || !filesResponse.data?.files) {
       return { files: [], fileMetadataMap: new Map() };

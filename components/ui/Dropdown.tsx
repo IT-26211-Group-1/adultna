@@ -1,4 +1,10 @@
-import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@heroui/react";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Button,
+} from "@heroui/react";
 
 export default function App() {
   return (
@@ -7,8 +13,7 @@ export default function App() {
         <Button variant="bordered">{}</Button>
       </DropdownTrigger>
       <DropdownMenu aria-label="Static Actions">
-
-        <DropdownItem key=""></DropdownItem>
+        <DropdownItem key="" />
       </DropdownMenu>
     </Dropdown>
   );

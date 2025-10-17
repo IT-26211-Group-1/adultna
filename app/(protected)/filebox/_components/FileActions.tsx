@@ -27,16 +27,14 @@ import { API_CONFIG } from "@/config/api";
 
 interface FileActionsProps {
   file: FileItem;
-  fileMetadata?: FileMetadata; // Backend file metadata
+  fileMetadata?: FileMetadata;
   viewType?: "grid" | "list";
-  onViewFile?: (file: FileItem) => void;
 }
 
 export function FileActions({
   file,
   fileMetadata,
   viewType = "grid",
-  onViewFile,
 }: FileActionsProps) {
   const downloadMutation = useFileboxDownload();
   const deleteMutation = useFileboxDelete();
@@ -45,13 +43,7 @@ export function FileActions({
     onOpen: onDeleteOpen,
     onOpenChange: onDeleteOpenChange,
   } = useDisclosure();
-  const {
-    isOpen: isPreviewOpen,
-    onOpen: onPreviewOpen,
-    onClose: onPreviewClose,
-  } = useDisclosure();
 
-  const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
   const handleView = async () => {
@@ -66,16 +58,14 @@ export function FileActions({
 
     setIsLoadingPreview(true);
     try {
-      // Get presigned URL for preview
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL
+        API_CONFIG.API_URL,
       );
 
       if (response.success && response.data?.downloadUrl) {
-        setPreviewUrl(response.data.downloadUrl);
-        onPreviewOpen();
+        window.open(response.data.downloadUrl, "_blank");
       } else {
         throw new Error("Failed to generate preview URL");
       }

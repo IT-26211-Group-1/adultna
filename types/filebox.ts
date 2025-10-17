@@ -124,7 +124,7 @@ export function getFileExtension(fileName: string): string {
 
 // Helper function to get file type for icon display
 export function getFileType(
-  mimeType: string
+  mimeType: string,
 ): "pdf" | "doc" | "docx" | "jpg" | "png" {
   const typeMap: Record<string, "pdf" | "doc" | "docx" | "jpg" | "png"> = {
     "application/pdf": "pdf",

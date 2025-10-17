@@ -19,7 +19,7 @@ const LazyRecaptcha = forwardRef<any, LazyRecaptchaProps>(
         onExpired={onExpired}
       />
     );
-  }
+  },
 );
 
 LazyRecaptcha.displayName = "LazyRecaptcha";

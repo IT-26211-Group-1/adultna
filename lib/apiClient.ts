@@ -12,12 +12,12 @@ export function setTokenProvider(provider: () => string | null) {
 }
 
 export function setRefreshTokenCallback(
-  _callback: () => Promise<string | null>
+  _callback: () => Promise<string | null>,
 ) {}
 
 export class ApiClient {
   private static buildHeaders(
-    customHeaders?: HeadersInit
+    customHeaders?: HeadersInit,
   ): Record<string, string> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -45,7 +45,7 @@ export class ApiClient {
     endpoint: string,
     options: RequestInit = {},
     baseUrl: string = API_BASE_URL as string,
-    _isRetry = false
+    _isRetry = false,
   ): Promise<T> {
     const url = `${baseUrl}${endpoint}`;
     const headers = this.buildHeaders(options.headers);
@@ -75,7 +75,7 @@ export class ApiClient {
           errorData?.message ||
             `HTTP ${response.status}: ${response.statusText}`,
           response.status,
-          errorData
+          errorData,
         );
       }
 
@@ -97,7 +97,7 @@ export class ApiClient {
       throw new ApiError(
         error instanceof Error ? error.message : "Network error",
         0,
-        null
+        null,
       );
     }
   }
@@ -105,7 +105,7 @@ export class ApiClient {
   static get<T>(
     endpoint: string,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "GET" }, baseUrl);
   }
@@ -114,7 +114,7 @@ export class ApiClient {
     endpoint: string,
     data?: any,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(
       endpoint,
@@ -123,7 +123,7 @@ export class ApiClient {
         method: "POST",
         body: data ? JSON.stringify(data) : undefined,
       },
-      baseUrl
+      baseUrl,
     );
   }
 
@@ -131,7 +131,7 @@ export class ApiClient {
     endpoint: string,
     data?: any,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(
       endpoint,
@@ -140,14 +140,14 @@ export class ApiClient {
         method: "PUT",
         body: data ? JSON.stringify(data) : undefined,
       },
-      baseUrl
+      baseUrl,
     );
   }
 
   static delete<T>(
     endpoint: string,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" }, baseUrl);
   }
@@ -156,7 +156,7 @@ export class ApiClient {
     endpoint: string,
     data?: any,
     options?: RequestInit,
-    baseUrl?: string
+    baseUrl?: string,
   ): Promise<T> {
     return this.request<T>(
       endpoint,
@@ -165,7 +165,7 @@ export class ApiClient {
         method: "PATCH",
         body: data ? JSON.stringify(data) : undefined,
       },
-      baseUrl
+      baseUrl,
     );
   }
 }
@@ -175,7 +175,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public data: any = null
+    public data: any = null,
   ) {
     super(message);
     this.name = "ApiError";

@@ -96,7 +96,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       onClose?.();
     } catch (error) {
       console.error("Upload error:", error);
-      
+
       if (error instanceof ApiError) {
         addToast({
           title: error.message || "Failed to upload document",
@@ -109,7 +109,9 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         });
       }
     }
-  };  return (
+  };
+
+  return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit(onSubmit)}>

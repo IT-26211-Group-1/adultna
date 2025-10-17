@@ -16,7 +16,7 @@ import {
 
 const fileboxApi = {
   generateUploadUrl: (
-    request: GenerateUploadUrlRequest
+    request: GenerateUploadUrlRequest,
   ): Promise<UploadUrlResponse> =>
     ApiClient.post("/filebox/upload", request, {}, API_CONFIG.API_URL),
 
@@ -33,11 +33,12 @@ const fileboxApi = {
 
     if (!response.ok) {
       const errorText = await response.text();
+
       console.error("S3 upload error:", errorText);
       throw new ApiError(
         "Failed to upload file to storage",
         response.status,
-        null
+        null,
       );
     }
   },
@@ -53,7 +54,7 @@ const fileboxApi = {
     return ApiClient.get(
       `/filebox/files${queryParams}`,
       {},
-      API_CONFIG.API_URL
+      API_CONFIG.API_URL,
     );
   },
 
@@ -95,7 +96,7 @@ export function useFileboxFiles(category?: string) {
     queryKey: queryKeys.filebox.list(backendCategory),
     queryFn: () =>
       fileboxApi.listFiles(
-        backendCategory ? { category: backendCategory } : undefined
+        backendCategory ? { category: backendCategory } : undefined,
       ),
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -171,7 +172,7 @@ export function useFileboxUpload() {
         throw new ApiError(
           uploadUrlResponse.message || "Failed to generate upload URL",
           400,
-          null
+          null,
         );
       }
 
@@ -217,7 +218,7 @@ export function useFileboxDownload() {
         throw new ApiError(
           downloadUrlResponse.message || "Failed to generate download URL",
           400,
-          null
+          null,
         );
       }
 
@@ -249,7 +250,7 @@ export function useFileboxView() {
         throw new ApiError(
           downloadUrlResponse.message || "Failed to generate preview URL",
           400,
-          null
+          null,
         );
       }
 
@@ -276,7 +277,7 @@ export function useFileboxDelete() {
         throw new ApiError(
           response.message || "Failed to delete file",
           400,
-          null
+          null,
         );
       }
 
