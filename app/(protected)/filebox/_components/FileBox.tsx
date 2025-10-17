@@ -14,6 +14,11 @@ import {
   DISPLAY_CATEGORY_MAPPING,
 } from "@/types/filebox";
 import { FileBoxSkeleton } from "./FileBoxSkeleton";
+import { FilePreview } from "./FilePreview";
+import { ApiClient, ApiError } from "@/lib/apiClient";
+import { API_CONFIG } from "@/config/api";
+import { addToast } from "@heroui/toast";
+import { useFileboxDownload } from "@/hooks/queries/useFileboxQueries";
 
 export function FileBox() {
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
@@ -22,6 +27,11 @@ export function FileBox() {
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+
+  const downloadMutation = useFileboxDownload();
 
   // Fetch files from API
   const {
@@ -65,12 +75,55 @@ export function FileBox() {
       : "Failed to load files"
     : null;
 
-  const handleFileClick = (file: FileItem) => {
+  const handleFileClick = async (file: FileItem) => {
     if (file.isSecure) {
       setSelectedFile(file);
       setShowSecureAccess(true);
-    } else {
-      console.log("Opening file:", file.name);
+      return;
+    }
+
+    // Handle preview for non-secure files
+    const fileMetadata = fileMetadataMap.get(file.id);
+    if (!fileMetadata) {
+      addToast({
+        title: "File metadata not available",
+        color: "danger",
+      });
+      return;
+    }
+
+    setIsLoadingPreview(true);
+    setSelectedFile(file);
+
+    try {
+      const response: any = await ApiClient.get(
+        `/filebox/download/${fileMetadata.id}`,
+        {},
+        API_CONFIG.API_URL
+      );
+
+      if (response.success && response.data?.downloadUrl) {
+        setPreviewUrl(response.data.downloadUrl);
+        setShowPreview(true);
+      } else {
+        throw new Error("Failed to generate preview URL");
+      }
+    } catch (error) {
+      console.error("Preview error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to open file",
+          color: "danger",
+        });
+      } else {
+        addToast({
+          title: "Failed to open file",
+          color: "danger",
+        });
+      }
+    } finally {
+      setIsLoadingPreview(false);
     }
   };
 
@@ -185,6 +238,40 @@ export function FileBox() {
           onClose={() => {
             setShowSecureAccess(false);
             setSelectedFile(null);
+          }}
+        />
+      )}
+
+      {showPreview && selectedFile && (
+        <FilePreview
+          file={selectedFile}
+          fileMetadata={fileMetadataMap.get(selectedFile.id)}
+          previewUrl={previewUrl}
+          isOpen={showPreview}
+          onClose={() => {
+            setShowPreview(false);
+            setSelectedFile(null);
+            setPreviewUrl("");
+          }}
+          onDownload={async () => {
+            const fileMetadata = fileMetadataMap.get(selectedFile.id);
+            if (fileMetadata) {
+              try {
+                await downloadMutation.mutateAsync(fileMetadata);
+                addToast({
+                  title: "Download started",
+                  color: "success",
+                });
+              } catch (error) {
+                console.error("Download error:", error);
+                if (error instanceof ApiError) {
+                  addToast({
+                    title: error.message || "Failed to download file",
+                    color: "danger",
+                  });
+                }
+              }
+            }
           }}
         />
       )}

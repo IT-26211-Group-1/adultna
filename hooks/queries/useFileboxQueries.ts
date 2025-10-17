@@ -207,7 +207,7 @@ export function useFileboxUpload() {
 
 /**
  * Hook to download a file
- * Gets pre-signed download URL and triggers browser download
+ * Gets pre-signed download URL and triggers browser download with correct filename
  */
 export function useFileboxDownload() {
   return useMutation({
@@ -222,14 +222,26 @@ export function useFileboxDownload() {
         );
       }
 
-      // Trigger browser download
-      const link = document.createElement("a");
+      // Fetch the file as a blob to ensure proper download with original filename
+      const response = await fetch(downloadUrlResponse.data.downloadUrl);
 
-      link.href = downloadUrlResponse.data.downloadUrl;
+      if (!response.ok) {
+        throw new ApiError("Failed to fetch file from storage", response.status, null);
+      }
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // Trigger browser download with original filename
+      const link = document.createElement("a");
+      link.href = blobUrl;
       link.download = downloadUrlResponse.data.fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      // Clean up the blob URL
+      window.URL.revokeObjectURL(blobUrl);
 
       return downloadUrlResponse;
     },
