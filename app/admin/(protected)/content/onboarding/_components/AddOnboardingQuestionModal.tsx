@@ -28,7 +28,6 @@ export default function AddOnboardingQuestionModal({
     handleSubmit,
     reset,
     control,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<AddQuestionForm>({
     defaultValues: {
@@ -49,7 +48,7 @@ export default function AddOnboardingQuestionModal({
         remove(index);
       }
     },
-    [fields.length, remove]
+    [fields.length, remove],
   );
 
   const onSubmit = useCallback(
@@ -84,7 +83,7 @@ export default function AddOnboardingQuestionModal({
         });
       }
     },
-    [createQuestion, reset, onQuestionCreated, onClose]
+    [createQuestion, reset, onQuestionCreated, onClose],
   );
 
   const handleClose = useCallback(() => {
