@@ -56,7 +56,6 @@ export function FileList({
               file={file}
               fileMetadata={fileMetadataMap.get(file.id)}
               viewType="list"
-              onViewFile={onFileClick}
             />
           </div>
         </div>

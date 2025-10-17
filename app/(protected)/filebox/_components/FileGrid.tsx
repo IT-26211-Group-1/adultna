@@ -45,7 +45,6 @@ export function FileGrid({
                   file={file}
                   fileMetadata={fileMetadataMap.get(file.id)}
                   viewType="grid"
-                  onViewFile={onFileClick}
                 />
               </div>
 
