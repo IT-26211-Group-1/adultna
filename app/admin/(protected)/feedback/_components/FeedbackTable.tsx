@@ -329,7 +329,7 @@ const FeedbackTable: React.FC = () => {
         header: "Description",
         accessor: (feedback) => (
           <div
-            className="text-gray-600 text-sm truncate max-w-xs"
+            className="text-gray-600 text-sm truncate max-w-[100px]"
             title={feedback.description}
           >
             {feedback.description}
@@ -416,7 +416,7 @@ const FeedbackTable: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border">
-        <div className="max-h-96 overflow-auto">
+        <div className="max-h-screen overflow-auto">
           {loading ? (
             <TableSkeleton />
           ) : (

@@ -8,8 +8,7 @@ const FeedbackTable = lazy(() => import("./_components/FeedbackTable"));
 export default function FeedbackPage() {
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div />
+      <div className="flex justify-end items-center mt-5">
         <AdminAddButton
           label="Add Feedback"
           modalComponent={<AddFeedbackModal />}
