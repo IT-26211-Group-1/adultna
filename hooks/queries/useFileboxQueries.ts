@@ -12,6 +12,11 @@ import {
   GenerateUploadUrlRequest,
   ListFilesRequest,
   FileMetadata,
+  RequestDocumentOTPRequest,
+  RequestDocumentOTPResponse,
+  VerifyDocumentOTPRequest,
+  VerifyDocumentOTPResponse,
+  OTPAction,
 } from "@/types/filebox";
 
 const fileboxApi = {
@@ -65,6 +70,30 @@ const fileboxApi = {
   // Get user storage limit
   getUserQuota: (): Promise<QuotaResponse> =>
     ApiClient.get("/filebox/quota", {}, API_CONFIG.API_URL),
+
+  // Request document OTP
+  requestDocumentOTP: (
+    fileId: string,
+    request?: RequestDocumentOTPRequest,
+  ): Promise<RequestDocumentOTPResponse> =>
+    ApiClient.post(
+      `/filebox/documents/${fileId}/request-otp`,
+      request || {},
+      {},
+      API_CONFIG.API_URL,
+    ),
+
+  // Verify document OTP
+  verifyDocumentOTP: (
+    fileId: string,
+    request: VerifyDocumentOTPRequest,
+  ): Promise<VerifyDocumentOTPResponse> =>
+    ApiClient.post(
+      `/filebox/documents/${fileId}/verify-otp`,
+      request,
+      {},
+      API_CONFIG.API_URL,
+    ),
 };
 
 // Query Hooks
@@ -141,9 +170,11 @@ export function useFileboxUpload() {
     mutationFn: async ({
       file,
       category,
+      isSecure,
     }: {
       file: File;
       category: string;
+      isSecure?: boolean;
     }) => {
       const backendCategory = (Object.entries({
         "Government Documents": "government-id",
@@ -166,6 +197,7 @@ export function useFileboxUpload() {
         category: backendCategory,
         contentType: file.type,
         fileSize: file.size,
+        isSecure: isSecure || false,
       });
 
       if (!uploadUrlResponse.success) {
@@ -321,5 +353,80 @@ export function useFileboxDelete() {
 
       return failureCount < 1;
     },
+  });
+}
+
+/**
+ * Hook to request OTP for secure document access
+ * Sends OTP to user's email with 5-minute expiration
+ */
+export function useRequestDocumentOTP() {
+  return useMutation({
+    mutationFn: async ({
+      fileId,
+      action,
+    }: {
+      fileId: string;
+      action?: OTPAction;
+    }) => {
+      const response = await fileboxApi.requestDocumentOTP(
+        fileId,
+        action ? { action } : undefined,
+      );
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to request OTP",
+          400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        // Don't retry rate limit or validation errors
+        if (error.status === 429 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to verify OTP and get document download URL
+ * OTP is one-time use and expires after 5 minutes
+ */
+export function useVerifyDocumentOTP() {
+  return useMutation({
+    mutationFn: async ({
+      fileId,
+      otp,
+      action,
+    }: {
+      fileId: string;
+      otp: string;
+      action?: OTPAction;
+    }) => {
+      const response = await fileboxApi.verifyDocumentOTP(fileId, {
+        otp,
+        action,
+      });
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to verify OTP",
+          400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    retry: false, // Don't retry OTP verification
   });
 }

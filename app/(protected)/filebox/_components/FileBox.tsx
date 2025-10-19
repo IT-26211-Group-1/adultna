@@ -20,6 +20,8 @@ import { API_CONFIG } from "@/config/api";
 import { addToast } from "@heroui/toast";
 import { useFileboxDownload } from "@/hooks/queries/useFileboxQueries";
 
+import { OTPAction } from "@/types/filebox";
+
 export function FileBox() {
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   const [showUpload, setShowUpload] = useState(false);
@@ -29,6 +31,7 @@ export function FileBox() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [secureAction, setSecureAction] = useState<OTPAction>("preview");
 
   const downloadMutation = useFileboxDownload();
 
@@ -58,7 +61,7 @@ export function FileBox() {
         uploadDate: new Date(file.uploadDate).toLocaleDateString(),
         lastAccessed: new Date(file.lastModified).toLocaleDateString(),
         type: getFileType(file.contentType),
-        isSecure: false, // TODO: Implement secure file detection when backend supports it
+        isSecure: file.isSecure || false,
       };
 
       transformedFiles.push(fileItem);
@@ -77,6 +80,7 @@ export function FileBox() {
   const handleFileClick = async (file: FileItem) => {
     if (file.isSecure) {
       setSelectedFile(file);
+      setSecureAction("preview");
       setShowSecureAccess(true);
 
       return;
@@ -233,10 +237,16 @@ export function FileBox() {
 
       {showSecureAccess && selectedFile && (
         <SecureDocument
+          action={secureAction}
           file={selectedFile}
           onClose={() => {
             setShowSecureAccess(false);
             setSelectedFile(null);
+          }}
+          onSuccess={(downloadUrl) => {
+            // After OTP verification for preview, open FilePreview
+            setPreviewUrl(downloadUrl);
+            setShowPreview(true);
           }}
         />
       )}
@@ -256,6 +266,16 @@ export function FileBox() {
             const fileMetadata = fileMetadataMap.get(selectedFile.id);
 
             if (fileMetadata) {
+              // Check if file is secure
+              if (selectedFile.isSecure) {
+                // Close preview and open OTP modal for download
+                setShowPreview(false);
+                setSecureAction("download");
+                setShowSecureAccess(true);
+
+                return;
+              }
+
               try {
                 await downloadMutation.mutateAsync(fileMetadata);
                 addToast({

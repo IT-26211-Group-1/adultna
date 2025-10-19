@@ -42,6 +42,7 @@ export interface FileMetadata {
   fileSizeMB: number;
   uploadDate: string;
   lastModified: string;
+  isSecure: boolean;
 }
 
 export interface UserQuota {
@@ -109,10 +110,34 @@ export interface GenerateUploadUrlRequest {
   category: FileCategory;
   contentType: string;
   fileSize: number;
+  isSecure?: boolean;
 }
 
 export interface ListFilesRequest {
   category?: FileCategory;
+}
+
+// Document OTP types
+export type OTPAction = "preview" | "download" | "delete";
+
+export interface RequestDocumentOTPRequest {
+  action?: OTPAction;
+}
+
+export interface RequestDocumentOTPResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface VerifyDocumentOTPRequest {
+  otp: string;
+  action?: OTPAction;
+}
+
+export interface VerifyDocumentOTPResponse {
+  success: boolean;
+  message: string;
+  downloadUrl?: string;
 }
 
 // Helper function to format file size

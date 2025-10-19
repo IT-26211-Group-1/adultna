@@ -22,9 +22,10 @@ import {
 } from "@/hooks/queries/useFileboxQueries";
 import { addToast } from "@heroui/toast";
 import { ApiError, ApiClient } from "@/lib/apiClient";
-import { FileMetadata } from "@/types/filebox";
+import { FileMetadata, OTPAction } from "@/types/filebox";
 import { API_CONFIG } from "@/config/api";
 import { FilePreview } from "./FilePreview";
+import { SecureDocument } from "./SecureDocument";
 
 interface FileActionsProps {
   file: FileItem;
@@ -52,8 +53,17 @@ export function FileActions({
 
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [showSecureAccess, setShowSecureAccess] = useState(false);
+  const [secureAction, setSecureAction] = useState<OTPAction>("preview");
 
   const handleView = async () => {
+    // Check if file is secure
+    if (file.isSecure) {
+      setSecureAction("preview");
+      setShowSecureAccess(true);
+
+      return;
+    }
     if (!fileMetadata) {
       addToast({
         title: "File metadata not available",
@@ -97,6 +107,14 @@ export function FileActions({
   };
 
   const handleDownload = async () => {
+    // Check if file is secure
+    if (file.isSecure) {
+      setSecureAction("download");
+      setShowSecureAccess(true);
+
+      return;
+    }
+
     if (!fileMetadata) {
       addToast({
         title: "File metadata not available",
@@ -151,14 +169,45 @@ export function FileActions({
       }
     }
   };
+
   const handleDelete = () => {
+    // Check if file is secure
+    if (file.isSecure) {
+      setSecureAction("delete");
+      setShowSecureAccess(true);
+
+      return;
+    }
+
     onDeleteOpen();
+  };
+
+  const handleSecureSuccess = (downloadUrl: string) => {
+    if (secureAction === "preview") {
+      // Open preview with the URL
+      setPreviewUrl(downloadUrl);
+      onPreviewOpen();
+    } else if (secureAction === "delete") {
+      // Proceed with delete confirmation
+      onDeleteOpen();
+    }
+    // For download, SecureDocument handles it directly
   };
 
   if (viewType === "list") {
     // List view - show plain buttons based on the figma design
     return (
       <>
+        {/* Secure Document OTP Modal */}
+        {showSecureAccess && (
+          <SecureDocument
+            action={secureAction}
+            file={file}
+            onClose={() => setShowSecureAccess(false)}
+            onSuccess={handleSecureSuccess}
+          />
+        )}
+
         <div className="flex items-center space-x-1">
           <Button
             isIconOnly
@@ -241,6 +290,16 @@ export function FileActions({
   // Grid view - show dropdown only
   return (
     <>
+      {/* Secure Document OTP Modal */}
+      {showSecureAccess && (
+        <SecureDocument
+          action={secureAction}
+          file={file}
+          onClose={() => setShowSecureAccess(false)}
+          onSuccess={handleSecureSuccess}
+        />
+      )}
+
       <div>
         <Dropdown>
           <DropdownTrigger>

@@ -86,6 +86,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       await uploadMutation.mutateAsync({
         file: data.file,
         category: data.category,
+        isSecure: data.isSecure || false,
       });
 
       addToast({
