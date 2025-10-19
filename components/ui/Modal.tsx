@@ -25,16 +25,16 @@ export const Modal = ({
     size === "sm" ? "max-w-md" : size === "lg" ? "max-w-3xl" : "max-w-2xl";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto py-4">
       <div
         aria-hidden
         className="fixed inset-0 bg-black/40"
         onClick={onClose}
       />
 
-      <div className={`relative w-full ${sizeClass} mx-4`}>
-        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-lg p-6">
-          <div className="flex items-start justify-between">
+      <div className={`relative w-full ${sizeClass} mx-4 my-auto`}>
+        <div className="bg-white dark:bg-slate-900 rounded-lg shadow-lg max-h-[90vh] flex flex-col">
+          <div className="flex items-start justify-between p-6 pb-4 border-b border-gray-200 flex-shrink-0">
             <div>
               {title && <h3 className="text-xl font-semibold">{title}</h3>}
               {description && (
@@ -43,7 +43,7 @@ export const Modal = ({
             </div>
             <button
               aria-label="close"
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-4"
               onClick={onClose}
             >
               <svg
@@ -63,7 +63,7 @@ export const Modal = ({
             </button>
           </div>
 
-          <div className="mt-4">{children}</div>
+          <div className="overflow-y-auto p-6 pt-4">{children}</div>
         </div>
       </div>
     </div>
