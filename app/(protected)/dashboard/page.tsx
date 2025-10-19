@@ -1,5 +1,5 @@
-import DashboardWrapper from "./components/DashboardWrapper";
+import DashboardContent from "./components/DashboardContent";
 
 export default function DashboardPage() {
-  return <DashboardWrapper />;
+  return <DashboardContent />;
 }

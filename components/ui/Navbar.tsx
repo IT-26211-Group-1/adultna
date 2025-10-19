@@ -80,7 +80,6 @@ export const Navbar = () => {
             Login
           </NextLink>
         </NavbarItem>
-
       </NavbarContent>
 
       {/* Mobile menu (collapsible) */}
