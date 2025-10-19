@@ -415,19 +415,20 @@ const FeedbackTable: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="max-h-96 overflow-auto">
-          {loading ? (
-            <TableSkeleton />
-          ) : (
-            <Table
-              columns={columns}
-              data={feedback.filter((item) => item?.id)}
-              emptyMessage="No feedback found"
-            />
-          )}
-        </div>
-      </div>
+      {loading ? (
+        <TableSkeleton />
+      ) : (
+        <Table
+          columns={columns}
+          data={feedback.filter((item) => item?.id)}
+          emptyMessage="No feedback found"
+          pagination={{
+            enabled: true,
+            pageSize: 10,
+            pageSizeOptions: [10, 25, 50, 100],
+          }}
+        />
+      )}
 
       {selectedFeedback && (
         <EditFeedbackModal

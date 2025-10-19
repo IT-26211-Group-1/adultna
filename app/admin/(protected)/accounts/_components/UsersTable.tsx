@@ -300,19 +300,20 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="max-h-96 overflow-auto">
-          {loading ? (
-            <TableSkeleton />
-          ) : (
-            <Table
-              columns={columns}
-              data={mappedUsers}
-              emptyMessage="No users found"
-            />
-          )}
-        </div>
-      </div>
+      {loading ? (
+        <TableSkeleton />
+      ) : (
+        <Table
+          columns={columns}
+          data={mappedUsers}
+          emptyMessage="No users found"
+          pagination={{
+            enabled: true,
+            pageSize: 10,
+            pageSizeOptions: [5, 10, 25, 50, 100],
+          }}
+        />
+      )}
 
       {selectedUser && (
         <EditUserModal

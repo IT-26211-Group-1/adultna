@@ -39,7 +39,7 @@ export function AdminAddButton({
 
     switch (variant) {
       case "green":
-        return `${baseStyles} bg-[#11553F] text-white hover:bg-[#0e4634] focus:ring-[#11553F]`;
+        return `${baseStyles} bg-adult-green text-white hover:bg-[#0e4634] focus:ring-adult-green`;
       case "default":
       default:
         return `${baseStyles} bg-black text-white hover:bg-gray-800 focus:ring-gray-500`;

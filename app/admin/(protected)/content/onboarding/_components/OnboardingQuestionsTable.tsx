@@ -700,6 +700,11 @@ const OnboardingQuestionsTable: React.FC = () => {
         }
         loading={loading}
         className="!overflow-visible"
+        pagination={{
+          enabled: true,
+          pageSize: 10,
+          pageSizeOptions: [10, 25, 50, 100],
+        }}
       />
       {selectedQuestion && (
         <EditOnboardingQuestionModal
