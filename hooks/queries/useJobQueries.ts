@@ -18,6 +18,11 @@ interface JSearchJob {
   job_description?: string;
   job_posted_at_datetime_utc?: string;
   job_apply_link: string;
+  job_salary_min?: number;
+  job_salary_max?: number;
+  job_salary_currency?: string;
+  job_salary_period?: string;
+  job_is_remote?: boolean;
 }
 
 interface JSearchResponse {
@@ -28,18 +33,41 @@ interface JSearchResponse {
 interface JobSearchParams {
   query: string;
   country?: string;
+  page?: number;
+  numPages?: number;
+  datePostedRelative?: string;
 }
 
 // API Functions
 const jobsApi = {
   searchJobs: async (params: JobSearchParams): Promise<Job[]> => {
-    const { query } = params;
+    const { query, page = 1, numPages = 1, datePostedRelative } = params;
 
     const searchParams = new URLSearchParams();
 
-    if (query) searchParams.set("query", query);
-    searchParams.set("page", "1");
-    searchParams.set("num_pages", "1");
+    // Use default query for recent jobs if no query provided, with Philippines filter
+    const searchQuery = query || "jobs in Philippines";
+
+    // Always include Philippines in the search
+    const philippinesQuery = query
+      ? `${query} Philippines OR remote`
+      : searchQuery;
+
+    searchParams.set("query", philippinesQuery);
+    searchParams.set("page", page.toString());
+    searchParams.set("num_pages", numPages.toString());
+
+    // Add location filters for Philippines
+    searchParams.set("country", "PH");
+    searchParams.set("remote_jobs_only", "false"); // Include both remote and local
+
+    // Add date filter for recent jobs
+    if (datePostedRelative) {
+      searchParams.set("date_posted_relative", datePostedRelative);
+    } else if (!query) {
+      // Default to recent jobs when no search query
+      searchParams.set("date_posted_relative", "week");
+    }
 
     const url = `${JSEARCH_API_URL}?${searchParams.toString()}`;
 
@@ -71,6 +99,11 @@ const jobsApi = {
       description: job.job_description || "No description available",
       listedDate: job.job_posted_at_datetime_utc || new Date().toISOString(),
       applyUrl: job.job_apply_link,
+      salaryMin: job.job_salary_min,
+      salaryMax: job.job_salary_max,
+      salaryCurrency: job.job_salary_currency,
+      salaryPeriod: job.job_salary_period,
+      isRemote: job.job_is_remote,
     }));
   },
 };
@@ -78,9 +111,15 @@ const jobsApi = {
 // Query Hooks
 export function useJobSearch(searchQuery: string) {
   return useQuery({
-    queryKey: queryKeys.jobs.search(searchQuery),
-    queryFn: () => jobsApi.searchJobs({ query: searchQuery }),
-    enabled: searchQuery.trim().length > 0,
+    queryKey: queryKeys.jobs.search(`${searchQuery}`),
+    queryFn: () =>
+      jobsApi.searchJobs({
+        query: searchQuery,
+        page: 1,
+        numPages: 10, // Fetch 10 pages to get 100+ jobs
+        datePostedRelative: !searchQuery ? "week" : undefined,
+      }),
+    enabled: true, // Always enabled now since we show default jobs
     staleTime: 15 * 60 * 1000, // Cache for 15 minutes
     gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
     retry: 2,
