@@ -1,17 +1,20 @@
-'use client';
+"use client";
 
-import { useThree, useFrame } from '@react-three/fiber';
-import { useState, useEffect } from 'react';
-import { PerspectiveCamera } from 'three';
-import { useSpring } from '@react-spring/three';
-import { CameraAnimation } from '../domain/types';
+import { useThree, useFrame } from "@react-three/fiber";
+import { useState, useEffect } from "react";
+import { PerspectiveCamera } from "three";
+import { useSpring } from "@react-spring/three";
+import { CameraAnimation } from "../../../../types/roadmap";
 
 interface CameraControllerProps {
   animation: CameraAnimation;
   onAnimationComplete?: () => void;
 }
 
-export function CameraController({ animation, onAnimationComplete }: CameraControllerProps) {
+export function CameraController({
+  animation,
+  onAnimationComplete,
+}: CameraControllerProps) {
   const { camera, size } = useThree();
   const [startAnimation, setStartAnimation] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);

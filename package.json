@@ -33,6 +33,7 @@
     "@nextui-org/react": "^2.6.11",
     "@react-aria/ssr": "3.9.10",
     "@react-aria/visually-hidden": "3.8.26",
+    "@react-spring/core": "^10.0.3",
     "@react-spring/three": "^10.0.3",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",

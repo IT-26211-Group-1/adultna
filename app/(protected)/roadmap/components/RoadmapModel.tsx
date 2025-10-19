@@ -1,30 +1,32 @@
-'use client';
+"use client";
 
-import { useGLTF } from '@react-three/drei';
-import { ThreeEvent, useThree } from '@react-three/fiber';
-import React, { useRef, useEffect } from 'react';
-import { Group, Vector2 } from 'three';
-import { MilestoneService } from '../infrastructure/milestoneService';
-import { RoadmapInteraction } from '../domain/types';
+import { useGLTF } from "@react-three/drei";
+import { ThreeEvent, useThree } from "@react-three/fiber";
+import React, { useRef, useEffect } from "react";
+import { Group, Vector2 } from "three";
+import { MilestoneService } from "../infrastructure/milestoneService";
+import { RoadmapInteraction } from "../../../../types/roadmap";
 
 interface RoadmapModelProps {
   onMilestoneClick: (interaction: RoadmapInteraction) => void;
 }
 
 export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
-  const { scene } = useGLTF('/models/roadmap.glb');
+  const { scene } = useGLTF("/models/roadmap.glb");
   const { raycaster, camera } = useThree();
   const meshRef = useRef<Group>(null);
 
   // Log the 3D model structure for debugging
   useEffect(() => {
     if (scene) {
-      console.log('=== 3D Model Structure ===');
-      console.log('Scene:', scene);
+      console.log("=== 3D Model Structure ===");
+      console.log("Scene:", scene);
 
       const logObject = (obj: any, depth = 0) => {
-        const indent = '  '.repeat(depth);
-        console.log(`${indent}${obj.type}: "${obj.name}" (${obj.children.length} children)`);
+        const indent = "  ".repeat(depth);
+        console.log(
+          `${indent}${obj.type}: "${obj.name}" (${obj.children.length} children)`
+        );
 
         if (obj.children && obj.children.length > 0) {
           obj.children.forEach((child: any) => logObject(child, depth + 1));
@@ -32,7 +34,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
       };
 
       logObject(scene);
-      console.log('========================');
+      console.log("========================");
     }
   }, [scene]);
 
@@ -48,22 +50,25 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
 
     // Raycast to find what object was clicked
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(meshRef.current.children, true);
+    const intersects = raycaster.intersectObjects(
+      meshRef.current.children,
+      true
+    );
 
-    console.log('=== Click Debug ===');
-    console.log('Intersects found:', intersects.length);
+    console.log("=== Click Debug ===");
+    console.log("Intersects found:", intersects.length);
 
     if (intersects.length > 0) {
       const clickedObject = intersects[0].object;
-      const objectName = clickedObject.name || clickedObject.parent?.name || '';
+      const objectName = clickedObject.name || clickedObject.parent?.name || "";
 
-      console.log('Clicked object:', clickedObject);
-      console.log('Object name:', objectName);
-      console.log('Object type:', clickedObject.type);
-      console.log('Parent name:', clickedObject.parent?.name);
+      console.log("Clicked object:", clickedObject);
+      console.log("Object name:", objectName);
+      console.log("Object type:", clickedObject.type);
+      console.log("Parent name:", clickedObject.parent?.name);
 
       const isMS = MilestoneService.isMilestone(objectName);
-      console.log('Is milestone?', isMS);
+      console.log("Is milestone?", isMS);
 
       // Debug logging to help understand the 3D model structure
       let parent = clickedObject.parent;
@@ -75,23 +80,24 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
       }
 
       if (MilestoneService.isMilestone(objectName)) {
-        const milestoneId = MilestoneService.getMilestoneIdFromObjectName(objectName);
+        const milestoneId =
+          MilestoneService.getMilestoneIdFromObjectName(objectName);
         if (milestoneId) {
-          console.log('Milestone clicked - opening modal');
+          console.log("Milestone clicked - opening modal");
           const interaction: RoadmapInteraction = {
             objectName,
             milestoneId,
-            timestamp: new Date()
+            timestamp: new Date(),
           };
           onMilestoneClick(interaction);
         }
       } else {
-        console.log('Non-milestone object clicked - no action taken');
+        console.log("Non-milestone object clicked - no action taken");
       }
     } else {
-      console.log('No intersects found');
+      console.log("No intersects found");
     }
-    console.log('=================');
+    console.log("=================");
   };
 
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
@@ -104,21 +110,24 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(meshRef.current.children, true);
+    const intersects = raycaster.intersectObjects(
+      meshRef.current.children,
+      true
+    );
 
     if (intersects.length > 0) {
       const hoveredObject = intersects[0].object;
-      const objectName = hoveredObject.name || hoveredObject.parent?.name || '';
+      const objectName = hoveredObject.name || hoveredObject.parent?.name || "";
 
       if (MilestoneService.isMilestone(objectName)) {
-        document.body.style.cursor = 'pointer';
+        document.body.style.cursor = "pointer";
       }
     }
   };
 
   const handlePointerOut = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();
-    document.body.style.cursor = 'default';
+    document.body.style.cursor = "default";
   };
 
   return (

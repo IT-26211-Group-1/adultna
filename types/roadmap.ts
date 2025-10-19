@@ -1,6 +1,3 @@
-// Domain types for the roadmap feature
-// These represent the core business entities and should be stable
-
 export interface MilestoneTask {
   id: string;
   title: string;
