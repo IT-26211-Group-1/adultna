@@ -4,6 +4,7 @@ import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
+import { WordCount } from "@/components/ui/WordCount";
 import { addToast } from "@heroui/toast";
 import {
   useOnboardingQuestions,
@@ -52,6 +53,7 @@ export default function UpdateQuestionStatusModal({
   });
 
   const currentStatus = watch("status");
+  const reasonValue = watch("reason");
   const requiresReason =
     currentStatus === "rejected" || currentStatus === "to_revise";
 
@@ -178,12 +180,15 @@ export default function UpdateQuestionStatusModal({
 
         {requiresReason && (
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="reason"
-            >
-              Reason *
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="reason"
+              >
+                Reason *
+              </label>
+              <WordCount text={reasonValue} maxCount={255} type="characters" />
+            </div>
             <textarea
               {...register("reason", {
                 required: requiresReason
@@ -193,10 +198,15 @@ export default function UpdateQuestionStatusModal({
                   value: 10,
                   message: "Reason must be at least 10 characters",
                 },
+                maxLength: {
+                  value: 255,
+                  message: "Reason must not exceed 255 characters",
+                },
               })}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
               disabled={isLoading}
               id="reason"
+              maxLength={255}
               placeholder="Enter the reason for this status change"
               rows={4}
             />
