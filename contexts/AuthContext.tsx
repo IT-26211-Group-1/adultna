@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log(
           "AuthContext: refresh-token endpoint failed:",
           response.status,
-          response.statusText
+          response.statusText,
         );
       }
     } catch (error) {
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       expiresAt: tokenData?.expiresAt || null,
       isLoading: isFetching,
     }),
-    [tokenData?.accessToken, tokenData?.expiresAt, isFetching]
+    [tokenData?.accessToken, tokenData?.expiresAt, isFetching],
   );
 
   if (isLoading) {
