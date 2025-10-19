@@ -1,4 +1,4 @@
-import React, { useMemo, memo } from "react";
+import React, { useMemo, memo, useState } from "react";
 import { Column, TableProps } from "@/types/table";
 
 export type { Column };
@@ -20,15 +20,76 @@ function Table<T>({
   loading = false,
   emptyMessage = "No data available",
   className = "",
+  pagination,
 }: TableProps<T>) {
   const memoizedColumns = useMemo(() => columns, [columns]);
   const memoizedData = useMemo(() => data, [data]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(
+    pagination?.pageSize || pagination?.pageSizeOptions?.[0] || 10,
+  );
+
+  // Calculate pagination
+  const totalItems = memoizedData.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedData = pagination?.enabled
+    ? memoizedData.slice(startIndex, endIndex)
+    : memoizedData;
+
+  // Reset to page 1 when data changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [memoizedData]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("...");
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
 
   return (
     <div
       className={`bg-white rounded-lg shadow-sm border overflow-hidden ${className}`}
     >
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[65vh]">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
@@ -58,8 +119,8 @@ function Table<T>({
                   ))}
                 </tr>
               ))
-            ) : memoizedData.length > 0 ? (
-              memoizedData.map((row, rowIndex) => {
+            ) : paginatedData.length > 0 ? (
+              paginatedData.map((row, rowIndex) => {
                 const rowKey =
                   typeof row === "object" && row !== null && "id" in row
                     ? (row as any).id
@@ -79,7 +140,7 @@ function Table<T>({
                       return (
                         <td
                           key={`${rowKey}-${colIndex}`}
-                          className={`px-6 py-4 whitespace-nowrap text-sm ${getAlignmentClass(col.align)}`}
+                          className={`px-6 py-4 text-sm ${getAlignmentClass(col.align)}`}
                         >
                           {value === null || value === undefined
                             ? "-"
@@ -106,6 +167,79 @@ function Table<T>({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {pagination?.enabled && totalItems > 0 && (
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-700">
+              Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of{" "}
+              {totalItems} entries
+            </span>
+            {pagination.pageSizeOptions && (
+              <div className="flex items-center gap-2">
+                <label
+                  className="text-sm text-gray-600"
+                  htmlFor="page-size-select"
+                >
+                  Show:
+                </label>
+                <select
+                  className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-adult-green"
+                  id="page-size-select"
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                >
+                  {pagination.pageSizeOptions.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              Previous
+            </button>
+
+            <div className="flex gap-1">
+              {getPageNumbers().map((page, idx) => (
+                <button
+                  key={idx}
+                  className={`px-3 py-1 border rounded-md text-sm font-medium transition-colors ${
+                    page === currentPage
+                      ? "bg-adult-green text-white border-adult-green"
+                      : page === "..."
+                        ? "border-transparent text-gray-400 cursor-default"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-100"
+                  }`}
+                  disabled={page === "..." || page === currentPage}
+                  onClick={() =>
+                    typeof page === "number" && handlePageChange(page)
+                  }
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,6 +13,11 @@ export type TableProps<T> = {
   loading?: boolean;
   emptyMessage?: string;
   className?: string;
+  pagination?: {
+    enabled: boolean;
+    pageSize?: number;
+    pageSizeOptions?: number[];
+  };
 };
 
 // Badge types

@@ -7,7 +7,6 @@ import { User, UsersTableProps } from "@/types/admin";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
-import { TableSkeleton } from "@/components/ui/Skeletons";
 import { getUsersTableColumns } from "@/constants/adminTables";
 
 // Memoized actions dropdown
@@ -300,19 +299,17 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="max-h-96 overflow-auto">
-          {loading ? (
-            <TableSkeleton />
-          ) : (
-            <Table
-              columns={columns}
-              data={mappedUsers}
-              emptyMessage="No users found"
-            />
-          )}
-        </div>
-      </div>
+      <Table
+        columns={columns}
+        data={mappedUsers}
+        emptyMessage="No users found"
+        loading={loading}
+        pagination={{
+          enabled: true,
+          pageSize: 10,
+          pageSizeOptions: [5, 10, 25, 50, 100],
+        }}
+      />
 
       {selectedUser && (
         <EditUserModal

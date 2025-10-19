@@ -1,7 +1,9 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { AdminAddButton } from "@/components/admin/AdminAddButton";
+import { TableSkeleton } from "@/components/ui/Skeletons";
 import AddUserModal from "./_components/AddUserModal";
-import UsersTable from "./_components/UsersTable";
+
+const UsersTable = lazy(() => import("./_components/UsersTable"));
 
 export default function AccountsPage() {
   return (
@@ -14,7 +16,9 @@ export default function AccountsPage() {
           variant="green"
         />
       </div>
-      <UsersTable />
+      <Suspense fallback={<TableSkeleton />}>
+        <UsersTable />
+      </Suspense>
     </div>
   );
 }
