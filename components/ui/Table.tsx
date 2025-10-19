@@ -140,7 +140,7 @@ function Table<T>({
                       return (
                         <td
                           key={`${rowKey}-${colIndex}`}
-                          className={`px-6 py-4 whitespace-nowrap text-sm ${getAlignmentClass(col.align)}`}
+                          className={`px-6 py-4 text-sm ${getAlignmentClass(col.align)}`}
                         >
                           {value === null || value === undefined
                             ? "-"
