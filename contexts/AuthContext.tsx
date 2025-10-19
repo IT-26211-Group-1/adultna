@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     gcTime: API_CONFIG.TOKEN.CACHE_TIME,
     refetchInterval: API_CONFIG.TOKEN.REFRESH_INTERVAL,
     refetchOnWindowFocus: false,
-    refetchOnMount: true,
+    refetchOnMount: false,
     retry: 1,
   });
 
