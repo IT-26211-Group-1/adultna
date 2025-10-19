@@ -28,7 +28,7 @@ function Table<T>({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(
-    pagination?.pageSize || pagination?.pageSizeOptions?.[0] || 10
+    pagination?.pageSize || pagination?.pageSizeOptions?.[0] || 10,
   );
 
   // Calculate pagination
@@ -178,11 +178,17 @@ function Table<T>({
             </span>
             {pagination.pageSizeOptions && (
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-600">Show:</label>
+                <label
+                  className="text-sm text-gray-600"
+                  htmlFor="page-size-select"
+                >
+                  Show:
+                </label>
                 <select
+                  className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-adult-green"
+                  id="page-size-select"
                   value={pageSize}
                   onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                  className="px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-adult-green"
                 >
                   {pagination.pageSizeOptions.map((size) => (
                     <option key={size} value={size}>
@@ -196,9 +202,9 @@ function Table<T>({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
               className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
             >
               Previous
             </button>
@@ -207,10 +213,6 @@ function Table<T>({
               {getPageNumbers().map((page, idx) => (
                 <button
                   key={idx}
-                  onClick={() =>
-                    typeof page === "number" && handlePageChange(page)
-                  }
-                  disabled={page === "..." || page === currentPage}
                   className={`px-3 py-1 border rounded-md text-sm font-medium transition-colors ${
                     page === currentPage
                       ? "bg-adult-green text-white border-adult-green"
@@ -218,6 +220,10 @@ function Table<T>({
                         ? "border-transparent text-gray-400 cursor-default"
                         : "border-gray-300 text-gray-700 hover:bg-gray-100"
                   }`}
+                  disabled={page === "..." || page === currentPage}
+                  onClick={() =>
+                    typeof page === "number" && handlePageChange(page)
+                  }
                 >
                   {page}
                 </button>
@@ -225,9 +231,9 @@ function Table<T>({
             </div>
 
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
               className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
             >
               Next
             </button>

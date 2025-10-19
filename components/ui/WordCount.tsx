@@ -15,7 +15,10 @@ export const WordCount: React.FC<WordCountProps> = ({
 }) => {
   const count =
     type === "words"
-      ? text.trim().split(/\s+/).filter((word) => word.length > 0).length
+      ? text
+          .trim()
+          .split(/\s+/)
+          .filter((word) => word.length > 0).length
       : text.length;
 
   const isOverLimit = count > maxCount;
