@@ -17,6 +17,7 @@
     "@arcjet/next": "^1.0.0-beta.10",
     "@heroui/button": "2.2.24",
     "@heroui/code": "2.2.18",
+    "@heroui/dropdown": "^2.3.26",
     "@heroui/input": "2.4.25",
     "@heroui/kbd": "2.2.19",
     "@heroui/link": "2.2.21",
@@ -47,10 +48,12 @@
     "lucide-react": "^0.542.0",
     "next": "^15.5.3",
     "next-themes": "0.4.6",
+    "pdfjs-dist": "^5.4.296",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-google-recaptcha": "^3.1.0",
     "react-hook-form": "^7.62.0",
+    "react-pdf": "^10.2.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^4.1.1"
@@ -89,5 +92,6 @@
     "tailwind-variants": "2.0.1",
     "tailwindcss": "4.1.11",
     "typescript": "5.6.3"
-  }
+  },
+  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d"
 }
