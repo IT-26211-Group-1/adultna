@@ -31,7 +31,7 @@ export function MilestoneModal({
   if (!milestone) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+    <Modal isOpen={isOpen} size="2xl" onClose={onClose}>
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <h2 className="text-xl font-semibold">{milestone.title}</h2>
@@ -62,17 +62,17 @@ export function MilestoneModal({
                   >
                     <div className="flex items-center flex-1">
                       <input
-                        type="checkbox"
+                        checked={task.completed}
                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                         id={`task-${task.id}`}
-                        checked={task.completed}
+                        type="checkbox"
                         onChange={(e) =>
                           handleTaskToggle(task.id, e.target.checked)
                         }
                       />
                       <label
-                        htmlFor={`task-${task.id}`}
                         className="ml-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                        htmlFor={`task-${task.id}`}
                       >
                         {task.title}
                       </label>
@@ -95,7 +95,7 @@ export function MilestoneModal({
           </div>
         </ModalBody>
         <ModalFooter className="flex justify-between">
-          <Button variant="flat" color="default">
+          <Button color="default" variant="flat">
             Add Custom Task
           </Button>
           <Button color="primary" onPress={onClose}>

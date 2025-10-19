@@ -24,8 +24,9 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
 
       const logObject = (obj: any, depth = 0) => {
         const indent = "  ".repeat(depth);
+
         console.log(
-          `${indent}${obj.type}: "${obj.name}" (${obj.children.length} children)`
+          `${indent}${obj.type}: "${obj.name}" (${obj.children.length} children)`,
         );
 
         if (obj.children && obj.children.length > 0) {
@@ -45,6 +46,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
 
     // Convert mouse position to 3D world coordinates
     const mouse = new Vector2();
+
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -52,7 +54,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(
       meshRef.current.children,
-      true
+      true,
     );
 
     console.log("=== Click Debug ===");
@@ -68,11 +70,13 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
       console.log("Parent name:", clickedObject.parent?.name);
 
       const isMS = MilestoneService.isMilestone(objectName);
+
       console.log("Is milestone?", isMS);
 
       // Debug logging to help understand the 3D model structure
       let parent = clickedObject.parent;
       let level = 1;
+
       while (parent && level <= 3) {
         console.log(`Parent level ${level}:`, parent.name, parent.type);
         parent = parent.parent;
@@ -82,6 +86,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
       if (MilestoneService.isMilestone(objectName)) {
         const milestoneId =
           MilestoneService.getMilestoneIdFromObjectName(objectName);
+
         if (milestoneId) {
           console.log("Milestone clicked - opening modal");
           const interaction: RoadmapInteraction = {
@@ -89,6 +94,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
             milestoneId,
             timestamp: new Date(),
           };
+
           onMilestoneClick(interaction);
         }
       } else {
@@ -106,13 +112,14 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
     if (!meshRef.current) return;
 
     const mouse = new Vector2();
+
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(
       meshRef.current.children,
-      true
+      true,
     );
 
     if (intersects.length > 0) {
@@ -133,10 +140,11 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
   return (
     <primitive
       ref={meshRef}
+      // eslint-disable-next-line react/no-unknown-property
       object={scene}
       onClick={handleClick}
-      onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
+      onPointerOver={handlePointerOver}
     />
   );
 }

@@ -6,7 +6,6 @@ import { Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
 import SidebarHeader from "./SidebarHeader";
 import SidebarNavigation from "./SidebarNavigation";
 import SidebarCollapsibleSection from "./SidebarCollapsibleSection";
-import { useFileboxQuota } from "@/hooks/queries/useFileboxQueries";
 import SidebarStorage from "./SidebarStorage";
 
 interface SidebarProps {
@@ -33,12 +32,6 @@ function UserSidebar({
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [internalIsCollapsed, setInternalIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const { data: quotaResponse, isLoading } = useFileboxQuota();
-
-  // Extract quota data with fallbacks
-  const usedBytes = quotaResponse?.data?.usedStorageBytes ?? 0;
-  const maxBytes = quotaResponse?.data?.maxStorageBytes ?? 104857600; // 100MB default
-  const usedPercentage = quotaResponse?.data?.percentageUsed ?? 0;
   const pathname = usePathname();
 
   // Apply olive green background specifically for roadmap page
@@ -56,12 +49,12 @@ function UserSidebar({
 
   const handleToggle = useMemo(
     () => onToggle || (() => setInternalIsOpen((prev) => !prev)),
-    [onToggle]
+    [onToggle],
   );
 
   const handleCollapse = useMemo(
     () => onCollapse || (() => setInternalIsCollapsed((prev) => !prev)),
-    [onCollapse]
+    [onCollapse],
   );
 
   const toggleSection = useCallback(
@@ -70,10 +63,10 @@ function UserSidebar({
       setExpandedSections((prev) =>
         prev.includes(sectionId)
           ? prev.filter((id) => id !== sectionId)
-          : [...prev, sectionId]
+          : [...prev, sectionId],
       );
     },
-    [isCollapsed]
+    [isCollapsed],
   );
 
   const handleExpandSidebar = useCallback(
@@ -84,10 +77,10 @@ function UserSidebar({
       }
       // Auto-expand the clicked section
       setExpandedSections((prev) =>
-        prev.includes(sectionId) ? prev : [...prev, sectionId]
+        prev.includes(sectionId) ? prev : [...prev, sectionId],
       );
     },
-    [isCollapsed, handleCollapse]
+    [isCollapsed, handleCollapse],
   );
 
   return (

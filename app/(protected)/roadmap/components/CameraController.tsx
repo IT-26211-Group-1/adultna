@@ -22,6 +22,7 @@ export function CameraController({
   // Set initial camera position immediately
   useEffect(() => {
     const { position, fov } = animation.from;
+
     camera.position.set(position[0], position[1], position[2]);
     if (camera instanceof PerspectiveCamera) {
       camera.fov = fov;
@@ -61,7 +62,7 @@ export function CameraController({
       camera.position.set(
         position.get()[0],
         position.get()[1],
-        position.get()[2]
+        position.get()[2],
       );
       if (camera instanceof PerspectiveCamera) {
         camera.fov = fov.get();

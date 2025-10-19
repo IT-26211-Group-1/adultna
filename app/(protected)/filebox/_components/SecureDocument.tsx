@@ -126,12 +126,12 @@ export function SecureDocument({
           },
           onError: (error: any) => {
             setErrorMessage(
-              error.message || "Failed to send OTP. Please try again."
+              error.message || "Failed to send OTP. Please try again.",
             );
             setSuccessMessage("");
             reject(error);
           },
-        }
+        },
       );
     });
   };
@@ -169,7 +169,7 @@ export function SecureDocument({
         onSuccess: async (response) => {
           console.log(
             `[SecureDocument] OTP verified successfully for action: ${action}`,
-            response
+            response,
           );
 
           if (action === "delete") {
@@ -230,13 +230,13 @@ export function SecureDocument({
         onError: (error: any) => {
           console.error(
             `[SecureDocument] OTP verification failed for action: ${action}`,
-            error
+            error,
           );
           setErrorMessage(
-            error.message || "Invalid or expired OTP. Please try again."
+            error.message || "Invalid or expired OTP. Please try again.",
           );
         },
-      }
+      },
     );
   };
 

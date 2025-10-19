@@ -49,6 +49,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   const validateStorageQuota = (file: File): boolean => {
     if (!quota) {
       setStorageError("Unable to check storage quota");
+
       return false;
     }
 
@@ -56,6 +57,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       setStorageError(
         "Storage quota exceeded. Please delete some files to free up space.",
       );
+
       return false;
     }
 
@@ -63,10 +65,12 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       setStorageError(
         `File size (${formatFileSize(file.size)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`,
       );
+
       return false;
     }
 
     setStorageError(null);
+
     return true;
   };
   const handleBrowseClick = () => {
@@ -129,6 +133,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         title: storageError || "Storage quota exceeded",
         color: "danger",
       });
+
       return;
     }
 

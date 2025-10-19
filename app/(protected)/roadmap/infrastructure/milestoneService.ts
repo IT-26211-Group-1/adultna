@@ -1,7 +1,7 @@
 // Infrastructure layer - handles milestone data access
 // This could later be extended to fetch from APIs or databases
 
-import { Milestone, MilestoneTask } from "../../../../types/roadmap";
+import { Milestone } from "../../../../types/roadmap";
 
 export class MilestoneService {
   private static milestones: Record<string, Milestone> = {
@@ -53,11 +53,13 @@ export class MilestoneService {
   static updateTaskCompletion(
     milestoneId: string,
     taskId: string,
-    completed: boolean
+    completed: boolean,
   ): void {
     const milestone = this.milestones[milestoneId];
+
     if (milestone) {
       const task = milestone.tasks.find((t) => t.id === taskId);
+
       if (task) {
         task.completed = completed;
       }
@@ -82,6 +84,7 @@ export class MilestoneService {
 
   static getMilestoneIdFromObjectName(objectName: string): string | null {
     const milestoneNumber = objectName.match(/\d+/)?.[0];
+
     return milestoneNumber && this.milestones[milestoneNumber]
       ? milestoneNumber
       : null;

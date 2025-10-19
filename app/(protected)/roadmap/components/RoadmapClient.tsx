@@ -30,11 +30,12 @@ const CAMERA_ANIMATION: CameraAnimation = {
 export function RoadmapClient() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
-    null
+    null,
   );
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
     const milestone = MilestoneService.getMilestone(interaction.milestoneId);
+
     if (milestone) {
       setSelectedMilestone(milestone);
       onOpen();
@@ -50,30 +51,33 @@ export function RoadmapClient() {
           resize={{ scroll: false, debounce: { scroll: 50, resize: 100 } }}
         >
           <CameraController animation={CAMERA_ANIMATION} />
+          {/* eslint-disable-next-line react/no-unknown-property */}
           <ambientLight intensity={1.2} />
-          <directionalLight position={[10, 15, 10]} intensity={2} />
-          <pointLight position={[0, 20, 0]} intensity={1.5} />
+          {/* eslint-disable-next-line react/no-unknown-property */}
+          <directionalLight intensity={2} position={[10, 15, 10]} />
+          {/* eslint-disable-next-line react/no-unknown-property */}
+          <pointLight intensity={1.5} position={[0, 20, 0]} />
           <Suspense fallback={null}>
             <RoadmapModel onMilestoneClick={handleMilestoneClick} />
           </Suspense>
           {/* OrbitControls with full freedom - no restrictions on movement */}
           <OrbitControls
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
-            enableDamping={true}
             dampingFactor={0.05}
-            minDistance={2}
+            enableDamping={true}
+            enablePan={true}
+            enableRotate={true}
+            enableZoom={true}
             maxDistance={50}
             maxPolarAngle={Math.PI}
+            minDistance={2}
           />
         </Canvas>
       </div>
 
       <MilestoneModal
         isOpen={isOpen}
-        onClose={onClose}
         milestone={selectedMilestone}
+        onClose={onClose}
       />
     </>
   );

@@ -21,6 +21,7 @@ export default function SidebarStorage({ isCollapsed }: SidebarStorageProps) {
     if (isQuotaExceeded || usedPercentage >= 100) return "bg-red-600";
     if (usedPercentage >= 95) return "bg-red-500";
     if (usedPercentage >= 80) return "bg-yellow-500";
+
     return "bg-adult-green";
   };
 
@@ -35,6 +36,7 @@ export default function SidebarStorage({ isCollapsed }: SidebarStorageProps) {
     if (usedPercentage >= 80) {
       return "Running low on storage";
     }
+
     return null;
   };
 
