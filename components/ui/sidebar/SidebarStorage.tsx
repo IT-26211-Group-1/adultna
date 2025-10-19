@@ -14,6 +14,31 @@ export default function SidebarStorage({ isCollapsed }: SidebarStorageProps) {
   const usedBytes = quotaResponse?.data?.usedStorageBytes ?? 0;
   const maxBytes = quotaResponse?.data?.maxStorageBytes ?? 104857600; // 100MB default
   const usedPercentage = quotaResponse?.data?.percentageUsed ?? 0;
+  const isQuotaExceeded = quotaResponse?.data?.isQuotaExceeded ?? false;
+
+  // Determine progress bar color based on usage
+  const getProgressColor = () => {
+    if (isQuotaExceeded || usedPercentage >= 100) return "bg-red-600";
+    if (usedPercentage >= 95) return "bg-red-500";
+    if (usedPercentage >= 80) return "bg-yellow-500";
+    return "bg-adult-green";
+  };
+
+  // Get warning message based on usage
+  const getWarningMessage = () => {
+    if (isQuotaExceeded || usedPercentage >= 100) {
+      return "Storage full! Delete files to upload more.";
+    }
+    if (usedPercentage >= 95) {
+      return "Storage almost full!";
+    }
+    if (usedPercentage >= 80) {
+      return "Running low on storage";
+    }
+    return null;
+  };
+
+  const warningMessage = getWarningMessage();
 
   return (
     <div className="mt-auto p-6 border-t border-gray-200 rounded-b-xl">
@@ -29,7 +54,7 @@ export default function SidebarStorage({ isCollapsed }: SidebarStorageProps) {
                 />
               ) : (
                 <div
-                  className="bg-adult-green h-2 rounded-xl transition-all duration-300"
+                  className={`${getProgressColor()} h-2 rounded-xl transition-all duration-300`}
                   style={{ width: `${Math.min(usedPercentage, 100)}%` }}
                 />
               )}
@@ -41,6 +66,19 @@ export default function SidebarStorage({ isCollapsed }: SidebarStorageProps) {
                 `${formatFileSize(usedBytes)} of ${formatFileSize(maxBytes)} used`
               )}
             </p>
+            {warningMessage && !isLoading && (
+              <p
+                className={`text-xs font-medium ${
+                  isQuotaExceeded || usedPercentage >= 100
+                    ? "text-red-600"
+                    : usedPercentage >= 95
+                      ? "text-red-500"
+                      : "text-yellow-600"
+                }`}
+              >
+                {warningMessage}
+              </p>
+            )}
           </div>
         </>
       ) : (
@@ -53,7 +91,7 @@ export default function SidebarStorage({ isCollapsed }: SidebarStorageProps) {
               />
             ) : (
               <div
-                className="bg-adult-green h-2 rounded-xl transition-all duration-300"
+                className={`${getProgressColor()} h-2 rounded-xl transition-all duration-300`}
                 style={{ width: `${Math.min(usedPercentage, 100)}%` }}
               />
             )}

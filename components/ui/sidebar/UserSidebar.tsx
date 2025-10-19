@@ -6,13 +6,17 @@ import { Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
 import SidebarHeader from "./SidebarHeader";
 import SidebarNavigation from "./SidebarNavigation";
 import SidebarCollapsibleSection from "./SidebarCollapsibleSection";
+import { useFileboxQuota } from "@/hooks/queries/useFileboxQueries";
+import SidebarStorage from "./SidebarStorage";
 
 interface SidebarProps {
   isOpen?: boolean;
   onToggle?: () => void;
   isCollapsed?: boolean;
   onCollapse?: () => void;
-  children?: React.ReactNode | ((props: { sidebarCollapsed: boolean }) => React.ReactNode);
+  children?:
+    | React.ReactNode
+    | ((props: { sidebarCollapsed: boolean }) => React.ReactNode);
   isModalOpen?: boolean;
   backgroundColor?: string;
 }
@@ -29,10 +33,18 @@ function UserSidebar({
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [internalIsCollapsed, setInternalIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const { data: quotaResponse, isLoading } = useFileboxQuota();
+
+  // Extract quota data with fallbacks
+  const usedBytes = quotaResponse?.data?.usedStorageBytes ?? 0;
+  const maxBytes = quotaResponse?.data?.maxStorageBytes ?? 104857600; // 100MB default
+  const usedPercentage = quotaResponse?.data?.percentageUsed ?? 0;
   const pathname = usePathname();
 
   // Apply olive green background specifically for roadmap page
-  const resolvedBackgroundColor = backgroundColor || (pathname === '/roadmap' ? 'rgba(107, 142, 35, 0.1)' : 'white');
+  const resolvedBackgroundColor =
+    backgroundColor ||
+    (pathname === "/roadmap" ? "rgba(107, 142, 35, 0.1)" : "white");
 
   // Use controlled state if provided, otherwise use internal state
   const isOpen =
@@ -44,12 +56,12 @@ function UserSidebar({
 
   const handleToggle = useMemo(
     () => onToggle || (() => setInternalIsOpen((prev) => !prev)),
-    [onToggle],
+    [onToggle]
   );
 
   const handleCollapse = useMemo(
     () => onCollapse || (() => setInternalIsCollapsed((prev) => !prev)),
-    [onCollapse],
+    [onCollapse]
   );
 
   const toggleSection = useCallback(
@@ -58,10 +70,10 @@ function UserSidebar({
       setExpandedSections((prev) =>
         prev.includes(sectionId)
           ? prev.filter((id) => id !== sectionId)
-          : [...prev, sectionId],
+          : [...prev, sectionId]
       );
     },
-    [isCollapsed],
+    [isCollapsed]
   );
 
   const handleExpandSidebar = useCallback(
@@ -72,10 +84,10 @@ function UserSidebar({
       }
       // Auto-expand the clicked section
       setExpandedSections((prev) =>
-        prev.includes(sectionId) ? prev : [...prev, sectionId],
+        prev.includes(sectionId) ? prev : [...prev, sectionId]
       );
     },
-    [isCollapsed, handleCollapse],
+    [isCollapsed, handleCollapse]
   );
 
   return (
@@ -159,31 +171,7 @@ function UserSidebar({
           </nav>
 
           {/* Storage Section */}
-          <div className="mt-auto p-6 border-t border-gray-200 rounded-b-xl">
-            {!isCollapsed ? (
-              <>
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Storage</h3>
-                <div className="space-y-2">
-                  <div className="w-full bg-gray-200 rounded-xl h-2">
-                    <div
-                      className="bg-adult-green h-2 rounded-xl"
-                      style={{ width: "4.1%" }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500">4.1 MB of 100 MB used</p>
-                </div>
-              </>
-            ) : (
-              <div className="flex justify-center">
-                <div className="w-8 h-2 bg-gray-200 rounded-xl">
-                  <div
-                    className="bg-adult-green h-2 rounded-xl"
-                    style={{ width: "4.1%" }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          <SidebarStorage isCollapsed={isCollapsed} />
         </div>
       </div>
 
