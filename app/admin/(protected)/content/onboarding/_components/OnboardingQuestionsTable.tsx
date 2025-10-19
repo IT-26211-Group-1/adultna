@@ -520,7 +520,10 @@ const OnboardingQuestionsTable: React.FC = () => {
             {question.options && question.options.length > 0 ? (
               <ul className="list-disc list-inside">
                 {question.options.map((option: AnswerOption, index: number) => (
-                  <li key={option.id || index} className="max-w-xs whitespace-normal break-words">
+                  <li
+                    key={option.id || index}
+                    className="max-w-xs whitespace-normal break-words"
+                  >
                     {option.optionText}
                   </li>
                 ))}
@@ -545,7 +548,7 @@ const OnboardingQuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-  width: "120px",
+        width: "120px",
       },
       {
         header: "Notes/Reason",
@@ -574,7 +577,7 @@ const OnboardingQuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-  width: "180px",
+        width: "180px",
       },
       {
         header: "Updated At",
@@ -605,7 +608,7 @@ const OnboardingQuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-  width: "180px",
+        width: "180px",
       },
       {
         header: "",
@@ -691,6 +694,7 @@ const OnboardingQuestionsTable: React.FC = () => {
         </div>
       </div>
       <Table
+        className="!overflow-visible"
         columns={columns}
         data={displayQuestions}
         emptyMessage={
@@ -699,7 +703,6 @@ const OnboardingQuestionsTable: React.FC = () => {
             : "No onboarding questions found"
         }
         loading={loading}
-        className="!overflow-visible"
         pagination={{
           enabled: true,
           pageSize: 10,

@@ -25,6 +25,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       const target = event.target as Node;
       const clickedInsideTrigger = dropdownRef.current?.contains(target);
       const clickedInsideMenu = menuRef.current?.contains(target);
+
       if (!clickedInsideTrigger && !clickedInsideMenu) {
         setIsOpen(false);
       }
@@ -49,14 +50,23 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
     const computePosition = () => {
       const rect = triggerRef.current?.getBoundingClientRect();
+
       if (!rect) return;
-      const willOverflowBottom = rect.bottom + MENU_HEIGHT_ESTIMATE > window.innerHeight - GAP;
+      const willOverflowBottom =
+        rect.bottom + MENU_HEIGHT_ESTIMATE > window.innerHeight - GAP;
       const placement = willOverflowBottom ? "top" : "bottom";
 
-      let top = placement === "bottom" ? rect.bottom + GAP : rect.top - MENU_HEIGHT_ESTIMATE - GAP;
+      let top =
+        placement === "bottom"
+          ? rect.bottom + GAP
+          : rect.top - MENU_HEIGHT_ESTIMATE - GAP;
       // Compute left based on alignment with viewport clamping
       let left = align === "left" ? rect.left : rect.right - MENU_WIDTH;
-      left = Math.max(GAP, Math.min(left, window.innerWidth - MENU_WIDTH - GAP));
+
+      left = Math.max(
+        GAP,
+        Math.min(left, window.innerWidth - MENU_WIDTH - GAP),
+      );
 
       setCoords({ top, left, placement });
     };
@@ -67,6 +77,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsOpen(false);
     };
+
     window.addEventListener("keydown", onKey);
 
     return () => {
@@ -95,7 +106,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         {trigger}
       </div>
 
-      {isOpen && coords &&
+      {isOpen &&
+        coords &&
         ReactDOM.createPortal(
           <div
             ref={menuRef}
@@ -105,8 +117,18 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
               left: coords.left,
               maxHeight:
                 coords.placement === "bottom"
-                  ? Math.max(120, window.innerHeight - (triggerRef.current?.getBoundingClientRect().bottom || 0) - 16)
-                  : Math.max(120, (triggerRef.current?.getBoundingClientRect().top || 0) - 16),
+                  ? Math.max(
+                      120,
+                      window.innerHeight -
+                        (triggerRef.current?.getBoundingClientRect().bottom ||
+                          0) -
+                        16,
+                    )
+                  : Math.max(
+                      120,
+                      (triggerRef.current?.getBoundingClientRect().top || 0) -
+                        16,
+                    ),
               overflowY: "auto",
             }}
           >

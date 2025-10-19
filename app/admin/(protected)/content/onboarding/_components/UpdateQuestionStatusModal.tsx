@@ -187,7 +187,7 @@ export default function UpdateQuestionStatusModal({
               >
                 Reason *
               </label>
-              <WordCount text={reasonValue} maxCount={255} type="characters" />
+              <WordCount maxCount={255} text={reasonValue} type="characters" />
             </div>
             <textarea
               {...register("reason", {
