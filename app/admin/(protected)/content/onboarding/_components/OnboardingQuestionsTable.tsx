@@ -499,7 +499,7 @@ const OnboardingQuestionsTable: React.FC = () => {
       {
         header: "Question",
         accessor: (question: OnboardingQuestion) => (
-          <div className="max-w-md">
+          <div className="max-w-md whitespace-normal break-words">
             <p
               className={`font-medium ${
                 question.deletedAt
@@ -516,11 +516,11 @@ const OnboardingQuestionsTable: React.FC = () => {
       {
         header: "Answer Options",
         accessor: (question: OnboardingQuestion) => (
-          <div className="text-gray-600 text-sm">
+          <div className="text-gray-600 text-sm whitespace-normal break-words">
             {question.options && question.options.length > 0 ? (
               <ul className="list-disc list-inside">
                 {question.options.map((option: AnswerOption, index: number) => (
-                  <li key={option.id || index} className="truncate max-w-xs">
+                  <li key={option.id || index} className="max-w-xs whitespace-normal break-words">
                     {option.optionText}
                   </li>
                 ))}
@@ -545,14 +545,16 @@ const OnboardingQuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-        width: "120px",
+  width: "120px",
       },
       {
         header: "Notes/Reason",
         accessor: (question: OnboardingQuestion) => (
-          <div className="text-gray-600 text-sm max-w-[250px]">
+          <div className="text-gray-600 text-sm max-w-[250px] whitespace-normal break-words">
             {question.reason ? (
-              <div className="italic break-words">{question.reason}</div>
+              <div className="italic break-words break-all whitespace-normal">
+                {question.reason}
+              </div>
             ) : (
               <span className="text-gray-400">-</span>
             )}
@@ -572,7 +574,7 @@ const OnboardingQuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-        width: "180px",
+  width: "180px",
       },
       {
         header: "Updated At",
@@ -603,7 +605,7 @@ const OnboardingQuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-        width: "180px",
+  width: "180px",
       },
       {
         header: "",
@@ -697,6 +699,7 @@ const OnboardingQuestionsTable: React.FC = () => {
             : "No onboarding questions found"
         }
         loading={loading}
+        className="!overflow-visible"
       />
       {selectedQuestion && (
         <EditOnboardingQuestionModal
