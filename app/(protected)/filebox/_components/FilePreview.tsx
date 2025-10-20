@@ -116,7 +116,8 @@ export function FilePreview({
               </div>
             </ModalHeader>
 
-            <ModalBody className="flex items-center justify-center bg-gray-50 pt-12">
+            <ModalBody className="bg-gray-50 p-0">
+              <div className="w-full min-h-full p-6">
               {isPDF ? (
                 <div className="w-full">
                   {error && (
@@ -133,7 +134,7 @@ export function FilePreview({
                   )}
 
                   {!error && (
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center w-full">
                       <Document
                         file={previewUrl}
                         loading={
@@ -200,7 +201,7 @@ export function FilePreview({
                   {!error && (
                     <div
                       className="relative w-full max-w-3xl"
-                      style={{ height: "500px" }}
+                      style={{ height: "600px" }}
                     >
                       <Image
                         fill
@@ -271,6 +272,7 @@ export function FilePreview({
                   </div>
                 </div>
               )}
+              </div>
             </ModalBody>
 
             <ModalFooter className="gap-3">
