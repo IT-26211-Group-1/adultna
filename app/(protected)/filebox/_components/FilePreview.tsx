@@ -11,8 +11,9 @@ import {
   Spinner,
 } from "@heroui/react";
 import { Document, Page, pdfjs } from "react-pdf";
-import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, X, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import Image from "next/image";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { FileItem } from "./FileItem";
 import { FileMetadata } from "@/types/filebox";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -191,7 +192,7 @@ export function FilePreview({
               ) : isImage ? (
                 <div
                   key={previewUrl}
-                  className="w-full flex flex-col items-center justify-center py-8"
+                  className="w-full flex flex-col items-center"
                 >
                   {loading && !error && (
                     <div className="flex items-center justify-center py-12">
@@ -199,22 +200,74 @@ export function FilePreview({
                     </div>
                   )}
                   {!error && (
-                    <div
-                      className="relative w-full max-w-3xl"
-                      style={{ height: "600px" }}
-                    >
-                      <Image
-                        fill
-                        unoptimized
-                        alt={file.name}
-                        className={`object-contain rounded-lg shadow-md transition-opacity duration-300 ${loading ? "opacity-0" : "opacity-100"}`}
-                        src={previewUrl}
-                        onError={() => {
-                          setLoading(false);
-                          setError("Failed to load image");
-                        }}
-                        onLoad={() => setLoading(false)}
-                      />
+                    <div className="w-full">
+                      <TransformWrapper
+                        initialScale={1}
+                        minScale={0.5}
+                        maxScale={4}
+                        centerOnInit={true}
+                        wheel={{ step: 0.1 }}
+                        doubleClick={{ mode: "reset" }}
+                      >
+                        {({ zoomIn, zoomOut, resetTransform }) => (
+                          <>
+                            {/* Zoom Controls */}
+                            <div className="flex items-center justify-center gap-2 mb-4">
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                onPress={() => zoomOut()}
+                              >
+                                <ZoomOut className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                onPress={() => resetTransform()}
+                              >
+                                <Maximize2 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                onPress={() => zoomIn()}
+                              >
+                                <ZoomIn className="w-4 h-4" />
+                              </Button>
+                              <span className="text-xs text-gray-600 ml-2">
+                                Scroll to zoom • Drag to pan • Double-click to reset
+                              </span>
+                            </div>
+
+                            {/* Image with Pan and Zoom */}
+                            <TransformComponent
+                              wrapperClass="!w-full !h-[60vh] bg-gray-100 rounded-lg"
+                              contentClass="!w-full !h-full flex items-center justify-center"
+                            >
+                              <div
+                                className="relative"
+                                style={{ width: "100%", height: "100%" }}
+                              >
+                                <Image
+                                  fill
+                                  unoptimized
+                                  alt={file.name}
+                                  className={`object-contain transition-opacity duration-300 ${loading ? "opacity-0" : "opacity-100"}`}
+                                  src={previewUrl}
+                                  onError={() => {
+                                    setLoading(false);
+                                    setError("Failed to load image");
+                                  }}
+                                  onLoad={() => setLoading(false)}
+                                />
+                              </div>
+                            </TransformComponent>
+                          </>
+                        )}
+                      </TransformWrapper>
                     </div>
                   )}
                   {error && (
