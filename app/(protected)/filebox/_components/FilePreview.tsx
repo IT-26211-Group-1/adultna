@@ -91,9 +91,11 @@ export function FilePreview({
     <Modal
       classNames={{
         base: "max-h-[85vh] bg-white",
-        body: "p-6",
+        body: "p-6 overflow-y-auto",
         header: "border-b border-gray-200",
         footer: "border-t border-gray-200",
+        wrapper: "z-[9999]",
+        backdrop: "z-[9998]",
       }}
       isOpen={isOpen}
       scrollBehavior="inside"
@@ -114,7 +116,7 @@ export function FilePreview({
               </div>
             </ModalHeader>
 
-            <ModalBody className="flex items-center justify-center bg-gray-50">
+            <ModalBody className="flex items-center justify-center bg-gray-50 pt-12">
               {isPDF ? (
                 <div className="w-full">
                   {error && (
@@ -144,15 +146,15 @@ export function FilePreview({
                         onLoadSuccess={onDocumentLoadSuccess}
                       >
                         <Page
-                          className="shadow-lg rounded-lg"
+                          className="shadow-lg rounded-lg mx-auto"
                           pageNumber={pageNumber}
                           renderAnnotationLayer={true}
                           renderTextLayer={true}
                           width={Math.min(
                             typeof window !== "undefined"
-                              ? window.innerWidth * 0.8
-                              : 800,
-                            800,
+                              ? window.innerWidth * 0.7
+                              : 700,
+                            700,
                           )}
                         />
                       </Document>
@@ -197,8 +199,8 @@ export function FilePreview({
                   )}
                   {!error && (
                     <div
-                      className="relative w-full max-w-4xl"
-                      style={{ height: "600px" }}
+                      className="relative w-full max-w-3xl"
+                      style={{ height: "500px" }}
                     >
                       <Image
                         fill
