@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Button } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,8 +40,25 @@ export function SecureDocument({
     [file.id, action]
   );
 
-  // Helper function to get remaining cooldown seconds
-  const getRemainingCooldown = useCallback((): number => {
+  // Initialize state with lazy function (like OnboardingModal)
+  const [otpValue, setOtpValue] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  
+  const [otpSent, setOtpSent] = useState<boolean>(() => {
+    const stored = getSecureItem(cooldownKey);
+    if (!stored) return false;
+
+    try {
+      const expiryTime = parseInt(stored, 10);
+      return Date.now() < expiryTime;
+    } catch {
+      return false;
+    }
+  });
+
+  const [cooldown, setCooldown] = useState<number>(() => {
     const stored = getSecureItem(cooldownKey);
     if (!stored) return 0;
 
@@ -51,26 +68,18 @@ export function SecureDocument({
 
       if (expiryTime <= now) {
         removeSecureItem(cooldownKey);
+        sessionStorage.removeItem(`otpTimer:${file.id}`);
         return 0;
       }
 
       return Math.ceil((expiryTime - now) / 1000);
     } catch {
       removeSecureItem(cooldownKey);
+      sessionStorage.removeItem(`otpTimer:${file.id}`);
       return 0;
     }
-  }, [cooldownKey, getSecureItem, removeSecureItem]);
+  });
 
-  // Calculate initial state values using useMemo to avoid recalculation
-  const initialCooldown = useMemo(() => getRemainingCooldown(), [getRemainingCooldown]);
-  const initialOtpSent = useMemo(() => initialCooldown > 0, [initialCooldown]);
-
-  const [otpValue, setOtpValue] = useState("");
-  const [focusedIndex, setFocusedIndex] = useState(0);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [otpSent, setOtpSent] = useState(initialOtpSent);
-  const [cooldown, setCooldown] = useState(initialCooldown);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const initialized = useRef(false);
 
@@ -211,6 +220,10 @@ export function SecureDocument({
 
           // Clear cooldown on successful verification
           removeSecureItem(cooldownKey);
+
+                    
+          // Also clear ResendTimer's sessionStorage
+          sessionStorage.removeItem(`otpTimer:${file.id}`);
 
           if (action === "delete") {
             // For delete, just trigger success callback (no download needed)
