@@ -33,11 +33,11 @@ export function SecureDocument({
 }: SecureDocumentProps) {
   // Initialize secure storage hook
   const { getSecureItem, setSecureItem, removeSecureItem } = useSecureStorage();
-  
+
   // Memoize the storage key for this file+action combination
   const cooldownKey = useMemo(
     () => `otp_cooldown_${file.id}_${action}`,
-    [file.id, action]
+    [file.id, action],
   );
 
   // Initialize state with lazy function (like OnboardingModal)
@@ -45,13 +45,15 @@ export function SecureDocument({
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  
+
   const [otpSent, setOtpSent] = useState<boolean>(() => {
     const stored = getSecureItem(cooldownKey);
+
     if (!stored) return false;
 
     try {
       const expiryTime = parseInt(stored, 10);
+
       return Date.now() < expiryTime;
     } catch {
       return false;
@@ -60,6 +62,7 @@ export function SecureDocument({
 
   const [cooldown, setCooldown] = useState<number>(() => {
     const stored = getSecureItem(cooldownKey);
+
     if (!stored) return 0;
 
     try {
@@ -69,6 +72,7 @@ export function SecureDocument({
       if (expiryTime <= now) {
         removeSecureItem(cooldownKey);
         sessionStorage.removeItem(`otpTimer:${file.id}`);
+
         return 0;
       }
 
@@ -76,6 +80,7 @@ export function SecureDocument({
     } catch {
       removeSecureItem(cooldownKey);
       sessionStorage.removeItem(`otpTimer:${file.id}`);
+
       return 0;
     }
   });
@@ -163,11 +168,16 @@ export function SecureDocument({
             setErrorMessage("");
             setOtpSent(true);
             setCooldown(COOLDOWN_SECONDS);
-            
+
             // Store cooldown expiry timestamp in secure storage
             const expiryTime = Date.now() + COOLDOWN_SECONDS * 1000;
-            setSecureItem(cooldownKey, expiryTime.toString(), COOLDOWN_SECONDS / 60);
-            
+
+            setSecureItem(
+              cooldownKey,
+              expiryTime.toString(),
+              COOLDOWN_SECONDS / 60,
+            );
+
             resolve(COOLDOWN_SECONDS);
           },
           onError: (error: any) => {
@@ -221,7 +231,6 @@ export function SecureDocument({
           // Clear cooldown on successful verification
           removeSecureItem(cooldownKey);
 
-                    
           // Also clear ResendTimer's sessionStorage
           sessionStorage.removeItem(`otpTimer:${file.id}`);
 
