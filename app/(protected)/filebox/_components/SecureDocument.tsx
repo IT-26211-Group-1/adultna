@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
 import { Button } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,7 @@ import {
 } from "@/hooks/queries/useFileboxQueries";
 import { OTPAction } from "@/types/filebox";
 import { ResendTimer } from "@/components/ui/ResendTimer";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 
 type OtpFormType = { otp: string };
 
@@ -30,17 +31,48 @@ export function SecureDocument({
   onClose,
   onSuccess,
 }: SecureDocumentProps) {
+  // Initialize secure storage hook
+  const { getSecureItem, setSecureItem, removeSecureItem } = useSecureStorage();
+  
+  // Memoize the storage key for this file+action combination
+  const cooldownKey = useMemo(
+    () => `otp_cooldown_${file.id}_${action}`,
+    [file.id, action]
+  );
+
+  // Helper function to get remaining cooldown seconds
+  const getRemainingCooldown = useCallback((): number => {
+    const stored = getSecureItem(cooldownKey);
+    if (!stored) return 0;
+
+    try {
+      const expiryTime = parseInt(stored, 10);
+      const now = Date.now();
+
+      if (expiryTime <= now) {
+        removeSecureItem(cooldownKey);
+        return 0;
+      }
+
+      return Math.ceil((expiryTime - now) / 1000);
+    } catch {
+      removeSecureItem(cooldownKey);
+      return 0;
+    }
+  }, [cooldownKey, getSecureItem, removeSecureItem]);
+
+  // Calculate initial state values using useMemo to avoid recalculation
+  const initialCooldown = useMemo(() => getRemainingCooldown(), [getRemainingCooldown]);
+  const initialOtpSent = useMemo(() => initialCooldown > 0, [initialCooldown]);
+
   const [otpValue, setOtpValue] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+  const [otpSent, setOtpSent] = useState(initialOtpSent);
+  const [cooldown, setCooldown] = useState(initialCooldown);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const initialized = useRef(false);
-
-  // Debug: Log the action prop
-  console.log(`[SecureDocument] Rendered with action: ${action}`);
 
   // Mutations
   const requestOTPMutation = useRequestDocumentOTP();
@@ -122,6 +154,11 @@ export function SecureDocument({
             setErrorMessage("");
             setOtpSent(true);
             setCooldown(COOLDOWN_SECONDS);
+            
+            // Store cooldown expiry timestamp in secure storage
+            const expiryTime = Date.now() + COOLDOWN_SECONDS * 1000;
+            setSecureItem(cooldownKey, expiryTime.toString(), COOLDOWN_SECONDS / 60);
+            
             resolve(COOLDOWN_SECONDS);
           },
           onError: (error: any) => {
@@ -171,6 +208,9 @@ export function SecureDocument({
             `[SecureDocument] OTP verified successfully for action: ${action}`,
             response,
           );
+
+          // Clear cooldown on successful verification
+          removeSecureItem(cooldownKey);
 
           if (action === "delete") {
             // For delete, just trigger success callback (no download needed)
