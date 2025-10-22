@@ -8,6 +8,7 @@ import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
 import { getUsersTableColumns } from "@/constants/adminTables";
+import { formatDate } from "@/constants/formatDate";
 
 // Memoized actions dropdown
 const UserActions = React.memo<{
@@ -121,17 +122,6 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     refetchUsers,
   } = useAdminUsers();
 
-  // Memoized date
-  const formatDate = useCallback((dateString: string | Date) => {
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  }, []);
-
   const handleEditAccount = useCallback(
     (userId: string) => {
       const user = users.find((u) => u.id === userId);
@@ -162,7 +152,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       }
       onEditUser?.(userId);
     },
-    [users, onEditUser],
+    [users, onEditUser]
   );
 
   const handleUserUpdated = useCallback(
@@ -171,7 +161,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       setEditModalOpen(false);
       setSelectedUser(null);
     },
-    [refetchUsers],
+    [refetchUsers]
   );
 
   const handleCloseEditModal = useCallback(() => {
@@ -218,11 +208,11 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
                 timeout: 4000,
               });
             },
-          },
+          }
         );
       }
     },
-    [updateUserStatus],
+    [updateUserStatus]
   );
 
   // Memoized user list
@@ -247,7 +237,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         displayName: user.displayName,
         roleName: user.roleName || "",
       })),
-    [users],
+    [users]
   );
 
   // Memoized table columns
@@ -259,7 +249,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         handleResetPassword,
         handleToggleAccountStatus,
         isUpdatingStatus,
-        UserActions,
+        UserActions
       ),
     [
       formatDate,
@@ -267,7 +257,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       handleResetPassword,
       handleToggleAccountStatus,
       isUpdatingStatus,
-    ],
+    ]
   );
 
   // Error state
