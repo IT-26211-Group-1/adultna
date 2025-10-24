@@ -40,7 +40,7 @@ const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
           .join(" ")}
       </Badge>
     );
-  }
+  },
 );
 
 QuestionStatusBadge.displayName = "QuestionStatusBadge";
@@ -50,7 +50,7 @@ const QuestionCategoryBadge = React.memo<{ category: string }>(
     <Badge size="sm" variant="default">
       {category.charAt(0).toUpperCase() + category.slice(1)}
     </Badge>
-  )
+  ),
 );
 
 QuestionCategoryBadge.displayName = "QuestionCategoryBadge";
@@ -189,7 +189,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               />
             </svg>
           ),
-        }
+        },
       );
     }
 
@@ -236,7 +236,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               />
             </svg>
           ),
-        }
+        },
       );
     }
 
@@ -291,7 +291,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
         }
       />
     );
-  }
+  },
 );
 
 QuestionActions.displayName = "QuestionActions";
@@ -304,10 +304,10 @@ const OnboardingQuestionsTable: React.FC = () => {
   const [selectedQuestionForStatus, setSelectedQuestionForStatus] =
     useState<OnboardingQuestion | null>(null);
   const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(
-    null
+    null,
   );
   const [restoringQuestionId, setRestoringQuestionId] = useState<number | null>(
-    null
+    null,
   );
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
     useState<number | null>(null);
@@ -345,7 +345,7 @@ const OnboardingQuestionsTable: React.FC = () => {
         setEditModalOpen(true);
       }
     },
-    [displayQuestions]
+    [displayQuestions],
   );
 
   const handleQuestionUpdated = useCallback(() => {
@@ -368,7 +368,7 @@ const OnboardingQuestionsTable: React.FC = () => {
         setStatusModalOpen(true);
       }
     },
-    [displayQuestions]
+    [displayQuestions],
   );
 
   const handleStatusUpdated = useCallback(() => {
@@ -408,10 +408,10 @@ const OnboardingQuestionsTable: React.FC = () => {
             });
             setDeletingQuestionId(null);
           },
-        }
+        },
       );
     },
-    [deleteQuestion]
+    [deleteQuestion],
   );
 
   const handleRestore = useCallback(
@@ -440,17 +440,17 @@ const OnboardingQuestionsTable: React.FC = () => {
             });
             setRestoringQuestionId(null);
           },
-        }
+        },
       );
     },
-    [restoreQuestion]
+    [restoreQuestion],
   );
 
   const handlePermanentDelete = useCallback(
     (questionId: number) => {
       if (
         !confirm(
-          "Are you sure you want to permanently delete this question? This action cannot be undone!"
+          "Are you sure you want to permanently delete this question? This action cannot be undone!",
         )
       )
         return;
@@ -477,10 +477,10 @@ const OnboardingQuestionsTable: React.FC = () => {
             });
             setPermanentDeletingQuestionId(null);
           },
-        }
+        },
       );
     },
-    [permanentDeleteQuestion]
+    [permanentDeleteQuestion],
   );
 
   const columns: Column<OnboardingQuestion>[] = useMemo(
@@ -639,7 +639,7 @@ const OnboardingQuestionsTable: React.FC = () => {
       permanentDeletingQuestionId,
       user?.role,
       formatDate,
-    ]
+    ],
   );
 
   if (questionsError) {

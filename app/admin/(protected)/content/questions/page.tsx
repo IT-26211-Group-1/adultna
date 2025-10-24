@@ -10,11 +10,13 @@ export default function QuestionsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div />
-        <AdminAddButton
-          label="Add Question"
-          modalComponent={<AddQuestionModal />}
-          variant="green"
-        />
+        <div className="flex gap-3">
+          <AdminAddButton
+            label="Add Question"
+            modalComponent={<AddQuestionModal />}
+            variant="green"
+          />
+        </div>
       </div>
       <Suspense fallback={<TableSkeleton />}>
         <QuestionsTable />

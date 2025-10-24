@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useMemo, useCallback } from "react";
+import React, { memo, useMemo, useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
@@ -27,14 +27,20 @@ function AddQuestionModal({
   open = false,
   onClose = () => {},
 }: AddQuestionModalProps) {
-  const { createQuestion, isCreatingQuestion } = useInterviewQuestions();
+  const {
+    createQuestion,
+    isCreatingQuestion,
+    generateAIQuestion,
+    isGeneratingAI,
+  } = useInterviewQuestions();
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const categoryOptions: { value: QuestionCategory; label: string }[] = useMemo(
     () => [
       { value: "behavioral", label: "Behavioral" },
       { value: "technical", label: "Technical" },
       { value: "situational", label: "Situational" },
-      { value: "other", label: "Other" },
+      { value: "background", label: "Background" },
     ],
     []
   );
@@ -44,11 +50,12 @@ function AddQuestionModal({
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
     watch,
   } = useForm<AddQuestionForm>({
     defaultValues: {
       question: "",
-      category: "behavioral",
+      category: "" as QuestionCategory,
       source: "manual",
       customCategory: "",
     },
@@ -58,11 +65,10 @@ function AddQuestionModal({
 
   const onSubmit = useCallback(
     handleSubmit(async (data: AddQuestionForm) => {
-      // If "other" is selected and customCategory is provided, use it as the category
       const submissionData = {
         question: data.question,
         category:
-          data.category === "other" && data.customCategory
+          data.category === "background" && data.customCategory
             ? (data.customCategory as QuestionCategory)
             : data.category,
         source: data.source,
@@ -94,8 +100,94 @@ function AddQuestionModal({
 
   const handleClose = useCallback(() => {
     reset();
+    setShowConfirmation(false);
     onClose();
   }, [reset, onClose]);
+
+  const handleGenerateClick = useCallback(() => {
+    if (!selectedCategory) {
+      addToast({
+        title: "Please select a category first",
+        color: "warning",
+        timeout: 3000,
+      });
+      return;
+    }
+    setShowConfirmation(true);
+  }, [selectedCategory]);
+
+  const handleConfirmGenerate = useCallback(() => {
+    if (!selectedCategory) return;
+
+    generateAIQuestion(
+      { category: selectedCategory },
+      {
+        onSuccess: (response) => {
+          if (response.success && response.data) {
+            setValue("question", response.data.question);
+            setValue("category", response.data.category);
+            setValue("source", "ai");
+            setShowConfirmation(false);
+
+            addToast({
+              title: "AI question generated! You can now review and add it.",
+              color: "success",
+              timeout: 4000,
+            });
+          }
+        },
+        onError: (error: any) => {
+          setShowConfirmation(false);
+          addToast({
+            title: error?.message || "Failed to generate AI question",
+            color: "danger",
+            timeout: 4000,
+          });
+        },
+      }
+    );
+  }, [selectedCategory, generateAIQuestion, setValue]);
+
+  if (showConfirmation) {
+    return (
+      <Modal
+        open={open}
+        title="Confirm Generation"
+        onClose={() => setShowConfirmation(false)}
+      >
+        <div className="space-y-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <p className="text-sm text-yellow-800">
+              Are you sure you want to generate an AI question for the{" "}
+              <strong>{selectedCategory}</strong> category?
+            </p>
+            <p className="text-sm text-yellow-800 mt-2">
+              This will use AI to create a new interview question.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green"
+              disabled={isGeneratingAI}
+              type="button"
+              onClick={() => setShowConfirmation(false)}
+            >
+              Cancel
+            </button>
+            <LoadingButton
+              disabled={isGeneratingAI}
+              loading={isGeneratingAI}
+              type="button"
+              onClick={handleConfirmGenerate}
+            >
+              Confirm & Generate
+            </LoadingButton>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal open={open} title="Add New Question" onClose={handleClose}>
@@ -139,6 +231,9 @@ function AddQuestionModal({
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
             id="category"
           >
+            <option value="" disabled>
+              -- Please select a category --
+            </option>
             {categoryOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -150,46 +245,22 @@ function AddQuestionModal({
               {errors.category.message}
             </p>
           )}
+          <button
+            type="button"
+            onClick={handleGenerateClick}
+            disabled={isGeneratingAI || !selectedCategory}
+            className="mt-3 w-full px-4 py-2 text-sm font-medium text-white  rounded-md  bg-[#11553F] hover:bg-[#0e4634] g focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isGeneratingAI ? "Generating..." : "Generate Question with AI"}
+          </button>
         </div>
-
-        {selectedCategory === "other" && (
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="customCategory"
-            >
-              Please specify the category *
-            </label>
-            <input
-              {...register("customCategory", {
-                required:
-                  selectedCategory === "other"
-                    ? "Please specify the category"
-                    : false,
-                minLength: {
-                  value: 2,
-                  message: "Category must be at least 2 characters",
-                },
-              })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-              id="customCategory"
-              placeholder="Enter custom category"
-              type="text"
-            />
-            {errors.customCategory && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.customCategory.message}
-              </p>
-            )}
-          </div>
-        )}
 
         <div className="flex justify-end gap-3 pt-4">
           <button
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green"
             disabled={isCreatingQuestion}
-            onClick={handleClose}
             type="button"
+            onClick={handleClose}
           >
             Cancel
           </button>

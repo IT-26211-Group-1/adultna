@@ -52,7 +52,7 @@ const QuestionCategoryBadge = React.memo<{
     behavioral: "Behavioral",
     technical: "Technical",
     situational: "Situational",
-    other: "other",
+    background: "background",
   };
 
   return (
@@ -274,6 +274,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
     // Verifier admins can only update status for active questions
     if (userRole === "verifier_admin" && !isDeleted) {
       const isApproved = question.status === "approved";
+
       menuItems.push({
         label: isApproved ? "Update Status" : "Update Status",
         onClick: () => onUpdateStatus(question.id),
@@ -346,10 +347,8 @@ const QuestionsTable: React.FC = () => {
 
   const {
     questions,
-    total: questionCount,
     isLoadingQuestions: loading,
     questionsError,
-    updateQuestionStatus,
     softDeleteQuestion,
     restoreQuestion,
     permanentDeleteQuestion,
@@ -593,22 +592,22 @@ const QuestionsTable: React.FC = () => {
         header: "",
         accessor: (question) => (
           <QuestionActions
-            question={question}
-            isUpdating={isUpdatingStatus}
             isDeleting={isDeleting}
-            isRestoring={isRestoring}
-            isPermanentDeleting={isPermanentDeleting}
             isDeletingThisQuestion={deletingQuestionId === question.id}
-            isRestoringThisQuestion={restoringQuestionId === question.id}
+            isPermanentDeleting={isPermanentDeleting}
             isPermanentDeletingThisQuestion={
               permanentDeletingQuestionId === question.id
             }
+            isRestoring={isRestoring}
+            isRestoringThisQuestion={restoringQuestionId === question.id}
+            isUpdating={isUpdatingStatus}
+            question={question}
             userRole={user?.role}
             onEdit={handleEditQuestion}
-            onUpdateStatus={handleUpdateStatus}
-            onSoftDelete={handleSoftDelete}
-            onRestore={handleRestore}
             onPermanentDelete={handlePermanentDelete}
+            onRestore={handleRestore}
+            onSoftDelete={handleSoftDelete}
+            onUpdateStatus={handleUpdateStatus}
           />
         ),
         width: "80px",

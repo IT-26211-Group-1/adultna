@@ -4,8 +4,7 @@ export type QuestionCategory =
   | "behavioral"
   | "technical"
   | "situational"
-  | "other"
-  | (string & {}); 
+  | "background";
 
 export type QuestionSource = "ai" | "manual";
 
@@ -91,6 +90,16 @@ export type DeleteQuestionResponse = {
 };
 
 export type RestoreQuestionResponse = {
+  success: boolean;
+  message: string;
+  data?: InterviewQuestion;
+};
+
+export type GenerateAIQuestionRequest = {
+  category: QuestionCategory;
+};
+
+export type GenerateAIQuestionResponse = {
   success: boolean;
   message: string;
   data?: InterviewQuestion;

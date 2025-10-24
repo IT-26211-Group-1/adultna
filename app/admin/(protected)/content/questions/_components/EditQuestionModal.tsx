@@ -191,8 +191,10 @@ function EditQuestionModal({
         {(question.status === "approved" || question.status === "rejected") && (
           <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
             <p className="text-sm text-amber-800">
-              <strong>Note:</strong> This question has status "{question.status}" and cannot be edited by technical admins.
-              Only verifier admins can update the status.
+              <strong>Note:</strong> This question has status &quot;
+              {question.status}
+              &quot; and cannot be edited by technical admins. Only verifier
+              admins can update the status.
             </p>
           </div>
         )}
@@ -200,7 +202,8 @@ function EditQuestionModal({
         {(question.status === "pending" || question.status === "to_revise") && (
           <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
             <p className="text-sm text-blue-800">
-              <strong>Current Status:</strong> {question.status === "pending" ? "Pending" : "To Revise"}
+              <strong>Current Status:</strong>{" "}
+              {question.status === "pending" ? "Pending" : "To Revise"}
               <br />
               Status can only be changed by verifier admins.
             </p>
@@ -211,8 +214,8 @@ function EditQuestionModal({
           <button
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green"
             disabled={isUpdatingQuestion}
-            onClick={handleClose}
             type="button"
+            onClick={handleClose}
           >
             Cancel
           </button>

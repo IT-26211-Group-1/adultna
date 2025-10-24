@@ -94,7 +94,7 @@ export default function UpdateQuestionStatusModal({
                 timeout: 4000,
               });
             },
-          }
+          },
         );
       } catch {
         addToast({
@@ -104,7 +104,7 @@ export default function UpdateQuestionStatusModal({
         });
       }
     },
-    [question, updateQuestionStatus, onStatusUpdated, onClose, reset]
+    [question, updateQuestionStatus, onStatusUpdated, onClose, reset],
   );
 
   const handleClose = useCallback(() => {

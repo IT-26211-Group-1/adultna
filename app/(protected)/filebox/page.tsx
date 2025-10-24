@@ -1,4 +1,3 @@
-import ProtectedPageWrapper from "@/components/ui/ProtectedPageWrapper";
 import { FileBox } from "./_components/FileBox";
 
 export default function FileBoxPage() {

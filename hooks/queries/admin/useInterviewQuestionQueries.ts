@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiClient, queryKeys } from "@/lib/apiClient";
+import { ApiClient } from "@/lib/apiClient";
 import type {
   ListQuestionsParams,
   ListQuestionsResponse,
@@ -13,6 +13,8 @@ import type {
   UpdateQuestionStatusResponse,
   DeleteQuestionResponse,
   RestoreQuestionResponse,
+  GenerateAIQuestionRequest,
+  GenerateAIQuestionResponse,
 } from "@/types/interview-question";
 
 // API Functions
@@ -29,9 +31,7 @@ const questionApi = {
 
     const query = queryParams.toString();
 
-    return ApiClient.get(
-      `/interview-questions${query ? `?${query}` : ""}`,
-    );
+    return ApiClient.get(`/interview-questions${query ? `?${query}` : ""}`);
   },
 
   create: (data: CreateQuestionRequest): Promise<CreateQuestionResponse> =>
@@ -59,6 +59,11 @@ const questionApi = {
 
   permanentDelete: (questionId: string): Promise<DeleteQuestionResponse> =>
     ApiClient.delete(`/interview-questions/${questionId}/permanent`),
+
+  generateAI: (
+    data: GenerateAIQuestionRequest,
+  ): Promise<GenerateAIQuestionResponse> =>
+    ApiClient.post("/interview-questions/generate-ai", data),
 };
 
 // Query Hooks
@@ -96,7 +101,12 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
         queryKey: ["admin", "interview-questions"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["admin", "interview-questions", "detail", variables.questionId],
+        queryKey: [
+          "admin",
+          "interview-questions",
+          "detail",
+          variables.questionId,
+        ],
       });
     },
   });
@@ -109,7 +119,12 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
         queryKey: ["admin", "interview-questions"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["admin", "interview-questions", "detail", variables.questionId],
+        queryKey: [
+          "admin",
+          "interview-questions",
+          "detail",
+          variables.questionId,
+        ],
       });
     },
   });
@@ -147,6 +162,16 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
     },
   });
 
+  // Generate AI Question Mutation
+  const generateAIQuestionMutation = useMutation({
+    mutationFn: questionApi.generateAI,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "interview-questions"],
+      });
+    },
+  });
+
   return {
     // Data
     questions: questionsData?.data?.questions || [],
@@ -161,6 +186,7 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
     isDeleting: softDeleteQuestionMutation.isPending,
     isPermanentDeleting: permanentDeleteQuestionMutation.isPending,
     isRestoring: restoreQuestionMutation.isPending,
+    isGeneratingAI: generateAIQuestionMutation.isPending,
 
     // Errors
     questionsError,
@@ -168,9 +194,9 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
     updateQuestionError: updateQuestionMutation.error,
     updateStatusError: updateQuestionStatusMutation.error,
     deleteQuestionError:
-      softDeleteQuestionMutation.error ||
-      permanentDeleteQuestionMutation.error,
+      softDeleteQuestionMutation.error || permanentDeleteQuestionMutation.error,
     restoreQuestionError: restoreQuestionMutation.error,
+    generateAIError: generateAIQuestionMutation.error,
 
     // Actions
     createQuestion: createQuestionMutation.mutate,
@@ -185,11 +211,14 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
     restoreQuestionAsync: restoreQuestionMutation.mutateAsync,
     permanentDeleteQuestion: permanentDeleteQuestionMutation.mutate,
     permanentDeleteQuestionAsync: permanentDeleteQuestionMutation.mutateAsync,
+    generateAIQuestion: generateAIQuestionMutation.mutate,
+    generateAIQuestionAsync: generateAIQuestionMutation.mutateAsync,
     refetchQuestions,
 
     // Mutation data
     createQuestionData: createQuestionMutation.data,
     updateQuestionData: updateQuestionMutation.data,
     updateStatusData: updateQuestionStatusMutation.data,
+    generateAIData: generateAIQuestionMutation.data,
   };
 }

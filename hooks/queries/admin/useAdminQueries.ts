@@ -148,7 +148,7 @@ const adminApi = {
     }),
 
   updateUserStatus: (
-    data: UpdateUserStatusRequest
+    data: UpdateUserStatusRequest,
   ): Promise<UpdateUserStatusResponse> =>
     ApiClient.patch(`/admin/update-status/${data.userId}`, {
       status: data.status,
@@ -255,6 +255,7 @@ export function useAdminAuth() {
         if (response.user) {
           queryClient.setQueryData(queryKeys.admin.auth.me(), response.user);
         }
+
         return response.accessToken;
       }
 
@@ -265,6 +266,7 @@ export function useAdminAuth() {
       queryClient.removeQueries({ queryKey: queryKeys.admin.all });
       queryClient.setQueryData(queryKeys.admin.auth.me(), null);
       window.location.href = "/admin/login";
+
       return null;
     }
   };
@@ -288,7 +290,7 @@ export function useAdminAuth() {
         if (!oldUser) return null;
 
         return { ...oldUser, ...updatedUser };
-      }
+      },
     );
   };
 
