@@ -26,7 +26,6 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
   };
 
   const {
-    Component,
     slots,
     isSelected,
     getBaseProps,
