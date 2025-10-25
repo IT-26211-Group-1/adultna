@@ -28,7 +28,6 @@ export type ContactFormData = z.infer<typeof contactSchema>;
 export const workSchema = z.object({
     workExperiences: z.array(
         z.object({
-            
             jobTitle: z.string().max(100, "Job title must be less than 100 characters").optional(),
             employer: z.string().max(100, "Employer must be less than 100 characters").optional(),
             startDate: calendarDateToDate.optional(),
