@@ -23,6 +23,7 @@ export type InterviewQuestion = {
   createdByEmail?: string | null;
   updatedByEmail?: string | null;
   deletedByEmail?: string | null;
+  reason?: string | null;
 };
 
 export type CreateQuestionRequest = {
@@ -56,6 +57,7 @@ export type UpdateQuestionResponse = {
 export type UpdateQuestionStatusRequest = {
   questionId: string;
   status: QuestionStatus;
+  reason?: string;
 };
 
 export type UpdateQuestionStatusResponse = {

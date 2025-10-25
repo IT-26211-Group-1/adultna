@@ -4,6 +4,7 @@ import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
+import { WordCount } from "@/components/ui/WordCount";
 import { addToast } from "@heroui/toast";
 import type {
   InterviewQuestion,
@@ -20,6 +21,7 @@ const statusOptions: { value: QuestionStatus; label: string }[] = [
 
 type UpdateStatusForm = {
   status: QuestionStatus;
+  reason?: string;
 };
 
 type UpdateQuestionStatusModalProps = {
@@ -46,10 +48,14 @@ export default function UpdateQuestionStatusModal({
   } = useForm<UpdateStatusForm>({
     defaultValues: {
       status: question?.status || "pending",
+      reason: "",
     },
   });
 
   const currentStatus = watch("status");
+  const reasonValue = watch("reason");
+  const requiresReason =
+    currentStatus === "rejected" || currentStatus === "to_revise";
 
   const onSubmit = useCallback(
     async (data: UpdateStatusForm) => {
@@ -73,6 +79,7 @@ export default function UpdateQuestionStatusModal({
           {
             questionId: question.id,
             status: data.status,
+            reason: data.reason?.trim() || undefined,
           },
           {
             onSuccess: (response) => {
@@ -94,7 +101,7 @@ export default function UpdateQuestionStatusModal({
                 timeout: 4000,
               });
             },
-          },
+          }
         );
       } catch {
         addToast({
@@ -104,7 +111,7 @@ export default function UpdateQuestionStatusModal({
         });
       }
     },
-    [question, updateQuestionStatus, onStatusUpdated, onClose, reset],
+    [question, updateQuestionStatus, onStatusUpdated, onClose, reset]
   );
 
   const handleClose = useCallback(() => {
@@ -151,6 +158,40 @@ export default function UpdateQuestionStatusModal({
             <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
           )}
         </div>
+
+        {requiresReason && (
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="reason"
+              >
+                Reason *
+              </label>
+              <WordCount maxCount={255} text={reasonValue} type="characters" />
+            </div>
+            <textarea
+              {...register("reason", {
+                required: requiresReason ? "Reason is required for rejected or to revise status" : false,
+                maxLength: {
+                  value: 255,
+                  message: "Reason must not exceed 255 characters",
+                },
+              })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+              disabled={isLoading}
+              id="reason"
+              maxLength={255}
+              placeholder="Enter the reason for this status change"
+              rows={4}
+            />
+            {errors.reason && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.reason.message}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-end space-x-3 pt-4 border-t">
           <button

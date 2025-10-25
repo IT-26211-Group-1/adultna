@@ -550,6 +550,25 @@ const QuestionsTable: React.FC = () => {
         width: "120px",
       },
       {
+        header: "Reason",
+        accessor: (question) => (
+          <div className="max-w-xs whitespace-normal break-words">
+            {question.reason ? (
+              <p
+                className={`text-sm ${
+                  question.deletedAt ? "text-gray-400" : "text-gray-700"
+                }`}
+              >
+                {question.reason}
+              </p>
+            ) : (
+              <span className="text-gray-400 text-sm">-</span>
+            )}
+          </div>
+        ),
+        width: "200px",
+      },
+      {
         header: "Created At",
         accessor: (question) => (
           <div className="text-gray-900 whitespace-normal">

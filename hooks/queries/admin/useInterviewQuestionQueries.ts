@@ -49,6 +49,7 @@ const questionApi = {
   ): Promise<UpdateQuestionStatusResponse> =>
     ApiClient.patch(`/interview-questions/${data.questionId}/status`, {
       status: data.status,
+      reason: data.reason,
     }),
 
   softDelete: (questionId: string): Promise<DeleteQuestionResponse> =>
