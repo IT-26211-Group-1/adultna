@@ -3,6 +3,7 @@
 import { memo, useState } from "react";
 import { CheckIcon, ClipboardIcon, RefreshCwIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type ChatMessageOptimizedProps = {
   id: string;
@@ -56,8 +57,26 @@ export const ChatMessage = memo(function ChatMessageOptimized({
               </svg>
             </div>
             <div className="flex-1">
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown>{message}</ReactMarkdown>
+              <div className="prose prose-sm dark:prose-invert max-w-none prose-ul:my-2 prose-ol:my-2 prose-li:my-1">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    ol: ({ node, ...props }) => (
+                      <ol className="list-decimal list-inside space-y-1 my-2" {...props} />
+                    ),
+                    ul: ({ node, ...props }) => (
+                      <ul className="list-disc list-inside space-y-1 my-2" {...props} />
+                    ),
+                    li: ({ node, ...props }) => (
+                      <li className="ml-0" {...props} />
+                    ),
+                    strong: ({ node, ...props }) => (
+                      <strong className="font-semibold text-gray-900 dark:text-white" {...props} />
+                    ),
+                  }}
+                >
+                  {message}
+                </ReactMarkdown>
               </div>
 
               {/* Error state */}
