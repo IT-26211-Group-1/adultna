@@ -1,77 +1,103 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { memo, useState } from "react";
+import { CheckIcon, ClipboardIcon, RefreshCwIcon } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
-interface ChatMessageProps {
+type ChatMessageOptimizedProps = {
+  id: string;
+  isUser: boolean;
   message: string;
-  isUser?: boolean;
-  className?: string;
-}
+  timestamp: Date;
+  isLoading?: boolean;
+  error?: string;
+  onRegenerate?: () => void;
+};
 
-export function ChatMessage({
+export const ChatMessage = memo(function ChatMessageOptimized({
+  isUser,
   message,
-  isUser = false,
-  className,
-}: ChatMessageProps) {
-  if (isUser) {
-    // User message - right aligned with avatar
-    return (
-      <div className="flex w-full justify-end gap-3">
-        <div
-          className={cn(
-            "max-w-[70%] rounded-2xl bg-adultGreen px-4 py-3 text-sm text-black shadow-sm",
-            className,
-          )}
-        >
-          <p className="whitespace-pre-wrap break-words">{message}</p>
-        </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-adultGreen text-white shadow-sm">
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      </div>
-    );
-  }
+  timestamp,
+  isLoading,
+  error,
+  onRegenerate,
+}: ChatMessageOptimizedProps) {
+  const [copied, setCopied] = useState(false);
 
-  // AI message - left aligned with avatar
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(message);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="flex w-full justify-start gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-adultGreen text-white shadow-sm">
-        <svg
-          className="h-6 w-6"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
+    <div className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={cn(
-          "max-w-[70%] rounded-2xl bg-gray-100 px-4 py-3 text-sm text-black shadow-sm dark:bg-gray-800 dark:text-black",
-          className,
-        )}
+        className={`group relative max-w-[85%] ${
+          isUser ? "rounded-2xl bg-[#11553F] px-4 py-3 text-white" : "space-y-2"
+        }`}
       >
-        <p className="whitespace-pre-wrap break-words">{message}</p>
+        {/* Assistant Avatar */}
+        {!isUser && (
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300">
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                <ReactMarkdown>{message}</ReactMarkdown>
+              </div>
+
+              {/* Error state */}
+              {error && (
+                <div className="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {error}
+                </div>
+              )}
+
+              {/* Message Actions */}
+              <div className="mt-2 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  onClick={handleCopy}
+                  className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  title="Copy message"
+                >
+                  {copied ? (
+                    <CheckIcon className="h-4 w-4" />
+                  ) : (
+                    <ClipboardIcon className="h-4 w-4" />
+                  )}
+                </button>
+
+                {onRegenerate && !isLoading && (
+                  <button
+                    onClick={onRegenerate}
+                    className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                    title="Regenerate response"
+                  >
+                    <RefreshCwIcon className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* User Message */}
+        {isUser && <div className="text-sm">{message}</div>}
       </div>
     </div>
   );
-}
+});

@@ -6,42 +6,35 @@ import { gabayApi } from "@/lib/api/gabay";
 import type {
   ChatRequest,
   ChatResponse,
-  ConversationMessage,
 } from "@/types/gabay";
 
 interface UseChatMutationOptions {
   onSuccess?: (
     response: ChatResponse,
     message: string,
-    conversationHistory: ConversationMessage[],
   ) => void;
   onError?: (error: Error) => void;
 }
 
 interface ChatMutationVariables {
   message: string;
-  conversationHistory: ConversationMessage[];
+  sessionId?: string;
 }
 
 /**
  * Hook for sending chat messages to the Gabay AI agent
+ * Backend loads conversation history from S3 using sessionId
  */
 export function useGabayChat(options?: UseChatMutationOptions) {
   const chatMutation = useMutation({
     mutationKey: queryKeys.gabay.chat(),
     mutationFn: async ({
       message,
-      conversationHistory,
+      sessionId,
     }: ChatMutationVariables) => {
-      // Transform ConversationMessage to ChatMessage format for API
-      const historyForApi = conversationHistory.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
-
       const request: ChatRequest = {
         message,
-        conversationHistory: historyForApi,
+        sessionId,
       };
 
       return gabayApi.chat(request);
@@ -51,7 +44,6 @@ export function useGabayChat(options?: UseChatMutationOptions) {
         options.onSuccess(
           data,
           variables.message,
-          variables.conversationHistory,
         );
       }
     },
