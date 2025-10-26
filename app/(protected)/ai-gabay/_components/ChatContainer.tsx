@@ -38,9 +38,11 @@ const saveToStorage = (conversations: StoredConversation[]) => {
 const loadFromStorage = (): StoredConversation[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
+
     return stored ? JSON.parse(stored) : [];
   } catch (e) {
     console.error("Failed to load conversations", e);
+
     return [];
   }
 };
@@ -49,25 +51,29 @@ export function ChatContainerOptimized() {
   // Initialize from localStorage synchronously
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [conversations, setConversations] = useState<StoredConversation[]>(() =>
-    loadFromStorage()
+    loadFromStorage(),
   );
-  const [currentSessionId, setCurrentSessionId] = useState<
-    string | undefined
-  >(() => {
-    const stored = loadFromStorage();
-    if (stored.length > 0) {
-      const mostRecent = stored.sort(
-        (a, b) =>
-          new Date(b.lastActivityAt).getTime() -
-          new Date(a.lastActivityAt).getTime()
-      )[0];
-      return mostRecent.id;
-    }
-    return undefined;
-  });
+  const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
+    () => {
+      const stored = loadFromStorage();
+
+      if (stored.length > 0) {
+        const mostRecent = stored.sort(
+          (a, b) =>
+            new Date(b.lastActivityAt).getTime() -
+            new Date(a.lastActivityAt).getTime(),
+        )[0];
+
+        return mostRecent.id;
+      }
+
+      return undefined;
+    },
+  );
   const [messages, setMessages] = useState<ConversationMessage[]>(() => {
     const stored = loadFromStorage();
     const current = stored.find((c) => c.id === currentSessionId);
+
     return (
       current?.messages.map((m) => ({
         ...m,
@@ -91,6 +97,7 @@ export function ChatContainerOptimized() {
     const target = e.currentTarget;
     const isNearBottom =
       target.scrollHeight - target.scrollTop - target.clientHeight < 100;
+
     setShowScrollButton(!isNearBottom);
   }, []);
 
@@ -125,7 +132,7 @@ export function ChatContainerOptimized() {
         return newConversations;
       });
     },
-    []
+    [],
   );
 
   const { sendMessage, isPending } = useGabayChat({
@@ -139,10 +146,12 @@ export function ChatContainerOptimized() {
         };
 
         const newMessages = [...messages, aiMessage];
+
         setMessages(newMessages);
 
         // Update session - backend returns sessionId
         const sessionId = response.sessionId || currentSessionId;
+
         if (sessionId) {
           updateConversation(sessionId, newMessages);
           setCurrentSessionId(sessionId);
@@ -163,6 +172,7 @@ export function ChatContainerOptimized() {
           timestamp: new Date(),
           error: response.blockReason || response.error,
         };
+
         setMessages((prev) => [...prev, errorMessage]);
       }
     },
@@ -174,6 +184,7 @@ export function ChatContainerOptimized() {
         timestamp: new Date(),
         error: error.message,
       };
+
       setMessages((prev) => [...prev, errorMessage]);
     },
   });
@@ -200,7 +211,7 @@ export function ChatContainerOptimized() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       });
     },
-    [currentSessionId, sendMessage]
+    [currentSessionId, sendMessage],
   );
 
   const handleNewConversation = useCallback(() => {
@@ -211,31 +222,34 @@ export function ChatContainerOptimized() {
   const handleSelectConversation = useCallback(
     (id: string) => {
       const conversation = conversations.find((c) => c.id === id);
+
       if (conversation) {
         setCurrentSessionId(id);
         setMessages(
           conversation.messages.map((m) => ({
             ...m,
             timestamp: new Date(m.timestamp),
-          }))
+          })),
         );
       }
     },
-    [conversations]
+    [conversations],
   );
 
   const handleDeleteConversation = useCallback(
     (id: string) => {
       setConversations((prev) => {
         const updated = prev.filter((c) => c.id !== id);
+
         saveToStorage(updated);
+
         return updated;
       });
       if (currentSessionId === id) {
         handleNewConversation();
       }
     },
-    [currentSessionId, handleNewConversation]
+    [currentSessionId, handleNewConversation],
   );
 
   const conversationList: Conversation[] = conversations.map((c) => ({
@@ -252,10 +266,10 @@ export function ChatContainerOptimized() {
       <ConversationSidebar
         conversations={conversationList}
         currentConversationId={currentSessionId}
-        onSelectConversation={handleSelectConversation}
-        onNewConversation={handleNewConversation}
-        onDeleteConversation={handleDeleteConversation}
         isOpen={isSidebarOpen}
+        onDeleteConversation={handleDeleteConversation}
+        onNewConversation={handleNewConversation}
+        onSelectConversation={handleSelectConversation}
       />
 
       {/* Main Chat Area */}
@@ -263,23 +277,23 @@ export function ChatContainerOptimized() {
         {/* Header */}
         <div className="flex items-center gap-2 border-b border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900">
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
             <MenuIcon className="h-5 w-5" />
           </button>
           <h2 className="text-lg font-semibold">
             {messages.length > 0
-              ? conversations.find((c) => c.id === currentSessionId)
-                  ?.title || "New Chat"
+              ? conversations.find((c) => c.id === currentSessionId)?.title ||
+                "New Chat"
               : "AI Gabay"}
           </h2>
         </div>
 
         {/* Messages */}
         <div
-          onScroll={handleScroll}
           className="flex-1 overflow-y-auto px-4 py-6"
+          onScroll={handleScroll}
         >
           <div className="mx-auto max-w-3xl space-y-6">
             {messages.length === 0 && <AgentWelcome />}
@@ -287,11 +301,11 @@ export function ChatContainerOptimized() {
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
+                error={message.error}
                 id={message.id}
                 isUser={message.role === "user"}
                 message={message.content}
                 timestamp={message.timestamp}
-                error={message.error}
               />
             ))}
 
@@ -315,8 +329,8 @@ export function ChatContainerOptimized() {
         {/* Scroll Button */}
         {showScrollButton && (
           <button
-            onClick={scrollToBottom}
             className="absolute bottom-32 right-8 rounded-full bg-gray-200 p-2 shadow-lg hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            onClick={scrollToBottom}
           >
             <ArrowDownIcon className="h-5 w-5" />
           </button>

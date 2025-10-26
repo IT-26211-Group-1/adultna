@@ -28,8 +28,8 @@ export const ConversationSidebar = memo(function ConversationSidebar({
       {/* New Chat Button */}
       <div className="border-b border-gray-200 p-3 dark:border-gray-700">
         <button
-          onClick={onNewConversation}
           className="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+          onClick={onNewConversation}
         >
           <PlusIcon className="h-4 w-4" />
           New Chat
@@ -56,8 +56,8 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                 }`}
               >
                 <button
-                  onClick={() => onSelectConversation(conversation.id)}
                   className="flex flex-1 items-start gap-2 overflow-hidden text-left"
+                  onClick={() => onSelectConversation(conversation.id)}
                 >
                   <MessageSquareIcon className="mt-0.5 h-4 w-4 shrink-0" />
                   <div className="flex-1 overflow-hidden">
@@ -76,14 +76,18 @@ export const ConversationSidebar = memo(function ConversationSidebar({
 
                 {/* TODO: Change confirm */}
                 <button
+                  className="shrink-0 rounded p-1 opacity-0 transition-opacity hover:bg-red-100 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-red-900 dark:hover:text-red-400"
+                  title="Delete conversation"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (confirm("Are you sure you want to delete this conversation? This action cannot be undone.")) {
+                    if (
+                      confirm(
+                        "Are you sure you want to delete this conversation? This action cannot be undone.",
+                      )
+                    ) {
                       onDeleteConversation(conversation.id);
                     }
                   }}
-                  className="shrink-0 rounded p-1 opacity-0 transition-opacity hover:bg-red-100 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-red-900 dark:hover:text-red-400"
-                  title="Delete conversation"
                 >
                   <TrashIcon className="h-3.5 w-3.5" />
                 </button>

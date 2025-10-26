@@ -3,16 +3,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
 import { gabayApi } from "@/lib/api/gabay";
-import type {
-  ChatRequest,
-  ChatResponse,
-} from "@/types/gabay";
+import type { ChatRequest, ChatResponse } from "@/types/gabay";
 
 interface UseChatMutationOptions {
-  onSuccess?: (
-    response: ChatResponse,
-    message: string,
-  ) => void;
+  onSuccess?: (response: ChatResponse, message: string) => void;
   onError?: (error: Error) => void;
 }
 
@@ -28,10 +22,7 @@ interface ChatMutationVariables {
 export function useGabayChat(options?: UseChatMutationOptions) {
   const chatMutation = useMutation({
     mutationKey: queryKeys.gabay.chat(),
-    mutationFn: async ({
-      message,
-      sessionId,
-    }: ChatMutationVariables) => {
+    mutationFn: async ({ message, sessionId }: ChatMutationVariables) => {
       const request: ChatRequest = {
         message,
         sessionId,
@@ -41,10 +32,7 @@ export function useGabayChat(options?: UseChatMutationOptions) {
     },
     onSuccess: (data, variables) => {
       if (options?.onSuccess) {
-        options.onSuccess(
-          data,
-          variables.message,
-        );
+        options.onSuccess(data, variables.message);
       }
     },
     onError: (error: Error) => {
