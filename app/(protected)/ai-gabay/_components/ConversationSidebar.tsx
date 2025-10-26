@@ -73,10 +73,14 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                 </button>
 
                 {/* Delete Button */}
+
+                {/* TODO: Change confirm */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDeleteConversation(conversation.id);
+                    if (confirm("Are you sure you want to delete this conversation? This action cannot be undone.")) {
+                      onDeleteConversation(conversation.id);
+                    }
                   }}
                   className="shrink-0 rounded p-1 opacity-0 transition-opacity hover:bg-red-100 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-red-900 dark:hover:text-red-400"
                   title="Delete conversation"
