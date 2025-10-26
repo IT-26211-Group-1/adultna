@@ -11,8 +11,17 @@ import {
   Spinner,
 } from "@heroui/react";
 import { Document, Page, pdfjs } from "react-pdf";
-import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  X,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+} from "lucide-react";
 import Image from "next/image";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { FileItem } from "./FileItem";
 import { FileMetadata } from "@/types/filebox";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -91,9 +100,11 @@ export function FilePreview({
     <Modal
       classNames={{
         base: "max-h-[85vh] bg-white",
-        body: "p-6",
+        body: "p-6 overflow-y-auto",
         header: "border-b border-gray-200",
         footer: "border-t border-gray-200",
+        wrapper: "z-[9999]",
+        backdrop: "z-[9998]",
       }}
       isOpen={isOpen}
       scrollBehavior="inside"
@@ -114,161 +125,216 @@ export function FilePreview({
               </div>
             </ModalHeader>
 
-            <ModalBody className="flex items-center justify-center bg-gray-50">
-              {isPDF ? (
-                <div className="w-full">
-                  {error && (
-                    <div className="flex flex-col items-center justify-center py-12">
-                      <p className="text-red-600 mb-4">{error}</p>
-                      <Button
-                        className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
-                        onPress={onDownload}
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download File
-                      </Button>
-                    </div>
-                  )}
-
-                  {!error && (
-                    <div className="flex flex-col items-center">
-                      <Document
-                        file={previewUrl}
-                        loading={
-                          <div className="flex items-center justify-center py-12">
-                            <Spinner color="success" size="lg" />
-                          </div>
-                        }
-                        options={PDF_OPTIONS}
-                        onLoadError={onDocumentLoadError}
-                        onLoadSuccess={onDocumentLoadSuccess}
-                      >
-                        <Page
-                          className="shadow-lg rounded-lg"
-                          pageNumber={pageNumber}
-                          renderAnnotationLayer={true}
-                          renderTextLayer={true}
-                          width={Math.min(
-                            typeof window !== "undefined"
-                              ? window.innerWidth * 0.8
-                              : 800,
-                            800,
-                          )}
-                        />
-                      </Document>
-
-                      {!loading && numPages > 0 && (
-                        <div className="flex items-center justify-center gap-4 mt-6 pb-4">
-                          <Button
-                            isIconOnly
-                            className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                            isDisabled={pageNumber <= 1}
-                            size="sm"
-                            onPress={goToPrevPage}
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                          </Button>
-                          <span className="text-sm text-gray-700 font-medium">
-                            Page {pageNumber} of {numPages}
-                          </span>
-                          <Button
-                            isIconOnly
-                            className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                            isDisabled={pageNumber >= numPages}
-                            size="sm"
-                            onPress={goToNextPage}
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : isImage ? (
-                <div
-                  key={previewUrl}
-                  className="w-full flex flex-col items-center justify-center py-8"
-                >
-                  {loading && !error && (
-                    <div className="flex items-center justify-center py-12">
-                      <Spinner color="success" size="lg" />
-                    </div>
-                  )}
-                  {!error && (
-                    <div
-                      className="relative w-full max-w-4xl"
-                      style={{ height: "600px" }}
-                    >
-                      <Image
-                        fill
-                        unoptimized
-                        alt={file.name}
-                        className={`object-contain rounded-lg shadow-md transition-opacity duration-300 ${loading ? "opacity-0" : "opacity-100"}`}
-                        src={previewUrl}
-                        onError={() => {
-                          setLoading(false);
-                          setError("Failed to load image");
-                        }}
-                        onLoad={() => setLoading(false)}
-                      />
-                    </div>
-                  )}
-                  {error && (
-                    <div className="text-center">
-                      <p className="text-red-600 mb-4">{error}</p>
-                      <Button
-                        className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
-                        onPress={onDownload}
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download File
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ) : isDocument ? (
-                <div className="w-full flex flex-col items-center justify-center py-12">
-                  <div className="text-center max-w-md">
-                    <div className="mb-6">
-                      <div className="w-20 h-20 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Download className="w-10 h-10 text-blue-600" />
+            <ModalBody className="bg-gray-50 p-0">
+              <div className="w-full min-h-full p-6">
+                {isPDF ? (
+                  <div className="w-full">
+                    {error && (
+                      <div className="flex flex-col items-center justify-center py-12">
+                        <p className="text-red-600 mb-4">{error}</p>
+                        <Button
+                          className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                          onPress={onDownload}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download File
+                        </Button>
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                        Document Preview Not Available
-                      </h4>
-                      <p className="text-gray-600 mb-6">
-                        Word documents (.doc, .docx) cannot be previewed in the
-                        browser. Download the file to view it in Microsoft Word
-                        or your preferred document editor.
-                      </p>
+                    )}
+
+                    {!error && (
+                      <div className="flex flex-col items-center w-full">
+                        <Document
+                          file={previewUrl}
+                          loading={
+                            <div className="flex items-center justify-center py-12">
+                              <Spinner color="success" size="lg" />
+                            </div>
+                          }
+                          options={PDF_OPTIONS}
+                          onLoadError={onDocumentLoadError}
+                          onLoadSuccess={onDocumentLoadSuccess}
+                        >
+                          <Page
+                            className="shadow-lg rounded-lg mx-auto"
+                            pageNumber={pageNumber}
+                            renderAnnotationLayer={true}
+                            renderTextLayer={true}
+                            width={Math.min(
+                              typeof window !== "undefined"
+                                ? window.innerWidth * 0.7
+                                : 700,
+                              700,
+                            )}
+                          />
+                        </Document>
+
+                        {!loading && numPages > 0 && (
+                          <div className="flex items-center justify-center gap-4 mt-6 pb-4">
+                            <Button
+                              isIconOnly
+                              className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                              isDisabled={pageNumber <= 1}
+                              size="sm"
+                              onPress={goToPrevPage}
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                            <span className="text-sm text-gray-700 font-medium">
+                              Page {pageNumber} of {numPages}
+                            </span>
+                            <Button
+                              isIconOnly
+                              className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                              isDisabled={pageNumber >= numPages}
+                              size="sm"
+                              onPress={goToNextPage}
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : isImage ? (
+                  <div
+                    key={previewUrl}
+                    className="w-full flex flex-col items-center"
+                  >
+                    {loading && !error && (
+                      <div className="flex items-center justify-center py-12">
+                        <Spinner color="success" size="lg" />
+                      </div>
+                    )}
+                    {!error && (
+                      <div className="w-full">
+                        <TransformWrapper
+                          centerOnInit={true}
+                          doubleClick={{ mode: "reset" }}
+                          initialScale={1}
+                          maxScale={4}
+                          minScale={0.5}
+                          wheel={{ step: 0.1 }}
+                        >
+                          {({ zoomIn, zoomOut, resetTransform }) => (
+                            <>
+                              {/* Zoom Controls */}
+                              <div className="flex items-center justify-center gap-2 mb-4">
+                                <Button
+                                  isIconOnly
+                                  className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                  size="sm"
+                                  onPress={() => zoomOut()}
+                                >
+                                  <ZoomOut className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                  size="sm"
+                                  onPress={() => resetTransform()}
+                                >
+                                  <Maximize2 className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                  size="sm"
+                                  onPress={() => zoomIn()}
+                                >
+                                  <ZoomIn className="w-4 h-4" />
+                                </Button>
+                                <span className="text-xs text-gray-600 ml-2">
+                                  Scroll to zoom • Drag to pan • Double-click to
+                                  reset
+                                </span>
+                              </div>
+
+                              {/* Image with Pan and Zoom */}
+                              <TransformComponent
+                                contentClass="!w-full !h-full flex items-center justify-center"
+                                wrapperClass="!w-full !h-[60vh] bg-gray-100 rounded-lg"
+                              >
+                                <div
+                                  className="relative"
+                                  style={{ width: "100%", height: "100%" }}
+                                >
+                                  <Image
+                                    fill
+                                    unoptimized
+                                    alt={file.name}
+                                    className={`object-contain transition-opacity duration-300 ${loading ? "opacity-0" : "opacity-100"}`}
+                                    src={previewUrl}
+                                    onError={() => {
+                                      setLoading(false);
+                                      setError("Failed to load image");
+                                    }}
+                                    onLoad={() => setLoading(false)}
+                                  />
+                                </div>
+                              </TransformComponent>
+                            </>
+                          )}
+                        </TransformWrapper>
+                      </div>
+                    )}
+                    {error && (
+                      <div className="text-center">
+                        <p className="text-red-600 mb-4">{error}</p>
+                        <Button
+                          className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                          onPress={onDownload}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download File
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : isDocument ? (
+                  <div className="w-full flex flex-col items-center justify-center py-12">
+                    <div className="text-center max-w-md">
+                      <div className="mb-6">
+                        <div className="w-20 h-20 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Download className="w-10 h-10 text-blue-600" />
+                        </div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                          Document Preview Not Available
+                        </h4>
+                        <p className="text-gray-600 mb-6">
+                          Word documents (.doc, .docx) cannot be previewed in
+                          the browser. Download the file to view it in Microsoft
+                          Word or your preferred document editor.
+                        </p>
+                      </div>
+                      <Button
+                        className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                        size="lg"
+                        onPress={onDownload}
+                      >
+                        <Download className="w-5 h-5 mr-2" />
+                        Download Document
+                      </Button>
                     </div>
-                    <Button
-                      className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
-                      size="lg"
-                      onPress={onDownload}
-                    >
-                      <Download className="w-5 h-5 mr-2" />
-                      Download Document
-                    </Button>
                   </div>
-                </div>
-              ) : (
-                <div className="w-full flex flex-col items-center justify-center py-12">
-                  <div className="text-center">
-                    <p className="text-gray-600 mb-4">
-                      Preview not available for this file type.
-                    </p>
-                    <Button
-                      className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
-                      onPress={onDownload}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download File
-                    </Button>
+                ) : (
+                  <div className="w-full flex flex-col items-center justify-center py-12">
+                    <div className="text-center">
+                      <p className="text-gray-600 mb-4">
+                        Preview not available for this file type.
+                      </p>
+                      <Button
+                        className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                        onPress={onDownload}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download File
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </ModalBody>
 
             <ModalFooter className="gap-3">
