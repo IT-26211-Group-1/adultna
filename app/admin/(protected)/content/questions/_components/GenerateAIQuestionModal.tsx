@@ -10,6 +10,8 @@ import type { QuestionCategory } from "@/types/interview-question";
 
 type GenerateAIQuestionForm = {
   category: QuestionCategory;
+  industry: string;
+  customIndustry?: string;
   customCategory?: string;
 };
 
@@ -26,7 +28,9 @@ function GenerateAIQuestionModal({
 }: GenerateAIQuestionModalProps) {
   const { generateAIQuestion, isGeneratingAI } = useInterviewQuestions();
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [pendingData, setPendingData] = useState<GenerateAIQuestionForm | null>(null);
+  const [pendingData, setPendingData] = useState<GenerateAIQuestionForm | null>(
+    null,
+  );
 
   const categoryOptions: { value: QuestionCategory; label: string }[] = useMemo(
     () => [
@@ -35,7 +39,21 @@ function GenerateAIQuestionModal({
       { value: "situational", label: "Situational" },
       { value: "background", label: "Background" },
     ],
-    []
+    [],
+  );
+
+  const industryOptions = useMemo(
+    () => [
+      { value: "information_technology", label: "Information Technology" },
+      { value: "arts_and_design", label: "Arts and Design" },
+      { value: "business_and_management", label: "Business and Management" },
+      { value: "communication", label: "Communication" },
+      { value: "education", label: "Education" },
+      { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
+      { value: "general", label: "General" },
+      { value: "other", label: "Other" },
+    ],
+    [],
   );
 
   const {
@@ -47,10 +65,13 @@ function GenerateAIQuestionModal({
   } = useForm<GenerateAIQuestionForm>({
     defaultValues: {
       category: "behavioral",
+      industry: "",
+      customIndustry: "",
     },
   });
 
   const selectedCategory = watch("category");
+  const selectedIndustry = watch("industry");
 
   const handleClose = useCallback(() => {
     reset();
@@ -64,7 +85,7 @@ function GenerateAIQuestionModal({
       setPendingData(data);
       setShowConfirmation(true);
     }),
-    [handleSubmit]
+    [handleSubmit],
   );
 
   const handleConfirmGenerate = useCallback(() => {
@@ -75,6 +96,10 @@ function GenerateAIQuestionModal({
         pendingData.category === "background" && pendingData.customCategory
           ? (pendingData.customCategory as QuestionCategory)
           : pendingData.category,
+      industry:
+        pendingData.industry === "other" && pendingData.customIndustry
+          ? pendingData.customIndustry
+          : pendingData.industry,
     };
 
     generateAIQuestion(submissionData, {
@@ -119,12 +144,17 @@ function GenerateAIQuestionModal({
 
   if (showConfirmation) {
     return (
-      <Modal open={open} title="Confirm Generation" onClose={() => setShowConfirmation(false)}>
+      <Modal
+        open={open}
+        title="Confirm Generation"
+        onClose={() => setShowConfirmation(false)}
+      >
         <div className="space-y-4">
           <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
             <p className="text-sm text-yellow-800">
               Are you sure you want to generate an AI question for the{" "}
-              <strong>{pendingData?.category}</strong> category?
+              <strong>{(pendingData?.industry, pendingData?.category)}</strong>{" "}
+              category?
             </p>
             <p className="text-sm text-yellow-800 mt-2">
               This will use AI to create a new interview question.
@@ -189,6 +219,66 @@ function GenerateAIQuestionModal({
             </p>
           )}
         </div>
+
+        <div>
+          <label
+            className="block text-sm font-medium text-gray-700"
+            htmlFor="industry"
+          >
+            Industry *
+          </label>
+          <select
+            {...register("industry", { required: "Industry is required" })}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            id="industry"
+          >
+            <option disabled value="">
+              -- Please select an industry --
+            </option>
+            {industryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {errors.industry && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.industry.message}
+            </p>
+          )}
+        </div>
+
+        {selectedIndustry === "other" && (
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="customIndustry"
+            >
+              Specify Industry *
+            </label>
+            <textarea
+              {...register("customIndustry", {
+                required:
+                  selectedIndustry === "other"
+                    ? "Please specify the industry"
+                    : false,
+                minLength: {
+                  value: 3,
+                  message: "Industry must be at least 3 characters",
+                },
+              })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+              id="customIndustry"
+              placeholder="Enter industry name"
+              rows={2}
+            />
+            {errors.customIndustry && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.customIndustry.message}
+              </p>
+            )}
+          </div>
+        )}
 
         {selectedCategory === "background" && (
           <div>

@@ -101,7 +101,7 @@ export default function UpdateQuestionStatusModal({
                 timeout: 4000,
               });
             },
-          }
+          },
         );
       } catch {
         addToast({
@@ -111,7 +111,7 @@ export default function UpdateQuestionStatusModal({
         });
       }
     },
-    [question, updateQuestionStatus, onStatusUpdated, onClose, reset]
+    [question, updateQuestionStatus, onStatusUpdated, onClose, reset],
   );
 
   const handleClose = useCallback(() => {
@@ -172,7 +172,9 @@ export default function UpdateQuestionStatusModal({
             </div>
             <textarea
               {...register("reason", {
-                required: requiresReason ? "Reason is required for rejected or to revise status" : false,
+                required: requiresReason
+                  ? "Reason is required for rejected or to revise status"
+                  : false,
                 maxLength: {
                   value: 255,
                   message: "Reason must not exceed 255 characters",

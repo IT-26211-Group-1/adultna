@@ -15,6 +15,8 @@ import type {
 type EditQuestionForm = {
   question: string;
   category: QuestionCategory;
+  industry: string;
+  customIndustry?: string;
   source: QuestionSource;
 };
 
@@ -50,36 +52,68 @@ function EditQuestionModal({
     [],
   );
 
+  const industryOptions = useMemo(
+    () => [
+      { value: "information_technology", label: "Information Technology" },
+      { value: "arts_and_design", label: "Arts and Design" },
+      { value: "business_and_management", label: "Business and Management" },
+      { value: "communication", label: "Communication" },
+      { value: "education", label: "Education" },
+      { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
+      { value: "general", label: "General" },
+      { value: "other", label: "Other" },
+    ],
+    [],
+  );
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<EditQuestionForm>({
     defaultValues: {
       question: question.question,
       category: question.category,
+      industry: question.industry || "",
+      customIndustry: "",
       source: question.source,
     },
   });
 
+  const selectedIndustry = watch("industry");
+
   // Reset form when question changes
   useEffect(() => {
     if (question) {
+      // Check if industry is a predefined value or custom
+      const isPredefined = industryOptions.some(
+        (opt) => opt.value === question.industry,
+      );
+
       reset({
         question: question.question,
         category: question.category,
+        industry: isPredefined ? question.industry || "" : "other",
+        customIndustry: isPredefined ? "" : question.industry || "",
         source: question.source,
       });
     }
-  }, [question, reset]);
+  }, [question, reset, industryOptions]);
 
   const onSubmit = useCallback(
     handleSubmit(async (data: EditQuestionForm) => {
       updateQuestion(
         {
           questionId: question.id,
-          ...data,
+          question: data.question,
+          category: data.category,
+          industry:
+            data.industry === "other" && data.customIndustry
+              ? data.customIndustry
+              : data.industry,
+          source: data.source,
         },
         {
           onSuccess: (response) => {
@@ -164,6 +198,66 @@ function EditQuestionModal({
             </p>
           )}
         </div>
+
+        <div>
+          <label
+            className="block text-sm font-medium text-gray-700"
+            htmlFor="industry"
+          >
+            Industry *
+          </label>
+          <select
+            {...register("industry", { required: "Industry is required" })}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            id="industry"
+          >
+            <option disabled value="">
+              -- Please select an industry --
+            </option>
+            {industryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {errors.industry && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.industry.message}
+            </p>
+          )}
+        </div>
+
+        {selectedIndustry === "other" && (
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="customIndustry"
+            >
+              Specify Industry *
+            </label>
+            <textarea
+              {...register("customIndustry", {
+                required:
+                  selectedIndustry === "other"
+                    ? "Please specify the industry"
+                    : false,
+                minLength: {
+                  value: 3,
+                  message: "Industry must be at least 3 characters",
+                },
+              })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+              id="customIndustry"
+              placeholder="Enter industry name"
+              rows={2}
+            />
+            {errors.customIndustry && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.customIndustry.message}
+              </p>
+            )}
+          </div>
+        )}
 
         <div>
           <label

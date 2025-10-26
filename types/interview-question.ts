@@ -12,6 +12,7 @@ export type InterviewQuestion = {
   id: string;
   question: string;
   category: QuestionCategory;
+  industry?: string | null;
   source: QuestionSource;
   status: QuestionStatus;
   createdBy: string;
@@ -29,10 +30,8 @@ export type InterviewQuestion = {
 export type CreateQuestionRequest = {
   question: string;
   category: QuestionCategory;
+  industry?: string;
   source: QuestionSource;
-  // Status is automatically determined by backend based on user role:
-  // - technical_admin: "pending"
-  // - verifier_admin: "approved"
 };
 
 export type CreateQuestionResponse = {
@@ -45,6 +44,7 @@ export type UpdateQuestionRequest = {
   questionId: string;
   question?: string;
   category?: QuestionCategory;
+  industry?: string;
   source?: QuestionSource;
 };
 
@@ -99,6 +99,7 @@ export type RestoreQuestionResponse = {
 
 export type GenerateAIQuestionRequest = {
   category: QuestionCategory;
+  industry?: string;
 };
 
 export type GenerateAIQuestionResponse = {

@@ -41,6 +41,7 @@ const questionApi = {
     ApiClient.put(`/interview-questions/${data.questionId}`, {
       question: data.question,
       category: data.category,
+      industry: data.industry,
       source: data.source,
     }),
 

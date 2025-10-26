@@ -14,6 +14,8 @@ import type {
 type AddQuestionForm = {
   question: string;
   category: QuestionCategory;
+  industry: string;
+  customIndustry?: string;
   source: QuestionSource;
   customCategory?: string;
 };
@@ -42,7 +44,21 @@ function AddQuestionModal({
       { value: "situational", label: "Situational" },
       { value: "background", label: "Background" },
     ],
-    []
+    [],
+  );
+
+  const industryOptions = useMemo(
+    () => [
+      { value: "information_technology", label: "Information Technology" },
+      { value: "arts_and_design", label: "Arts and Design" },
+      { value: "business_and_management", label: "Business and Management" },
+      { value: "communication", label: "Communication" },
+      { value: "education", label: "Education" },
+      { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
+      { value: "geducation", label: "Education" },
+      { value: "other", label: "Other" },
+    ],
+    [],
   );
 
   const {
@@ -56,12 +72,15 @@ function AddQuestionModal({
     defaultValues: {
       question: "",
       category: "" as QuestionCategory,
+      industry: "",
+      customIndustry: "",
       source: "manual",
       customCategory: "",
     },
   });
 
   const selectedCategory = watch("category");
+  const selectedIndustry = watch("industry");
 
   const onSubmit = useCallback(
     handleSubmit(async (data: AddQuestionForm) => {
@@ -71,6 +90,10 @@ function AddQuestionModal({
           data.category === "background" && data.customCategory
             ? (data.customCategory as QuestionCategory)
             : data.category,
+        industry:
+          data.industry === "other" && data.customIndustry
+            ? data.customIndustry
+            : data.industry || undefined,
         source: data.source,
       };
 
@@ -95,7 +118,7 @@ function AddQuestionModal({
         },
       });
     }),
-    [createQuestion, handleSubmit]
+    [createQuestion, handleSubmit],
   );
 
   const handleClose = useCallback(() => {
@@ -111,6 +134,7 @@ function AddQuestionModal({
         color: "warning",
         timeout: 3000,
       });
+
       return;
     }
     setShowConfirmation(true);
@@ -144,7 +168,7 @@ function AddQuestionModal({
             timeout: 4000,
           });
         },
-      }
+      },
     );
   }, [selectedCategory, generateAIQuestion, setValue]);
 
@@ -231,7 +255,7 @@ function AddQuestionModal({
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
             id="category"
           >
-            <option value="" disabled>
+            <option disabled value="">
               -- Please select a category --
             </option>
             {categoryOptions.map((option) => (
@@ -245,15 +269,76 @@ function AddQuestionModal({
               {errors.category.message}
             </p>
           )}
-          <button
-            type="button"
-            onClick={handleGenerateClick}
-            disabled={isGeneratingAI || !selectedCategory}
-            className="mt-3 w-full px-4 py-2 text-sm font-medium text-white  rounded-md  bg-[#11553F] hover:bg-[#0e4634] g focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isGeneratingAI ? "Generating..." : "Generate Question with AI"}
-          </button>
         </div>
+
+        <div>
+          <label
+            className="block text-sm font-medium text-gray-700"
+            htmlFor="industry"
+          >
+            Industry *
+          </label>
+          <select
+            {...register("industry", { required: "Industry is required" })}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            id="industry"
+          >
+            <option disabled value="">
+              -- Please select an industry --
+            </option>
+            {industryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {errors.industry && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.industry.message}
+            </p>
+          )}
+        </div>
+
+        {selectedIndustry === "other" && (
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="customIndustry"
+            >
+              Specify Industry *
+            </label>
+            <textarea
+              {...register("customIndustry", {
+                required:
+                  selectedIndustry === "other"
+                    ? "Please specify the industry"
+                    : false,
+                minLength: {
+                  value: 3,
+                  message: "Industry must be at least 3 characters",
+                },
+              })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+              id="customIndustry"
+              placeholder="Enter industry name"
+              rows={2}
+            />
+            {errors.customIndustry && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.customIndustry.message}
+              </p>
+            )}
+          </div>
+        )}
+
+        <button
+          className="w-full px-4 py-2 text-sm font-medium text-white rounded-md bg-[#11553F] hover:bg-[#0e4634] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isGeneratingAI || !selectedCategory || !selectedIndustry}
+          type="button"
+          onClick={handleGenerateClick}
+        >
+          {isGeneratingAI ? "Generating..." : "Generate Question with AI"}
+        </button>
 
         <div className="flex justify-end gap-3 pt-4">
           <button
