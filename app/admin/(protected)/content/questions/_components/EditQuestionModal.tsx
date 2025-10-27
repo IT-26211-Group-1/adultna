@@ -60,7 +60,7 @@ function EditQuestionModal({
       { value: "communication", label: "Communication" },
       { value: "education", label: "Education" },
       { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
-      { value: "general", label: "General" },
+      { value: "geducation", label: "Education" },
       { value: "other", label: "Other" },
     ],
     [],

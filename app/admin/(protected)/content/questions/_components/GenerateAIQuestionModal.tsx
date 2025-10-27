@@ -50,7 +50,6 @@ function GenerateAIQuestionModal({
       { value: "communication", label: "Communication" },
       { value: "education", label: "Education" },
       { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
-      { value: "general", label: "General" },
       { value: "other", label: "Other" },
     ],
     [],
@@ -64,7 +63,7 @@ function GenerateAIQuestionModal({
     watch,
   } = useForm<GenerateAIQuestionForm>({
     defaultValues: {
-      category: "behavioral",
+      category: "background",
       industry: "",
       customIndustry: "",
     },
@@ -207,6 +206,9 @@ function GenerateAIQuestionModal({
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
             id="category"
           >
+            <option disabled value="">
+              -- Please select a category --
+            </option>
             {categoryOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -325,6 +327,12 @@ function GenerateAIQuestionModal({
             disabled={isGeneratingAI}
             loading={isGeneratingAI}
             type="submit"
+            onClick={() => {
+              console.log("Button clicked! Current watch values:", {
+                category: selectedCategory,
+                industry: selectedIndustry,
+              });
+            }}
           >
             Generate AI Question
           </LoadingButton>

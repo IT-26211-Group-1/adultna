@@ -143,8 +143,14 @@ function AddQuestionModal({
   const handleConfirmGenerate = useCallback(() => {
     if (!selectedCategory) return;
 
+    const industryValue =
+      selectedIndustry === "other" ? watch("customIndustry") : selectedIndustry;
+
     generateAIQuestion(
-      { category: selectedCategory },
+      {
+        category: selectedCategory,
+        industry: industryValue,
+      },
       {
         onSuccess: (response) => {
           if (response.success && response.data) {
@@ -170,7 +176,7 @@ function AddQuestionModal({
         },
       },
     );
-  }, [selectedCategory, generateAIQuestion, setValue]);
+  }, [selectedCategory, selectedIndustry, generateAIQuestion, setValue, watch]);
 
   if (showConfirmation) {
     return (
