@@ -245,32 +245,6 @@ export function useAdminAuth() {
     },
   });
 
-  // Refresh Token Function
-  const refreshToken = async (): Promise<string | null> => {
-    try {
-      const response = await adminApi.refreshToken();
-
-      if (response.success && response.accessToken) {
-        // Update the query cache with fresh user data
-        if (response.user) {
-          queryClient.setQueryData(queryKeys.admin.auth.me(), response.user);
-        }
-
-        return response.accessToken;
-      }
-
-      return null;
-    } catch (error) {
-      console.error("Token refresh failed:", error);
-      // Clear auth state and redirect to login
-      queryClient.removeQueries({ queryKey: queryKeys.admin.all });
-      queryClient.setQueryData(queryKeys.admin.auth.me(), null);
-      window.location.href = "/admin/login";
-
-      return null;
-    }
-  };
-
   // Helper functions
   const invalidateAuth = () => {
     queryClient.invalidateQueries({ queryKey: queryKeys.admin.auth.all });
@@ -327,7 +301,6 @@ export function useAdminAuth() {
     checkAuth,
     forceAuthCheck,
     refreshAuth,
-    refreshToken,
     invalidateAuth,
     updateUser,
     isAuthFresh,

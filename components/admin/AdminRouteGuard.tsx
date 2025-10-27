@@ -2,9 +2,8 @@
 
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef } from "react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { setRefreshTokenCallback } from "@/lib/apiClient";
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
@@ -20,13 +19,8 @@ export function AdminRouteGuard({
   allowedRoles = ["technical_admin", "verifier_admin"],
 }: AdminRouteGuardProps) {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading, refreshToken } = useAdminAuth();
+  const { user, isAuthenticated, isLoading } = useAdminAuth();
   const hasRedirected = useRef(false);
-
-  // Set up automatic token refresh on mount
-  useEffect(() => {
-    setRefreshTokenCallback(refreshToken);
-  }, [refreshToken]);
 
   const shouldRedirect = useMemo(() => {
     if (isLoading) return false;
