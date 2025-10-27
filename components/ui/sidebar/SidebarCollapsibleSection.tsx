@@ -40,7 +40,7 @@ const careerCenterItems: SectionItem[] = [
   {
     id: "cover-letter",
     label: "Cover Letter Helper",
-    href: "/cover-letter",
+    href: "/resumes/cover-letter",
   },
   {
     id: "mock-interview",
