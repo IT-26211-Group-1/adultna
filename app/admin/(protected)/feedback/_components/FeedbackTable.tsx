@@ -12,6 +12,7 @@ import {
   FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
+import { formatDate } from "@/constants/formatDate";
 
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
   const getTypeColor = (type: FeedbackType) => {
@@ -163,18 +164,6 @@ const FeedbackTable: React.FC = () => {
     isDeletingFeedback,
     refetchFeedback,
   } = useFeedback();
-
-  const formatDate = useCallback((dateString: string) => {
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }, []);
 
   const handleEditFeedback = useCallback(
     (feedbackId: string) => {

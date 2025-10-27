@@ -36,8 +36,6 @@ export function useAdminLogin() {
         }
       },
       onError: (error: any) => {
-        console.log("Admin login error:", error);
-
         if (error?.message?.includes("Too many failed attempts")) {
           addToast({
             title: "Login failed",
