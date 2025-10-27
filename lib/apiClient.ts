@@ -45,7 +45,7 @@ export class ApiClient {
     endpoint: string,
     options: RequestInit = {},
     baseUrl: string = API_BASE_URL as string,
-    _isRetry = false,
+    isRetry = false,
   ): Promise<T> {
     const url = `${baseUrl}${endpoint}`;
     const headers = this.buildHeaders(options.headers);
@@ -70,6 +70,53 @@ export class ApiClient {
         const errorData = contentType?.includes("application/json")
           ? await response.json()
           : await response.text();
+
+        // If 401 and not already retrying, try to refresh token via verify-token endpoint
+        if (
+          response.status === 401 &&
+          !isRetry &&
+          !endpoint.includes("/verify-token") &&
+          !endpoint.includes("/login")
+        ) {
+          console.log("[ApiClient] 401 detected, attempting token refresh...", {
+            endpoint,
+            baseUrl,
+          });
+
+          try {
+            // Call verify-token which will automatically refresh if needed
+            const verifyUrl = baseUrl.includes("/admin")
+              ? "/admin/verify-token"
+              : "/auth/me";
+
+            console.log("[ApiClient] Calling", verifyUrl, "for token refresh");
+
+            const refreshResponse = await fetch(`${baseUrl}${verifyUrl}`, {
+              credentials: "include",
+            });
+
+            console.log("[ApiClient] Refresh response status:", refreshResponse.status);
+
+            if (!refreshResponse.ok) {
+              console.log("[ApiClient] ❌ Refresh failed with status:", refreshResponse.status);
+              throw new Error("Token refresh failed");
+            }
+
+            console.log("[ApiClient] ✅ Token refreshed, retrying original request");
+
+            // Retry the original request once
+            return this.request<T>(endpoint, options, baseUrl, true);
+          } catch (error) {
+            console.log("[ApiClient] ❌ Token refresh error:", error);
+            // If refresh fails, throw the original 401 error
+            throw new ApiError(
+              errorData?.message ||
+                `HTTP ${response.status}: ${response.statusText}`,
+              response.status,
+              errorData,
+            );
+          }
+        }
 
         throw new ApiError(
           errorData?.message ||
