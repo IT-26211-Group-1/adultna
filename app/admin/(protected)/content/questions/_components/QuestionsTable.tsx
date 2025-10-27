@@ -1,43 +1,42 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import Table, { Column } from "@/components/ui/Table";
 import Badge from "@/components/ui/Badge";
 import DropdownMenu from "@/components/ui/DropdownMenu";
-import { addToast } from "@heroui/toast";
-import {
-  useOnboardingQuestions,
-  OnboardingQuestion,
+import type {
+  InterviewQuestion,
   QuestionStatus,
-  AnswerOption,
-} from "@/hooks/queries/admin/useOnboardingQueries";
+  QuestionCategory,
+  QuestionSource,
+} from "@/types/interview-question";
+import { addToast } from "@heroui/toast";
+import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestionQueries";
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
-import EditOnboardingQuestionModal from "./EditOnboardingQuestionModal";
+import EditQuestionModal from "./EditQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
 import { formatDate } from "@/constants/formatDate";
 
+// Question Status Badge Component
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
   ({ status }) => {
-    const getStatusColor = (status: QuestionStatus) => {
-      switch (status) {
-        case "accepted":
-          return "success";
-        case "rejected":
-          return "error";
-        case "to_revise":
-          return "warning";
-        case "pending":
-        default:
-          return "info";
-      }
+    const variants = {
+      pending: "warning",
+      approved: "success",
+      rejected: "error",
+      to_revise: "info",
+    } as const;
+
+    const labels = {
+      pending: "Pending",
+      approved: "Approved",
+      rejected: "Rejected",
+      to_revise: "To Revise",
     };
 
     return (
-      <Badge size="sm" variant={getStatusColor(status)}>
-        {status
-          .split("_")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ")}
+      <Badge size="sm" variant={variants[status]}>
+        {labels[status]}
       </Badge>
     );
   },
@@ -45,23 +44,51 @@ const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
 
 QuestionStatusBadge.displayName = "QuestionStatusBadge";
 
-const QuestionCategoryBadge = React.memo<{ category: string }>(
-  ({ category }) => (
+// Question Category Badge Component
+const QuestionCategoryBadge = React.memo<{
+  category: QuestionCategory;
+}>(({ category }) => {
+  const labels: Record<QuestionCategory, string> = {
+    behavioral: "Behavioral",
+    technical: "Technical",
+    situational: "Situational",
+    background: "background",
+  };
+
+  return (
     <Badge size="sm" variant="default">
-      {category.charAt(0).toUpperCase() + category.slice(1)}
+      {labels[category]}
     </Badge>
-  ),
-);
+  );
+});
 
 QuestionCategoryBadge.displayName = "QuestionCategoryBadge";
 
+// Question Source Badge Component
+const QuestionSourceBadge = React.memo<{ source: QuestionSource }>(
+  ({ source }) => {
+    const labels: Record<QuestionSource, string> = {
+      ai: "AI Generated",
+      manual: "Manual",
+    };
+
+    return (
+      <Badge size="sm" variant={source === "ai" ? "info" : "default"}>
+        {labels[source]}
+      </Badge>
+    );
+  },
+);
+
+QuestionSourceBadge.displayName = "QuestionSourceBadge";
+
 type QuestionActionsProps = {
-  question: OnboardingQuestion;
-  onEdit: (questionId: number) => void;
-  onUpdateStatus: (questionId: number) => void;
-  onDelete: (questionId: number) => void;
-  onRestore: (questionId: number) => void;
-  onPermanentDelete: (questionId: number) => void;
+  question: InterviewQuestion;
+  onEdit: (questionId: string) => void;
+  onUpdateStatus: (questionId: string) => void;
+  onSoftDelete: (questionId: string) => void;
+  onRestore: (questionId: string) => void;
+  onPermanentDelete: (questionId: string) => void;
   isUpdating: boolean;
   isDeleting: boolean;
   isRestoring: boolean;
@@ -72,12 +99,13 @@ type QuestionActionsProps = {
   userRole?: string;
 };
 
+// Memoized actions dropdown
 const QuestionActions = React.memo<QuestionActionsProps>(
   ({
     question,
     onEdit,
     onUpdateStatus,
-    onDelete,
+    onSoftDelete,
     onRestore,
     onPermanentDelete,
     isUpdating,
@@ -193,13 +221,16 @@ const QuestionActions = React.memo<QuestionActionsProps>(
       );
     }
 
-    // Technical admins can edit and delete active questions
+    // Technical admins can edit and soft delete active questions
     if (userRole === "technical_admin" && !isDeleted) {
+      const canEdit =
+        question.status === "pending" || question.status === "to_revise";
+
       menuItems.push(
         {
-          label: "Edit",
+          label: canEdit ? "Edit" : "Edit",
           onClick: () => onEdit(question.id),
-          disabled: isUpdating || isDeleting,
+          disabled: !canEdit || isUpdating || isDeleting,
           icon: (
             <svg
               className="w-4 h-4"
@@ -218,7 +249,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
         },
         {
           label: "Archive",
-          onClick: () => onDelete(question.id),
+          onClick: () => onSoftDelete(question.id),
           disabled: isUpdating || isDeleting,
           destructive: true,
           icon: (
@@ -242,13 +273,12 @@ const QuestionActions = React.memo<QuestionActionsProps>(
 
     // Verifier admins can only update status for active questions
     if (userRole === "verifier_admin" && !isDeleted) {
-      const isStatusLocked =
-        question.status === "accepted" || question.status === "rejected";
+      const isApproved = question.status === "approved";
 
       menuItems.push({
-        label: isStatusLocked ? "Update Status" : "Update Status",
+        label: isApproved ? "Update Status" : "Update Status",
         onClick: () => onUpdateStatus(question.id),
-        disabled: isUpdating || isDeleting || isStatusLocked,
+        disabled: isUpdating || isDeleting || isApproved,
         icon: (
           <svg
             className="w-4 h-4"
@@ -296,21 +326,21 @@ const QuestionActions = React.memo<QuestionActionsProps>(
 
 QuestionActions.displayName = "QuestionActions";
 
-const OnboardingQuestionsTable: React.FC = () => {
+const QuestionsTable: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedQuestion, setSelectedQuestion] =
-    useState<OnboardingQuestion | null>(null);
+    useState<InterviewQuestion | null>(null);
   const [selectedQuestionForStatus, setSelectedQuestionForStatus] =
-    useState<OnboardingQuestion | null>(null);
-  const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(
+    useState<InterviewQuestion | null>(null);
+  const [deletingQuestionId, setDeletingQuestionId] = useState<string | null>(
     null,
   );
-  const [restoringQuestionId, setRestoringQuestionId] = useState<number | null>(
+  const [restoringQuestionId, setRestoringQuestionId] = useState<string | null>(
     null,
   );
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
-    useState<number | null>(null);
+    useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
 
   const { user } = useAdminAuth();
@@ -319,15 +349,15 @@ const OnboardingQuestionsTable: React.FC = () => {
     questions,
     isLoadingQuestions: loading,
     questionsError,
-    isUpdatingStatus,
-    deleteQuestion,
-    isDeleting,
+    softDeleteQuestion,
     restoreQuestion,
-    isRestoring,
     permanentDeleteQuestion,
+    isUpdatingStatus,
+    isDeleting,
+    isRestoring,
     isPermanentDeleting,
     refetchQuestions,
-  } = useOnboardingQuestions();
+  } = useInterviewQuestions();
 
   // Filter questions based on view mode
   const activeQuestions = questions.filter((q) => !q.deletedAt);
@@ -337,7 +367,7 @@ const OnboardingQuestionsTable: React.FC = () => {
   const displayQuestions = showArchived ? archivedQuestions : activeQuestions;
 
   const handleEditQuestion = useCallback(
-    (questionId: number) => {
+    (questionId: string) => {
       const question = displayQuestions.find((q) => q.id === questionId);
 
       if (question) {
@@ -360,7 +390,7 @@ const OnboardingQuestionsTable: React.FC = () => {
   }, []);
 
   const handleUpdateStatus = useCallback(
-    (questionId: number) => {
+    (questionId: string) => {
       const question = displayQuestions.find((q) => q.id === questionId);
 
       if (question) {
@@ -382,72 +412,66 @@ const OnboardingQuestionsTable: React.FC = () => {
     setSelectedQuestionForStatus(null);
   }, []);
 
-  const handleDelete = useCallback(
-    (questionId: number) => {
+  const handleSoftDelete = useCallback(
+    (questionId: string) => {
       if (!confirm("Are you sure you want to archive this question?")) return;
 
       setDeletingQuestionId(questionId);
-      deleteQuestion(
-        { questionId },
-        {
-          onSuccess: (response) => {
-            if (response.success) {
-              addToast({
-                title: response.message || "Question archived successfully",
-                color: "success",
-                timeout: 4000,
-              });
-            }
-            setDeletingQuestionId(null);
-          },
-          onError: (error: any) => {
+      softDeleteQuestion(questionId, {
+        onSuccess: (response) => {
+          if (response.success) {
             addToast({
-              title: error?.message || "Failed to archive question",
-              color: "danger",
+              title: response.message || "Question archived successfully",
+              color: "success",
               timeout: 4000,
             });
-            setDeletingQuestionId(null);
-          },
+          }
+          setDeletingQuestionId(null);
         },
-      );
+        onError: (error: any) => {
+          addToast({
+            title: error?.message || "Failed to archive question",
+            color: "danger",
+            timeout: 4000,
+          });
+          setDeletingQuestionId(null);
+        },
+      });
     },
-    [deleteQuestion],
+    [softDeleteQuestion],
   );
 
   const handleRestore = useCallback(
-    (questionId: number) => {
+    (questionId: string) => {
       if (!confirm("Are you sure you want to restore this question?")) return;
 
       setRestoringQuestionId(questionId);
-      restoreQuestion(
-        { questionId },
-        {
-          onSuccess: (response) => {
-            if (response.success) {
-              addToast({
-                title: response.message || "Question restored successfully",
-                color: "success",
-                timeout: 4000,
-              });
-            }
-            setRestoringQuestionId(null);
-          },
-          onError: (error: any) => {
+      restoreQuestion(questionId, {
+        onSuccess: (response) => {
+          if (response.success) {
             addToast({
-              title: error?.message || "Failed to restore question",
-              color: "danger",
+              title: response.message || "Question restored successfully",
+              color: "success",
               timeout: 4000,
             });
-            setRestoringQuestionId(null);
-          },
+          }
+          setRestoringQuestionId(null);
         },
-      );
+        onError: (error: any) => {
+          addToast({
+            title: error?.message || "Failed to restore question",
+            color: "danger",
+            timeout: 4000,
+          });
+          setRestoringQuestionId(null);
+        },
+      });
     },
     [restoreQuestion],
   );
 
   const handlePermanentDelete = useCallback(
-    (questionId: number) => {
+    (questionId: string) => {
       if (
         !confirm(
           "Are you sure you want to permanently delete this question? This action cannot be undone!",
@@ -456,38 +480,35 @@ const OnboardingQuestionsTable: React.FC = () => {
         return;
 
       setPermanentDeletingQuestionId(questionId);
-      permanentDeleteQuestion(
-        { questionId },
-        {
-          onSuccess: (response) => {
-            if (response.success) {
-              addToast({
-                title: response.message || "Question permanently deleted",
-                color: "success",
-                timeout: 4000,
-              });
-            }
-            setPermanentDeletingQuestionId(null);
-          },
-          onError: (error: any) => {
+      permanentDeleteQuestion(questionId, {
+        onSuccess: (response) => {
+          if (response.success) {
             addToast({
-              title: error?.message || "Failed to permanently delete question",
-              color: "danger",
+              title: response.message || "Question permanently deleted",
+              color: "success",
               timeout: 4000,
             });
-            setPermanentDeletingQuestionId(null);
-          },
+          }
+          setPermanentDeletingQuestionId(null);
         },
-      );
+        onError: (error: any) => {
+          addToast({
+            title: error?.message || "Failed to permanently delete question",
+            color: "danger",
+            timeout: 4000,
+          });
+          setPermanentDeletingQuestionId(null);
+        },
+      });
     },
     [permanentDeleteQuestion],
   );
 
-  const columns: Column<OnboardingQuestion>[] = useMemo(
+  const columns: Column<InterviewQuestion>[] = useMemo(
     () => [
       {
         header: "Question",
-        accessor: (question: OnboardingQuestion) => (
+        accessor: (question) => (
           <div className="max-w-md whitespace-normal break-words">
             <p
               className={`font-medium ${
@@ -503,31 +524,37 @@ const OnboardingQuestionsTable: React.FC = () => {
         width: "250px",
       },
       {
-        header: "Answer Options",
-        accessor: (question: OnboardingQuestion) => (
-          <div className="text-gray-600 text-sm whitespace-normal break-words">
-            {question.options && question.options.length > 0 ? (
-              <ul className="list-disc list-inside">
-                {question.options.map((option: AnswerOption, index: number) => (
-                  <li
-                    key={option.id || index}
-                    className="max-w-xs whitespace-normal break-words"
-                  >
-                    {option.optionText}
-                  </li>
-                ))}
-              </ul>
+        header: "Category",
+        accessor: (question) => (
+          <QuestionCategoryBadge category={question.category} />
+        ),
+      },
+      {
+        header: "Industry",
+        accessor: (question) => (
+          <div className="text-sm text-gray-700">
+            {question.industry ? (
+              <Badge size="sm" variant="default">
+                {question.industry
+                  .replace(/_/g, " ")
+                  .replace(/\b\w/g, (l) => l.toUpperCase())}
+              </Badge>
             ) : (
-              <span className="text-gray-400">No options</span>
+              <span className="text-gray-400 text-sm">-</span>
             )}
           </div>
         ),
-        width: "200px",
+        width: "150px",
       },
-
+      {
+        header: "Source",
+        accessor: (question) => (
+          <QuestionSourceBadge source={question.source} />
+        ),
+      },
       {
         header: "Status",
-        accessor: (question: OnboardingQuestion) => (
+        accessor: (question) => (
           <div className="flex flex-col gap-1">
             <QuestionStatusBadge status={question.status} />
             {question.deletedAt && (
@@ -540,37 +567,35 @@ const OnboardingQuestionsTable: React.FC = () => {
         width: "120px",
       },
       {
-        header: "Notes/Reason",
-        accessor: (question: OnboardingQuestion) => (
-          <div className="text-gray-600 text-sm max-w-[250px] whitespace-normal break-words">
+        header: "Reason",
+        accessor: (question) => (
+          <div className="max-w-xs whitespace-normal break-words">
             {question.reason ? (
-              <div className="italic break-words break-all whitespace-normal">
+              <p
+                className={`text-sm ${
+                  question.deletedAt ? "text-gray-400" : "text-gray-700"
+                }`}
+              >
                 {question.reason}
-              </div>
+              </p>
             ) : (
-              <span className="text-gray-400">-</span>
+              <span className="text-gray-400 text-sm">-</span>
             )}
           </div>
         ),
-        width: "250px",
+        width: "200px",
       },
       {
         header: "Created At",
-        accessor: (question: OnboardingQuestion) => (
-          <div className="text-gray-600 text-sm">
-            <div>{formatDate(question.createdAt)}</div>
-            {question.createdByEmail && (
-              <div className="text-xs text-gray-500 mt-1">
-                by: {question.createdByEmail}
-              </div>
-            )}
+        accessor: (question) => (
+          <div className="text-gray-900 whitespace-normal">
+            {formatDate(question.createdAt)}
           </div>
         ),
-        width: "180px",
       },
       {
         header: "Updated At",
-        accessor: (question: OnboardingQuestion) => (
+        accessor: (question) => (
           <div className="text-gray-600 text-sm">
             {question.deletedAt ? (
               <>
@@ -601,7 +626,7 @@ const OnboardingQuestionsTable: React.FC = () => {
       },
       {
         header: "",
-        accessor: (question: OnboardingQuestion) => (
+        accessor: (question) => (
           <QuestionActions
             isDeleting={isDeleting}
             isDeletingThisQuestion={deletingQuestionId === question.id}
@@ -614,10 +639,10 @@ const OnboardingQuestionsTable: React.FC = () => {
             isUpdating={isUpdatingStatus}
             question={question}
             userRole={user?.role}
-            onDelete={handleDelete}
             onEdit={handleEditQuestion}
             onPermanentDelete={handlePermanentDelete}
             onRestore={handleRestore}
+            onSoftDelete={handleSoftDelete}
             onUpdateStatus={handleUpdateStatus}
           />
         ),
@@ -625,9 +650,10 @@ const OnboardingQuestionsTable: React.FC = () => {
       },
     ],
     [
+      formatDate,
       handleEditQuestion,
       handleUpdateStatus,
-      handleDelete,
+      handleSoftDelete,
       handleRestore,
       handlePermanentDelete,
       isUpdatingStatus,
@@ -638,16 +664,18 @@ const OnboardingQuestionsTable: React.FC = () => {
       restoringQuestionId,
       permanentDeletingQuestionId,
       user?.role,
-      formatDate,
     ],
   );
 
+  // Error state
   if (questionsError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Error loading questions</p>
+        <p className="text-red-600">
+          Failed to load questions. Please try again.
+        </p>
         <button
-          className="mt-4 px-4 py-2 bg-adult-green text-white rounded-md hover:bg-adult-green/90"
+          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
           onClick={() => refetchQuestions()}
         >
           Retry
@@ -689,7 +717,7 @@ const OnboardingQuestionsTable: React.FC = () => {
         emptyMessage={
           showArchived
             ? "No archived questions found"
-            : "No onboarding questions found"
+            : "No interview questions found"
         }
         loading={loading}
         pagination={{
@@ -699,7 +727,7 @@ const OnboardingQuestionsTable: React.FC = () => {
         }}
       />
       {selectedQuestion && (
-        <EditOnboardingQuestionModal
+        <EditQuestionModal
           open={editModalOpen}
           question={selectedQuestion}
           onClose={handleCloseEditModal}
@@ -716,4 +744,4 @@ const OnboardingQuestionsTable: React.FC = () => {
   );
 };
 
-export default OnboardingQuestionsTable;
+export default React.memo(QuestionsTable);

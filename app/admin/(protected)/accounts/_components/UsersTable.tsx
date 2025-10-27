@@ -8,6 +8,7 @@ import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
 import { getUsersTableColumns } from "@/constants/adminTables";
+import { formatDate } from "@/constants/formatDate";
 
 // Memoized actions dropdown
 const UserActions = React.memo<{
@@ -120,17 +121,6 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     isUpdatingStatus,
     refetchUsers,
   } = useAdminUsers();
-
-  // Memoized date
-  const formatDate = useCallback((dateString: string | Date) => {
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  }, []);
 
   const handleEditAccount = useCallback(
     (userId: string) => {
