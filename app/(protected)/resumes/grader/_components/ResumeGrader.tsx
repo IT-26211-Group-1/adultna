@@ -4,14 +4,16 @@ import { ResumeScoreGauge } from "./ResumeScoreGauge";
 import { ResumeVerdict } from "./ResumeVerdict";
 import { GraderAIRecommendations } from "./GraderAIRecommendations";
 import { PersonalDetailsScore } from "./PersonalDetailsScore";
+// import ng Upload from "./Upload" tapos ternary operator nalang sa magdidisplay ng Upload o ResumeGrader base sa state;
 
 export default function ResumeGrader() {
+
   // Mock data - replace with real data from backend
   const resumeScore = 85;
   const scoreVerdict = "Good!";
-  
+
   const verdict = "Your resume shows strong potential with room for improvement. Follow our recommendations below to boost your ATS compatibility and overall effectiveness.";
-  
+
   const workingWell = [
     "Strong Technical Skills Section",
     "ATS-Friendly Format",
@@ -70,7 +72,7 @@ export default function ResumeGrader() {
         {/* Right Column - Recommendations and Details */}
         <div className="flex flex-col gap-6 h-full p-3 min-h-0 overflow-y-auto">
           <GraderAIRecommendations recommendations={recommendations} />
-          <PersonalDetailsScore 
+          <PersonalDetailsScore
             score={7}
             totalFields={7}
             needsImprovement={0}
