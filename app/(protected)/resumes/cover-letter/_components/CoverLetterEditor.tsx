@@ -25,31 +25,32 @@ export default function CoverLetterEditor() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-[1800px] mx-auto">
+    <div className="h-dvh bg-gray-50 p-4 overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-[1800px] mx-auto h-full">
         {/* Left Column - Cover Letter Preview */}
-        <div className="space-y-4 max-h-[25vh]">
-          <Card>
-            <CardBody className="p-4">
-              <div className="space-y-1">
-                <h2 className="text-xl font-semibold">Cover Letter Preview</h2>
-                <p className="text-sm text-gray-600">
+        <div className="flex flex-col gap-3 h-full min-h-0">
+          <Card className="flex-shrink-0">
+            <CardBody className="p-3">
+              <div className="space-y-0.5">
+                <h2 className="text-lg font-semibold">Cover Letter Preview</h2>
+                <p className="text-xs text-gray-600">
                   AI-generated based on your resume
                 </p>
               </div>
             </CardBody>
           </Card>
 
-          <div className="flex items-start justify-center bg-white p-6 rounded-lg">
+          <div className="flex-1 flex items-start justify-center bg-white p-4 rounded-lg overflow-y-auto min-h-0">
             <div className="w-full max-w-[500px]">
               <CoverLetterPreview content={coverLetterContent} />
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-shrink-0">
             <Button
               variant="bordered"
               className="flex-1"
+              size="sm"
               onClick={handleCopyText}
               isDisabled={coverLetterContent.length === 0}
             >
@@ -58,6 +59,7 @@ export default function CoverLetterEditor() {
             <Button
               variant="bordered"
               className="flex-1"
+              size="sm"
               onClick={handleDownloadPDF}
               isDisabled={coverLetterContent.length === 0}
             >
@@ -67,7 +69,7 @@ export default function CoverLetterEditor() {
         </div>
 
         {/* Right Column - AI Recommendations & Tone */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-4 h-full min-h-0 overflow-y-auto">
           <AIRecommendations onApplyRecommendation={handleApplyRecommendation} />
           <Tone />
         </div>

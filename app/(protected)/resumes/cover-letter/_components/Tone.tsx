@@ -3,12 +3,12 @@ import { Card, CardBody, Select, SelectItem, Button } from "@heroui/react";
 
 export function Tone() {
   return (
-    <Card>
-      <CardBody className="p-6">
-        <div className="space-y-4">
+    <Card className="flex-shrink-0">
+      <CardBody className="p-3">
+        <div className="space-y-3">
           <div>
-            <h3 className="text-lg font-semibold">Tone & Style</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-sm font-semibold">Tone & Style</h3>
+            <p className="text-xs text-gray-600">
               Choose the tone for your cover letter
             </p>
           </div>
@@ -18,26 +18,27 @@ export function Tone() {
             placeholder="Professional"
             defaultSelectedKeys={["professional"]}
             className="w-full"
+            size="sm"
           >
-            <SelectItem key="professional" textValue="professional">
+            <SelectItem key="professional" textValue="Professional">
               Professional
             </SelectItem>
-            <SelectItem key="enthusiastic" textValue="enthusiastic">
+            <SelectItem key="enthusiastic" textValue="Enthusiastic">
               Enthusiastic
             </SelectItem>
-            <SelectItem key="confident" textValue="confident">
+            <SelectItem key="confident" textValue="Confident">
               Confident
             </SelectItem>
-            <SelectItem key="friendly" textValue="friendly">
+            <SelectItem key="friendly" textValue="Friendly">
               Friendly
             </SelectItem>
           </Select>
 
-          <Button className="bg-adult-green hover:bg-[#0e4634] text-white w-full font-semibold">
+          <Button className="bg-adult-green hover:bg-[#0e4634] text-white w-full font-semibold" size="sm">
             Generate AI Cover Letter
           </Button>
 
-          <p className="text-xs text-center text-gray-500 italic">
+          <p className="text-[10px] text-center text-gray-500 italic">
             Don't worry, you can still customize it to your liking!
           </p>
         </div>
