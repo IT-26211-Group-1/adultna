@@ -12,7 +12,7 @@ import {
   FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
-import { TableSkeleton } from "@/components/ui/Skeletons";
+import { formatDate } from "@/constants/formatDate";
 
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
   const getTypeColor = (type: FeedbackType) => {
@@ -165,18 +165,6 @@ const FeedbackTable: React.FC = () => {
     refetchFeedback,
   } = useFeedback();
 
-  const formatDate = useCallback((dateString: string) => {
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }, []);
-
   const handleEditFeedback = useCallback(
     (feedbackId: string) => {
       const feedbackItem = feedback.find((f) => f.id === feedbackId);
@@ -314,47 +302,44 @@ const FeedbackTable: React.FC = () => {
       {
         header: "Feature",
         accessor: (feedback) => (
-          <div className="text-gray-900 font-medium">{feedback.feature}</div>
+          <div className="text-gray-900 font-medium whitespace-normal break-words">
+            {feedback.feature}
+          </div>
         ),
-        width: "120px",
       },
       {
         header: "Title",
         accessor: (feedback) => (
-          <div className="text-gray-900 font-medium">{feedback.title}</div>
+          <div className="text-gray-900 font-medium whitespace-normal break-words">
+            {feedback.title}
+          </div>
         ),
-        width: "200px",
       },
       {
         header: "Description",
         accessor: (feedback) => (
-          <div
-            className="text-gray-600 text-sm truncate max-w-xs"
-            title={feedback.description}
-          >
+          <div className="text-gray-600 text-sm whitespace-normal break-words max-w-md">
             {feedback.description}
           </div>
         ),
-        width: "300px",
       },
       {
         header: "Status",
         accessor: (feedback) => (
           <FeedbackStatusBadge status={feedback.status} />
         ),
-        width: "100px",
       },
       {
         header: "Submitted By",
         accessor: (feedback) => <SubmitterInfo feedback={feedback} />,
-        width: "200px",
       },
       {
         header: "Date",
         accessor: (feedback) => (
-          <div className="text-gray-900">{formatDate(feedback.createdAt)}</div>
+          <div className="text-gray-900 whitespace-normal">
+            {formatDate(feedback.createdAt)}
+          </div>
         ),
-        width: "140px",
       },
       {
         header: "Actions",
@@ -368,7 +353,6 @@ const FeedbackTable: React.FC = () => {
             onToggleStatus={handleToggleStatus}
           />
         ),
-        width: "80px",
         align: "center" as const,
       },
     ],
@@ -415,19 +399,17 @@ const FeedbackTable: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="max-h-96 overflow-auto">
-          {loading ? (
-            <TableSkeleton />
-          ) : (
-            <Table
-              columns={columns}
-              data={feedback.filter((item) => item?.id)}
-              emptyMessage="No feedback found"
-            />
-          )}
-        </div>
-      </div>
+      <Table
+        columns={columns}
+        data={feedback.filter((item) => item?.id)}
+        emptyMessage="No feedback found"
+        loading={loading}
+        pagination={{
+          enabled: true,
+          pageSize: 10,
+          pageSizeOptions: [10, 25, 50, 100],
+        }}
+      />
 
       {selectedFeedback && (
         <EditFeedbackModal

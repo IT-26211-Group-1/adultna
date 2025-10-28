@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const initialized = useRef(false);
 
   const getToken = useCallback(() => {
-    return null;
+    return tokenRef.current;
   }, []);
 
   const refreshToken = useCallback(async () => {
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     gcTime: API_CONFIG.TOKEN.CACHE_TIME,
     refetchInterval: API_CONFIG.TOKEN.REFRESH_INTERVAL,
     refetchOnWindowFocus: false,
-    refetchOnMount: true,
+    refetchOnMount: false,
     retry: 1,
   });
 
@@ -73,10 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   tokenRef.current = tokenData?.accessToken || null;
 
   const refreshTokenForApiClient = useCallback(async () => {
-    console.log(
-      "AuthContext: refreshTokenForApiClient called - using HTTP-only cookies, no manual token needed",
-    );
-
     return null;
   }, []);
 

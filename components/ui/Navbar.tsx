@@ -32,7 +32,7 @@ export const Navbar = () => {
       </NavbarContent>
 
       {/* Center navigation */}
-      <NavbarContent className="hidden lg:flex basis-1/3" justify="center">
+      <NavbarContent className="hidden md:flex basis-1/3" justify="center">
         <ul className="flex gap-8">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
@@ -52,7 +52,7 @@ export const Navbar = () => {
       </NavbarContent>
 
       {/* Mobile menu toggle (visible on small screens) */}
-      <NavbarContent className="flex lg:hidden basis-1/3" justify="end">
+      <NavbarContent className="flex md:hidden basis-1/3" justify="end">
         <NavbarItem>
           <NavbarMenuToggle className="p-2 rounded-md hover:bg-muted" />
         </NavbarItem>
@@ -60,7 +60,7 @@ export const Navbar = () => {
 
       {/* Right side (buttons) */}
       <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
+        className="hidden md:flex basis-1/5 sm:basis-full"
         justify="end"
       >
         <NavbarItem>
@@ -80,8 +80,6 @@ export const Navbar = () => {
             Login
           </NextLink>
         </NavbarItem>
-
-        <NavbarItem className="hidden md:flex" />
       </NavbarContent>
 
       {/* Mobile menu (collapsible) */}

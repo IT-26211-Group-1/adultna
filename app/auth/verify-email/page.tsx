@@ -1,11 +1,11 @@
 import { Suspense } from "react";
-import VerifyEmail from "./_components/VerifyEmail";
+import { VerifyEmailLayout } from "./_components/VerifyEmailLayout";
 
 export default function Page() {
   return (
     <Suspense fallback={<p>Loading...</p>}>
       {/* TODO: Update whenever loading animation is finished */}
-      <VerifyEmail />
+      <VerifyEmailLayout />
     </Suspense>
   );
 }

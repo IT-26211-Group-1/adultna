@@ -122,7 +122,7 @@ export const RegisterForm = () => {
               <div className="flex justify-center">
                 <LazyRecaptcha
                   ref={recaptchaRef}
-                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
                   onChange={handleCaptchaChange}
                   onExpired={handleCaptchaExpired}
                 />

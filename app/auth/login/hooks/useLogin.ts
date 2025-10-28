@@ -53,8 +53,6 @@ export function useLogin() {
         }
       },
       onError: (error: any) => {
-        console.log("Login error:", error);
-
         if (error?.message === "Please verify your email first") {
           addToast({
             title: "Email not verified",

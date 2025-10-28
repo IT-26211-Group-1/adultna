@@ -7,8 +7,8 @@ import { User, UsersTableProps } from "@/types/admin";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
-import { TableSkeleton } from "@/components/ui/Skeletons";
 import { getUsersTableColumns } from "@/constants/adminTables";
+import { formatDate } from "@/constants/formatDate";
 
 // Memoized actions dropdown
 const UserActions = React.memo<{
@@ -122,17 +122,6 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     refetchUsers,
   } = useAdminUsers();
 
-  // Memoized date
-  const formatDate = useCallback((dateString: string | Date) => {
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  }, []);
-
   const handleEditAccount = useCallback(
     (userId: string) => {
       const user = users.find((u) => u.id === userId);
@@ -142,7 +131,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
           id: user.id,
           email: user.email,
           emailVerified: user.emailVerified,
-          status: user.status as "active" | "inactive",
+          status: user.status as "active" | "deactivated",
           createdAt:
             typeof user.createdAt === "string"
               ? user.createdAt
@@ -182,7 +171,6 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
 
   const handleResetPassword = useCallback((userId: string, email: string) => {
     if (confirm(`Reset password for ${email}?`)) {
-      console.log("Reset password for user:", userId);
       addToast({
         title: "Password reset functionality coming soon",
         color: "warning",
@@ -193,12 +181,12 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
 
   const handleToggleAccountStatus = useCallback(
     (userId: string, currentStatus: string) => {
-      const newStatus = currentStatus === "active" ? "inactive" : "active";
+      const newStatus = currentStatus === "active" ? "deactivated" : "active";
       const action = newStatus === "active" ? "activate" : "deactivate";
 
       if (confirm(`Are you sure you want to ${action} this account?`)) {
         updateUserStatus(
-          { userId, status: newStatus as "active" | "inactive" },
+          { userId, status: newStatus as "active" | "deactivated" },
           {
             onSuccess: (response) => {
               if (response.success) {
@@ -234,7 +222,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         id: user.id,
         email: user.email,
         emailVerified: user.emailVerified,
-        status: user.status as "active" | "inactive",
+        status: user.status as "active" | "deactivated",
         createdAt:
           typeof user.createdAt === "string"
             ? user.createdAt
@@ -301,19 +289,17 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border">
-        <div className="max-h-96 overflow-auto">
-          {loading ? (
-            <TableSkeleton />
-          ) : (
-            <Table
-              columns={columns}
-              data={mappedUsers}
-              emptyMessage="No users found"
-            />
-          )}
-        </div>
-      </div>
+      <Table
+        columns={columns}
+        data={mappedUsers}
+        emptyMessage="No users found"
+        loading={loading}
+        pagination={{
+          enabled: true,
+          pageSize: 10,
+          pageSizeOptions: [5, 10, 25, 50, 100],
+        }}
+      />
 
       {selectedUser && (
         <EditUserModal

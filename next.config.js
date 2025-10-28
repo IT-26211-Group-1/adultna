@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
+  trailingSlash: true,
 
   // Performance optimizations
   images: {
-    unoptimized: false,
-    formats: ["image/webp", "image/avif"],
-    minimumCacheTTL: 31536000,
+    unoptimized: true,
   },
 
   // Compression
@@ -63,17 +62,19 @@ const nextConfig = {
   },
 
   ...(process.env.NODE_ENV === "development" && {
-    output: undefined,
-    images: {
-      unoptimized: true,
-    },
     async rewrites() {
-      return [
-        {
-          source: "/api/:path*",
-          destination: `${process.env.NEXT_PUBLIC_API}/auth/:path*`,
-        },
-      ];
+      const apiUrl = process.env.NEXT_PUBLIC_API;
+
+      if (apiUrl && apiUrl !== "undefined") {
+        return [
+          {
+            source: "/api/:path*",
+            destination: `${apiUrl}/auth/:path*`,
+          },
+        ];
+      }
+
+      return [];
     },
   }),
 };
