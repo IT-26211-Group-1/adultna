@@ -18,7 +18,7 @@ export function ResumeDashboard() {
     {
       title: "Grade Your Resume",
       description: "Get AI recommendations to improve your resume.",
-      href: "/resumes/grade",
+      href: "/resumes/grader",
     },
     {
       title: "My Resumes",
