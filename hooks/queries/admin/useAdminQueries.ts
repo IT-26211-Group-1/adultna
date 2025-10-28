@@ -148,7 +148,7 @@ const adminApi = {
     }),
 
   updateUserStatus: (
-    data: UpdateUserStatusRequest,
+    data: UpdateUserStatusRequest
   ): Promise<UpdateUserStatusResponse> =>
     ApiClient.patch(`/admin/update-status/${data.userId}`, {
       status: data.status,
@@ -192,7 +192,7 @@ export function useAdminAuth() {
     },
     staleTime: 0,
     gcTime: API_CONFIG.AUTH_QUERY.CACHE_TIME,
-    refetchInterval: false,
+    refetchInterval: 10 * 60 * 1000,
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
     retry: (failureCount, error) => {
@@ -264,7 +264,7 @@ export function useAdminAuth() {
         if (!oldUser) return null;
 
         return { ...oldUser, ...updatedUser };
-      },
+      }
     );
   };
 
