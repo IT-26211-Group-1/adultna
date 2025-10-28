@@ -30,7 +30,6 @@ export function CoverLetterPreview({
           }}
         >
           <div className="w-[794px] h-[1123px] bg-white p-16 space-y-6 text-gray-900">
-
             {/* Cover Letter Content */}
             <div className="space-y-4 text-sm leading-relaxed">
               {content.length > 0 ? (
@@ -42,7 +41,7 @@ export function CoverLetterPreview({
               ) : (
                 <div className="text-center py-16 text-gray-400">
                   <p className="text-xs mt-2">
-                    Click "Generate AI Cover Letter" to add content.
+                    Click &quot;Generate AI Cover Letter&quot; to add content.
                   </p>
                 </div>
               )}

@@ -15,6 +15,7 @@ export default function CoverLetterEditor() {
 
   const handleCopyText = () => {
     const fullText = coverLetterContent.join("\n\n");
+
     navigator.clipboard.writeText(fullText);
   };
 
@@ -46,20 +47,20 @@ export default function CoverLetterEditor() {
 
           <div className="flex gap-3 flex-shrink-0">
             <Button
-              variant="bordered"
               className="flex-1"
-              size="sm"
-              onClick={handleCopyText}
               isDisabled={coverLetterContent.length === 0}
+              size="sm"
+              variant="bordered"
+              onClick={handleCopyText}
             >
               Copy Text
             </Button>
             <Button
-              variant="bordered"
               className="flex-1"
-              size="sm"
-              onClick={handleDownloadPDF}
               isDisabled={coverLetterContent.length === 0}
+              size="sm"
+              variant="bordered"
+              onClick={handleDownloadPDF}
             >
               Download as PDF
             </Button>
@@ -68,7 +69,9 @@ export default function CoverLetterEditor() {
 
         {/* Right Column - AI Recommendations & Tone */}
         <div className="flex flex-col gap-4 h-full min-h-0 overflow-y-auto">
-          <AIRecommendations onApplyRecommendation={handleApplyRecommendation} />
+          <AIRecommendations
+            onApplyRecommendation={handleApplyRecommendation}
+          />
           <Tone />
         </div>
       </div>

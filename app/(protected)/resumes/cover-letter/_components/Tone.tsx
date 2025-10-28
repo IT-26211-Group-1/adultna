@@ -14,10 +14,10 @@ export function Tone() {
           </div>
 
           <Select
+            className="w-full"
+            defaultSelectedKeys={["professional"]}
             label="Select tone"
             placeholder="Professional"
-            defaultSelectedKeys={["professional"]}
-            className="w-full"
             size="sm"
           >
             <SelectItem key="professional" textValue="Professional">
@@ -34,12 +34,15 @@ export function Tone() {
             </SelectItem>
           </Select>
 
-          <Button className="bg-adult-green hover:bg-[#0e4634] text-white w-full font-semibold" size="sm">
+          <Button
+            className="bg-adult-green hover:bg-[#0e4634] text-white w-full font-semibold"
+            size="sm"
+          >
             Generate AI Cover Letter
           </Button>
 
           <p className="text-[10px] text-center text-gray-500 italic">
-            Don't worry, you can still customize it to your liking!
+            Don&apos;t worry, you can still customize it to your liking!
           </p>
         </div>
       </CardBody>
