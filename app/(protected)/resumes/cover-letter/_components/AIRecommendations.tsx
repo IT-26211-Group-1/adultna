@@ -53,39 +53,39 @@ export function AIRecommendations({ onApplyRecommendation }: AIRecommendationsPr
   };
 
   return (
-    <Card className="bg-amber-50 border-amber-200">
-      <CardBody className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 p-2 bg-amber-100 rounded-full">
-            <Lightbulb className="w-5 h-5 text-amber-600" />
+    <Card className="bg-stone-50 border-gray-200 flex-shrink-0">
+      <CardBody className="p-3">
+        <div className="flex items-start gap-2">
+          <div className="flex-shrink-0 p-1.5 bg-stone-100 rounded-full">
+            <Lightbulb className="w-4 h-4 text-amber-600" />
           </div>
           
-          <div className="flex-1 space-y-3">
+          <div className="flex-1 space-y-2">
             <div>
-              <h3 className="font-medium text-amber-900 flex items-center gap-2">
+              <h3 className="font-medium text-stone-900 flex items-center gap-2 text-sm">
                 AI Recommendations
               </h3>
-              <p className="text-sm text-amber-700 mt-1">
+              <p className="text-xs text-stone-700 mt-0.5">
                 Based on your resume analysis
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {recommendations.map((rec, index) => (
                 <div
                   key={index}
-                  className="flex items-start justify-between p-3 bg-white rounded-lg border border-amber-200"
+                  className="flex items-start justify-between p-2 bg-white rounded-lg border border-gray-300"
                 >
-                  <div className="flex-1 pr-3">
-                    <h4 className="font-medium text-amber-900 text-sm mb-1">
+                  <div className="flex-1 pr-2">
+                    <h4 className="font-medium text-black-900 text-xs mb-0.5">
                       {rec.title}
                     </h4>
-                    <p className="text-xs text-amber-700">{rec.description}</p>
+                    <p className="text-[10px] text-black-700 leading-tight">{rec.description}</p>
                   </div>
                   
                   <div className="flex-shrink-0">
                     {appliedRecommendations.has(index) ? (
-                      <Chip size="sm" color="success" variant="flat">
+                      <Chip size="sm" color="success" variant="flat" className="text-[10px] h-5">
                         Applied
                       </Chip>
                     ) : (
@@ -93,7 +93,7 @@ export function AIRecommendations({ onApplyRecommendation }: AIRecommendationsPr
                         size="sm"
                         variant="flat"
                         onClick={() => handleApplyRecommendation(index, rec.content)}
-                        className="text-xs bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700"
+                        className="text-[10px] h-6 px-2 bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700"
                       >
                         Apply
                       </Button>
