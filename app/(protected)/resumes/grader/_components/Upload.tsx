@@ -177,7 +177,7 @@ export function Upload() {
                       </p>
                     </div>
                     <Button
-                      color="success"
+                      className="bg-adult-green hover:bg-[#0e4634] text-white"
                       variant="solid"
                       onClick={(e) => {
                         e.stopPropagation();
