@@ -16,12 +16,10 @@ export default function CoverLetterEditor() {
   const handleCopyText = () => {
     const fullText = coverLetterContent.join("\n\n");
     navigator.clipboard.writeText(fullText);
-    // You can add a toast notification here
   };
 
   const handleDownloadPDF = () => {
     // Implement PDF download functionality
-    console.log("Download PDF functionality to be implemented");
   };
 
   return (
