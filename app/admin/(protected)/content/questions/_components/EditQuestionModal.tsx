@@ -41,15 +41,15 @@ function EditQuestionModal({
       { value: "technical", label: "Technical" },
       { value: "situational", label: "Situational" },
     ],
-    [],
+    []
   );
 
   const sourceOptions: { value: QuestionSource; label: string }[] = useMemo(
     () => [
       { value: "manual", label: "Manual" },
-      { value: "ai", label: "AI Generated" },
+      { value: "ai", label: "AI Suggested" },
     ],
-    [],
+    []
   );
 
   const industryOptions = useMemo(
@@ -60,10 +60,10 @@ function EditQuestionModal({
       { value: "communication", label: "Communication" },
       { value: "education", label: "Education" },
       { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
-      { value: "geducation", label: "Education" },
+      { value: "general", label: "General" },
       { value: "other", label: "Other" },
     ],
-    [],
+    []
   );
 
   const {
@@ -89,7 +89,7 @@ function EditQuestionModal({
     if (question) {
       // Check if industry is a predefined value or custom
       const isPredefined = industryOptions.some(
-        (opt) => opt.value === question.industry,
+        (opt) => opt.value === question.industry
       );
 
       reset({
@@ -133,10 +133,10 @@ function EditQuestionModal({
               timeout: 4000,
             });
           },
-        },
+        }
       );
     }),
-    [updateQuestion, handleSubmit, question.id, onQuestionUpdated],
+    [updateQuestion, handleSubmit, question.id, onQuestionUpdated]
   );
 
   const handleClose = useCallback(() => {

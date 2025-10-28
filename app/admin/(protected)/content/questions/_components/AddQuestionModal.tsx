@@ -36,6 +36,7 @@ function AddQuestionModal({
     isGeneratingAI,
   } = useInterviewQuestions();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isAIGenerated, setIsAIGenerated] = useState(false);
 
   const categoryOptions: { value: QuestionCategory; label: string }[] = useMemo(
     () => [
@@ -44,7 +45,7 @@ function AddQuestionModal({
       { value: "situational", label: "Situational" },
       { value: "background", label: "Background" },
     ],
-    [],
+    []
   );
 
   const industryOptions = useMemo(
@@ -53,12 +54,12 @@ function AddQuestionModal({
       { value: "arts_and_design", label: "Arts and Design" },
       { value: "business_and_management", label: "Business and Management" },
       { value: "communication", label: "Communication" },
-      { value: "education", label: "Education" },
       { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
-      { value: "geducation", label: "Education" },
+      { value: "education", label: "Education" },
+      { value: "general", label: "General" },
       { value: "other", label: "Other" },
     ],
-    [],
+    []
   );
 
   const {
@@ -86,15 +87,12 @@ function AddQuestionModal({
     handleSubmit(async (data: AddQuestionForm) => {
       const submissionData = {
         question: data.question,
-        category:
-          data.category === "background" && data.customCategory
-            ? (data.customCategory as QuestionCategory)
-            : data.category,
+        category: data.category,
         industry:
           data.industry === "other" && data.customIndustry
             ? data.customIndustry
             : data.industry || undefined,
-        source: data.source,
+        source: isAIGenerated ? ("ai" as QuestionSource) : ("manual" as QuestionSource),
       };
 
       createQuestion(submissionData, {
@@ -118,12 +116,13 @@ function AddQuestionModal({
         },
       });
     }),
-    [createQuestion, handleSubmit],
+    [createQuestion, handleSubmit, isAIGenerated]
   );
 
   const handleClose = useCallback(() => {
     reset();
     setShowConfirmation(false);
+    setIsAIGenerated(false);
     onClose();
   }, [reset, onClose]);
 
@@ -156,7 +155,7 @@ function AddQuestionModal({
           if (response.success && response.data) {
             setValue("question", response.data.question);
             setValue("category", response.data.category);
-            setValue("source", "ai");
+            setIsAIGenerated(true);
             setShowConfirmation(false);
 
             addToast({
@@ -174,7 +173,7 @@ function AddQuestionModal({
             timeout: 4000,
           });
         },
-      },
+      }
     );
   }, [selectedCategory, selectedIndustry, generateAIQuestion, setValue, watch]);
 
