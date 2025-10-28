@@ -68,7 +68,7 @@ export default function ResumeGrader() {
         </div>
 
         {/* Right Column - Recommendations and Details */}
-        <div className="flex flex-col gap-6 h-full min-h-0 overflow-y-auto">
+        <div className="flex flex-col gap-6 h-full p-3 min-h-0 overflow-y-auto">
           <GraderAIRecommendations recommendations={recommendations} />
           <PersonalDetailsScore 
             score={7}
