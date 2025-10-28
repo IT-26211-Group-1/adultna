@@ -66,6 +66,9 @@ const questionApi = {
     data: GenerateAIQuestionRequest,
   ): Promise<GenerateAIQuestionResponse> =>
     ApiClient.post("/interview-questions/generate-ai", data),
+
+  getIndustries: (): Promise<{ success: boolean; message: string; data: string[] }> =>
+    ApiClient.get("/interview-questions/industries"),
 };
 
 // Query Hooks
@@ -222,5 +225,27 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
     updateQuestionData: updateQuestionMutation.data,
     updateStatusData: updateQuestionStatusMutation.data,
     generateAIData: generateAIQuestionMutation.data,
+  };
+}
+
+// Hook for fetching industries from approved questions
+export function useQuestionIndustries() {
+  const {
+    data: industriesData,
+    isLoading: isLoadingIndustries,
+    error: industriesError,
+    refetch: refetchIndustries,
+  } = useQuery({
+    queryKey: ["admin", "interview-questions", "industries"],
+    queryFn: questionApi.getIndustries,
+    staleTime: 10 * 60 * 1000, // 10 minutes (industries don't change often)
+    gcTime: 15 * 60 * 1000, // 15 minutes
+  });
+
+  return {
+    industries: industriesData?.data || [],
+    isLoadingIndustries,
+    industriesError,
+    refetchIndustries,
   };
 }
