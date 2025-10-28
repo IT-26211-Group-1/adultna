@@ -23,10 +23,13 @@ export function ResumeVerdict({
 
       {/* What's Working Well Section */}
       <div className="space-y-3 flex-1">
-        <h3 className="text-lg font-semibold">What's Working Well</h3>
+        <h3 className="text-lg font-semibold">What&apos;s Working Well</h3>
         <ul className="space-y-2">
           {workingWell.map((item, index) => (
-            <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+            <li
+              key={index}
+              className="flex items-start gap-2 text-sm text-gray-700"
+            >
               <span className="text-green-600 mt-0.5">•</span>
               <span>{item}</span>
             </li>

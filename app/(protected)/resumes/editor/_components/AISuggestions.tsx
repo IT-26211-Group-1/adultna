@@ -22,13 +22,15 @@ export default function AISuggestions({
   buttonType = "apply",
 }: AISuggestionsProps) {
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const handleApplySuggestion = (suggestion: string) => {
     if (onApplySuggestion) {
       onApplySuggestion(suggestion);
-      setAppliedSuggestions(prev => new Set([...Array.from(prev), suggestion]));
+      setAppliedSuggestions(
+        (prev) => new Set([...Array.from(prev), suggestion]),
+      );
     }
   };
 
@@ -39,7 +41,7 @@ export default function AISuggestions({
           <div className="flex-shrink-0 p-2 bg-amber-100 rounded-full">
             <Lightbulb className="w-5 h-5 text-amber-600" />
           </div>
-          
+
           <div className="flex-1 space-y-3">
             <div>
               <h3 className="font-medium text-amber-900 flex items-center gap-2">
@@ -57,20 +59,21 @@ export default function AISuggestions({
                   <div className="flex-1">
                     <p className="text-sm text-amber-900">{suggestion}</p>
                   </div>
-                  
+
                   {onApplySuggestion && (
                     <div className="ml-3">
-                      {buttonType !== "plus" && appliedSuggestions.has(suggestion) ? (
-                        <Chip size="sm" color="success" variant="flat">
+                      {buttonType !== "plus" &&
+                      appliedSuggestions.has(suggestion) ? (
+                        <Chip color="success" size="sm" variant="flat">
                           Applied
                         </Chip>
                       ) : (
                         <Button
+                          className="text-xs bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700"
+                          isIconOnly={buttonType === "plus"}
                           size="sm"
                           variant="flat"
                           onClick={() => handleApplySuggestion(suggestion)}
-                          className="text-xs bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700"
-                          isIconOnly={buttonType === "plus"}
                         >
                           {buttonType === "plus" ? (
                             <Plus size={14} />

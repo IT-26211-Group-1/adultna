@@ -16,7 +16,6 @@ interface GraderAIRecommendationsProps {
 
 export function GraderAIRecommendations({
   recommendations,
-  className = "",
 }: GraderAIRecommendationsProps) {
   return (
     <Card className="bg-purple-50 border-purple-200 flex-shrink-0">
