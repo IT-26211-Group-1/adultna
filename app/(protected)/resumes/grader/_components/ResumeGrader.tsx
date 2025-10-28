@@ -24,25 +24,21 @@ export default function ResumeGrader() {
       title: "Add Quantifiable Achievements",
       description:
         'Include specific metrics and numbers to demonstrate your impact (e.g., "Increased efficiency by 30%")',
-      type: "danger" as const,
     },
     {
       title: "Optimize Keywords",
       description:
         'Add industry-specific keywords: "Agile", "CI/CD", "Cloud Computing" to improve ATS matching',
-      type: "warning" as const,
     },
     {
       title: "Strengthen Professional Summary",
       description:
         "Your summary could better highlight your unique value proposition and career goals",
-      type: "warning" as const,
     },
     {
       title: "Add Certifications Section",
       description:
         "Consider adding relevant certifications or training to strengthen your profile",
-      type: "info" as const,
     },
   ];
 
@@ -60,61 +56,14 @@ export default function ResumeGrader() {
         <div className="flex flex-col h-full min-h-0">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-full overflow-y-auto">
             {/* Score Section */}
-            <div className="flex flex-col items-center mb-6">
-              <h2 className="text-xl font-semibold mb-4">Your Resume Score</h2>
-              <div className="relative w-56 h-56">
-                <svg className="w-full h-full" viewBox="0 0 200 120">
-                  {/* Background arc */}
-                  <path
-                    d="M 20 100 A 80 80 0 0 1 180 100"
-                    fill="none"
-                    stroke="#e5e7eb"
-                    strokeWidth="20"
-                    strokeLinecap="round"
-                  />
-                  {/* Progress arc */}
-                  <path
-                    d="M 20 100 A 80 80 0 0 1 180 100"
-                    fill="none"
-                    stroke={resumeScore >= 80 ? "#10b981" : resumeScore >= 60 ? "#f59e0b" : "#ef4444"}
-                    strokeWidth="20"
-                    strokeLinecap="round"
-                    strokeDasharray={`${(resumeScore / 100) * 251.2} 251.2`}
-                    className="transition-all duration-1000"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pt-8">
-                  <span className="text-5xl font-bold">{resumeScore}%</span>
-                  <span className="text-lg text-gray-600 mt-2">{scoreVerdict}</span>
-                </div>
-              </div>
+            <div className="mb-6">
+              <ResumeScoreGauge score={resumeScore} verdict={scoreVerdict} />
             </div>
 
             {/* Verdict Section */}
-            <div className="space-y-4 flex-1">
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Verdict:</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">{verdict}</p>
-              </div>
-
-              {/* What's Working Well Section */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold">What's Working Well</h3>
-                <ul className="space-y-2">
-                  {workingWell.map((item, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                      <span className="text-green-600 mt-0.5">•</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className="flex-1">
+              <ResumeVerdict verdict={verdict} workingWell={workingWell} />
             </div>
-
-            {/* Build Resume Button */}
-            <button className="w-full bg-[#11553F] hover:bg-[#0e4634] text-white font-semibold py-3 rounded-lg mt-6 transition-colors">
-              Build Your Resume
-            </button>
           </div>
         </div>
 
