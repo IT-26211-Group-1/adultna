@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, memo } from "react";
 import { useQuestionIndustries } from "@/hooks/queries/admin/useInterviewQuestionQueries";
+import { Skeleton } from "@/components/ui/Skeletons";
 
 type Field = {
   id: string;
@@ -12,16 +13,26 @@ type FieldSelectorProps = {
   onSelectField: (fieldId: string) => void;
 };
 
-export function FieldSelector({ onSelectField }: FieldSelectorProps) {
-  const { industries, isLoadingIndustries } = useQuestionIndustries();
+const SKELETON_COUNT = 5;
+const skeletonItems = Array.from({ length: SKELETON_COUNT }, (_, i) => i);
+
+// Format field label (outside component for performance)
+const formatFieldLabel = (industry: string) =>
+  industry.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+
+export const FieldSelector = memo(function FieldSelector({ onSelectField }: FieldSelectorProps) {
+  const {
+    industries,
+    isLoadingIndustries,
+    industriesError,
+    refetchIndustries,
+  } = useQuestionIndustries();
 
   const fields: Field[] = useMemo(
     () =>
       industries.map((industry) => ({
         id: industry,
-        label: industry
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase()),
+        label: formatFieldLabel(industry),
       })),
     [industries]
   );
@@ -30,8 +41,29 @@ export function FieldSelector({ onSelectField }: FieldSelectorProps) {
     return (
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold">Choose a Field</h2>
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-adult-green"></div>
+        <div className="space-y-2">
+          {skeletonItems.map((i) => (
+            <Skeleton key={i} className="h-16 animate-[pulse_1s_ease-in-out_infinite]" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (industriesError) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold">Choose a Field</h2>
+        <div className="text-center py-8">
+          <p className="text-red-600 mb-4">
+            Failed to load fields. Please try again.
+          </p>
+          <button
+            onClick={() => refetchIndustries()}
+            className="px-4 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -66,4 +98,4 @@ export function FieldSelector({ onSelectField }: FieldSelectorProps) {
       </div>
     </div>
   );
-}
+});

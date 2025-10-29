@@ -1,7 +1,7 @@
 "use client";
 
 import React, { memo, useMemo, useCallback, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
@@ -11,6 +11,10 @@ import type {
   QuestionSource,
 } from "@/types/interview-question";
 
+type JobRoleField = {
+  jobRoleTitle: string;
+};
+
 type AddQuestionForm = {
   question: string;
   category: QuestionCategory;
@@ -18,6 +22,7 @@ type AddQuestionForm = {
   customIndustry?: string;
   source: QuestionSource;
   customCategory?: string;
+  jobRoles: JobRoleField[];
 };
 
 type AddQuestionModalProps = {
@@ -69,6 +74,7 @@ function AddQuestionModal({
     reset,
     setValue,
     watch,
+    control,
   } = useForm<AddQuestionForm>({
     defaultValues: {
       question: "",
@@ -77,14 +83,33 @@ function AddQuestionModal({
       customIndustry: "",
       source: "manual",
       customCategory: "",
+      jobRoles: [{ jobRoleTitle: "" }],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "jobRoles",
   });
 
   const selectedCategory = watch("category");
   const selectedIndustry = watch("industry");
 
+  const handleRemoveJobRole = useCallback(
+    (index: number) => {
+      if (fields.length > 1) {
+        remove(index);
+      }
+    },
+    [fields.length, remove]
+  );
+
   const onSubmit = useCallback(
     handleSubmit(async (data: AddQuestionForm) => {
+      const jobRoles = data.jobRoles
+        ?.map((role) => role.jobRoleTitle.trim())
+        .filter((title) => title !== "") || [];
+
       const submissionData = {
         question: data.question,
         category: data.category,
@@ -92,7 +117,10 @@ function AddQuestionModal({
           data.industry === "other" && data.customIndustry
             ? data.customIndustry
             : data.industry || undefined,
-        source: isAIGenerated ? ("ai" as QuestionSource) : ("manual" as QuestionSource),
+        jobRoles: jobRoles.length > 0 ? jobRoles : undefined,
+        source: isAIGenerated
+          ? ("ai" as QuestionSource)
+          : ("manual" as QuestionSource),
       };
 
       createQuestion(submissionData, {
@@ -335,6 +363,81 @@ function AddQuestionModal({
             )}
           </div>
         )}
+
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="block text-sm font-medium text-gray-700">
+              Job Roles
+            </span>
+            <button
+              className="text-sm text-adult-green hover:text-adult-green/80 font-medium"
+              disabled={isCreatingQuestion}
+              type="button"
+              onClick={() => append({ jobRoleTitle: "" })}
+            >
+              + Add Job Role
+            </button>
+          </div>
+          <div className="space-y-3">
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="border border-gray-200 rounded-md p-3"
+              >
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label
+                      className="block text-xs font-medium text-gray-600 mb-1"
+                      htmlFor={`job-role-${index}`}
+                    >
+                      Job Role Title
+                    </label>
+                    <input
+                      {...register(`jobRoles.${index}.jobRoleTitle`)}
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
+                      disabled={isCreatingQuestion}
+                      id={`job-role-${index}`}
+                      placeholder="e.g., Software Engineer"
+                      type="text"
+                    />
+                    {errors.jobRoles?.[index]?.jobRoleTitle && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.jobRoles[index]?.jobRoleTitle?.message}
+                      </p>
+                    )}
+                  </div>
+                  {fields.length > 1 && (
+                    <button
+                      className="p-2 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded self-start mt-6"
+                      disabled={isCreatingQuestion}
+                      title="Remove job role"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleRemoveJobRole(index);
+                      }}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M6 18L18 6M6 6l12 12"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <button
           className="w-full px-4 py-2 text-sm font-medium text-white rounded-md bg-[#11553F] hover:bg-[#0e4634] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"

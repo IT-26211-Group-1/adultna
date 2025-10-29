@@ -547,6 +547,25 @@ const QuestionsTable: React.FC = () => {
         width: "150px",
       },
       {
+        header: "Job Roles",
+        accessor: (question) => (
+          <div className="text-sm text-gray-700">
+            {question.jobRoles && question.jobRoles.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {question.jobRoles.map((role, index) => (
+                  <Badge key={index} size="sm" variant="default">
+                    {role}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <span className="text-gray-400 text-sm">-</span>
+            )}
+          </div>
+        ),
+        width: "200px",
+      },
+      {
         header: "Source",
         accessor: (question) => (
           <QuestionSourceBadge source={question.source} />

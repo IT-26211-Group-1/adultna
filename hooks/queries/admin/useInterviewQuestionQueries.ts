@@ -42,6 +42,7 @@ const questionApi = {
       question: data.question,
       category: data.category,
       industry: data.industry,
+      jobRoles: data.jobRoles,
       source: data.source,
     }),
 

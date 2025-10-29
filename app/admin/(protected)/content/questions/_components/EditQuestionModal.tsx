@@ -1,7 +1,7 @@
 "use client";
 
 import React, { memo, useMemo, useCallback, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
@@ -12,12 +12,16 @@ import type {
   QuestionSource,
 } from "@/types/interview-question";
 
+type JobRoleField = {
+  jobRoleTitle: string;
+};
+
 type EditQuestionForm = {
   question: string;
   category: QuestionCategory;
   industry: string;
   customIndustry?: string;
-  source: QuestionSource;
+  jobRoles: JobRoleField[];
 };
 
 type EditQuestionModalProps = {
@@ -44,14 +48,6 @@ function EditQuestionModal({
     []
   );
 
-  const sourceOptions: { value: QuestionSource; label: string }[] = useMemo(
-    () => [
-      { value: "manual", label: "Manual" },
-      { value: "ai", label: "AI Suggested" },
-    ],
-    []
-  );
-
   const industryOptions = useMemo(
     () => [
       { value: "information_technology", label: "Information Technology" },
@@ -72,17 +68,34 @@ function EditQuestionModal({
     formState: { errors },
     reset,
     watch,
+    control,
   } = useForm<EditQuestionForm>({
     defaultValues: {
       question: question.question,
       category: question.category,
       industry: question.industry || "",
       customIndustry: "",
-      source: question.source,
+      jobRoles: question.jobRoles && question.jobRoles.length > 0
+        ? question.jobRoles.map((role) => ({ jobRoleTitle: role }))
+        : [{ jobRoleTitle: "" }],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "jobRoles",
+  });
+
   const selectedIndustry = watch("industry");
+
+  const handleRemoveJobRole = useCallback(
+    (index: number) => {
+      if (fields.length > 1) {
+        remove(index);
+      }
+    },
+    [fields.length, remove]
+  );
 
   // Reset form when question changes
   useEffect(() => {
@@ -97,13 +110,19 @@ function EditQuestionModal({
         category: question.category,
         industry: isPredefined ? question.industry || "" : "other",
         customIndustry: isPredefined ? "" : question.industry || "",
-        source: question.source,
+        jobRoles: question.jobRoles && question.jobRoles.length > 0
+          ? question.jobRoles.map((role) => ({ jobRoleTitle: role }))
+          : [{ jobRoleTitle: "" }],
       });
     }
   }, [question, reset, industryOptions]);
 
   const onSubmit = useCallback(
     handleSubmit(async (data: EditQuestionForm) => {
+      const jobRoles = data.jobRoles
+        ?.map((role) => role.jobRoleTitle.trim())
+        .filter((title) => title !== "") || [];
+
       updateQuestion(
         {
           questionId: question.id,
@@ -112,8 +131,8 @@ function EditQuestionModal({
           industry:
             data.industry === "other" && data.customIndustry
               ? data.customIndustry
-              : data.industry,
-          source: data.source,
+              : data.industry || undefined,
+          jobRoles: jobRoles.length > 0 ? jobRoles : undefined,
         },
         {
           onSuccess: (response) => {
@@ -260,26 +279,78 @@ function EditQuestionModal({
         )}
 
         <div>
-          <label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="source"
-          >
-            Source *
-          </label>
-          <select
-            {...register("source", { required: "Source is required" })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-            id="source"
-          >
-            {sourceOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
+          <div className="flex justify-between items-center mb-2">
+            <span className="block text-sm font-medium text-gray-700">
+              Job Roles
+            </span>
+            <button
+              className="text-sm text-adult-green hover:text-adult-green/80 font-medium"
+              disabled={isUpdatingQuestion}
+              type="button"
+              onClick={() => append({ jobRoleTitle: "" })}
+            >
+              + Add Job Role
+            </button>
+          </div>
+          <div className="space-y-3">
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="border border-gray-200 rounded-md p-3"
+              >
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label
+                      className="block text-xs font-medium text-gray-600 mb-1"
+                      htmlFor={`job-role-${index}`}
+                    >
+                      Job Role Title
+                    </label>
+                    <input
+                      {...register(`jobRoles.${index}.jobRoleTitle`)}
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
+                      disabled={isUpdatingQuestion}
+                      id={`job-role-${index}`}
+                      placeholder="e.g., Software Engineer"
+                      type="text"
+                    />
+                    {errors.jobRoles?.[index]?.jobRoleTitle && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.jobRoles[index]?.jobRoleTitle?.message}
+                      </p>
+                    )}
+                  </div>
+                  {fields.length > 1 && (
+                    <button
+                      className="p-2 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded self-start mt-6"
+                      disabled={isUpdatingQuestion}
+                      title="Remove job role"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleRemoveJobRole(index);
+                      }}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M6 18L18 6M6 6l12 12"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
             ))}
-          </select>
-          {errors.source && (
-            <p className="mt-1 text-sm text-red-600">{errors.source.message}</p>
-          )}
+          </div>
         </div>
 
         {(question.status === "approved" || question.status === "rejected") && (
