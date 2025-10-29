@@ -5,7 +5,9 @@ import { Input, Button } from "@heroui/react";
 import { ProfilePicture } from "./ProfilePicture";
 
 export function ProfileForm() {
-  const [name, setName] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
 
   return (
@@ -13,24 +15,66 @@ export function ProfileForm() {
       {/* Profile Picture */}
       <ProfilePicture />
 
-      {/* Name Field */}
+      {/* Display Name Field */}
       <div className="space-y-2">
         <label
           className="block text-sm font-medium text-gray-700"
-          htmlFor="name"
+          htmlFor="displayName"
         >
-          Name
+          Display Name
         </label>
         <Input
           classNames={{
             input: "text-gray-900",
             inputWrapper: "border border-gray-300 bg-white",
           }}
-          id="name"
-          placeholder="Enter your name"
+          id="displayName"
+          placeholder="Enter your display name"
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+        />
+      </div>
+
+      {/* First Name Field */}
+      <div className="space-y-2">
+        <label
+          className="block text-sm font-medium text-gray-700"
+          htmlFor="firstName"
+        >
+          First Name
+        </label>
+        <Input
+          classNames={{
+            input: "text-gray-900",
+            inputWrapper: "border border-gray-300 bg-white",
+          }}
+          id="firstName"
+          placeholder="Enter your first name"
+          type="text"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
+      </div>
+
+      {/* Last Name Field */}
+      <div className="space-y-2">
+        <label
+          className="block text-sm font-medium text-gray-700"
+          htmlFor="lastName"
+        >
+          Last Name
+        </label>
+        <Input
+          classNames={{
+            input: "text-gray-900",
+            inputWrapper: "border border-gray-300 bg-white",
+          }}
+          id="lastName"
+          placeholder="Enter your last name"
+          type="text"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
         />
       </div>
 
@@ -58,7 +102,7 @@ export function ProfileForm() {
       {/* Save Button */}
       <div className="flex justify-end">
         <Button
-          className="bg-gray-900 text-white hover:bg-gray-800 font-medium px-8"
+          className="bg-adult-green text-white hover:bg-adult-green/80 font-medium px-8"
           size="md"
         >
           SAVE
