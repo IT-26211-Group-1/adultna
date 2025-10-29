@@ -76,7 +76,7 @@ export function PasswordForm() {
       {/* Save Button */}
       <div className="flex justify-end">
         <Button
-          className="bg-gray-900 text-white hover:bg-gray-800 font-medium px-8"
+          className="bg-adult-green text-white hover:bg-adult-green/80 font-medium px-8"
           size="md"
         >
           SAVE
