@@ -34,7 +34,7 @@ export function ProfilePicture() {
               width={80}
             />
           ) : (
-            <span className="text-2xl text-gray-400 font-semibold">A</span>
+            <span className="text-2xl text-gray-400 font-semibold"></span>
           )}
         </div>
 
@@ -47,7 +47,7 @@ export function ProfilePicture() {
         </label>
 
         <input
-          accept="image/*"
+          accept="image/png , image/jpeg*"
           className="hidden"
           id="profile-picture-upload"
           type="file"
@@ -59,7 +59,7 @@ export function ProfilePicture() {
       <div>
         <p className="text-sm text-gray-700 font-medium">Profile Picture</p>
         <p className="text-xs text-gray-500 mt-0.5">
-          JPG, PNG or GIF (max. 2MB)
+          JPG, JPEG, or PNG (max. 2MB)
         </p>
       </div>
     </div>
