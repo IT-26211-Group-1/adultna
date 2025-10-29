@@ -13,16 +13,16 @@ export default function ProfilePage() {
       <div className="max-w-6xl mx-auto space-y-12">
         {/* Profile Information Section */}
         <ProfileSection
-          title="Profile Information"
           description="Update your account's profile information and email address."
+          title="Profile Information"
         >
           <ProfileForm />
         </ProfileSection>
 
         {/* Update Password Section */}
         <ProfileSection
-          title="Update Password"
           description="Ensure your account is using a long, random password to stay secure."
+          title="Update Password"
         >
           <PasswordForm />
         </ProfileSection>

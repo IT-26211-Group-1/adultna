@@ -16,42 +16,42 @@ export function ProfileForm() {
       {/* Name Field */}
       <div className="space-y-2">
         <label
-          htmlFor="name"
           className="block text-sm font-medium text-gray-700"
+          htmlFor="name"
         >
           Name
         </label>
         <Input
-          id="name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your name"
           classNames={{
             input: "text-gray-900",
             inputWrapper: "border border-gray-300 bg-white",
           }}
+          id="name"
+          placeholder="Enter your name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
       </div>
 
       {/* Email Field */}
       <div className="space-y-2">
         <label
-          htmlFor="email"
           className="block text-sm font-medium text-gray-700"
+          htmlFor="email"
         >
           Email
         </label>
         <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
           classNames={{
             input: "text-gray-900",
             inputWrapper: "border border-gray-300 bg-white",
           }}
+          id="email"
+          placeholder="Enter your email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
       </div>
 

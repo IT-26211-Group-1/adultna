@@ -9,8 +9,10 @@ export function ProfilePicture() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (file) {
       const reader = new FileReader();
+
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
@@ -25,11 +27,11 @@ export function ProfilePicture() {
         <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
           {imagePreview ? (
             <Image
-              src={imagePreview}
               alt="Profile"
-              width={80}
-              height={80}
               className="w-full h-full object-cover"
+              height={80}
+              src={imagePreview}
+              width={80}
             />
           ) : (
             <span className="text-2xl text-gray-400 font-semibold">A</span>
@@ -38,18 +40,18 @@ export function ProfilePicture() {
 
         {/* Upload Button Overlay */}
         <label
-          htmlFor="profile-picture-upload"
           className="absolute bottom-0 right-0 bg-white rounded-full p-1.5 shadow-md border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+          htmlFor="profile-picture-upload"
         >
           <Camera className="w-4 h-4 text-gray-600" />
         </label>
 
         <input
+          accept="image/*"
+          className="hidden"
           id="profile-picture-upload"
           type="file"
-          accept="image/*"
           onChange={handleImageChange}
-          className="hidden"
         />
       </div>
 
