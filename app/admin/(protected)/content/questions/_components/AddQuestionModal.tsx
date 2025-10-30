@@ -50,7 +50,7 @@ function AddQuestionModal({
       { value: "situational", label: "Situational" },
       { value: "background", label: "Background" },
     ],
-    []
+    [],
   );
 
   const industryOptions = useMemo(
@@ -64,7 +64,7 @@ function AddQuestionModal({
       { value: "general", label: "General" },
       { value: "other", label: "Other" },
     ],
-    []
+    [],
   );
 
   const {
@@ -101,14 +101,15 @@ function AddQuestionModal({
         remove(index);
       }
     },
-    [fields.length, remove]
+    [fields.length, remove],
   );
 
   const onSubmit = useCallback(
     handleSubmit(async (data: AddQuestionForm) => {
-      const jobRoles = data.jobRoles
-        ?.map((role) => role.jobRoleTitle.trim())
-        .filter((title) => title !== "") || [];
+      const jobRoles =
+        data.jobRoles
+          ?.map((role) => role.jobRoleTitle.trim())
+          .filter((title) => title !== "") || [];
 
       const submissionData = {
         question: data.question,
@@ -144,7 +145,7 @@ function AddQuestionModal({
         },
       });
     }),
-    [createQuestion, handleSubmit, isAIGenerated]
+    [createQuestion, handleSubmit, isAIGenerated],
   );
 
   const handleClose = useCallback(() => {
@@ -201,7 +202,7 @@ function AddQuestionModal({
             timeout: 4000,
           });
         },
-      }
+      },
     );
   }, [selectedCategory, selectedIndustry, generateAIQuestion, setValue, watch]);
 

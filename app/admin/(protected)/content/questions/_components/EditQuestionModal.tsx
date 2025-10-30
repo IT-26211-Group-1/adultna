@@ -9,7 +9,6 @@ import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestio
 import type {
   InterviewQuestion,
   QuestionCategory,
-  QuestionSource,
 } from "@/types/interview-question";
 
 type JobRoleField = {
@@ -45,7 +44,7 @@ function EditQuestionModal({
       { value: "technical", label: "Technical" },
       { value: "situational", label: "Situational" },
     ],
-    []
+    [],
   );
 
   const industryOptions = useMemo(
@@ -59,7 +58,7 @@ function EditQuestionModal({
       { value: "general", label: "General" },
       { value: "other", label: "Other" },
     ],
-    []
+    [],
   );
 
   const {
@@ -75,9 +74,10 @@ function EditQuestionModal({
       category: question.category,
       industry: question.industry || "",
       customIndustry: "",
-      jobRoles: question.jobRoles && question.jobRoles.length > 0
-        ? question.jobRoles.map((role) => ({ jobRoleTitle: role }))
-        : [{ jobRoleTitle: "" }],
+      jobRoles:
+        question.jobRoles && question.jobRoles.length > 0
+          ? question.jobRoles.map((role) => ({ jobRoleTitle: role }))
+          : [{ jobRoleTitle: "" }],
     },
   });
 
@@ -94,7 +94,7 @@ function EditQuestionModal({
         remove(index);
       }
     },
-    [fields.length, remove]
+    [fields.length, remove],
   );
 
   // Reset form when question changes
@@ -102,7 +102,7 @@ function EditQuestionModal({
     if (question) {
       // Check if industry is a predefined value or custom
       const isPredefined = industryOptions.some(
-        (opt) => opt.value === question.industry
+        (opt) => opt.value === question.industry,
       );
 
       reset({
@@ -110,18 +110,20 @@ function EditQuestionModal({
         category: question.category,
         industry: isPredefined ? question.industry || "" : "other",
         customIndustry: isPredefined ? "" : question.industry || "",
-        jobRoles: question.jobRoles && question.jobRoles.length > 0
-          ? question.jobRoles.map((role) => ({ jobRoleTitle: role }))
-          : [{ jobRoleTitle: "" }],
+        jobRoles:
+          question.jobRoles && question.jobRoles.length > 0
+            ? question.jobRoles.map((role) => ({ jobRoleTitle: role }))
+            : [{ jobRoleTitle: "" }],
       });
     }
   }, [question, reset, industryOptions]);
 
   const onSubmit = useCallback(
     handleSubmit(async (data: EditQuestionForm) => {
-      const jobRoles = data.jobRoles
-        ?.map((role) => role.jobRoleTitle.trim())
-        .filter((title) => title !== "") || [];
+      const jobRoles =
+        data.jobRoles
+          ?.map((role) => role.jobRoleTitle.trim())
+          .filter((title) => title !== "") || [];
 
       updateQuestion(
         {
@@ -152,10 +154,10 @@ function EditQuestionModal({
               timeout: 4000,
             });
           },
-        }
+        },
       );
     }),
-    [updateQuestion, handleSubmit, question.id, onQuestionUpdated]
+    [updateQuestion, handleSubmit, question.id, onQuestionUpdated],
   );
 
   const handleClose = useCallback(() => {
