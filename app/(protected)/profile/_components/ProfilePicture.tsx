@@ -34,7 +34,7 @@ export function ProfilePicture() {
               width={80}
             />
           ) : (
-            <span className="text-2xl text-gray-400 font-semibold"></span>
+            <span className="text-2xl text-gray-400 font-semibold" />
           )}
         </div>
 

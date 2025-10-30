@@ -23,22 +23,18 @@ export function ConfirmationModal({
   isLoading = false,
 }: ConfirmationModalProps) {
   return (
-    <Modal open={open} title={title} size="sm" onClose={onClose}>
+    <Modal open={open} size="sm" title={title} onClose={onClose}>
       <div className="space-y-6">
         <p className="text-gray-600">{message}</p>
 
         <div className="flex justify-end gap-3">
-          <Button
-            variant="bordered"
-            onClick={onClose}
-            isDisabled={isLoading}
-          >
+          <Button isDisabled={isLoading} variant="bordered" onClick={onClose}>
             {cancelText}
           </Button>
           <Button
             className="bg-adult-green text-white hover:bg-adult-green/80"
-            onClick={onConfirm}
             isLoading={isLoading}
+            onClick={onConfirm}
           >
             {confirmText}
           </Button>
