@@ -20,7 +20,9 @@ const skeletonItems = Array.from({ length: SKELETON_COUNT }, (_, i) => i);
 const formatFieldLabel = (industry: string) =>
   industry.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
-export const FieldSelector = memo(function FieldSelector({ onSelectField }: FieldSelectorProps) {
+export const FieldSelector = memo(function FieldSelector({
+  onSelectField,
+}: FieldSelectorProps) {
   const {
     industries,
     isLoadingIndustries,
@@ -34,7 +36,7 @@ export const FieldSelector = memo(function FieldSelector({ onSelectField }: Fiel
         id: industry,
         label: formatFieldLabel(industry),
       })),
-    [industries]
+    [industries],
   );
 
   if (isLoadingIndustries) {
@@ -43,7 +45,10 @@ export const FieldSelector = memo(function FieldSelector({ onSelectField }: Fiel
         <h2 className="text-2xl font-semibold">Choose a Field</h2>
         <div className="space-y-2">
           {skeletonItems.map((i) => (
-            <Skeleton key={i} className="h-16 animate-[pulse_1s_ease-in-out_infinite]" />
+            <Skeleton
+              key={i}
+              className="h-16 animate-[pulse_1s_ease-in-out_infinite]"
+            />
           ))}
         </div>
       </div>
@@ -59,8 +64,8 @@ export const FieldSelector = memo(function FieldSelector({ onSelectField }: Fiel
             Failed to load fields. Please try again.
           </p>
           <button
-            onClick={() => refetchIndustries()}
             className="px-4 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors"
+            onClick={() => refetchIndustries()}
           >
             Retry
           </button>
@@ -87,8 +92,8 @@ export const FieldSelector = memo(function FieldSelector({ onSelectField }: Fiel
         {fields.map((field) => (
           <button
             key={field.id}
-            onClick={() => onSelectField(field.id)}
             className="w-full px-6 py-4 text-left bg-white border border-gray-200 rounded-lg hover:border-adult-green hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-adult-green focus:ring-offset-2"
+            onClick={() => onSelectField(field.id)}
           >
             <span className="text-base font-medium text-gray-900">
               {field.label}

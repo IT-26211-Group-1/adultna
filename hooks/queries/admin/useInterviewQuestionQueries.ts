@@ -15,6 +15,8 @@ import type {
   RestoreQuestionResponse,
   GenerateAIQuestionRequest,
   GenerateAIQuestionResponse,
+  CreateSessionRequest,
+  CreateSessionResponse,
 } from "@/types/interview-question";
 
 // API Functions
@@ -68,8 +70,36 @@ const questionApi = {
   ): Promise<GenerateAIQuestionResponse> =>
     ApiClient.post("/interview-questions/generate-ai", data),
 
-  getIndustries: (): Promise<{ success: boolean; message: string; data: string[] }> =>
-    ApiClient.get("/interview-questions/industries"),
+  getIndustries: (): Promise<{
+    success: boolean;
+    message: string;
+    data: string[];
+  }> => ApiClient.get("/interview-questions/industries"),
+
+  getAudioUrl: (
+    questionId: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      audioUrl: string;
+      cached: boolean;
+    };
+  }> => ApiClient.get(`/interview-questions/${questionId}/speech`),
+
+  synthesizeText: (
+    text: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      audioUrl: string;
+      cached: boolean;
+    };
+  }> => ApiClient.post("/tts/synthesize", { text }),
+
+  createSession: (data: CreateSessionRequest): Promise<CreateSessionResponse> =>
+    ApiClient.post("/interview-sessions", data),
 };
 
 // Query Hooks
@@ -248,5 +278,76 @@ export function useQuestionIndustries() {
     isLoadingIndustries,
     industriesError,
     refetchIndustries,
+  };
+}
+
+// Hook for fetching audio URL for a specific question (AWS Polly TTS)
+export function useQuestionAudio(questionId: string, enabled: boolean = false) {
+  const {
+    data: audioData,
+    isLoading: isLoadingAudio,
+    error: audioError,
+    refetch: refetchAudio,
+  } = useQuery({
+    queryKey: ["admin", "interview-questions", "audio", questionId],
+    queryFn: () => questionApi.getAudioUrl(questionId),
+    enabled, // Only fetch when explicitly enabled
+    staleTime: Infinity, // Audio URLs are cached in S3, so they never become stale
+    gcTime: 60 * 60 * 1000, // Keep in cache for 1 hour
+  });
+
+  return {
+    audioUrl: audioData?.data?.audioUrl,
+    isCached: audioData?.data?.cached || false,
+    isLoadingAudio,
+    audioError,
+    refetchAudio,
+  };
+}
+
+// Hook for synthesizing generic text to speech (AWS Polly TTS)
+export function useTextToSpeechAudio(text: string, enabled: boolean = false) {
+  const {
+    data: audioData,
+    isLoading: isLoadingAudio,
+    error: audioError,
+    refetch: refetchAudio,
+  } = useQuery({
+    queryKey: ["tts", "audio", text],
+    queryFn: () => questionApi.synthesizeText(text),
+    enabled: enabled && !!text, // Only fetch when explicitly enabled and text is provided
+    staleTime: Infinity, // Audio URLs are cached in S3, so they never become stale
+    gcTime: 60 * 60 * 1000, // Keep in cache for 1 hour
+  });
+
+  return {
+    audioUrl: audioData?.data?.audioUrl,
+    isCached: audioData?.data?.cached || false,
+    isLoadingAudio,
+    audioError,
+    refetchAudio,
+  };
+}
+
+// Hook for creating an interview session
+export function useCreateInterviewSession() {
+  const queryClient = useQueryClient();
+
+  const createSessionMutation = useMutation({
+    mutationFn: questionApi.createSession,
+    onSuccess: () => {
+      // Invalidate any relevant queries if needed
+      queryClient.invalidateQueries({
+        queryKey: ["interview-sessions"],
+      });
+    },
+  });
+
+  return {
+    createSession: createSessionMutation.mutate,
+    createSessionAsync: createSessionMutation.mutateAsync,
+    isCreatingSession: createSessionMutation.isPending,
+    createSessionError: createSessionMutation.error,
+    sessionData: createSessionMutation.data,
   };
 }

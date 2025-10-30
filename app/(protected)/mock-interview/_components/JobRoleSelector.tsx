@@ -30,6 +30,7 @@ export const JobRoleSelector = memo(function JobRoleSelector({
   // Extract unique job roles for the selected industry using the new jobRoles array
   const jobRoles = useMemo(() => {
     const rolesSet = new Set<string>();
+
     questions
       .filter((q) => q.industry === selectedIndustry)
       .forEach((q) => {
@@ -37,20 +38,16 @@ export const JobRoleSelector = memo(function JobRoleSelector({
           q.jobRoles.forEach((role) => rolesSet.add(role));
         }
       });
+
     return Array.from(rolesSet).sort();
   }, [questions, selectedIndustry]);
-
-  const formattedIndustry = useMemo(
-    () => formatIndustryName(selectedIndustry),
-    [selectedIndustry]
-  );
 
   if (isLoadingQuestions) {
     return (
       <div className="space-y-4">
         <button
-          onClick={onBack}
           className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
+          onClick={onBack}
         >
           ← Back to Fields
         </button>
@@ -71,8 +68,8 @@ export const JobRoleSelector = memo(function JobRoleSelector({
     return (
       <div className="space-y-4">
         <button
-          onClick={onBack}
           className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
+          onClick={onBack}
         >
           ← Back to Fields
         </button>
@@ -82,8 +79,8 @@ export const JobRoleSelector = memo(function JobRoleSelector({
             Failed to load job roles. Please try again.
           </p>
           <button
-            onClick={() => refetchQuestions()}
             className="px-4 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors"
+            onClick={() => refetchQuestions()}
           >
             Retry
           </button>
@@ -96,8 +93,8 @@ export const JobRoleSelector = memo(function JobRoleSelector({
     return (
       <div className="space-y-4">
         <button
-          onClick={onBack}
           className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
+          onClick={onBack}
         >
           ← Back to Fields
         </button>
@@ -113,8 +110,8 @@ export const JobRoleSelector = memo(function JobRoleSelector({
   return (
     <div className="space-y-6">
       <button
-        onClick={onBack}
         className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2 mb-2"
+        onClick={onBack}
       >
         ← Back
       </button>
@@ -127,8 +124,8 @@ export const JobRoleSelector = memo(function JobRoleSelector({
         {jobRoles.map((role) => (
           <button
             key={role}
-            onClick={() => onSelectJobRole(role)}
             className="px-6 py-8 text-left bg-white border border-gray-200 rounded-lg hover:border-adult-green hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-adult-green focus:ring-offset-2"
+            onClick={() => onSelectJobRole(role)}
           >
             <span className="text-base font-medium text-gray-900 block">
               {role}

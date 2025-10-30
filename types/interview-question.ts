@@ -115,3 +115,27 @@ export type GenerateAIQuestionResponse = {
 export type QuestionsTableProps = {
   onEditQuestion?: (questionId: string) => void;
 };
+
+// Interview Session Types
+export type SessionQuestion = {
+  id: string;
+  question: string;
+  category: QuestionCategory;
+  order: number;
+  isGeneral: boolean;
+};
+
+export type CreateSessionRequest = {
+  userId: string;
+  industry: string;
+  jobRole: string;
+};
+
+export type CreateSessionResponse = {
+  success: boolean;
+  message: string;
+  data?: {
+    sessionId: string;
+    questions: SessionQuestion[];
+  };
+};
