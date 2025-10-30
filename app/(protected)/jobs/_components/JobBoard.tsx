@@ -64,7 +64,12 @@ export default function JobBoard() {
 
   return (
     <div className="space-y-6">
-      <JobSearchHeader onSearch={handleSearch} isLoading={isLoading} />
+      <JobSearchHeader
+        onSearch={handleSearch}
+        isLoading={isLoading}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+      />
 
       <JobFiltersBar
         searchQuery={searchQuery}

@@ -116,7 +116,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
               </span>
             )}
 
-            {/* Experience Level based on job title */}
+            {/* Experience Level based on job title
             {(job.title.toLowerCase().includes("senior") || job.title.toLowerCase().includes("lead")) && (
               <span className="px-3 py-1 bg-white/60 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/40">
                 Senior Level
@@ -131,7 +131,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
               <span className="px-3 py-1 bg-white/60 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/40">
                 Internship
               </span>
-            )}
+            )} */}
 
             {/* Urgent/Featured tags */}
             {(() => {
@@ -151,7 +151,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
             {job.location ? job.location.split(",")[0] : "Remote"}
           </div>
           <button
-            className="bg-gray-900 hover:bg-gray-800 text-white px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-lg"
+            className="bg-gray-800 hover:bg-gray-700 text-white px-5 py-3 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-lg"
             onClick={handleApplyClick}
           >
             View Listing

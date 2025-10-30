@@ -42,7 +42,7 @@ const JobList = memo(({ jobs }: JobListProps) => {
       role="list"
     >
       {jobs.map((job, index) => (
-        <div key={job.id} role="listitem">
+        <div key={`${job.id}-${index}`} role="listitem">
           <JobCard job={job} index={index} />
         </div>
       ))}
