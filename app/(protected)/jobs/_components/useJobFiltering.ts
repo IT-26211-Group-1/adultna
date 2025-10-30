@@ -49,7 +49,17 @@ export function useJobFiltering(jobs: Job[], filters: JobFilterState) {
     if (filters.employmentType !== "all") {
       filtered = filtered.filter((job) => {
         const jobType = job.type?.toLowerCase();
-        return jobType?.includes(filters.employmentType.toLowerCase());
+        const jobTitle = job.title?.toLowerCase();
+        const filterType = filters.employmentType.toLowerCase();
+
+        // Special handling for internship filter
+        if (filterType === "internship") {
+          return jobType?.includes("internship") ||
+                 jobTitle?.includes("intern") ||
+                 jobTitle?.includes("internship");
+        }
+
+        return jobType?.includes(filterType);
       });
     }
 

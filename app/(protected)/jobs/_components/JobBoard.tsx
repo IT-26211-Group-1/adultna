@@ -47,17 +47,26 @@ export default function JobBoard() {
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-        <p className="text-red-600">
-          Error:{" "}
-          {error instanceof Error ? error.message : "Failed to fetch jobs"}
-        </p>
-        <button
-          className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-          onClick={() => setSearchQuery("")}
-        >
-          Retry
-        </button>
+      <div className="space-y-6">
+        <JobSearchHeader
+          onSearch={handleSearch}
+          isLoading={true}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+        />
+
+        <JobFiltersBar
+          searchQuery={searchQuery}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+        />
+
+        {/* Loading skeleton when error occurs */}
+        <div aria-label="Loading jobs" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {[...Array(JOBS_PER_PAGE)].map((_, index) => (
+            <JobCardSkeleton key={index} index={index} />
+          ))}
+        </div>
       </div>
     );
   }

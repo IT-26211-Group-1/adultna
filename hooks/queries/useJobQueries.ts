@@ -116,12 +116,12 @@ export function useJobSearch(searchQuery: string) {
       jobsApi.searchJobs({
         query: searchQuery,
         page: 1,
-        numPages: 10, // Fetch 10 pages to get 100+ jobs
+        numPages: 3, // Reduced to avoid rate limits
         datePostedRelative: !searchQuery ? "week" : undefined,
       }),
     enabled: true, // Always enabled now since we show default jobs
-    staleTime: 15 * 60 * 1000, // Cache for 15 minutes
-    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce API calls
+    gcTime: 60 * 60 * 1000, // Keep in cache for 1 hour
     retry: 2,
     refetchOnWindowFocus: false,
   });

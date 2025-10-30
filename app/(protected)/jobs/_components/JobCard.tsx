@@ -16,6 +16,14 @@ import { ExternalLink, AlertTriangle } from "lucide-react";
 const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  // Clean up template variables in job data
+  const cleanCompanyName = (company: string) => {
+    if (!company) return "Company";
+    // Remove template variables like {{data:job.brand_name}}
+    const cleaned = company.replace(/\{\{.*?\}\}/g, "").trim();
+    return cleaned || "Company";
+  };
+
   const formattedDate = (() => {
     if (!job.listedDate) return "";
     const d = new Date(job.listedDate);
@@ -84,7 +92,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
           {/* Company Name */}
           <div className="mb-2">
             <p className="text-sm font-medium text-gray-700">
-              {job.company}
+              {cleanCompanyName(job.company)}
             </p>
           </div>
 
@@ -164,7 +172,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
         backdrop="blur"
         isOpen={isOpen}
         placement="center"
-        size="md"
+        size="lg"
         onClose={onClose}
       >
         <ModalContent>
@@ -173,11 +181,11 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
               You are leaving AdultNa
             </h3>
             <p className="text-xs text-gray-600">
-              You are leaving our platform to visit an external job listing.
+              This will redirect you to an external job listing.
             </p>
           </ModalHeader>
-          <ModalBody className="px-6 py-0">
-            <div className="space-y-4">
+          <ModalBody className="px-6 py-2">
+            <div className="space-y-6">
               <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                 <div className="min-w-0 flex-1">
@@ -202,20 +210,24 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
               </div>
             </div>
           </ModalBody>
-          <ModalFooter className="flex gap-2 px-6 py-4">
-            <button
-              className="flex-1 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-              onClick={onClose}
-            >
-              Stay Here
-            </button>
-            <LoadingButton
-              className="flex-1 flex items-center justify-center gap-2 py-2 h-auto"
-              onClick={handleConfirmRedirect}
-            >
-              Continue
-              <ExternalLink size={16} />
-            </LoadingButton>
+          <ModalFooter className="px-6 py-6 flex justify-end">
+            <div className="flex items-center gap-4">
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 bg-transparent border-0"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <LoadingButton
+                className="flex items-center justify-center gap-2 px-6 py-3 h-auto text-sm font-medium bg-[#11553F] hover:bg-[#0d4532] text-white rounded-lg border-0"
+                onClick={handleConfirmRedirect}
+              >
+                <span className="flex items-center gap-2">
+                  Continue
+                  <ExternalLink size={14} />
+                </span>
+              </LoadingButton>
+            </div>
           </ModalFooter>
         </ModalContent>
       </Modal>
