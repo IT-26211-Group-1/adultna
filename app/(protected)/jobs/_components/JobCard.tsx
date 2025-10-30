@@ -174,6 +174,12 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
         placement="center"
         size="lg"
         onClose={onClose}
+        classNames={{
+          backdrop: "backdrop-blur-md bg-black/30 z-[9999] fixed inset-0",
+          wrapper: "z-[10000]",
+          base: "z-[10001]"
+        }}
+        portalContainer={typeof window !== 'undefined' ? document.body : undefined}
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1 px-6 pt-6 pb-2">
