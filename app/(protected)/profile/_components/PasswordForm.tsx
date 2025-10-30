@@ -38,11 +38,8 @@ export function PasswordForm() {
   const handleConfirmSave = async () => {
     setIsSaving(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     // Get form values and update password
-    handleSubmit(async (data) => {
+    handleSubmit(async () => {
       // Add your password update logic here
       console.log("Updating password");
 
@@ -66,29 +63,29 @@ export function PasswordForm() {
     <div className="space-y-6">
       {/* Current Password Field */}
       <FormInput
-        register={register}
+        error={errors.currentPassword?.message}
         name="currentPassword"
         placeholder="Current Password"
+        register={register}
         type="password"
-        error={errors.currentPassword?.message}
       />
 
       {/* New Password Field */}
       <FormInput
-        register={register}
+        error={errors.newPassword?.message}
         name="newPassword"
         placeholder="New Password"
+        register={register}
         type="password"
-        error={errors.newPassword?.message}
       />
 
       {/* Confirm Password Field */}
       <FormInput
-        register={register}
+        error={errors.confirmPassword?.message}
         name="confirmPassword"
         placeholder="Confirm Password"
+        register={register}
         type="password"
-        error={errors.confirmPassword?.message}
       />
 
       {/* Save Button */}
@@ -104,12 +101,12 @@ export function PasswordForm() {
 
       {/* Confirmation Modal */}
       <ConfirmationModal
+        cancelText="Cancel"
+        confirmText="Update Password"
+        isLoading={isSaving}
+        message="Are you sure you want to update your password? You will need to use the new password on your next login."
         open={showConfirmModal}
         title="Update Password"
-        message="Are you sure you want to update your password? You will need to use the new password on your next login."
-        confirmText="Update Password"
-        cancelText="Cancel"
-        isLoading={isSaving}
         onClose={handleCloseModal}
         onConfirm={handleConfirmSave}
       />

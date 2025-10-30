@@ -20,7 +20,6 @@ export function ProfileForm() {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<ProfileUpdateInput>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
@@ -64,38 +63,38 @@ export function ProfileForm() {
 
       {/* Display Name Field */}
       <FormInput
-        register={register}
+        error={errors.displayName?.message}
         name="displayName"
         placeholder="Display Name"
+        register={register}
         type="text"
-        error={errors.displayName?.message}
       />
 
       {/* First Name Field */}
       <FormInput
-        register={register}
+        error={errors.firstName?.message}
         name="firstName"
         placeholder="First Name"
+        register={register}
         type="text"
-        error={errors.firstName?.message}
       />
 
       {/* Last Name Field */}
       <FormInput
-        register={register}
+        error={errors.lastName?.message}
         name="lastName"
         placeholder="Last Name"
+        register={register}
         type="text"
-        error={errors.lastName?.message}
       />
 
       {/* Email Field */}
       <FormInput
-        register={register}
+        error={errors.email?.message}
         name="email"
         placeholder="Email"
+        register={register}
         type="email"
-        error={errors.email?.message}
       />
 
       {/* Save Button */}
@@ -111,12 +110,12 @@ export function ProfileForm() {
 
       {/* Confirmation Modal */}
       <ConfirmationModal
+        cancelText="Cancel"
+        confirmText="Save Changes"
+        isLoading={isSaving}
+        message="Are you sure you want to save these changes to your profile?"
         open={showConfirmModal}
         title="Save Profile Changes"
-        message="Are you sure you want to save these changes to your profile?"
-        confirmText="Save Changes"
-        cancelText="Cancel"
-        isLoading={isSaving}
         onClose={handleCloseModal}
         onConfirm={handleConfirmSave}
       />
