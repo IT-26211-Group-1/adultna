@@ -23,7 +23,6 @@ export const JobRoleSelector = memo(function JobRoleSelector({
       status: "approved",
     });
 
-  // Extract unique job roles for the selected industry using the new jobRoles array
   const jobRoles = useMemo(() => {
     const rolesSet = new Set<string>();
 
