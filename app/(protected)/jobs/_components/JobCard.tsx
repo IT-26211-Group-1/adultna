@@ -151,7 +151,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
             {job.location ? job.location.split(",")[0] : "Remote"}
           </div>
           <button
-            className="bg-gray-800 hover:bg-gray-700 text-white px-5 py-3 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-lg"
+            className="bg-[#ACBD6F] hover:bg-[#A3B65D] text-white px-5 py-3 rounded-full text-sm font-medium transition-all duration-200 hover:shadow-lg"
             onClick={handleApplyClick}
           >
             View Listing

@@ -120,7 +120,7 @@ export default function JobSearchHeader({ onSearch, isLoading = false, filters, 
           {/* Search Button */}
           <button
             aria-label="Search jobs"
-            className="px-8 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3 bg-[#ACBD6F] hover:bg-[#A3B65D] text-white rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isLoading}
             onClick={handleSearch}
           >
