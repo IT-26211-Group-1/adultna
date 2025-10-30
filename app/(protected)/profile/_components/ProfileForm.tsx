@@ -39,10 +39,6 @@ export function ProfileForm() {
 
   const handleConfirmSave = async () => {
     setIsSaving(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     // Get form values
     handleSubmit(async (data) => {
       // Add your save logic here
