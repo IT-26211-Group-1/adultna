@@ -1,9 +1,14 @@
 "use client";
 
 import React, { memo, useMemo, useState } from "react";
-import { useTextToSpeechAudio } from "@/hooks/queries/admin/useInterviewQuestionQueries";
+import {
+  useTextToSpeechAudio,
+  useSpeechToText,
+} from "@/hooks/queries/admin/useInterviewQuestionQueries";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { useAuth } from "@/hooks/useAuth";
 import type { SessionQuestion } from "@/types/interview-question";
 import { AutoPlayToggle } from "./AutoPlayToggle";
 
@@ -29,6 +34,7 @@ export const QuestionsList = memo(function QuestionsList({
   onBack,
 }: QuestionsListProps) {
   const { getSecureItem, setSecureItem } = useSecureStorage();
+  const { user } = useAuth();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(() => {
@@ -36,8 +42,21 @@ export const QuestionsList = memo(function QuestionsList({
 
     return saved === "true";
   });
+  const [answer, setAnswer] = useState("");
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
+  const userId = (user as any)?.userId || "";
 
   const { play, stop, isPlaying } = useAudioPlayer();
+  const {
+    isRecording,
+    audioBlob,
+    startRecording,
+    stopRecording,
+    clearRecording,
+    error: recordingError,
+  } = useAudioRecorder();
+  const { transcribeAndPoll } = useSpeechToText(userId);
 
   // Get ordered questions (general first, then specific)
   const orderedQuestions = useMemo(() => {
@@ -94,6 +113,7 @@ export const QuestionsList = memo(function QuestionsList({
   const handleNextQuestion = () => {
     if (!isLastQuestion) {
       stop();
+      setAnswer(""); 
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
@@ -101,9 +121,40 @@ export const QuestionsList = memo(function QuestionsList({
   const handlePreviousQuestion = () => {
     if (!isFirstQuestion) {
       stop();
+      setAnswer(""); 
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
+
+  const handleMicrophoneClick = async () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      clearRecording();
+      await startRecording();
+    }
+  };
+
+  // Auto-transcribe when recording stops
+  React.useEffect(() => {
+    if (audioBlob && !isRecording) {
+      const transcribe = async () => {
+        setIsTranscribing(true);
+        try {
+          const transcript = await transcribeAndPoll(audioBlob);
+          // Append or set the transcript to the answer
+          setAnswer((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          clearRecording();
+        } catch (error) {
+          console.error("Transcription error:", error);
+        } finally {
+          setIsTranscribing(false);
+        }
+      };
+
+      transcribe();
+    }
+  }, [audioBlob, isRecording, transcribeAndPoll, clearRecording]);
 
   if (sessionQuestions.length === 0) {
     return (
@@ -246,16 +297,88 @@ export const QuestionsList = memo(function QuestionsList({
 
                 {/* Input Area */}
                 <div className="space-y-2">
-                  <p className="text-sm italic text-gray-600">
-                    You can type your answer or try speaking out loud using your
-                    mic.
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm italic text-gray-600">
+                      You can type your answer or try speaking out loud using
+                      your mic.
+                    </p>
+                    {recordingError && (
+                      <p className="text-xs text-red-600">{recordingError}</p>
+                    )}
+                  </div>
                   <div className="relative">
                     <textarea
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-adult-green focus:border-transparent resize-none"
+                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-adult-green focus:border-transparent resize-none"
                       placeholder="Type your answer here..."
                       rows={6}
+                      value={answer}
+                      onChange={(e) => setAnswer(e.target.value)}
+                      disabled={isTranscribing}
                     />
+                    {/* Microphone Button */}
+                    <button
+                      className={`absolute right-3 bottom-3 p-2 rounded-full transition-colors ${
+                        isRecording
+                          ? "bg-red-500 text-white animate-pulse"
+                          : isTranscribing
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-adult-green/10 text-adult-green hover:bg-adult-green/20"
+                      }`}
+                      onClick={handleMicrophoneClick}
+                      disabled={isTranscribing}
+                      title={
+                        isRecording
+                          ? "Stop recording"
+                          : isTranscribing
+                            ? "Transcribing..."
+                            : "Start recording"
+                      }
+                    >
+                      {isTranscribing ? (
+                        <svg
+                          className="w-5 h-5 animate-spin"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      ) : isRecording ? (
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <rect width="12" height="12" x="4" y="4" rx="2" />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
+                        </svg>
+                      )}
+                    </button>
                   </div>
                 </div>
 

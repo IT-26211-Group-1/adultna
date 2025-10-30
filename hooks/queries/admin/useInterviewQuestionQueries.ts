@@ -100,6 +100,33 @@ const questionApi = {
 
   createSession: (data: CreateSessionRequest): Promise<CreateSessionResponse> =>
     ApiClient.post("/interview-sessions", data),
+
+  // Transcribe audio to text (Speech-to-Text)
+  transcribeAudio: (data: {
+    userId: string;
+    audioData: string;
+    format?: string;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      jobName: string;
+      status: string;
+    };
+  }> => ApiClient.post("/transcribe", data),
+
+  // Get transcription result
+  getTranscription: (
+    jobName: string,
+    userId: string,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      status: string;
+      transcript?: string;
+    };
+  }> => ApiClient.get(`/transcribe/result?jobName=${jobName}&userId=${userId}`),
 };
 
 // Query Hooks
@@ -349,5 +376,72 @@ export function useCreateInterviewSession() {
     isCreatingSession: createSessionMutation.isPending,
     createSessionError: createSessionMutation.error,
     sessionData: createSessionMutation.data,
+  };
+}
+
+// Hook for speech-to-text transcription
+export function useSpeechToText(userId: string) {
+  // Transcribe audio mutation
+  const transcribeMutation = useMutation({
+    mutationFn: questionApi.transcribeAudio,
+  });
+
+  // Poll for transcription result
+  const pollTranscription = async (jobName: string): Promise<string> => {
+    const maxAttempts = 30;
+    const delayMs = 2000;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const result = await questionApi.getTranscription(jobName, userId);
+
+      if (result.data.status === "COMPLETED" && result.data.transcript) {
+        return result.data.transcript;
+      }
+
+      if (result.data.status === "FAILED") {
+        throw new Error("Transcription failed");
+      }
+
+      // Wait before next poll
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+
+    throw new Error("Transcription timed out");
+  };
+
+  // Combined transcribe and poll
+  const transcribeAndPoll = async (audioBlob: Blob): Promise<string> => {
+    // Convert blob to base64
+    const base64Audio = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        // Remove data URL prefix
+        const base64Data = base64.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(audioBlob);
+    });
+
+    // Start transcription
+    const transcribeResult = await questionApi.transcribeAudio({
+      userId,
+      audioData: base64Audio,
+      format: "webm",
+    });
+
+    // Poll for result
+    const transcript = await pollTranscription(transcribeResult.data.jobName);
+    return transcript;
+  };
+
+  return {
+    transcribe: transcribeMutation.mutate,
+    transcribeAsync: transcribeMutation.mutateAsync,
+    isTranscribing: transcribeMutation.isPending,
+    transcribeError: transcribeMutation.error,
+    transcribeData: transcribeMutation.data,
+    transcribeAndPoll,
   };
 }
