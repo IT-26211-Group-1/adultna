@@ -90,6 +90,7 @@ export function ProfileForm() {
 
       {/* Email Field */}
       <FormInput
+        disabled
         error={errors.email?.message}
         name="email"
         placeholder="Email"
