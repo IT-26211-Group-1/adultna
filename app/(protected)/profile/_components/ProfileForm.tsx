@@ -1,35 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import { Input, Button } from "@heroui/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@heroui/react";
 import { ProfilePicture } from "./ProfilePicture";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { FormInput } from "@/app/auth/register/_components/FormInput";
+import {
+  profileUpdateSchema,
+  ProfileUpdateInput,
+} from "@/validators/profileSchema";
+import { useState } from "react";
 
 export function ProfileForm() {
-  const [displayName, setDisplayName] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ProfileUpdateInput>({
+    resolver: zodResolver(profileUpdateSchema),
+    defaultValues: {
+      displayName: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+    },
+  });
+
   const handleSaveClick = () => {
-    setShowConfirmModal(true);
+    handleSubmit(() => {
+      setShowConfirmModal(true);
+    })();
   };
 
   const handleConfirmSave = async () => {
     setIsSaving(true);
-    
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Add your save logic here
-    console.log("Saving profile:", { displayName, firstName, lastName, email });
-    
-    setIsSaving(false);
-    setShowConfirmModal(false);
-    
-    // You can add a success toast notification here
+
+    // Get form values
+    handleSubmit(async (data) => {
+      // Add your save logic here
+      console.log("Saving profile:", data);
+
+      setIsSaving(false);
+      setShowConfirmModal(false);
+
+      // You can add a success toast notification here
+    })();
   };
 
   const handleCloseModal = () => {
@@ -44,88 +67,40 @@ export function ProfileForm() {
       <ProfilePicture />
 
       {/* Display Name Field */}
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="displayName"
-        >
-          Display Name
-        </label>
-        <Input
-          classNames={{
-            input: "text-gray-900",
-            inputWrapper: "border border-gray-300 bg-white",
-          }}
-          id="displayName"
-          placeholder="Enter your display name"
-          type="text"
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-        />
-      </div>
+      <FormInput
+        register={register}
+        name="displayName"
+        placeholder="Display Name"
+        type="text"
+        error={errors.displayName?.message}
+      />
 
       {/* First Name Field */}
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="firstName"
-        >
-          First Name
-        </label>
-        <Input
-          classNames={{
-            input: "text-gray-900",
-            inputWrapper: "border border-gray-300 bg-white",
-          }}
-          id="firstName"
-          placeholder="Enter your first name"
-          type="text"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-      </div>
+      <FormInput
+        register={register}
+        name="firstName"
+        placeholder="First Name"
+        type="text"
+        error={errors.firstName?.message}
+      />
 
       {/* Last Name Field */}
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="lastName"
-        >
-          Last Name
-        </label>
-        <Input
-          classNames={{
-            input: "text-gray-900",
-            inputWrapper: "border border-gray-300 bg-white",
-          }}
-          id="lastName"
-          placeholder="Enter your last name"
-          type="text"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-      </div>
+      <FormInput
+        register={register}
+        name="lastName"
+        placeholder="Last Name"
+        type="text"
+        error={errors.lastName?.message}
+      />
 
       {/* Email Field */}
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="email"
-        >
-          Email
-        </label>
-        <Input
-          classNames={{
-            input: "text-gray-900",
-            inputWrapper: "border border-gray-300 bg-white",
-          }}
-          id="email"
-          placeholder="Enter your email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
+      <FormInput
+        register={register}
+        name="email"
+        placeholder="Email"
+        type="email"
+        error={errors.email?.message}
+      />
 
       {/* Save Button */}
       <div className="flex justify-end">

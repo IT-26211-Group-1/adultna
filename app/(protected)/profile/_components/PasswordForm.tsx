@@ -1,49 +1,59 @@
 "use client";
 
-import { useState } from "react";
-import { Input, Button } from "@heroui/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@heroui/react";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { FormInput } from "@/app/auth/register/_components/FormInput";
+import {
+  passwordUpdateSchema,
+  PasswordUpdateInput,
+} from "@/validators/profileSchema";
+import { useState } from "react";
 
 export function PasswordForm() {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<PasswordUpdateInput>({
+    resolver: zodResolver(passwordUpdateSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
   const handleSaveClick = () => {
-    // Basic validation
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      alert("Please fill in all password fields");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      alert("New password and confirm password do not match");
-      return;
-    }
-
-    setShowConfirmModal(true);
+    handleSubmit(() => {
+      setShowConfirmModal(true);
+    })();
   };
 
   const handleConfirmSave = async () => {
     setIsSaving(true);
-    
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Add your password update logic here
-    console.log("Updating password");
-    
-    setIsSaving(false);
-    setShowConfirmModal(false);
-    
-    // Clear form after successful update
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    
-    // You can add a success toast notification here
+
+    // Get form values and update password
+    handleSubmit(async (data) => {
+      // Add your password update logic here
+      console.log("Updating password");
+
+      setIsSaving(false);
+      setShowConfirmModal(false);
+
+      // Clear form after successful update
+      reset();
+
+      // You can add a success toast notification here
+    })();
   };
 
   const handleCloseModal = () => {
@@ -55,67 +65,31 @@ export function PasswordForm() {
   return (
     <div className="space-y-6">
       {/* Current Password Field */}
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="current-password"
-        >
-          Current Password
-        </label>
-        <Input
-          classNames={{
-            input: "text-gray-900",
-            inputWrapper: "border border-gray-300 bg-white",
-          }}
-          id="current-password"
-          placeholder="Enter current password"
-          type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-        />
-      </div>
+      <FormInput
+        register={register}
+        name="currentPassword"
+        placeholder="Current Password"
+        type="password"
+        error={errors.currentPassword?.message}
+      />
 
       {/* New Password Field */}
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="new-password"
-        >
-          New Password
-        </label>
-        <Input
-          classNames={{
-            input: "text-gray-900",
-            inputWrapper: "border border-gray-300 bg-white",
-          }}
-          id="new-password"
-          placeholder="Enter new password"
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-      </div>
+      <FormInput
+        register={register}
+        name="newPassword"
+        placeholder="New Password"
+        type="password"
+        error={errors.newPassword?.message}
+      />
 
       {/* Confirm Password Field */}
-      <div className="space-y-2">
-        <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="confirm-password"
-        >
-          Confirm Password
-        </label>
-        <Input
-          classNames={{
-            input: "text-gray-900",
-            inputWrapper: "border border-gray-300 bg-white",
-          }}
-          id="confirm-password"
-          placeholder="Confirm new password"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
+      <FormInput
+        register={register}
+        name="confirmPassword"
+        placeholder="Confirm Password"
+        type="password"
+        error={errors.confirmPassword?.message}
+      />
 
       {/* Save Button */}
       <div className="flex justify-end">
