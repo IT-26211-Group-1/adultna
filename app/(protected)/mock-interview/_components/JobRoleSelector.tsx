@@ -13,10 +13,6 @@ type JobRoleSelectorProps = {
 const SKELETON_COUNT = 4;
 const skeletonItems = Array.from({ length: SKELETON_COUNT }, (_, i) => i);
 
-// Format industry name (memoized outside component to avoid recreation)
-const formatIndustryName = (industry: string) =>
-  industry.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-
 export const JobRoleSelector = memo(function JobRoleSelector({
   selectedIndustry,
   onSelectJobRole,
