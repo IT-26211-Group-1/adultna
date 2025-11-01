@@ -56,7 +56,13 @@ export const QuestionsList = memo(function QuestionsList({
     clearRecording,
     error: recordingError,
   } = useAudioRecorder();
-  const { transcribeAndPoll } = useSpeechToText(userId);
+  const {
+    transcribeAndPoll,
+    startRealtimeRecognition,
+    stopRealtimeRecognition,
+    isListening,
+    isSpeechRecognitionSupported,
+  } = useSpeechToText(userId);
 
   // Get ordered questions (general first, then specific)
   const orderedQuestions = useMemo(() => {
@@ -113,7 +119,8 @@ export const QuestionsList = memo(function QuestionsList({
   const handleNextQuestion = () => {
     if (!isLastQuestion) {
       stop();
-      setAnswer(""); 
+      stopRealtimeRecognition(); 
+      setAnswer("");
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
@@ -121,32 +128,58 @@ export const QuestionsList = memo(function QuestionsList({
   const handlePreviousQuestion = () => {
     if (!isFirstQuestion) {
       stop();
-      setAnswer(""); 
+      stopRealtimeRecognition(); 
+      setAnswer("");
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
 
+  React.useEffect(() => {
+    return () => {
+      stopRealtimeRecognition();
+    };
+  }, [stopRealtimeRecognition]);
+
   const handleMicrophoneClick = async () => {
     if (isRecording) {
       stopRecording();
+      stopRealtimeRecognition();
     } else {
       clearRecording();
+
+      // Try to start real-time transcription (if supported)
+      const realtimeStarted = isSpeechRecognitionSupported()
+        ? startRealtimeRecognition((transcript) => {
+            setAnswer(transcript);
+          })
+        : false;
+
+      if (!realtimeStarted) {
+        console.info(
+          "Real-time transcription not available. Recording audio for AWS Transcribe."
+        );
+      }
+
+      // Always start audio recording for AWS Transcribe (fallback + accuracy)
       await startRecording();
     }
   };
 
-  // Auto-transcribe when recording stops
+  // Hybrid: After recording stops, replace Web Speech result with AWS Transcribe for accuracy
   React.useEffect(() => {
     if (audioBlob && !isRecording) {
       const transcribe = async () => {
         setIsTranscribing(true);
         try {
-          const transcript = await transcribeAndPoll(audioBlob);
-          // Append or set the transcript to the answer
-          setAnswer((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          // Send to AWS Transcribe for final accurate transcription
+          const awsTranscript = await transcribeAndPoll(audioBlob);
+
+          // Replace Web Speech API result with AWS Transcribe's accurate result
+          setAnswer(awsTranscript);
           clearRecording();
         } catch (error) {
-          console.error("Transcription error:", error);
+          console.error("AWS Transcription error:", error);
+          // Keep the Web Speech API result if AWS fails
         } finally {
           setIsTranscribing(false);
         }
@@ -298,10 +331,30 @@ export const QuestionsList = memo(function QuestionsList({
                 {/* Input Area */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm italic text-gray-600">
-                      You can type your answer or try speaking out loud using
-                      your mic.
-                    </p>
+                    <div className="flex-1">
+                      <p className="text-sm italic text-gray-600">
+                        You can type your answer or try speaking out loud using
+                        your mic.
+                      </p>
+                      {isRecording && !isSpeechRecognitionSupported() && (
+                        <div className="flex items-center gap-2 text-xs text-adult-green mt-1">
+                          <svg
+                            className="w-3 h-3 animate-pulse"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <circle cx="10" cy="10" r="8" />
+                          </svg>
+                          Recording... Your speech will be transcribed when you stop.
+                        </div>
+                      )}
+                      {!isRecording && !isSpeechRecognitionSupported() && (
+                        <span className="block text-xs text-gray-500 mt-1">
+                          Real-time display not available in this browser.
+                          Speech will be transcribed after recording.
+                        </span>
+                      )}
+                    </div>
                     {recordingError && (
                       <p className="text-xs text-red-600">{recordingError}</p>
                     )}

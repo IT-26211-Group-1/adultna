@@ -36,10 +36,19 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
           .play()
           .then(() => resolve())
           .catch((err) => {
-            console.error("Audio play error:", err);
-            setError("Failed to play audio");
-            setIsLoading(false);
-            reject(err);
+            if (err.name === "NotAllowedError") {
+              console.warn(
+                "Auto-play blocked by browser. User can click the toggle to play."
+              );
+              setIsLoading(false);
+              setIsPlaying(false);
+              resolve();
+            } else {
+              console.error("❌ Audio play error:", err);
+              setError("Failed to play audio");
+              setIsLoading(false);
+              reject(err);
+            }
           });
       });
 

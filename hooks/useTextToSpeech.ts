@@ -165,7 +165,18 @@ export const useTextToSpeech = (
       };
 
       utterance.onerror = (event) => {
-        console.error("Speech synthesis error:", event);
+        // Browsers often block autoplay, which triggers this error silently
+        // This is expected behavior and not a real error
+        console.warn("Speech synthesis event:", event.error || "canceled");
+
+        // Only log detailed errors for actual problems
+        if (event.error && event.error !== "canceled" && event.error !== "interrupted") {
+          console.error("Speech synthesis error details:", {
+            error: event.error,
+            type: event.type,
+          });
+        }
+
         setIsSpeaking(false);
         setIsPaused(false);
       };

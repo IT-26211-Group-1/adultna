@@ -1,9 +1,10 @@
 "use client";
 
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useCreateInterviewSession } from "@/hooks/queries/admin/useInterviewQuestionQueries";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useAuth } from "@/hooks/useAuth";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 import type { SessionQuestion } from "@/types/interview-question";
 import { AutoPlayToggle } from "./AutoPlayToggle";
 
@@ -23,22 +24,35 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
   const guidelinesText = `Let's Get You Interview-Ready. You'll be asked 5 common interview questions based on the role you selected. There are no right or wrong answers — just a chance to reflect, improve, and grow.`;
 
   const { user } = useAuth();
+  const { getSecureItem, setSecureItem } = useSecureStorage();
   const { createSessionAsync, isCreatingSession, createSessionError } =
     useCreateInterviewSession();
 
   const { speak, stop, isSpeaking, isReady } = useTextToSpeech();
 
-  // Auto-speak when voice is ready
+  // Initialize mute state from storage
+  const [isMuted, setIsMuted] = useState(() => {
+    const saved = getSecureItem("interview_tts_muted");
+
+    return saved === "true";
+  });
+
+  // Auto-speak when voice is ready and not muted
   useEffect(() => {
-    if (isReady) {
+    if (isReady && !isMuted) {
       speak(guidelinesText);
     }
-  }, [isReady, speak, guidelinesText]);
+  }, [isReady, isMuted, speak, guidelinesText]);
 
   const handleToggleSpeech = () => {
-    if (isSpeaking) {
+    const newMuted = !isMuted;
+
+    setIsMuted(newMuted);
+    setSecureItem("interview_tts_muted", String(newMuted), 60 * 24 * 30); // 30 days expiry
+
+    if (newMuted && isSpeaking) {
       stop();
-    } else {
+    } else if (!newMuted) {
       speak(guidelinesText);
     }
   };
@@ -82,7 +96,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
 
         {/* Auto-play Toggle */}
         <AutoPlayToggle
-          isMuted={!isSpeaking}
+          isMuted={isMuted}
           isReady={isReady}
           onToggle={handleToggleSpeech}
         />

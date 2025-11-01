@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient } from "@/lib/apiClient";
 import type {
@@ -379,16 +380,136 @@ export function useCreateInterviewSession() {
   };
 }
 
-// Hook for speech-to-text transcription
+// Hook for speech-to-text transcription (Hybrid Approach)
 export function useSpeechToText(userId: string) {
-  // Transcribe audio mutation
+  const [isListening, setIsListening] = useState(false);
+  const [realtimeTranscript, setRealtimeTranscript] = useState("");
+  const recognitionRef = useRef<any>(null);
+
+  // Transcribe audio mutation (for final AWS Transcribe accuracy)
   const transcribeMutation = useMutation({
     mutationFn: questionApi.transcribeAudio,
   });
 
-  // Poll for transcription result
+  // Check if Web Speech Recognition is supported
+  const isSpeechRecognitionSupported = useCallback(() => {
+    if (typeof window === "undefined") return false;
+    return !!(
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    );
+  }, []);
+
+  // Start real-time speech recognition using Web Speech API
+  const startRealtimeRecognition = useCallback(
+    (onTranscriptUpdate: (transcript: string) => void) => {
+      // Check if running in browser
+      if (typeof window === "undefined") {
+        console.warn("Speech recognition only works in browser");
+        return false;
+      }
+
+      // Check for Speech Recognition API
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        console.warn(
+          "Real-time transcription not supported in this browser. Using AWS Transcribe only."
+        );
+        return false;
+      }
+
+      try {
+        const recognition = new SpeechRecognition();
+
+        recognition.continuous = true; // Keep listening
+        recognition.interimResults = true; // Get partial results for instant feedback
+        recognition.lang = "en-US";
+
+        let finalTranscript = "";
+
+        recognition.onresult = (event: any) => {
+          let interimTranscript = "";
+
+          // Loop through results
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              // Final result - append to permanent transcript
+              finalTranscript += transcript + " ";
+            } else {
+              // Interim result - show temporarily
+              interimTranscript += transcript;
+            }
+          }
+
+          // Combine final and interim for real-time display
+          const fullTranscript = (finalTranscript + interimTranscript).trim();
+          setRealtimeTranscript(fullTranscript);
+          onTranscriptUpdate(fullTranscript);
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error("Speech recognition error:", event.error, event);
+
+          // Handle specific errors
+          if (event.error === "not-allowed" || event.error === "permission-denied") {
+            alert(
+              "Microphone access denied. Please allow microphone access in your browser settings."
+            );
+          } else if (event.error === "no-speech") {
+            console.warn("No speech detected. Please try speaking again.");
+          } else if (event.error === "network") {
+            console.error("Network error. Please check your internet connection.");
+          } else if (event.error === "aborted") {
+            console.warn("Speech recognition aborted.");
+          } else {
+            console.error(`Speech recognition error: ${event.error}`);
+          }
+
+          setIsListening(false);
+        };
+
+        recognition.onend = () => {
+          console.log("Speech recognition ended");
+          setIsListening(false);
+        };
+
+        recognition.onstart = () => {
+          console.log("Speech recognition started");
+        };
+
+        recognition.start();
+        recognitionRef.current = recognition;
+        setIsListening(true);
+
+        console.log("Speech recognition initialized successfully");
+        return true;
+      } catch (error) {
+        console.error("Failed to start speech recognition:", error);
+        return false;
+      }
+    },
+    []
+  );
+
+  // Stop real-time speech recognition
+  const stopRealtimeRecognition = useCallback(() => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error("Error stopping recognition:", error);
+      }
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+    setRealtimeTranscript("");
+  }, []);
+
+  // Poll for transcription result (AWS Transcribe)
   const pollTranscription = async (jobName: string): Promise<string> => {
-    const maxAttempts = 30;
+    const maxAttempts = 60;
     const delayMs = 2000;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -409,7 +530,7 @@ export function useSpeechToText(userId: string) {
     throw new Error("Transcription timed out");
   };
 
-  // Combined transcribe and poll
+  // Combined transcribe and poll (AWS Transcribe for final accuracy)
   const transcribeAndPoll = async (audioBlob: Blob): Promise<string> => {
     // Convert blob to base64
     const base64Audio = await new Promise<string>((resolve, reject) => {
@@ -443,5 +564,11 @@ export function useSpeechToText(userId: string) {
     transcribeError: transcribeMutation.error,
     transcribeData: transcribeMutation.data,
     transcribeAndPoll,
+    // Real-time recognition
+    startRealtimeRecognition,
+    stopRealtimeRecognition,
+    isListening,
+    realtimeTranscript,
+    isSpeechRecognitionSupported,
   };
 }
