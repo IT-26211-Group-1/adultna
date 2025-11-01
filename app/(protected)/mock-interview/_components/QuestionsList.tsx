@@ -82,7 +82,7 @@ export const QuestionsList = memo(function QuestionsList({
   const shouldFetch = !isMuted && !!currentQuestion;
   const { audioUrl, isLoadingAudio } = useTextToSpeechAudio(
     currentQuestion?.question || "",
-    shouldFetch,
+    shouldFetch
   );
 
   // Auto-play when audio is ready and not muted
@@ -93,7 +93,7 @@ export const QuestionsList = memo(function QuestionsList({
           await play(audioUrl);
         } catch {
           console.warn(
-            "Auto-play blocked by browser. User interaction required.",
+            "Auto-play blocked by browser. User interaction required."
           );
         }
       }, 100);
@@ -119,7 +119,7 @@ export const QuestionsList = memo(function QuestionsList({
   const handleNextQuestion = () => {
     if (!isLastQuestion) {
       stop();
-      stopRealtimeRecognition(); 
+      stopRealtimeRecognition();
       setAnswer("");
       setCurrentQuestionIndex((prev) => prev + 1);
     }
@@ -128,7 +128,7 @@ export const QuestionsList = memo(function QuestionsList({
   const handlePreviousQuestion = () => {
     if (!isFirstQuestion) {
       stop();
-      stopRealtimeRecognition(); 
+      stopRealtimeRecognition();
       setAnswer("");
       setCurrentQuestionIndex((prev) => prev - 1);
     }
@@ -345,14 +345,9 @@ export const QuestionsList = memo(function QuestionsList({
                           >
                             <circle cx="10" cy="10" r="8" />
                           </svg>
-                          Recording... Your speech will be transcribed when you stop.
+                          Recording... Your speech will be transcribed when you
+                          stop.
                         </div>
-                      )}
-                      {!isRecording && !isSpeechRecognitionSupported() && (
-                        <span className="block text-xs text-gray-500 mt-1">
-                          Real-time display not available in this browser.
-                          Speech will be transcribed after recording.
-                        </span>
                       )}
                     </div>
                     {recordingError && (
