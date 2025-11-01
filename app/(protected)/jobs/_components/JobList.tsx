@@ -36,10 +36,15 @@ const JobList = memo(({ jobs }: JobListProps) => {
   }
 
   return (
-    <div aria-label="Job listings" className="space-y-4" role="list">
-      {jobs.map((job) => (
-        <div key={job.id} role="listitem">
-          <JobCard job={job} />
+    <div
+      aria-label="Job listings"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
+      role="list"
+      style={{ contain: "layout style paint" }}
+    >
+      {jobs.map((job, index) => (
+        <div key={`${job.id}-${index}`} role="listitem">
+          <JobCard index={index} job={job} />
         </div>
       ))}
     </div>

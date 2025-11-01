@@ -95,14 +95,22 @@ export class ApiClient {
               credentials: "include",
             });
 
-            console.log("[ApiClient] Refresh response status:", refreshResponse.status);
+            console.log(
+              "[ApiClient] Refresh response status:",
+              refreshResponse.status,
+            );
 
             if (!refreshResponse.ok) {
-              console.log("[ApiClient] ❌ Refresh failed with status:", refreshResponse.status);
+              console.log(
+                "[ApiClient] ❌ Refresh failed with status:",
+                refreshResponse.status,
+              );
               throw new Error("Token refresh failed");
             }
 
-            console.log("[ApiClient] ✅ Token refreshed, retrying original request");
+            console.log(
+              "[ApiClient] ✅ Token refreshed, retrying original request",
+            );
 
             // Retry the original request once
             return this.request<T>(endpoint, options, baseUrl, true);
