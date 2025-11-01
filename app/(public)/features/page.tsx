@@ -28,8 +28,8 @@ export default function Page() {
       {/* Other Features Section */}
       <section className="flex flex-col items-center justify-center pt-5">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16 font-inter">
-            Discover Our Complete Suite of Features
+          <h2 className="text-3xl md:text-4xl lg:text-5xl text-center text-gray-900 mt-10 mb-5 font-playfair">
+            Everything You Need, <span className="italic text-adult-green">In One Place</span>
           </h2>
 
              <FeatureNav />

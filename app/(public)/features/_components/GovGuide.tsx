@@ -19,7 +19,7 @@ export function GovGuide() {
   ];
 
   return (
-    <section className="w-full py-16 bg-gray-50 relative px-4 md:px-22 max-w-7xl mx-auto">
+    <section className="w-full py-16relative px-4 md:px-22 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         {/* Left Content */}
         <div className="space-y-6">
