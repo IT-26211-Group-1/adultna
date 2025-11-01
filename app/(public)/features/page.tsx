@@ -16,23 +16,23 @@ import { ScrollUp } from "./_components/ScrollUp";
 export default function Page() {
   return (
     <div className="flex flex-col">
-      {/* Header Section */}
-      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+  
+      <section className="w-full pyt-16 md:pt-20">
         <FeatureText />
-        <FeatureNav />
       </section>
 
-      {/* Roadmap Section - Full width, no container restrictions */}
       <section id="roadmap-section" className="w-full">
         <Roadmap />
       </section>
 
       {/* Other Features Section */}
-      <section className="flex flex-col items-center justify-center py-16">
+      <section className="flex flex-col items-center justify-center pt-5">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16 font-inter">
             Discover Our Complete Suite of Features
           </h2>
+
+             <FeatureNav />
 
           <div className="flex flex-col gap-16">
             <div id="govguide-section">
