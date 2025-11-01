@@ -26,7 +26,7 @@ export function FeatureNav() {
   const renderNavButton = (item: NavItem) => (
     <button
       key={item.label}
-      className="px-3 py-1.5 rounded-full text-xs md:text-sm font-medium font-inter transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-adult-green hover:text-white"
+      className="px-3 py-1.5 rounded-full text-xs md:text-sm font-medium font-inter transition-all duration-200 border border-adult-green text-gray-700 hover:bg-adult-green hover:text-white"
       onClick={() => handleNavClick(item.target)}
     >
       {item.label}
@@ -34,7 +34,7 @@ export function FeatureNav() {
   );
 
   return (
-    <section className="w-full py-6 bg-transparent relative flex flex-col gap-3 px-4 md:px-22 max-w-6xl mx-auto items-center justify-center">
+    <section className="w-full py-6 pb-20 bg-transparent relative flex flex-col gap-3 px-4 md:px-22 max-w-6xl mx-auto items-center justify-center">
       <nav className="flex flex-col gap-3 font-inter" id="feature-nav">
         {/* Top row - 4 items */}
         <div className="flex flex-wrap justify-center gap-2 md:gap-3">
