@@ -109,20 +109,22 @@ const jobsApi = {
 };
 
 // Query Hooks
-export function useJobSearch(searchQuery: string) {
+export function useJobSearch(searchQuery: string, apiPage = 1) {
   return useQuery({
-    queryKey: queryKeys.jobs.search(`${searchQuery}`),
+    queryKey: queryKeys.jobs.search(`${searchQuery}-page-${apiPage}`),
     queryFn: () =>
       jobsApi.searchJobs({
         query: searchQuery,
-        page: 1,
-        numPages: 3, // Reduced to avoid rate limits
+        page: apiPage,
+        numPages: 5,
         datePostedRelative: !searchQuery ? "week" : undefined,
       }),
-    enabled: true, // Always enabled now since we show default jobs
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce API calls
-    gcTime: 60 * 60 * 1000, // Keep in cache for 1 hour
-    retry: 2,
+    enabled: true,
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    retry: 1,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    placeholderData: [],
   });
 }

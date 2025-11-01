@@ -1,22 +1,15 @@
 import { Skeleton } from "@/components/ui/Skeletons";
+import { getJobCardSkeletonColor } from "../../../../constants/jobCardColors";
 
 export default function JobCardSkeleton({ index = 0 }: { index?: number }) {
-
-  const cardColors = [
-    'from-[#ACBD6F]/10 to-[#ACBD6F]/5', // Olivine
-    'from-[#F16F33]/10 to-[#F16F33]/5', // Crayola Orange
-    'from-[#FCE2A9]/15 to-[#FCE2A9]/5', // Peach Yellow
-    'from-[#CBCBE7]/12 to-[#CBCBE7]/4', // Periwinkle
-  ];
-
-  const cardColor = cardColors[index % cardColors.length];
+  const cardColor = getJobCardSkeletonColor(index);
 
   return (
-    <article className={`bg-gradient-to-br ${cardColor} border border-gray-200 rounded-2xl overflow-hidden h-full flex flex-col animate-pulse`}>
-      
+    <article
+      className={`bg-gradient-to-br ${cardColor} border border-gray-200 rounded-2xl overflow-hidden h-full flex flex-col animate-pulse`}
+    >
       {/* Header Section */}
       <div className="p-5 flex-grow">
-
         {/* Date Badge Skeleton */}
         <div className="mb-4">
           <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full inline-block">

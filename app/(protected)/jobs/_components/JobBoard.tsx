@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import JobSearchHeader from "./JobSearchHeader";
 import JobFiltersBar from "./JobFiltersBar";
 import JobList from "./JobList";
 import JobCardSkeleton from "./JobCardSkeleton";
-import Pagination from "./Pagination";
+import Pagination from "../../../../components/ui/Pagination";
 import { useJobSearch } from "@/hooks/queries/useJobQueries";
-import { useJobFiltering } from "./useJobFiltering";
-import { useJobPagination } from "./useJobPagination";
+import { useJobFiltering } from "../../../../hooks/useJobFiltering";
+import { useJobPagination } from "../../../../hooks/useJobPagination";
 import { JobFilterState } from "@/types/job";
+
+const JOBS_PER_PAGE = 9;
 
 export default function JobBoard() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [apiPage, setApiPage] = useState<number>(1);
   const [filters, setFilters] = useState<JobFilterState>({
     datePosted: "all",
     jobType: "all",
@@ -22,17 +25,31 @@ export default function JobBoard() {
 
   const {
     data: jobs = [],
-    isLoading,
     error,
-  } = useJobSearch(searchQuery);
+    isFetching,
+  } = useJobSearch(searchQuery, apiPage);
 
-  // Hooks for filtering and pagination
   const filteredJobs = useJobFiltering(jobs, filters);
-  const { displayJobs, totalPages, shouldShowPagination, JOBS_PER_PAGE } = useJobPagination(filteredJobs, currentPage);
+  const { displayJobs, totalPages, shouldShowPagination } = useJobPagination(
+    filteredJobs,
+    currentPage,
+  );
+
+  useEffect(() => {
+    if (
+      currentPage === totalPages &&
+      totalPages > 1 &&
+      !isFetching &&
+      filteredJobs.length > 0
+    ) {
+      setApiPage((prev) => prev + 1);
+    }
+  }, [currentPage, totalPages, isFetching, filteredJobs.length]);
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
     setCurrentPage(1);
+    setApiPage(1);
   }, []);
 
   const handlePageChange = useCallback((page: number) => {
@@ -42,56 +59,37 @@ export default function JobBoard() {
 
   const handleFilterChange = useCallback((newFilters: JobFilterState) => {
     setFilters(newFilters);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, []);
-
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <JobSearchHeader
-          onSearch={handleSearch}
-          isLoading={true}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-        />
-
-        <JobFiltersBar
-          searchQuery={searchQuery}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-        />
-
-        {/* Loading skeleton when error occurs */}
-        <div aria-label="Loading jobs" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {[...Array(JOBS_PER_PAGE)].map((_, index) => (
-            <JobCardSkeleton key={index} index={index} />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
       <JobSearchHeader
-        onSearch={handleSearch}
-        isLoading={isLoading}
         filters={filters}
+        isLoading={isFetching}
         onFilterChange={handleFilterChange}
+        onSearch={handleSearch}
       />
 
       <JobFiltersBar
-        searchQuery={searchQuery}
         filters={filters}
+        searchQuery={searchQuery}
         onFilterChange={handleFilterChange}
       />
 
-      {/* Jobs Display */}
-      {isLoading && jobs.length === 0 ? (
-        <div aria-label="Loading jobs" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      {isFetching ? (
+        <div
+          aria-label="Loading jobs"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
+        >
           {[...Array(JOBS_PER_PAGE)].map((_, index) => (
             <JobCardSkeleton key={index} index={index} />
           ))}
+        </div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <p className="text-red-500 text-lg mb-2">Failed to load jobs</p>
+          <p className="text-gray-400 text-sm">Please try again later</p>
         </div>
       ) : displayJobs.length > 0 ? (
         <>
@@ -99,7 +97,7 @@ export default function JobBoard() {
           {shouldShowPagination && (
             <Pagination
               currentPage={currentPage}
-              isLoading={isLoading}
+              isLoading={false}
               totalPages={totalPages}
               onPageChange={handlePageChange}
             />

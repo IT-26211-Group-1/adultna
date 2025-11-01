@@ -9,6 +9,7 @@ export function useJobFiltering(jobs: Job[], filters: JobFilterState) {
     // Apply date filter
     if (filters.datePosted !== "all") {
       const now = new Date();
+
       filtered = filtered.filter((job) => {
         const jobDate = new Date(job.listedDate);
         const diffTime = now.getTime() - jobDate.getTime();
@@ -34,9 +35,13 @@ export function useJobFiltering(jobs: Job[], filters: JobFilterState) {
       filtered = filtered.filter((job) => {
         switch (filters.jobType) {
           case "remote":
-            return job.isRemote || job.location?.toLowerCase().includes("remote");
+            return (
+              job.isRemote || job.location?.toLowerCase().includes("remote")
+            );
           case "onsite":
-            return !job.isRemote && !job.location?.toLowerCase().includes("remote");
+            return (
+              !job.isRemote && !job.location?.toLowerCase().includes("remote")
+            );
           case "hybrid":
             return job.location?.toLowerCase().includes("hybrid");
           default:
@@ -54,9 +59,11 @@ export function useJobFiltering(jobs: Job[], filters: JobFilterState) {
 
         // Special handling for internship filter
         if (filterType === "internship") {
-          return jobType?.includes("internship") ||
-                 jobTitle?.includes("intern") ||
-                 jobTitle?.includes("internship");
+          return (
+            jobType?.includes("internship") ||
+            jobTitle?.includes("intern") ||
+            jobTitle?.includes("internship")
+          );
         }
 
         return jobType?.includes(filterType);
@@ -67,6 +74,7 @@ export function useJobFiltering(jobs: Job[], filters: JobFilterState) {
     return filtered.sort((a, b) => {
       const dateA = new Date(a.listedDate);
       const dateB = new Date(b.listedDate);
+
       return dateB.getTime() - dateA.getTime();
     });
   }, [jobs, filters]);

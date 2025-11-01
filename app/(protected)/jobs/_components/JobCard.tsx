@@ -1,17 +1,11 @@
 "use client";
 
 import { JobCardProps } from "@/types/job";
-import { memo, useCallback } from "react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-} from "@heroui/modal";
-import { LoadingButton } from "@/components/ui/Button";
-import { ExternalLink, AlertTriangle } from "lucide-react";
+import { memo, useCallback, lazy, Suspense } from "react";
+import { useDisclosure } from "@heroui/modal";
+import { getJobCardColor } from "../../../../constants/jobCardColors";
+
+const ExternalRedirectModal = lazy(() => import("./ExternalRedirectModal"));
 
 const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -21,6 +15,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
     if (!company) return "Company";
     // Remove template variables like {{data:job.brand_name}}
     const cleaned = company.replace(/\{\{.*?\}\}/g, "").trim();
+
     return cleaned || "Company";
   };
 
@@ -53,15 +48,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
     return `${Math.floor(diffMs / day)}d ago`;
   })();
 
-  const cardColors = [
-    'from-[#ACBD6F]/20 to-[#ACBD6F]/5', // Olivine
-    'from-[#F16F33]/20 to-[#F16F33]/5', // Crayola Orange
-    'from-[#FCE2A9]/30 to-[#FCE2A9]/10', // Peach Yellow
-    'from-[#CBCBE7]/25 to-[#CBCBE7]/8', // Periwinkle
-  ];
-
-  const cardColor = cardColors[(index || 0) % cardColors.length];
-
+  const cardColor = getJobCardColor(index || 0);
 
   const handleApplyClick = useCallback(() => {
     onOpen();
@@ -72,14 +59,14 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
     onClose();
   }, [job.applyUrl, onClose]);
 
-
   return (
     <>
-      <div className={`bg-gradient-to-br ${cardColor} border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 h-full flex flex-col`}>
-       
+      <div
+        className={`bg-gradient-to-br ${cardColor} border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 h-full flex flex-col`}
+        style={{ contentVisibility: "auto" }}
+      >
         {/* Header Section */}
         <div className="p-5 flex-grow">
-
           {/* Date or Job Posted */}
           <div className="mb-4">
             <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full inline-block">
@@ -103,7 +90,6 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
 
           {/* Job Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
-
             {/* Employment Type */}
             <span className="px-3 py-1 bg-white/60 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/40">
               {job.type}
@@ -143,7 +129,13 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
 
             {/* Urgent/Featured tags */}
             {(() => {
-              const daysAgo = job.listedDate ? Math.floor((Date.now() - Date.parse(job.listedDate)) / (1000 * 60 * 60 * 24)) : 0;
+              const daysAgo = job.listedDate
+                ? Math.floor(
+                    (Date.now() - Date.parse(job.listedDate)) /
+                      (1000 * 60 * 60 * 24),
+                  )
+                : 0;
+
               return daysAgo <= 1 ? (
                 <span className="px-3 py-1 bg-white/60 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/40">
                   New
@@ -167,76 +159,17 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
         </div>
       </div>
 
-      {/* External Redirect Confirmation Modal */}
-      <Modal
-        backdrop="blur"
-        isOpen={isOpen}
-        placement="center"
-        size="lg"
-        onClose={onClose}
-        classNames={{
-          backdrop: "backdrop-blur-md bg-black/30 z-[9999] fixed inset-0",
-          wrapper: "z-[10000]",
-          base: "z-[10001]"
-        }}
-        portalContainer={typeof window !== 'undefined' ? document.body : undefined}
-      >
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1 px-6 pt-6 pb-2">
-            <h3 className="text-lg font-semibold text-[#11553F]">
-              You are leaving AdultNa
-            </h3>
-            <p className="text-xs text-gray-600">
-              This will redirect you to an external job listing.
-            </p>
-          </ModalHeader>
-          <ModalBody className="px-6 py-2">
-            <div className="space-y-6">
-              <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-amber-800 font-medium text-sm">
-                    You are being redirected to: {job.company}
-                  </p>
-                  <p className="text-amber-700 text-xs mt-1 break-all">
-                    {job.applyUrl}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs text-gray-700 leading-relaxed italic">
-                  <span className="font-medium text-[#11553F]">
-                    Disclaimer:{" "}
-                  </span>
-                  Always verify job legitimacy and never share personal
-                  information unless you&apos;re certain of the employer&apos;s
-                  authenticity.
-                </p>
-              </div>
-            </div>
-          </ModalBody>
-          <ModalFooter className="px-6 py-6 flex justify-end">
-            <div className="flex items-center gap-4">
-              <button
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 bg-transparent border-0"
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <LoadingButton
-                className="flex items-center justify-center gap-2 px-6 py-3 h-auto text-sm font-medium bg-[#11553F] hover:bg-[#0d4532] text-white rounded-lg border-0"
-                onClick={handleConfirmRedirect}
-              >
-                <span className="flex items-center gap-2">
-                  Continue
-                  <ExternalLink size={14} />
-                </span>
-              </LoadingButton>
-            </div>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      {isOpen && (
+        <Suspense fallback={null}>
+          <ExternalRedirectModal
+            companyName={cleanCompanyName(job.company)}
+            isOpen={isOpen}
+            jobUrl={job.applyUrl}
+            onClose={onClose}
+            onConfirm={handleConfirmRedirect}
+          />
+        </Suspense>
+      )}
     </>
   );
 });

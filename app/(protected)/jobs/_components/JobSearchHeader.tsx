@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { JobFilterState } from "@/types/job";
 
 const DEFAULT_SEARCH_QUERY = "";
+const DEBOUNCE_DELAY = 500;
 
 type JobSearchHeaderProps = {
   onSearch: (query: string) => void;
@@ -12,22 +13,45 @@ type JobSearchHeaderProps = {
   onFilterChange: (filters: JobFilterState) => void;
 };
 
-export default function JobSearchHeader({ onSearch, isLoading = false, filters, onFilterChange }: JobSearchHeaderProps) {
+export default function JobSearchHeader({
+  onSearch,
+  isLoading = false,
+  filters,
+  onFilterChange,
+}: JobSearchHeaderProps) {
   const [inputValue, setInputValue] = useState<string>(DEFAULT_SEARCH_QUERY);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleInputChange = useCallback((value: string) => {
-    setInputValue(value);
-  }, []);
+  const handleInputChange = useCallback(
+    (value: string) => {
+      setInputValue(value);
+
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
+        onSearch(value.trim());
+      }, DEBOUNCE_DELAY);
+    },
+    [onSearch],
+  );
 
   const handleSearch = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
     onSearch(inputValue.trim());
   }, [inputValue, onSearch]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  }, [handleSearch]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleSearch();
+      }
+    },
+    [handleSearch],
+  );
 
   const handleClearSearch = useCallback(() => {
     setInputValue("");
@@ -42,8 +66,18 @@ export default function JobSearchHeader({ onSearch, isLoading = false, filters, 
           {/* Search Input */}
           <div className="flex-1 relative">
             <div className="flex items-center gap-3 px-4 py-3">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
               </svg>
               <input
                 aria-label="Search jobs"
@@ -59,18 +93,35 @@ export default function JobSearchHeader({ onSearch, isLoading = false, filters, 
           </div>
 
           {/* Divider */}
-          <div className="h-8 w-px bg-gray-200"></div>
+          <div className="h-8 w-px bg-gray-200" />
 
           {/* Location Filter */}
           <div className="flex items-center px-4">
-            <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            <svg
+              className="w-4 h-4 text-gray-400 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+              <path
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
             </svg>
             <select
               className="border-none bg-transparent text-sm focus:outline-none text-gray-600 min-w-0"
               value={filters.jobType}
-              onChange={(e) => onFilterChange({...filters, jobType: e.target.value})}
+              onChange={(e) =>
+                onFilterChange({ ...filters, jobType: e.target.value })
+              }
             >
               <option value="all">All Remote Options</option>
               <option value="remote">Remote</option>
@@ -80,17 +131,29 @@ export default function JobSearchHeader({ onSearch, isLoading = false, filters, 
           </div>
 
           {/* Divider */}
-          <div className="h-8 w-px bg-gray-200"></div>
+          <div className="h-8 w-px bg-gray-200" />
 
           {/* Experience Filter */}
           <div className="flex items-center px-4">
-            <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            <svg
+              className="w-4 h-4 text-gray-400 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
             </svg>
             <select
               className="border-none bg-transparent text-sm focus:outline-none text-gray-600 min-w-0"
               value={filters.employmentType}
-              onChange={(e) => onFilterChange({...filters, employmentType: e.target.value})}
+              onChange={(e) =>
+                onFilterChange({ ...filters, employmentType: e.target.value })
+              }
             >
               <option value="all">All Work Types</option>
               <option value="full-time">Full-time</option>
@@ -111,8 +174,18 @@ export default function JobSearchHeader({ onSearch, isLoading = false, filters, 
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  />
                 </svg>
                 Search
               </>

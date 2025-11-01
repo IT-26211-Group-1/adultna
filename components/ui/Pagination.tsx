@@ -16,12 +16,11 @@ const Pagination = memo(
     onPageChange,
     isLoading = false,
   }: PaginationProps) => {
-
     if (totalPages < 1) return null;
 
     const getVisiblePages = () => {
       const pages = [];
-      const showPages = 5; 
+      const showPages = 5;
 
       let start = Math.max(1, currentPage - Math.floor(showPages / 2));
       let end = Math.min(totalPages, start + showPages - 1);
@@ -43,21 +42,29 @@ const Pagination = memo(
     return (
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-end gap-2 py-6">
-     
           <button
+            aria-label="Previous page"
             className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-800 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             disabled={currentPage === 1 || isLoading}
             onClick={() => onPageChange(currentPage - 1)}
-            aria-label="Previous page"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M15 19l-7-7 7-7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
             </svg>
           </button>
 
           {/* Page Numbers */}
           <div className="flex gap-1">
-           
             {visiblePages[0] > 1 && (
               <>
                 <button
@@ -68,7 +75,9 @@ const Pagination = memo(
                   1
                 </button>
                 {visiblePages[0] > 2 && (
-                  <span className="w-8 h-8 flex items-center justify-center text-gray-400">...</span>
+                  <span className="w-8 h-8 flex items-center justify-center text-gray-400">
+                    ...
+                  </span>
                 )}
               </>
             )}
@@ -91,7 +100,9 @@ const Pagination = memo(
             {visiblePages[visiblePages.length - 1] < totalPages && (
               <>
                 {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-                  <span className="w-8 h-8 flex items-center justify-center text-gray-400">...</span>
+                  <span className="w-8 h-8 flex items-center justify-center text-gray-400">
+                    ...
+                  </span>
                 )}
                 <button
                   className="w-8 h-8 flex items-center justify-center text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 transition-colors"
@@ -105,13 +116,23 @@ const Pagination = memo(
           </div>
 
           <button
+            aria-label="Next page"
             className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-800 border border-gray-300 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             disabled={currentPage === totalPages || isLoading}
             onClick={() => onPageChange(currentPage + 1)}
-            aria-label="Next page"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M9 5l7 7-7 7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
             </svg>
           </button>
         </div>

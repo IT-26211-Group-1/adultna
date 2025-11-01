@@ -8,7 +8,11 @@ type JobFiltersBarProps = {
   onFilterChange: (filters: JobFilterState) => void;
 };
 
-export default function JobFiltersBar({ searchQuery, filters, onFilterChange }: JobFiltersBarProps) {
+export default function JobFiltersBar({
+  searchQuery,
+  filters,
+  onFilterChange,
+}: JobFiltersBarProps) {
   return (
     <div className="max-w-6xl mx-auto mb-6">
       <div className="flex items-center justify-between">
@@ -23,7 +27,9 @@ export default function JobFiltersBar({ searchQuery, filters, onFilterChange }: 
           <select
             className="border-none bg-transparent text-sm focus:outline-none"
             value={filters.datePosted}
-            onChange={(e) => onFilterChange({...filters, datePosted: e.target.value})}
+            onChange={(e) =>
+              onFilterChange({ ...filters, datePosted: e.target.value })
+            }
           >
             <option value="all">All time</option>
             <option value="today">Today</option>
