@@ -18,14 +18,10 @@ import { Button } from "@heroui/button";
 import Image from "next/image";
 
 interface ProfileSidebarProps {
-  sidebarCollapsed: boolean;
   onModalStateChange?: (isOpen: boolean) => void;
 }
 
-function ProfileSidebar({
-  sidebarCollapsed,
-  onModalStateChange,
-}: ProfileSidebarProps) {
+function ProfileSidebar({ onModalStateChange }: ProfileSidebarProps) {
   const router = useRouter();
   const { logout, isLoggingOut } = useAuth();
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
@@ -74,9 +70,7 @@ function ProfileSidebar({
   }, []);
 
   return (
-    <div
-      className={`transition-all duration-300 flex-shrink-0 ${sidebarCollapsed ? "w-96" : "w-80"}`}
-    >
+    <div className="transition-all duration-300 flex-shrink-0 w-80">
       <div
         className={`h-[calc(100vh-3rem)] backdrop-blur-md border border-white/30 rounded-3xl relative overflow-hidden transition-all duration-300 ${isOpen ? "blur-sm" : ""}`}
         style={{ backgroundColor: "rgba(17,85,63, 0.10)" }}

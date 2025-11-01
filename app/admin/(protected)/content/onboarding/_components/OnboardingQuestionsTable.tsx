@@ -14,6 +14,7 @@ import {
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditOnboardingQuestionModal from "./EditOnboardingQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
+import { formatDate } from "@/constants/formatDate";
 
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
   ({ status }) => {
@@ -335,18 +336,6 @@ const OnboardingQuestionsTable: React.FC = () => {
   // Select which questions to display based on toggle
   const displayQuestions = showArchived ? archivedQuestions : activeQuestions;
 
-  const formatDate = useCallback((dateString: string) => {
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }, []);
-
   const handleEditQuestion = useCallback(
     (questionId: number) => {
       const question = displayQuestions.find((q) => q.id === questionId);
@@ -499,7 +488,7 @@ const OnboardingQuestionsTable: React.FC = () => {
       {
         header: "Question",
         accessor: (question: OnboardingQuestion) => (
-          <div className="max-w-md">
+          <div className="max-w-md whitespace-normal break-words">
             <p
               className={`font-medium ${
                 question.deletedAt
@@ -516,11 +505,14 @@ const OnboardingQuestionsTable: React.FC = () => {
       {
         header: "Answer Options",
         accessor: (question: OnboardingQuestion) => (
-          <div className="text-gray-600 text-sm">
+          <div className="text-gray-600 text-sm whitespace-normal break-words">
             {question.options && question.options.length > 0 ? (
               <ul className="list-disc list-inside">
                 {question.options.map((option: AnswerOption, index: number) => (
-                  <li key={option.id || index} className="truncate max-w-xs">
+                  <li
+                    key={option.id || index}
+                    className="max-w-xs whitespace-normal break-words"
+                  >
                     {option.optionText}
                   </li>
                 ))}
@@ -550,9 +542,11 @@ const OnboardingQuestionsTable: React.FC = () => {
       {
         header: "Notes/Reason",
         accessor: (question: OnboardingQuestion) => (
-          <div className="text-gray-600 text-sm max-w-[250px]">
+          <div className="text-gray-600 text-sm max-w-[250px] whitespace-normal break-words">
             {question.reason ? (
-              <div className="italic break-words">{question.reason}</div>
+              <div className="italic break-words break-all whitespace-normal">
+                {question.reason}
+              </div>
             ) : (
               <span className="text-gray-400">-</span>
             )}
@@ -689,6 +683,7 @@ const OnboardingQuestionsTable: React.FC = () => {
         </div>
       </div>
       <Table
+        className="!overflow-visible"
         columns={columns}
         data={displayQuestions}
         emptyMessage={
@@ -697,6 +692,11 @@ const OnboardingQuestionsTable: React.FC = () => {
             : "No onboarding questions found"
         }
         loading={loading}
+        pagination={{
+          enabled: true,
+          pageSize: 10,
+          pageSizeOptions: [10, 25, 50, 100],
+        }}
       />
       {selectedQuestion && (
         <EditOnboardingQuestionModal

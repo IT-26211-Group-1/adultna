@@ -9,9 +9,13 @@ import {
   uploadDocumentSchema,
   type UploadDocumentForm,
 } from "@/validators/fileBoxSchema";
-import { useFileboxUpload } from "@/hooks/queries/useFileboxQueries";
+import {
+  useFileboxUpload,
+  useFileboxQuota,
+} from "@/hooks/queries/useFileboxQueries";
 import { addToast } from "@heroui/toast";
 import { ApiError } from "@/lib/apiClient";
+import { formatFileSize } from "@/types/filebox";
 
 interface UploadDocumentProps {
   onClose?: () => void;
@@ -20,6 +24,10 @@ interface UploadDocumentProps {
 export function UploadDocument({ onClose }: UploadDocumentProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [storageError, setStorageError] = useState<string | null>(null);
+
+  const { data: quotaResponse } = useFileboxQuota();
+  const quota = quotaResponse?.data;
 
   const {
     control,
@@ -36,6 +44,35 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   });
 
   const watchedFile = watch("file");
+
+  // Validate storage quota when file is selected
+  const validateStorageQuota = (file: File): boolean => {
+    if (!quota) {
+      setStorageError("Unable to check storage quota");
+
+      return false;
+    }
+
+    if (quota.isQuotaExceeded) {
+      setStorageError(
+        "Storage quota exceeded. Please delete some files to free up space.",
+      );
+
+      return false;
+    }
+
+    if (file.size > quota.remainingStorageBytes) {
+      setStorageError(
+        `File size (${formatFileSize(file.size)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`,
+      );
+
+      return false;
+    }
+
+    setStorageError(null);
+
+    return true;
+  };
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
   };
@@ -44,7 +81,12 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     const file = event.target.files?.[0];
 
     if (file) {
-      setValue("file", file, { shouldValidate: true });
+      if (validateStorageQuota(file)) {
+        setValue("file", file, { shouldValidate: true });
+      } else {
+        // Clear the file input
+        event.target.value = "";
+      }
     }
   };
 
@@ -64,12 +106,15 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     const file = event.dataTransfer.files?.[0];
 
     if (file) {
-      setValue("file", file, { shouldValidate: true });
+      if (validateStorageQuota(file)) {
+        setValue("file", file, { shouldValidate: true });
+      }
     }
   };
 
   const handleRemoveFile = () => {
     setValue("file", null as any);
+    setStorageError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -82,6 +127,16 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   };
 
   const onSubmit = async (data: UploadDocumentForm) => {
+    // Final validation before upload
+    if (!validateStorageQuota(data.file)) {
+      addToast({
+        title: storageError || "Storage quota exceeded",
+        color: "danger",
+      });
+
+      return;
+    }
+
     try {
       await uploadMutation.mutateAsync({
         file: data.file,
@@ -133,6 +188,9 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
             </label>
             {errors.file && (
               <p className="text-sm text-red-600">{errors.file.message}</p>
+            )}
+            {storageError && (
+              <p className="text-sm text-red-600 font-medium">{storageError}</p>
             )}
             <Card
               className={`border-2 border-dashed transition-all duration-200 ${
@@ -267,7 +325,9 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
             </Button>
             <Button
               className="flex-1 py-3 bg-adult-green hover:bg-adult-green/90 text-white font-medium"
-              isDisabled={!isValid || uploadMutation.isPending}
+              isDisabled={
+                !isValid || uploadMutation.isPending || !!storageError
+              }
               isLoading={uploadMutation.isPending}
               type="submit"
               variant="solid"
