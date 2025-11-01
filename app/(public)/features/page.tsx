@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 import { FeatureText } from "./_components/FeatureText";
@@ -7,31 +9,60 @@ import { GovGuide } from "./_components/GovGuide";
 import { Interview } from "./_components/Interview";
 import { Job } from "./_components/Job";
 import { Filebox } from "./_components/Filebox";
+import { AIGabay } from "./_components/AIGabay";
+import { Resume } from "./_components/Resume";
 import { ScrollUp } from "./_components/ScrollUp";
 
 export default function Page() {
   return (
-    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-      <FeatureText />
-      <FeatureNav />
+    <div className="flex flex-col">
+      {/* Header Section */}
+      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
+        <FeatureText />
+        <FeatureNav />
+      </section>
 
-      <div className="w-full flex" id="roadmap-section">
+      {/* Roadmap Section - Full width, no container restrictions */}
+      <section id="roadmap-section" className="w-full">
         <Roadmap />
-      </div>
-      <div className="w-full flex" id="govguide-section">
-        <GovGuide />
-      </div>
-      <div className="w-full flex" id="interview-section">
-        <Interview />
-      </div>
-      <div className="w-full flex" id="filebox-section">
-        <Filebox />
-      </div>
-      <div className="w-full flex" id="job-section">
-        <Job />
-      </div>
+      </section>
+
+      {/* Other Features Section */}
+      <section className="flex flex-col items-center justify-center py-16">
+        <div className="max-w-6xl mx-auto px-4 md:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16 font-inter">
+            Discover Our Complete Suite of Features
+          </h2>
+
+          <div className="flex flex-col gap-16">
+            <div id="govguide-section">
+              <GovGuide />
+            </div>
+
+            <div id="interview-section">
+              <Interview />
+            </div>
+
+            <div id="filebox-section">
+              <Filebox />
+            </div>
+
+            <div id="job-section">
+              <Job />
+            </div>
+
+            <div id="aigabay-section">
+              <AIGabay />
+            </div>
+
+            <div id="resume-section">
+              <Resume />
+            </div>
+          </div>
+        </div>
+      </section>
 
       <ScrollUp />
-    </section>
+    </div>
   );
 }

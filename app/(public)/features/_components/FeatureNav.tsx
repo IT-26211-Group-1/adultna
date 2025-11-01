@@ -1,40 +1,51 @@
 "use client";
 
+import { NavItem } from "../../../../types/feature-nav";
+
 export function FeatureNav() {
-  const navItems = [
+  const navItems: NavItem[] = [
     { label: "Personalized Roadmap", target: "roadmap-section" },
     { label: "GovGuides", target: "govguide-section" },
     { label: "Mock Interview Coach", target: "interview-section" },
     { label: "Adulting Filebox", target: "filebox-section" },
-    { label: "Job Board Listings", target: "job-section" },
+    { label: "Job Board", target: "job-section" },
+    { label: "AI Gabay", target: "aigabay-section" },
+    { label: "Smart Resume Builder", target: "resume-section" },
   ];
 
-  function handleScroll(targetId: string) {
-    const el = document.getElementById(targetId);
+  const topRowItems = navItems.slice(0, 4);
+  const bottomRowItems = navItems.slice(4, 7);
 
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+  function handleNavClick(targetId: string) {
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   }
 
+  const renderNavButton = (item: NavItem) => (
+    <button
+      key={item.label}
+      className="px-3 py-1.5 rounded-full text-xs md:text-sm font-medium font-inter transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-adult-green hover:text-white"
+      onClick={() => handleNavClick(item.target)}
+    >
+      {item.label}
+    </button>
+  );
+
   return (
-    <section className="w-full min-h-[50px] top-10 py-8 md:py-16 bg-transparent relative flex flex-col gap-2 px-2 md:px-22 max-w-6xl items-center justify-center">
-      <nav
-        className="w-full md:w-5xl py-4 bg-gradient-to-r from-crayola-orange/60 to-periwinkle/70 shadow-md flex justify-center rounded-4xl"
-        id="feature-nav"
-      >
-        <ul className="flex flex-wrap justify-center gap-2 md:gap-8 font-inter w-full">
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              className="relative px-2 py-2 md:px-4 md:py-2 rounded-lg hover:text-crayola-orange cursor-pointer group w-full sm:w-auto text-sm md:text-base"
-              onClick={() => handleScroll(item.target)}
-            >
-              {item.label}
-              <span className="absolute left-0 bottom-0 w-full h-0.5 bg-crayola-orange scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-            </button>
-          ))}
-        </ul>
+    <section className="w-full py-6 bg-transparent relative flex flex-col gap-3 px-4 md:px-22 max-w-6xl mx-auto items-center justify-center">
+      <nav className="flex flex-col gap-3 font-inter" id="feature-nav">
+        {/* Top row - 4 items */}
+        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+          {topRowItems.map(renderNavButton)}
+        </div>
+
+        {/* Bottom row - 3 items */}
+        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+          {bottomRowItems.map(renderNavButton)}
+        </div>
+
       </nav>
     </section>
   );
