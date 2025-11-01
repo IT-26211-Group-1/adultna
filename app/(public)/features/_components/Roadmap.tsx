@@ -11,7 +11,7 @@ function RoadmapModelMesh() {
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.1;
+      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.04;
     }
   });
 
@@ -30,7 +30,7 @@ function RoadmapModel3D() {
   return (
     <div className="w-full h-full">
       <Canvas
-        camera={{ position: [8, 11, 12], fov: 40 }}
+        camera={{ position: [6, 11, 12], fov: 40 }}
         style={{ background: 'transparent' }}
       >
         <Suspense fallback={null}>
