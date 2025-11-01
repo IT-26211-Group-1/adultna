@@ -8,9 +8,17 @@ import { useRouter, usePathname } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ToastProvider } from "@heroui/toast";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@/lib/queryClient";
 import { AuthProvider } from "@/contexts/AuthContext";
+
+const ReactQueryDevtools =
+  process.env.NODE_ENV === "development"
+    ? React.lazy(() =>
+        import("@tanstack/react-query-devtools").then((mod) => ({
+          default: mod.ReactQueryDevtools,
+        })),
+      )
+    : () => null;
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -49,14 +57,18 @@ export function Providers({ children, themeProps }: ProvidersProps) {
         <>
           {content}
           {process.env.NODE_ENV === "development" && (
-            <ReactQueryDevtools initialIsOpen={false} />
+            <React.Suspense fallback={null}>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </React.Suspense>
           )}
         </>
       ) : (
         <AuthProvider>
           {content}
           {process.env.NODE_ENV === "development" && (
-            <ReactQueryDevtools initialIsOpen={false} />
+            <React.Suspense fallback={null}>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </React.Suspense>
           )}
         </AuthProvider>
       )}

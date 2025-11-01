@@ -7,8 +7,19 @@ export type Job = {
   description: string;
   listedDate: string;
   applyUrl: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency?: string;
+  salaryPeriod?: string;
+  isRemote?: boolean;
 };
 
 export type JobCardProps = {
   job: Job;
+};
+
+export type JobFilterState = {
+  datePosted: string;
+  jobType: string;
+  employmentType: string;
 };
