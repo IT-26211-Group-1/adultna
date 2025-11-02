@@ -17,11 +17,7 @@ function RoadmapModelMesh() {
 
   return (
     <group ref={groupRef}>
-      <primitive
-        object={scene}
-        scale={[1.5, 1.5, 1.5]}
-        position={[0, 1, 0]}
-      />
+      <primitive object={scene} position={[0, 1, 0]} scale={[1.5, 1.5, 1.5]} />
     </group>
   );
 }
@@ -31,12 +27,12 @@ function RoadmapModel3D() {
     <div className="w-full h-full">
       <Canvas
         camera={{ position: [6, 11, 12], fov: 40 }}
-        style={{ background: 'transparent' }}
+        style={{ background: "transparent" }}
       >
         <Suspense fallback={null}>
           <Environment preset="sunset" />
           <ambientLight intensity={0.6} />
-          <directionalLight position={[8, 8, 5]} intensity={1} />
+          <directionalLight intensity={1} position={[8, 8, 5]} />
           <RoadmapModelMesh />
         </Suspense>
       </Canvas>
@@ -46,7 +42,10 @@ function RoadmapModel3D() {
 
 export function Roadmap() {
   return (
-    <section id="roadmap-section" className="w-full bg-white h-[400px] md:h-[600px]">
+    <section
+      className="w-full bg-white h-[400px] md:h-[600px]"
+      id="roadmap-section"
+    >
       <RoadmapModel3D />
     </section>
   );

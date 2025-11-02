@@ -3,6 +3,7 @@
 import { ReactNode, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { LoadingScreen } from "./ui/LoadingScreen";
 // No loading component needed for quick route guards
 
 type RouteProps = {
@@ -57,7 +58,14 @@ export function PublicRoute({ children, fallback }: RouteProps) {
       setTimeout(() => router.replace("/dashboard"), 0);
     }
 
-    return fallback || <LoadingScreen isVisible={isLoading || shouldRedirect} message="Loading AdultNa..." />;
+    return (
+      fallback || (
+        <LoadingScreen
+          isVisible={isLoading || shouldRedirect}
+          message="Loading AdultNa..."
+        />
+      )
+    );
   }
 
   return <>{children}</>;
@@ -88,7 +96,14 @@ export function OnboardingRoute({ children, fallback }: RouteProps) {
       setTimeout(() => router.replace(shouldRedirect.to!), 0);
     }
 
-    return fallback || <LoadingScreen isVisible={isLoading || shouldRedirect.redirect} message="Setting up your journey..." />;
+    return (
+      fallback || (
+        <LoadingScreen
+          isVisible={isLoading || shouldRedirect.redirect}
+          message="Setting up your journey..."
+        />
+      )
+    );
   }
 
   return <>{children}</>;

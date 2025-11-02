@@ -54,10 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null;
   }, []);
 
-  const {
-    data: tokenData,
-    isFetching,
-  } = useQuery({
+  const { data: tokenData, isFetching } = useQuery({
     queryKey: queryKeys.auth.token(),
     queryFn: refreshToken,
     staleTime: API_CONFIG.TOKEN.STALE_TIME,

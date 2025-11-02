@@ -43,8 +43,10 @@ export function LoadingScreen({
         setProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
+
             return 90; // Stay at 90% until actual loading completes
           }
+
           return prev + Math.random() * 15 + 5; // Random increments
         });
       }, 200);
@@ -76,8 +78,8 @@ export function LoadingScreen({
           {animationData && (
             <Lottie
               animationData={animationData}
-              loop={true}
               autoplay={true}
+              loop={true}
               style={{ width: "100%", height: "100%" }}
             />
           )}
@@ -90,14 +92,14 @@ export function LoadingScreen({
           </p>
           {/* Progress Bar */}
           <Progress
-            value={progress}
-            color="success"
-            size="sm"
             className="w-64"
             classNames={{
               track: "bg-gray-200",
-              indicator: "bg-adult-green"
+              indicator: "bg-adult-green",
             }}
+            color="success"
+            size="sm"
+            value={progress}
           />
         </div>
       </div>

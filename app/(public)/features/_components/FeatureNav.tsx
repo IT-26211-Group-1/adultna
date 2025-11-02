@@ -18,11 +18,12 @@ export function FeatureNav() {
 
   function handleNavClick(targetId: string) {
     const element = document.getElementById(targetId);
+
     if (element) {
       element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest'
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
       });
     }
   }
@@ -49,7 +50,6 @@ export function FeatureNav() {
         <div className="flex flex-wrap justify-center gap-2 md:gap-3">
           {bottomRowItems.map(renderNavButton)}
         </div>
-
       </nav>
     </section>
   );

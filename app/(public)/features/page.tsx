@@ -16,12 +16,11 @@ import { ScrollUp } from "./_components/ScrollUp";
 export default function Page() {
   return (
     <div className="flex flex-col">
-  
       <section className="w-full pyt-16 md:pt-20">
         <FeatureText />
       </section>
 
-      <section id="roadmap-section" className="w-full">
+      <section className="w-full" id="roadmap-section">
         <Roadmap />
       </section>
 
@@ -29,10 +28,11 @@ export default function Page() {
       <section className="flex flex-col items-center justify-center pt-5">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-center text-gray-900 mt-10 mb-5 font-playfair">
-            Everything You Need, <span className="italic text-adult-green">In One Place</span>
+            Everything You Need,{" "}
+            <span className="italic text-adult-green">In One Place</span>
           </h2>
 
-             <FeatureNav />
+          <FeatureNav />
 
           <div className="flex flex-col gap-5">
             <div id="govguide-section">
