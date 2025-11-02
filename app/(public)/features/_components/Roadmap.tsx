@@ -46,7 +46,7 @@ function RoadmapModel3D() {
 export function Roadmap() {
   return (
     <section
-      className="w-full bg-white h-[400px] md:h-[600px]"
+      className="w-full bg-white h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]"
       id="roadmap-section"
     >
       <RoadmapModel3D />

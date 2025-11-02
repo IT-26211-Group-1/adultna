@@ -31,7 +31,7 @@ export function FeatureNav() {
   const renderNavButton = (item: NavItem) => (
     <button
       key={item.label}
-      className="px-3 py-1.5 rounded-full text-xs md:text-sm font-medium font-inter transition-all duration-200 border border-adult-green text-gray-700 hover:bg-adult-green hover:text-white"
+      className="px-1.5 py-1 sm:px-3 sm:py-1.5 md:px-3 md:py-1.5 rounded-full text-[9px] sm:text-xs md:text-sm font-medium font-inter transition-all duration-200 border border-adult-green text-gray-700 hover:bg-adult-green hover:text-white whitespace-nowrap"
       onClick={() => handleNavClick(item.target)}
     >
       {item.label}
@@ -39,16 +39,26 @@ export function FeatureNav() {
   );
 
   return (
-    <section className="w-full py-6 pb-20 bg-transparent relative flex flex-col gap-3 px-4 md:px-22 max-w-6xl mx-auto items-center justify-center">
-      <nav className="flex flex-col gap-3 font-inter" id="feature-nav">
-        {/* Top row - 4 items */}
-        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-          {topRowItems.map(renderNavButton)}
+    <section className="w-full py-4 sm:py-6 pb-12 sm:pb-16 md:pb-20 bg-transparent relative flex flex-col gap-2 sm:gap-3 px-2 sm:px-4 md:px-8 lg:px-16 xl:px-22 max-w-6xl mx-auto items-center justify-center">
+      <nav className="flex flex-col gap-2 sm:gap-3 font-inter w-full" id="feature-nav">
+        {/* Mobile and Tablet: Let items flow naturally into rows with tighter spacing */}
+        <div className="md:hidden">
+          <div className="flex justify-center gap-1 sm:gap-2 flex-wrap">
+            {navItems.map(renderNavButton)}
+          </div>
         </div>
 
-        {/* Bottom row - 3 items */}
-        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-          {bottomRowItems.map(renderNavButton)}
+        {/* Desktop: Show in two rows */}
+        <div className="hidden md:flex flex-col gap-3">
+          {/* Top row - 4 items */}
+          <div className="flex justify-center gap-3 flex-wrap">
+            {topRowItems.map(renderNavButton)}
+          </div>
+
+          {/* Bottom row - 3 items */}
+          <div className="flex justify-center gap-3 flex-wrap">
+            {bottomRowItems.map(renderNavButton)}
+          </div>
         </div>
       </nav>
     </section>
