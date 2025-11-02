@@ -34,7 +34,19 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <link href="https://fonts.googleapis.com" rel="dns-prefetch" />
+        <link
+          crossOrigin="anonymous"
+          href="https://fonts.googleapis.com"
+          rel="preconnect"
+        />
+        <link
+          crossOrigin="anonymous"
+          href="https://fonts.gstatic.com"
+          rel="preconnect"
+        />
+      </head>
       <body
         suppressHydrationWarning //added so the body will handle browser extension differences while keeping the app function normally
         className={clsx(
@@ -45,7 +57,7 @@ export default function RootLayout({
         <Script
           defer
           src="https://02edb5380778.ap-southeast-1.captcha-sdk.awswaf.com/02edb5380778/jsapi.js"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <PerformanceMonitor />

@@ -21,7 +21,7 @@ export function PreviewText() {
         />
       </h2>
       <p className="text-lg md:text-xl text-ultraViolet max-w-xl leading-relaxed font-inter">
-        We aim to equip you with AI-guided roadmas, centralized government
+        We aim to equip you with AI-guided roadmaps, centralized government
         guides, and tools for your personal growth. Bridging the gap between the
         person you are and the adult you aspire to be; because adulthood is a
         journey, and your focus is on the path going forward.
