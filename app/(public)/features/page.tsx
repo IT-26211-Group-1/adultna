@@ -34,7 +34,7 @@ export default function Page() {
 
              <FeatureNav />
 
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-5">
             <div id="govguide-section">
               <GovGuide />
             </div>
