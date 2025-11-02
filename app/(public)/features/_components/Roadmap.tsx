@@ -17,6 +17,7 @@ function RoadmapModelMesh() {
 
   return (
     <group ref={groupRef}>
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <primitive object={scene} position={[0, 1, 0]} scale={[1.5, 1.5, 1.5]} />
     </group>
   );
@@ -31,7 +32,9 @@ function RoadmapModel3D() {
       >
         <Suspense fallback={null}>
           <Environment preset="sunset" />
+          {/* eslint-disable-next-line react/no-unknown-property */}
           <ambientLight intensity={0.6} />
+          {/* eslint-disable-next-line react/no-unknown-property */}
           <directionalLight intensity={1} position={[8, 8, 5]} />
           <RoadmapModelMesh />
         </Suspense>

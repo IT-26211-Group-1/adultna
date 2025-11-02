@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { FeatureText } from "./_components/FeatureText";
 import { FeatureNav } from "./_components/FeatureNav";
@@ -14,6 +14,20 @@ import { Resume } from "./_components/Resume";
 import { ScrollUp } from "./_components/ScrollUp";
 
 export default function Page() {
+  useEffect(() => {
+    // Handle hash navigation when component mounts
+    if (window.location.hash) {
+      const sectionId = window.location.hash.substring(1);
+      const element = document.getElementById(sectionId);
+      if (element) {
+        // Use setTimeout to ensure the page has fully rendered
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+  }, []);
+
   return (
     <div className="flex flex-col">
       <section className="w-full pyt-16 md:pt-20">
