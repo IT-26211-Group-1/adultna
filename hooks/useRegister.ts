@@ -6,7 +6,7 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useCallback } from "react";
 import { registerSchema } from "@/validators/authSchema";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 import { RegisterResponse } from "@/types/auth";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 

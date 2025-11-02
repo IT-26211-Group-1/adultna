@@ -1,0 +1,146 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { addToast } from "@heroui/toast";
+
+export const useGoogleCallback = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const hasProcessed = useRef(false);
+
+  useEffect(() => {
+    const processCallback = async () => {
+      if (hasProcessed.current) return;
+      hasProcessed.current = true;
+
+      const code = searchParams.get("code");
+      const state = searchParams.get("state");
+      const error = searchParams.get("error");
+
+      if (error) {
+        console.error("❌ OAuth error parameter:", error);
+        addToast({
+          title: "Authentication Error",
+          description: "Google authentication was cancelled or failed",
+          color: "danger",
+        });
+        router.replace("/auth/login");
+        return;
+      }
+
+      if (!code) {
+        console.error("❌ No authorization code received");
+        addToast({
+          title: "Authentication Error",
+          description: "No authorization code received",
+          color: "danger",
+        });
+        router.replace("/auth/login");
+        return;
+      }
+
+      const storedState = sessionStorage.getItem("oauth_state");
+      const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+
+      sessionStorage.removeItem("oauth_state");
+      sessionStorage.removeItem("pkce_code_verifier");
+
+      if (!state || state !== storedState) {
+        console.error("❌ State validation failed:", { state, storedState });
+        addToast({
+          title: "Security Error",
+          description: "Invalid state parameter",
+          color: "danger",
+        });
+        router.replace("/auth/login");
+        return;
+      }
+
+      let mode: "login" | "register" = "login";
+      try {
+        const stateData = JSON.parse(atob(state));
+        mode = stateData.mode || "login";
+      } catch (error) {
+        console.error("Failed to parse state:", error);
+      }
+
+      if (!codeVerifier) {
+        addToast({
+          title: "Authentication Error",
+          description: "PKCE verifier not found",
+          color: "danger",
+        });
+        router.replace("/auth/login");
+        return;
+      }
+
+      // For registration, redirect to authorization page
+      if (mode === "register") {
+        // Store OAuth data for authorization page
+        sessionStorage.setItem("google_oauth_code", code);
+        sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+
+        // Store mode for authorization page
+        sessionStorage.setItem("oauth_mode", mode);
+
+        // Redirect to authorization consent page
+        router.replace("/auth/google/authorize");
+        return;
+      }
+
+      // For login, proceed with authentication
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API}/auth/google/callback?mode=${mode}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              code,
+              codeVerifier,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          addToast({
+            title: data.isNew ? "Registration Successful" : "Login Successful",
+            description: data.isNew ? "Welcome to AdultNa!" : "Welcome back!",
+            color: "success",
+          });
+
+          setTimeout(() => {
+            if (data.isNew) {
+              router.replace("/auth/onboarding");
+            } else {
+              router.replace("/dashboard");
+            }
+          }, 300);
+        } else {
+          addToast({
+            title: "Authentication Failed",
+            description: data.message || "Something went wrong",
+            color: "danger",
+          });
+          router.replace("/auth/login");
+        }
+      } catch (error) {
+        console.error("Google auth error:", error);
+        addToast({
+          title: "Authentication Error",
+          description: "Failed to authenticate with Google",
+          color: "danger",
+        });
+        router.replace("/auth/login");
+      }
+    };
+
+    processCallback();
+  }, [searchParams, router]);
+};

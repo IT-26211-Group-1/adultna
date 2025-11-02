@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 import { AuthButton } from "../../register/_components/AuthButton";
 import { FormInput } from "../../register/_components/FormInput";
 import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";

@@ -45,12 +45,7 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
       // Handle recording stop
       mediaRecorder.onstop = () => {
         const blob = new Blob(audioChunksRef.current, { type: mimeType });
-        console.log("🛑 Recording stopped:", {
-          blobSize: blob.size,
-          chunks: audioChunksRef.current.length,
-          type: blob.type,
-          duration: "unknown",
-        });
+
         setAudioBlob(blob);
 
         // Stop all audio tracks
@@ -60,13 +55,6 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
       // Start recording
       mediaRecorder.start();
       setIsRecording(true);
-
-      console.log("🎤 Recording started:", {
-        mimeType,
-        state: mediaRecorder.state,
-        stream: stream.active,
-        audioTracks: stream.getAudioTracks().length,
-      });
     } catch (err) {
       console.error("Error starting recording:", err);
       setError(

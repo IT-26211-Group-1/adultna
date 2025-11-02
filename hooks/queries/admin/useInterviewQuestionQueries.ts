@@ -50,7 +50,7 @@ const questionApi = {
     }),
 
   updateStatus: (
-    data: UpdateQuestionStatusRequest,
+    data: UpdateQuestionStatusRequest
   ): Promise<UpdateQuestionStatusResponse> =>
     ApiClient.patch(`/interview-questions/${data.questionId}/status`, {
       status: data.status,
@@ -67,7 +67,7 @@ const questionApi = {
     ApiClient.delete(`/interview-questions/${questionId}/permanent`),
 
   generateAI: (
-    data: GenerateAIQuestionRequest,
+    data: GenerateAIQuestionRequest
   ): Promise<GenerateAIQuestionResponse> =>
     ApiClient.post("/interview-questions/generate-ai", data),
 
@@ -78,7 +78,7 @@ const questionApi = {
   }> => ApiClient.get("/interview-questions/industries"),
 
   getAudioUrl: (
-    questionId: string,
+    questionId: string
   ): Promise<{
     success: boolean;
     message: string;
@@ -89,7 +89,7 @@ const questionApi = {
   }> => ApiClient.get(`/interview-questions/${questionId}/speech`),
 
   synthesizeText: (
-    text: string,
+    text: string
   ): Promise<{
     success: boolean;
     message: string;
@@ -119,7 +119,7 @@ const questionApi = {
   // Get transcription result
   getTranscription: (
     jobName: string,
-    userId: string,
+    userId: string
   ): Promise<{
     success: boolean;
     message: string;
@@ -395,7 +395,8 @@ export function useSpeechToText(userId: string) {
   const isSpeechRecognitionSupported = useCallback(() => {
     if (typeof window === "undefined") return false;
     return !!(
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition
     );
   }, []);
 
@@ -410,7 +411,8 @@ export function useSpeechToText(userId: string) {
 
       // Check for Speech Recognition API
       const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
 
       if (!SpeechRecognition) {
         console.warn(
@@ -453,14 +455,19 @@ export function useSpeechToText(userId: string) {
           console.error("Speech recognition error:", event.error, event);
 
           // Handle specific errors
-          if (event.error === "not-allowed" || event.error === "permission-denied") {
+          if (
+            event.error === "not-allowed" ||
+            event.error === "permission-denied"
+          ) {
             alert(
               "Microphone access denied. Please allow microphone access in your browser settings."
             );
           } else if (event.error === "no-speech") {
             console.warn("No speech detected. Please try speaking again.");
           } else if (event.error === "network") {
-            console.error("Network error. Please check your internet connection.");
+            console.error(
+              "Network error. Please check your internet connection."
+            );
           } else if (event.error === "aborted") {
             console.warn("Speech recognition aborted.");
           } else {
@@ -471,19 +478,15 @@ export function useSpeechToText(userId: string) {
         };
 
         recognition.onend = () => {
-          console.log("Speech recognition ended");
           setIsListening(false);
         };
 
-        recognition.onstart = () => {
-          console.log("Speech recognition started");
-        };
+        recognition.onstart = () => {};
 
         recognition.start();
         recognitionRef.current = recognition;
         setIsListening(true);
 
-        console.log("Speech recognition initialized successfully");
         return true;
       } catch (error) {
         console.error("Failed to start speech recognition:", error);

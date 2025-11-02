@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRegister } from "../hooks/useRegister";
+import { useRegister } from "../../../../hooks/useRegister";
+import { useGoogleAuth } from "../../../../hooks/useGoogleAuth";
 
 const LazyRecaptcha = dynamic(() => import("@/components/ui/LazyRecaptcha"), {
   loading: () => (
@@ -34,6 +35,8 @@ export const RegisterForm = () => {
     handleCaptchaChange,
     handleCaptchaExpired,
   } = useRegister();
+
+  const { handleGoogleSignIn } = useGoogleAuth();
 
   const watchedValues = watch();
 
@@ -134,7 +137,7 @@ export const RegisterForm = () => {
               <AuthButton className="" loading={loading} type="submit">
                 Register
               </AuthButton>
-              <GoogleSignInButton />
+              <GoogleSignInButton onPress={() => handleGoogleSignIn("register")} />
             </div>
 
             {/* Footer */}

@@ -73,6 +73,7 @@ export function useAuth() {
     "/auth/register",
     "/auth/verify-email",
     "/auth/forgot-password",
+    "/auth/google/callback",
   ].some((route) => pathname?.startsWith(route));
 
   const {
