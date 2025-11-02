@@ -8,7 +8,7 @@ export function Resume() {
   return (
     <section id="resume-section" className="w-full py-16 relative px-4 md:px-22 max-w-7xl mx-auto bg-transparent">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        {/* Left Image */}
+        {/* Left Content */}
         <div className="relative h-96 md:h-[500px] lg:h-[600px] lg:order-1">
           <FeatureImage
             src="/SmartResume-Feature.png"

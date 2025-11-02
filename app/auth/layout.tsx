@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter, usePathname } from "next/navigation";
 import { useMemo, useRef } from "react";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+// No loading screen needed for quick auth checks
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -35,11 +35,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       setTimeout(() => router.replace("/dashboard"), 0);
     }
 
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <LoadingSpinner />
-      </div>
-    );
+    return null;
   }
 
   return <>{children}</>;

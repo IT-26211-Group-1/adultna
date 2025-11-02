@@ -40,6 +40,7 @@ export default function RootLayout({
           "min-h-screen text-foreground bg-background font-sans antialiased",
           fontSans.variable,
         )}
+        suppressHydrationWarning //added so the body will handle browser extension differences while keeping the app function normally
       >
         <Script
           defer

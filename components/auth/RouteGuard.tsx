@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef } from "react";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+// No loading component needed for quick route checks
 
 interface RouteGuardProps {
   children: React.ReactNode;
@@ -31,11 +31,7 @@ export function RouteGuard({
       setTimeout(() => router.replace(redirectTo), 0);
     }
 
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <LoadingSpinner />
-      </div>
-    );
+    return null;
   }
 
   return <>{children}</>;

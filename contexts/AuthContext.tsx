@@ -5,7 +5,7 @@ import { setTokenProvider, setRefreshTokenCallback } from "@/lib/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
 import { API_CONFIG } from "@/config/api";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+// No loading screen needed for quick auth token refresh
 
 interface AuthContextValue {
   token: string | null;
@@ -56,7 +56,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const {
     data: tokenData,
-    isLoading,
     isFetching,
   } = useQuery({
     queryKey: queryKeys.auth.token(),
@@ -92,9 +91,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [tokenData?.accessToken, tokenData?.expiresAt, isFetching],
   );
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+  // Don't show loading for quick auth checks
+  // if (isLoading) {
+  //   return null;
+  // }
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
