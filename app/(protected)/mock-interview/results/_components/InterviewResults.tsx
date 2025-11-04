@@ -2,12 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button, Card, CardBody, Spinner } from "@heroui/react";
+import { Button, Card, CardBody } from "@heroui/react";
 import { ArrowLeft } from "lucide-react";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { useGetAnswersByIds } from "@/hooks/queries/useInterviewAnswers";
 import type { InterviewAnswer } from "@/types/interview-answer";
 import ReactMarkdown from "react-markdown";
+import { ResultsLoadingSkeleton } from "./ResultsLoadingSkeleton";
+import { StarMetricCards } from "./StarMetricCards";
+import { QuestionBreakdown } from "./QuestionBreakdown";
 
 type SessionResults = {
   jobRole: string;
@@ -72,11 +75,7 @@ export function InterviewResults() {
     isLoading ||
     (answerIds.length > 0 && !gradedAnswers)
   ) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Spinner color="success" size="lg" />
-      </div>
-    );
+    return <ResultsLoadingSkeleton />;
   }
 
   if (gradedAnswers && gradedAnswers.length === 0) {
@@ -108,11 +107,7 @@ export function InterviewResults() {
   }
 
   if (!gradedAnswers || gradedAnswers.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Spinner color="success" size="lg" />
-      </div>
-    );
+    return <ResultsLoadingSkeleton />;
   }
 
   const averagePercentage =
@@ -121,6 +116,34 @@ export function InterviewResults() {
       0
     ) / gradedAnswers.length;
   const scorePercentage = Math.round(averagePercentage);
+
+  const averageScores = {
+    starCompleteness:
+      gradedAnswers.reduce(
+        (sum, result) => sum + (result.scores?.starCompleteness || 0),
+        0
+      ) / gradedAnswers.length,
+    actionSpecificity:
+      gradedAnswers.reduce(
+        (sum, result) => sum + (result.scores?.actionSpecificity || 0),
+        0
+      ) / gradedAnswers.length,
+    resultQuantification:
+      gradedAnswers.reduce(
+        (sum, result) => sum + (result.scores?.resultQuantification || 0),
+        0
+      ) / gradedAnswers.length,
+    relevanceToRole:
+      gradedAnswers.reduce(
+        (sum, result) => sum + (result.scores?.relevanceToRole || 0),
+        0
+      ) / gradedAnswers.length,
+    deliveryFluency:
+      gradedAnswers.reduce(
+        (sum, result) => sum + (result.scores?.deliveryFluency || 0),
+        0
+      ) / gradedAnswers.length,
+  };
   const scoreLabel =
     scorePercentage >= 80
       ? "Good!"
@@ -299,7 +322,19 @@ export function InterviewResults() {
                 )}
               </ul>
             </div>
+
+            <StarMetricCards
+              starCompleteness={Math.round(averageScores.starCompleteness * 10) / 10}
+              actionSpecificity={Math.round(averageScores.actionSpecificity * 10) / 10}
+              resultQuantification={Math.round(averageScores.resultQuantification * 10) / 10}
+              relevanceToRole={Math.round(averageScores.relevanceToRole * 10) / 10}
+              deliveryFluency={Math.round(averageScores.deliveryFluency * 10) / 10}
+            />
           </div>
+        </div>
+
+        <div className="mt-6">
+          <QuestionBreakdown answers={gradedAnswers} />
         </div>
       </div>
     </div>

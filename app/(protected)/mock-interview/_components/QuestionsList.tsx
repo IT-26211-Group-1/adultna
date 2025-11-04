@@ -1,21 +1,15 @@
 "use client";
 
-import React, { memo, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  useTextToSpeechAudio,
-  useSpeechToText,
-} from "@/hooks/queries/admin/useInterviewQuestionQueries";
-import { useSubmitAnswer } from "@/hooks/queries/useInterviewAnswers";
-import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import { useSecureStorage } from "@/hooks/useSecureStorage";
-import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import React, { memo, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useMockInterviewState } from "@/hooks/useMockInterviewState";
+import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
+import { useAnswerManagement } from "@/hooks/useAnswerManagement";
+import { useInterviewAudio } from "@/hooks/useInterviewAudio";
+import { useInterviewSubmission } from "@/hooks/useInterviewSubmission";
 import type { SessionQuestion } from "@/types/interview-question";
 import { AutoPlayToggle } from "./AutoPlayToggle";
 import { Spinner } from "@heroui/react";
-import { interviewStorage } from "@/utils/interviewStorage";
-import { addToast } from "@heroui/toast";
 
 type QuestionsListProps = {
   selectedIndustry: string;
@@ -25,7 +19,6 @@ type QuestionsListProps = {
   onBack: () => void;
 };
 
-// Category labels (constant, no need to recreate)
 const CATEGORY_LABELS: Record<string, string> = {
   behavioral: "Behavioral Questions",
   technical: "Technical Questions",
@@ -39,249 +32,69 @@ export const QuestionsList = memo(function QuestionsList({
   onBack,
   sessionId,
 }: QuestionsListProps) {
-  const router = useRouter();
-  const { getSecureItem, setSecureItem } = useSecureStorage();
   const { user } = useAuth();
-  const { mutateAsync: submitAnswer } = useSubmitAnswer();
-
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [isMuted, setIsMuted] = useState(() => {
-    const saved = getSecureItem("interview_tts_muted");
-
-    return saved === "true";
-  });
-  const [answers, setAnswers] = useState<Map<string, string>>(() =>
-    interviewStorage.load(sessionId),
-  );
-  const [currentAnswer, setCurrentAnswer] = useState("");
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedAnswerIds, setSubmittedAnswerIds] = useState<
-    Map<string, string>
-  >(new Map());
-
   const userId = (user as any)?.userId || "";
 
-  const { play, stop, isPlaying } = useAudioPlayer();
+  const { state, actions } = useMockInterviewState();
+
   const {
-    isRecording,
-    audioBlob,
-    startRecording,
-    stopRecording,
-    clearRecording,
-    error: recordingError,
-  } = useAudioRecorder();
-  const {
-    transcribeAndPoll,
-    startRealtimeRecognition,
-    stopRealtimeRecognition,
-    isListening,
-    isSpeechRecognitionSupported,
-  } = useSpeechToText(userId);
+    answers,
+    currentAnswer,
+    submittedAnswerIds,
+    lastSavedAt,
+    setCurrentAnswer,
+    saveCurrentAnswer,
+    submitForGrading,
+    clearSession,
+    loadAnswerForQuestion,
+  } = useAnswerManagement(sessionId);
 
-  // Get ordered questions (general first, then specific)
-  const orderedQuestions = useMemo(() => {
-    const general = sessionQuestions
-      .filter((q) => q.isGeneral)
-      .sort((a, b) => a.order - b.order);
-    const specific = sessionQuestions
-      .filter((q) => !q.isGeneral)
-      .sort((a, b) => a.order - b.order);
+  const handleBeforeNavigate = () => {
+    const question = navigation.currentQuestion;
+    if (question) {
+      saveCurrentAnswer(question.id);
 
-    return [...general, ...specific];
-  }, [sessionQuestions]);
+      if (currentAnswer.trim() && !submittedAnswerIds.has(question.id)) {
+        submitForGrading(question.id, question.question);
+      }
+    }
+    audio.tts.stop();
+    audio.stt.stopRealtimeRecognition();
+  };
 
-  const currentQuestion = orderedQuestions[currentQuestionIndex];
-
-  // Fetch audio for current question using reusable TTS API
-  const shouldFetch = !isMuted && !!currentQuestion;
-  const { audioUrl, isLoadingAudio } = useTextToSpeechAudio(
-    currentQuestion?.question || "",
-    shouldFetch,
+  const navigation = useQuestionNavigation(
+    sessionQuestions,
+    handleBeforeNavigate,
+    state.currentQuestionIndex
   );
 
-  // Auto-play when audio is ready and not muted
-  React.useEffect(() => {
-    if (audioUrl && !isMuted && currentQuestion) {
-      const timeout = setTimeout(async () => {
-        try {
-          await play(audioUrl);
-        } catch {
-          console.warn(
-            "Auto-play blocked by browser. User interaction required.",
-          );
-        }
-      }, 100);
-
-      return () => clearTimeout(timeout);
+  useEffect(() => {
+    if (state.currentQuestionIndex !== navigation.currentIndex) {
+      actions.setCurrentQuestionIndex(navigation.currentIndex);
     }
-  }, [audioUrl, isMuted, currentQuestion, play]);
+  }, [navigation.currentIndex, state.currentQuestionIndex, actions.setCurrentQuestionIndex]);
 
-  const totalQuestions = orderedQuestions.length;
-  const isFirstQuestion = currentQuestionIndex === 0;
-  const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+  const audio = useInterviewAudio(
+    navigation.currentQuestion?.question || "",
+    userId,
+    true
+  );
 
-  // Load answer for current question when question changes
-  React.useEffect(() => {
-    if (currentQuestion) {
-      const savedAnswer = answers.get(currentQuestion.id) || "";
+  const { isSubmitting, submitInterview } = useInterviewSubmission();
 
-      setCurrentAnswer(savedAnswer);
+  useEffect(() => {
+    if (navigation.currentQuestion) {
+      loadAnswerForQuestion(navigation.currentQuestion.id);
     }
-  }, [currentQuestion]);
+  }, [navigation.currentQuestion, loadAnswerForQuestion]);
 
-  const saveCurrentAnswer = () => {
-    if (currentQuestion && currentAnswer.trim()) {
-      const updatedAnswers = new Map(answers).set(
-        currentQuestion.id,
-        currentAnswer.trim(),
-      );
-
-      setAnswers(updatedAnswers);
-      interviewStorage.save(sessionId, updatedAnswers);
-    }
-  };
-
-  const toggleMute = () => {
-    const newMuted = !isMuted;
-
-    setIsMuted(newMuted);
-    setSecureItem("interview_tts_muted", String(newMuted), 60 * 24 * 30); // 30 days expiry
-    if (newMuted && isPlaying) {
-      stop();
-    }
-  };
-
-  const handleNextQuestion = () => {
-    if (!isLastQuestion) {
-      saveCurrentAnswer();
-
-      // Only submit for grading if not already submitted
-      if (
-        currentAnswer.trim() &&
-        currentQuestion &&
-        !submittedAnswerIds.has(currentQuestion.id)
-      ) {
-        submitAnswer({
-          sessionQuestionId: currentQuestion.id,
-          userAnswer: currentAnswer.trim(),
-        })
-          .then((gradedAnswer) => {
-            setSubmittedAnswerIds((prev) =>
-              new Map(prev).set(currentQuestion.id, gradedAnswer.id),
-            );
-            console.log("Answer graded in background:", gradedAnswer.id);
-          })
-          .catch((error) => {
-            console.error("Background grading failed:", error);
-          });
-      }
-
-      stop();
-      stopRealtimeRecognition();
-      setCurrentQuestionIndex((prev) => prev + 1);
-    }
-  };
-
-  const handleSkipQuestion = () => {
-    if (!isLastQuestion) {
-      stop();
-      stopRealtimeRecognition();
-      setCurrentQuestionIndex((prev) => prev + 1);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (!isFirstQuestion) {
-      saveCurrentAnswer();
-      stop();
-      stopRealtimeRecognition();
-      setCurrentQuestionIndex((prev) => prev - 1);
-    }
-  };
-
-  const handleFinishInterview = async () => {
-    saveCurrentAnswer();
-    setIsSubmitting(true);
-
-    if (answers.size === 0) {
-      addToast({
-        title: "Please answer at least one question before submitting.",
-        color: "warning",
-      });
-      setIsSubmitting(false);
-
-      return;
-    }
-
-    try {
-      // Only submit last answer if it hasn't been graded yet
-      if (
-        currentAnswer.trim() &&
-        currentQuestion &&
-        !submittedAnswerIds.has(currentQuestion.id)
-      ) {
-        const gradedAnswer = await submitAnswer({
-          sessionQuestionId: currentQuestion.id,
-          userAnswer: currentAnswer.trim(),
-        });
-
-        setSubmittedAnswerIds((prev) =>
-          new Map(prev).set(currentQuestion.id, gradedAnswer.id),
-        );
-      }
-
-      const gradedAnswerIds = Array.from(submittedAnswerIds.values());
-
-      if (gradedAnswerIds.length === 0) {
-        addToast({
-          title: "No answers were graded",
-          description: "Please try answering the questions again.",
-          color: "warning",
-        });
-        setIsSubmitting(false);
-
-        return;
-      }
-
-      const resultsData = {
-        jobRole: selectedJobRole,
-        totalQuestions: totalQuestions,
-        answeredQuestions: gradedAnswerIds.length,
-        answerIds: gradedAnswerIds,
-        timestamp: new Date().toISOString(),
-      };
-
-      setSecureItem("interview_results", JSON.stringify(resultsData), 60 * 24);
-
-      interviewStorage.clear(sessionId);
-
-      addToast({
-        title: "Interview completed!",
-        description: `Successfully graded ${gradedAnswerIds.length} answers`,
-        color: "success",
-      });
-
-      router.push(`/mock-interview/results`);
-    } catch (error) {
-      console.error("Finish interview error:", error);
-      addToast({
-        title: "Failed to complete interview. Please try again.",
-        color: "danger",
-      });
-      setIsSubmitting(false);
-    }
-  };
-
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
-      stopRealtimeRecognition();
+      audio.stt.stopRealtimeRecognition();
     };
-  }, [stopRealtimeRecognition]);
+  }, [audio.stt]);
 
-  // Warn before closing tab if there are unsaved answers
-  // TODO: Change the modal
-  React.useEffect(() => {
+  useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (answers.size > 0 || currentAnswer.trim()) {
         e.preventDefault();
@@ -289,57 +102,61 @@ export const QuestionsList = memo(function QuestionsList({
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
-
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [answers, currentAnswer]);
 
   const handleMicrophoneClick = async () => {
-    if (isRecording) {
-      stopRecording();
-      stopRealtimeRecognition();
+    if (audio.stt.isRecording) {
+      audio.stt.stopRecording();
+      audio.stt.stopRealtimeRecognition();
     } else {
-      clearRecording();
+      audio.stt.clearRecording();
 
-      // Try to start real-time transcription (if supported)
-      const realtimeStarted = isSpeechRecognitionSupported()
-        ? startRealtimeRecognition((transcript) => {
-            setCurrentAnswer(transcript);
-          })
-        : false;
+      await audio.stt.startRealtimeRecognition((transcript) => {
+        setCurrentAnswer(transcript);
+      });
 
-      if (!realtimeStarted) {
-        console.info(
-          "Real-time transcription not available. Recording audio for AWS Transcribe.",
-        );
-      }
-
-      await startRecording();
+      await audio.stt.startRecording();
     }
   };
 
-  // After recording stops, replace Web Speech result with AWS Transcribe for accuracy
-  React.useEffect(() => {
-    if (audioBlob && !isRecording) {
+  useEffect(() => {
+    if (audio.stt.audioBlob && !audio.stt.isRecording) {
       const transcribe = async () => {
-        setIsTranscribing(true);
         try {
-          // Send to AWS Transcribe for final accurate transcription
-          const awsTranscript = await transcribeAndPoll(audioBlob);
-
-          // Replace Web Speech API result with AWS Transcribe's accurate result
-          setCurrentAnswer(awsTranscript);
-          clearRecording();
+          const awsTranscript = await audio.stt.transcribeAndPoll(audio.stt.audioBlob!);
+          if (awsTranscript) {
+            setCurrentAnswer(awsTranscript);
+          }
+          audio.stt.clearRecording();
         } catch (error) {
-          console.error("AWS Transcription error:", error);
           // Keep the Web Speech API result if AWS fails
-        } finally {
-          setIsTranscribing(false);
         }
       };
 
       transcribe();
     }
-  }, [audioBlob, isRecording, transcribeAndPoll, clearRecording]);
+  }, [audio.stt.audioBlob, audio.stt.isRecording]);
+
+  const handleFinishInterview = async () => {
+    if (navigation.currentQuestion) {
+      saveCurrentAnswer(navigation.currentQuestion.id);
+
+      if (currentAnswer.trim() && !submittedAnswerIds.has(navigation.currentQuestion.id)) {
+        await submitForGrading(navigation.currentQuestion.id, navigation.currentQuestion.question);
+      }
+    }
+
+    const gradedAnswerIds = Array.from(submittedAnswerIds.values());
+
+    await submitInterview(gradedAnswerIds, {
+      jobRole: selectedJobRole,
+      totalQuestions: navigation.progress.total,
+      answeredQuestions: gradedAnswerIds.length,
+    });
+
+    clearSession(sessionId);
+  };
 
   if (sessionQuestions.length === 0) {
     return (
@@ -361,7 +178,6 @@ export const QuestionsList = memo(function QuestionsList({
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-3xl mx-auto px-4">
-        {/* Header with Back Button and Mute Toggle */}
         <div className="flex items-center justify-between mb-6">
           <button
             className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
@@ -383,29 +199,24 @@ export const QuestionsList = memo(function QuestionsList({
             {selectedJobRole}
           </button>
 
-          {/* Auto-play Toggle */}
           <AutoPlayToggle
-            isMuted={isMuted}
-            isReady={!isLoadingAudio}
-            onToggle={toggleMute}
+            isMuted={audio.tts.isMuted}
+            isReady={!audio.tts.isLoadingAudio}
+            onToggle={audio.tts.toggleMute}
           />
         </div>
 
-        {/* Main Card Container */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          {/* Header with green accent */}
           <div className="h-2 bg-adult-green" />
 
-          {/* Content */}
           <div className="p-8">
-            {/* Progress Indicator */}
             <div className="mb-6">
               <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                 <span>
-                  Question {currentQuestionIndex + 1} of {totalQuestions}
+                  Question {navigation.progress.current} of {navigation.progress.total}
                 </span>
                 <span className="text-adult-green font-medium">
-                  {currentQuestion?.isGeneral
+                  {navigation.currentQuestion?.isGeneral
                     ? "General Question"
                     : "Role-Specific Question"}
                 </span>
@@ -414,24 +225,29 @@ export const QuestionsList = memo(function QuestionsList({
                 <div
                   className="bg-adult-green h-2 rounded-full transition-all duration-300"
                   style={{
-                    width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`,
+                    width: `${navigation.progress.percentage}%`,
                   }}
                 />
               </div>
+              {lastSavedAt && (
+                <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                  <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Saved
+                </div>
+              )}
             </div>
 
-            {/* Current Question */}
-            {currentQuestion && (
+            {navigation.currentQuestion && (
               <div className="space-y-6">
-                {/* Question Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {CATEGORY_LABELS[currentQuestion.category] ||
-                        currentQuestion.category}
+                      {CATEGORY_LABELS[navigation.currentQuestion.category] ||
+                        navigation.currentQuestion.category}
                     </h3>
-                    {/* Audio Loading Indicator */}
-                    {isLoadingAudio && (
+                    {audio.tts.isLoadingAudio && (
                       <div className="flex items-center gap-1 text-xs text-gray-500">
                         <svg
                           className="h-4 w-4 animate-spin"
@@ -456,8 +272,7 @@ export const QuestionsList = memo(function QuestionsList({
                         Loading audio...
                       </div>
                     )}
-                    {/* Playing Indicator */}
-                    {isPlaying && !isLoadingAudio && (
+                    {audio.tts.isPlaying && !audio.tts.isLoadingAudio && (
                       <div className="flex items-center gap-1 text-xs text-adult-green">
                         <svg
                           className="h-4 w-4"
@@ -470,17 +285,12 @@ export const QuestionsList = memo(function QuestionsList({
                       </div>
                     )}
                   </div>
-                  <button className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                    Show Timer
-                  </button>
                 </div>
 
-                {/* Question Text */}
                 <p className="text-xl text-gray-900 leading-relaxed font-medium">
-                  {currentQuestion.question}
+                  {navigation.currentQuestion.question}
                 </p>
 
-                {/* Input Area */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -488,7 +298,7 @@ export const QuestionsList = memo(function QuestionsList({
                         You can type your answer or try speaking out loud using
                         your mic.
                       </p>
-                      {isRecording && !isSpeechRecognitionSupported() && (
+                      {audio.stt.isRecording && (
                         <div className="flex items-center gap-2 text-xs text-adult-green mt-1">
                           <svg
                             className="w-3 h-3 animate-pulse"
@@ -497,44 +307,42 @@ export const QuestionsList = memo(function QuestionsList({
                           >
                             <circle cx="10" cy="10" r="8" />
                           </svg>
-                          Recording... Your speech will be transcribed when you
-                          stop.
+                          Recording... Your speech will be transcribed when you stop.
                         </div>
                       )}
                     </div>
-                    {recordingError && (
-                      <p className="text-xs text-red-600">{recordingError}</p>
+                    {audio.stt.recordingError && (
+                      <p className="text-xs text-red-600">{audio.stt.recordingError}</p>
                     )}
                   </div>
                   <div className="relative">
                     <textarea
                       className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-adult-green focus:border-transparent resize-none"
-                      disabled={isTranscribing || isSubmitting}
+                      disabled={audio.stt.isTranscribing || isSubmitting}
                       placeholder="Type your answer here..."
                       rows={6}
                       value={currentAnswer}
                       onChange={(e) => setCurrentAnswer(e.target.value)}
                     />
-                    {/* Microphone Button */}
                     <button
                       className={`absolute right-3 bottom-3 p-2 rounded-full transition-colors ${
-                        isRecording
+                        audio.stt.isRecording
                           ? "bg-red-500 text-white animate-pulse"
-                          : isTranscribing
+                          : audio.stt.isTranscribing
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : "bg-adult-green/10 text-adult-green hover:bg-adult-green/20"
                       }`}
-                      disabled={isTranscribing}
+                      disabled={audio.stt.isTranscribing}
                       title={
-                        isRecording
+                        audio.stt.isRecording
                           ? "Stop recording"
-                          : isTranscribing
+                          : audio.stt.isTranscribing
                             ? "Transcribing..."
                             : "Start recording"
                       }
                       onClick={handleMicrophoneClick}
                     >
-                      {isTranscribing ? (
+                      {audio.stt.isTranscribing ? (
                         <svg
                           className="w-5 h-5 animate-spin"
                           fill="none"
@@ -555,7 +363,7 @@ export const QuestionsList = memo(function QuestionsList({
                             fill="currentColor"
                           />
                         </svg>
-                      ) : isRecording ? (
+                      ) : audio.stt.isRecording ? (
                         <svg
                           className="w-5 h-5"
                           fill="currentColor"
@@ -580,18 +388,23 @@ export const QuestionsList = memo(function QuestionsList({
                       )}
                     </button>
                   </div>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <span>{currentAnswer.length} characters • {currentAnswer.trim().split(/\s+/).length} words</span>
+                    <span className={currentAnswer.length < 150 ? "text-yellow-600" : currentAnswer.length > 500 ? "text-yellow-600" : "text-green-600"}>
+                      {currentAnswer.length < 150 ? "Too short" : currentAnswer.length > 500 ? "Getting long" : "Good length"}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Navigation Buttons */}
                 <div className="flex items-center justify-between pt-6">
                   <button
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                      isFirstQuestion || isSubmitting
+                      navigation.isFirstQuestion || isSubmitting
                         ? "text-gray-400 cursor-not-allowed"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
-                    disabled={isFirstQuestion || isSubmitting}
-                    onClick={handlePreviousQuestion}
+                    disabled={navigation.isFirstQuestion || isSubmitting}
+                    onClick={navigation.goPrevious}
                   >
                     <svg
                       className="w-5 h-5"
@@ -610,19 +423,17 @@ export const QuestionsList = memo(function QuestionsList({
                   </button>
 
                   <div className="flex items-center gap-3">
-                    {/* Skip Button */}
-                    {!isLastQuestion && (
+                    {!navigation.isLastQuestion && (
                       <button
                         className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors font-medium"
                         disabled={isSubmitting}
-                        onClick={handleSkipQuestion}
+                        onClick={navigation.skip}
                       >
                         Skip
                       </button>
                     )}
 
-                    {/* Next/Finish Button */}
-                    {isLastQuestion ? (
+                    {navigation.isLastQuestion ? (
                       <button
                         className="px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={isSubmitting}
@@ -641,7 +452,7 @@ export const QuestionsList = memo(function QuestionsList({
                       <button
                         className="flex items-center gap-2 px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium disabled:opacity-50"
                         disabled={isSubmitting}
-                        onClick={handleNextQuestion}
+                        onClick={navigation.goNext}
                       >
                         Next
                         <svg

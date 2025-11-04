@@ -1,0 +1,108 @@
+import { useState, useCallback, useMemo, useEffect } from "react";
+import type { SessionQuestion } from "@/types/interview-question";
+
+type NavigationProgress = {
+  current: number;
+  total: number;
+  percentage: number;
+};
+
+type QuestionNavigationReturn = {
+  currentIndex: number;
+  currentQuestion: SessionQuestion | null;
+  progress: NavigationProgress;
+  canGoPrevious: boolean;
+  canGoNext: boolean;
+  isFirstQuestion: boolean;
+  isLastQuestion: boolean;
+  goNext: () => void;
+  goPrevious: () => void;
+  skip: () => void;
+  goToQuestion: (index: number) => void;
+};
+
+export function useQuestionNavigation(
+  sessionQuestions: SessionQuestion[],
+  onBeforeNavigate?: () => void,
+  initialIndex: number = 0
+): QuestionNavigationReturn {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  const orderedQuestions = useMemo(() => {
+    const general = sessionQuestions
+      .filter((q) => q.isGeneral)
+      .sort((a, b) => a.order - b.order);
+    const specific = sessionQuestions
+      .filter((q) => !q.isGeneral)
+      .sort((a, b) => a.order - b.order);
+
+    return [...general, ...specific];
+  }, [sessionQuestions]);
+
+  const currentQuestion = orderedQuestions[currentIndex] || null;
+  const totalQuestions = orderedQuestions.length;
+
+  const progress = useMemo<NavigationProgress>(
+    () => ({
+      current: currentIndex + 1,
+      total: totalQuestions,
+      percentage: totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0,
+    }),
+    [currentIndex, totalQuestions]
+  );
+
+  const isFirstQuestion = currentIndex === 0;
+  const isLastQuestion = currentIndex === totalQuestions - 1;
+  const canGoPrevious = !isFirstQuestion;
+  const canGoNext = !isLastQuestion;
+
+  const goNext = useCallback(() => {
+    if (canGoNext) {
+      if (onBeforeNavigate) {
+        onBeforeNavigate();
+      }
+      setCurrentIndex((prev) => prev + 1);
+    }
+  }, [canGoNext, onBeforeNavigate]);
+
+  const goPrevious = useCallback(() => {
+    if (canGoPrevious) {
+      if (onBeforeNavigate) {
+        onBeforeNavigate();
+      }
+      setCurrentIndex((prev) => prev - 1);
+    }
+  }, [canGoPrevious, onBeforeNavigate]);
+
+  const skip = useCallback(() => {
+    if (canGoNext) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  }, [canGoNext]);
+
+  const goToQuestion = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < totalQuestions) {
+        if (onBeforeNavigate) {
+          onBeforeNavigate();
+        }
+        setCurrentIndex(index);
+      }
+    },
+    [totalQuestions, onBeforeNavigate]
+  );
+
+  return {
+    currentIndex,
+    currentQuestion,
+    progress,
+    canGoPrevious,
+    canGoNext,
+    isFirstQuestion,
+    isLastQuestion,
+    goNext,
+    goPrevious,
+    skip,
+    goToQuestion,
+  };
+}
