@@ -10,27 +10,24 @@ import {
   Button,
   Spinner,
 } from "@heroui/react";
-import {
-  Download,
-  X,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-} from "lucide-react";
+import { Download, X, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import Image from "next/image";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { FileItem } from "./FileItem";
 import { FileMetadata } from "@/types/filebox";
 import dynamic from "next/dynamic";
 
-const PDFViewer = dynamic(() => import("./PDFViewer").then(mod => mod.PDFViewer), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center py-12">
-      <Spinner color="success" size="lg" />
-    </div>
-  ),
-});
+const PDFViewer = dynamic(
+  () => import("./PDFViewer").then((mod) => mod.PDFViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <Spinner color="success" size="lg" />
+      </div>
+    ),
+  },
+);
 
 interface FilePreviewProps {
   file: FileItem;

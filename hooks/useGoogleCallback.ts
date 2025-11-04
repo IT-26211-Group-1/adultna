@@ -26,6 +26,7 @@ export const useGoogleCallback = () => {
           color: "danger",
         });
         router.replace("/auth/login");
+
         return;
       }
 
@@ -37,6 +38,7 @@ export const useGoogleCallback = () => {
           color: "danger",
         });
         router.replace("/auth/login");
+
         return;
       }
 
@@ -54,12 +56,15 @@ export const useGoogleCallback = () => {
           color: "danger",
         });
         router.replace("/auth/login");
+
         return;
       }
 
       let mode: "login" | "register" = "login";
+
       try {
         const stateData = JSON.parse(atob(state));
+
         mode = stateData.mode || "login";
       } catch (error) {
         console.error("Failed to parse state:", error);
@@ -72,6 +77,7 @@ export const useGoogleCallback = () => {
           color: "danger",
         });
         router.replace("/auth/login");
+
         return;
       }
 
@@ -86,6 +92,7 @@ export const useGoogleCallback = () => {
 
         // Redirect to authorization consent page
         router.replace("/auth/google/authorize");
+
         return;
       }
 
@@ -103,7 +110,7 @@ export const useGoogleCallback = () => {
               code,
               codeVerifier,
             }),
-          }
+          },
         );
 
         const data = await response.json();

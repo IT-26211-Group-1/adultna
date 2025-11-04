@@ -170,7 +170,11 @@ export const useTextToSpeech = (
         console.warn("Speech synthesis event:", event.error || "canceled");
 
         // Only log detailed errors for actual problems
-        if (event.error && event.error !== "canceled" && event.error !== "interrupted") {
+        if (
+          event.error &&
+          event.error !== "canceled" &&
+          event.error !== "interrupted"
+        ) {
           console.error("Speech synthesis error details:", {
             error: event.error,
             type: event.type,

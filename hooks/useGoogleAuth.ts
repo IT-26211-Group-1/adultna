@@ -1,6 +1,8 @@
 const generateCodeVerifier = (): string => {
   const array = new Uint8Array(32);
+
   crypto.getRandomValues(array);
+
   return btoa(String.fromCharCode(...Array.from(array)))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -11,6 +13,7 @@ const generateCodeChallenge = async (verifier: string): Promise<string> => {
   const encoder = new TextEncoder();
   const data = encoder.encode(verifier);
   const hash = await crypto.subtle.digest("SHA-256", data);
+
   return btoa(String.fromCharCode(...Array.from(new Uint8Array(hash))))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -19,7 +22,9 @@ const generateCodeChallenge = async (verifier: string): Promise<string> => {
 
 const generateState = (): string => {
   const array = new Uint8Array(16);
+
   crypto.getRandomValues(array);
+
   return btoa(String.fromCharCode(...Array.from(array)))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -37,6 +42,7 @@ export const useGoogleAuth = () => {
 
     if (!clientId) {
       console.error("Google Client ID not configured");
+
       return;
     }
 
@@ -54,6 +60,7 @@ export const useGoogleAuth = () => {
     sessionStorage.setItem("oauth_state", state);
 
     const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+
     authUrl.searchParams.append("client_id", clientId);
     authUrl.searchParams.append("redirect_uri", redirectUri);
     authUrl.searchParams.append("response_type", responseType);

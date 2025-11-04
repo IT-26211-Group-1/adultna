@@ -24,7 +24,7 @@ export function PDFViewer({ previewUrl, onLoadError }: PDFViewerProps) {
         style={{
           height: "70vh",
           minHeight: "500px",
-          display: loading ? "none" : "block"
+          display: loading ? "none" : "block",
         }}
         title="PDF Preview"
         onError={() => {

@@ -24,6 +24,7 @@ export const GoogleAuthorizePage = () => {
         color: "danger",
       });
       router.replace("/auth/register");
+
       return;
     }
 
@@ -49,7 +50,7 @@ export const GoogleAuthorizePage = () => {
             code,
             codeVerifier,
           }),
-        }
+        },
       );
 
       const data = await response.json();

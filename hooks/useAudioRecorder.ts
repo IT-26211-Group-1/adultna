@@ -60,7 +60,7 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to start recording. Please check microphone permissions."
+          : "Failed to start recording. Please check microphone permissions.",
       );
     }
   }, []);

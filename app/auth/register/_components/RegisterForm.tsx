@@ -137,7 +137,9 @@ export const RegisterForm = () => {
               <AuthButton className="" loading={loading} type="submit">
                 Register
               </AuthButton>
-              <GoogleSignInButton onPress={() => handleGoogleSignIn("register")} />
+              <GoogleSignInButton
+                onPress={() => handleGoogleSignIn("register")}
+              />
             </div>
 
             {/* Footer */}

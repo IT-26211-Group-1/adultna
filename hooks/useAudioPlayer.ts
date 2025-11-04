@@ -38,7 +38,7 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
           .catch((err) => {
             if (err.name === "NotAllowedError") {
               console.warn(
-                "Auto-play blocked by browser. User can click the toggle to play."
+                "Auto-play blocked by browser. User can click the toggle to play.",
               );
               setIsLoading(false);
               setIsPlaying(false);

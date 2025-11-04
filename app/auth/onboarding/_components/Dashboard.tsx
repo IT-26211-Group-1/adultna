@@ -116,7 +116,7 @@ export default function DashboardClient() {
         }
       }
     },
-    [onboardingSubmit, setSecureItem, router]
+    [onboardingSubmit, setSecureItem, router],
   );
 
   return (

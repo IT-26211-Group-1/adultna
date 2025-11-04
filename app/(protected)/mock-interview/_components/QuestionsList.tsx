@@ -1,16 +1,21 @@
 "use client";
 
 import React, { memo, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   useTextToSpeechAudio,
   useSpeechToText,
 } from "@/hooks/queries/admin/useInterviewQuestionQueries";
+import { useSubmitAnswer } from "@/hooks/queries/useInterviewAnswers";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useAuth } from "@/hooks/useAuth";
 import type { SessionQuestion } from "@/types/interview-question";
 import { AutoPlayToggle } from "./AutoPlayToggle";
+import { Spinner } from "@heroui/react";
+import { interviewStorage } from "@/utils/interviewStorage";
+import { addToast } from "@heroui/toast";
 
 type QuestionsListProps = {
   selectedIndustry: string;
@@ -32,9 +37,12 @@ export const QuestionsList = memo(function QuestionsList({
   selectedJobRole,
   sessionQuestions,
   onBack,
+  sessionId,
 }: QuestionsListProps) {
+  const router = useRouter();
   const { getSecureItem, setSecureItem } = useSecureStorage();
   const { user } = useAuth();
+  const { mutateAsync: submitAnswer } = useSubmitAnswer();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(() => {
@@ -42,8 +50,15 @@ export const QuestionsList = memo(function QuestionsList({
 
     return saved === "true";
   });
-  const [answer, setAnswer] = useState("");
+  const [answers, setAnswers] = useState<Map<string, string>>(() =>
+    interviewStorage.load(sessionId),
+  );
+  const [currentAnswer, setCurrentAnswer] = useState("");
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedAnswerIds, setSubmittedAnswerIds] = useState<
+    Map<string, string>
+  >(new Map());
 
   const userId = (user as any)?.userId || "";
 
@@ -82,7 +97,7 @@ export const QuestionsList = memo(function QuestionsList({
   const shouldFetch = !isMuted && !!currentQuestion;
   const { audioUrl, isLoadingAudio } = useTextToSpeechAudio(
     currentQuestion?.question || "",
-    shouldFetch
+    shouldFetch,
   );
 
   // Auto-play when audio is ready and not muted
@@ -93,7 +108,7 @@ export const QuestionsList = memo(function QuestionsList({
           await play(audioUrl);
         } catch {
           console.warn(
-            "Auto-play blocked by browser. User interaction required."
+            "Auto-play blocked by browser. User interaction required.",
           );
         }
       }, 100);
@@ -105,6 +120,27 @@ export const QuestionsList = memo(function QuestionsList({
   const totalQuestions = orderedQuestions.length;
   const isFirstQuestion = currentQuestionIndex === 0;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+
+  // Load answer for current question when question changes
+  React.useEffect(() => {
+    if (currentQuestion) {
+      const savedAnswer = answers.get(currentQuestion.id) || "";
+
+      setCurrentAnswer(savedAnswer);
+    }
+  }, [currentQuestion]);
+
+  const saveCurrentAnswer = () => {
+    if (currentQuestion && currentAnswer.trim()) {
+      const updatedAnswers = new Map(answers).set(
+        currentQuestion.id,
+        currentAnswer.trim(),
+      );
+
+      setAnswers(updatedAnswers);
+      interviewStorage.save(sessionId, updatedAnswers);
+    }
+  };
 
   const toggleMute = () => {
     const newMuted = !isMuted;
@@ -118,19 +154,122 @@ export const QuestionsList = memo(function QuestionsList({
 
   const handleNextQuestion = () => {
     if (!isLastQuestion) {
+      saveCurrentAnswer();
+
+      // Only submit for grading if not already submitted
+      if (
+        currentAnswer.trim() &&
+        currentQuestion &&
+        !submittedAnswerIds.has(currentQuestion.id)
+      ) {
+        submitAnswer({
+          sessionQuestionId: currentQuestion.id,
+          userAnswer: currentAnswer.trim(),
+        })
+          .then((gradedAnswer) => {
+            setSubmittedAnswerIds((prev) =>
+              new Map(prev).set(currentQuestion.id, gradedAnswer.id),
+            );
+            console.log("Answer graded in background:", gradedAnswer.id);
+          })
+          .catch((error) => {
+            console.error("Background grading failed:", error);
+          });
+      }
+
       stop();
       stopRealtimeRecognition();
-      setAnswer("");
+      setCurrentQuestionIndex((prev) => prev + 1);
+    }
+  };
+
+  const handleSkipQuestion = () => {
+    if (!isLastQuestion) {
+      stop();
+      stopRealtimeRecognition();
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
   const handlePreviousQuestion = () => {
     if (!isFirstQuestion) {
+      saveCurrentAnswer();
       stop();
       stopRealtimeRecognition();
-      setAnswer("");
       setCurrentQuestionIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleFinishInterview = async () => {
+    saveCurrentAnswer();
+    setIsSubmitting(true);
+
+    if (answers.size === 0) {
+      addToast({
+        title: "Please answer at least one question before submitting.",
+        color: "warning",
+      });
+      setIsSubmitting(false);
+
+      return;
+    }
+
+    try {
+      // Only submit last answer if it hasn't been graded yet
+      if (
+        currentAnswer.trim() &&
+        currentQuestion &&
+        !submittedAnswerIds.has(currentQuestion.id)
+      ) {
+        const gradedAnswer = await submitAnswer({
+          sessionQuestionId: currentQuestion.id,
+          userAnswer: currentAnswer.trim(),
+        });
+
+        setSubmittedAnswerIds((prev) =>
+          new Map(prev).set(currentQuestion.id, gradedAnswer.id),
+        );
+      }
+
+      const gradedAnswerIds = Array.from(submittedAnswerIds.values());
+
+      if (gradedAnswerIds.length === 0) {
+        addToast({
+          title: "No answers were graded",
+          description: "Please try answering the questions again.",
+          color: "warning",
+        });
+        setIsSubmitting(false);
+
+        return;
+      }
+
+      const resultsData = {
+        jobRole: selectedJobRole,
+        totalQuestions: totalQuestions,
+        answeredQuestions: gradedAnswerIds.length,
+        answerIds: gradedAnswerIds,
+        timestamp: new Date().toISOString(),
+      };
+
+      setSecureItem("interview_results", JSON.stringify(resultsData), 60 * 24);
+
+      interviewStorage.clear(sessionId);
+
+      addToast({
+        title: "Interview completed!",
+        description: `Successfully graded ${gradedAnswerIds.length} answers`,
+        color: "success",
+      });
+
+      router.push(`/mock-interview/results`);
+    } catch (error) {
+      console.error("Finish interview error:", error);
+      addToast({
+        title: "Failed to complete interview. Please try again.",
+        color: "danger",
+      });
+      setIsSubmitting(false);
     }
   };
 
@@ -139,6 +278,20 @@ export const QuestionsList = memo(function QuestionsList({
       stopRealtimeRecognition();
     };
   }, [stopRealtimeRecognition]);
+
+  // Warn before closing tab if there are unsaved answers
+  // TODO: Change the modal
+  React.useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (answers.size > 0 || currentAnswer.trim()) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [answers, currentAnswer]);
 
   const handleMicrophoneClick = async () => {
     if (isRecording) {
@@ -150,22 +303,21 @@ export const QuestionsList = memo(function QuestionsList({
       // Try to start real-time transcription (if supported)
       const realtimeStarted = isSpeechRecognitionSupported()
         ? startRealtimeRecognition((transcript) => {
-            setAnswer(transcript);
+            setCurrentAnswer(transcript);
           })
         : false;
 
       if (!realtimeStarted) {
         console.info(
-          "Real-time transcription not available. Recording audio for AWS Transcribe."
+          "Real-time transcription not available. Recording audio for AWS Transcribe.",
         );
       }
 
-      // Always start audio recording for AWS Transcribe (fallback + accuracy)
       await startRecording();
     }
   };
 
-  // Hybrid: After recording stops, replace Web Speech result with AWS Transcribe for accuracy
+  // After recording stops, replace Web Speech result with AWS Transcribe for accuracy
   React.useEffect(() => {
     if (audioBlob && !isRecording) {
       const transcribe = async () => {
@@ -175,7 +327,7 @@ export const QuestionsList = memo(function QuestionsList({
           const awsTranscript = await transcribeAndPoll(audioBlob);
 
           // Replace Web Speech API result with AWS Transcribe's accurate result
-          setAnswer(awsTranscript);
+          setCurrentAnswer(awsTranscript);
           clearRecording();
         } catch (error) {
           console.error("AWS Transcription error:", error);
@@ -357,11 +509,11 @@ export const QuestionsList = memo(function QuestionsList({
                   <div className="relative">
                     <textarea
                       className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-adult-green focus:border-transparent resize-none"
+                      disabled={isTranscribing || isSubmitting}
                       placeholder="Type your answer here..."
                       rows={6}
-                      value={answer}
-                      onChange={(e) => setAnswer(e.target.value)}
-                      disabled={isTranscribing}
+                      value={currentAnswer}
+                      onChange={(e) => setCurrentAnswer(e.target.value)}
                     />
                     {/* Microphone Button */}
                     <button
@@ -372,7 +524,6 @@ export const QuestionsList = memo(function QuestionsList({
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : "bg-adult-green/10 text-adult-green hover:bg-adult-green/20"
                       }`}
-                      onClick={handleMicrophoneClick}
                       disabled={isTranscribing}
                       title={
                         isRecording
@@ -381,6 +532,7 @@ export const QuestionsList = memo(function QuestionsList({
                             ? "Transcribing..."
                             : "Start recording"
                       }
+                      onClick={handleMicrophoneClick}
                     >
                       {isTranscribing ? (
                         <svg
@@ -409,7 +561,7 @@ export const QuestionsList = memo(function QuestionsList({
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
-                          <rect width="12" height="12" x="4" y="4" rx="2" />
+                          <rect height="12" rx="2" width="12" x="4" y="4" />
                         </svg>
                       ) : (
                         <svg
@@ -434,11 +586,11 @@ export const QuestionsList = memo(function QuestionsList({
                 <div className="flex items-center justify-between pt-6">
                   <button
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                      isFirstQuestion
+                      isFirstQuestion || isSubmitting
                         ? "text-gray-400 cursor-not-allowed"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
-                    disabled={isFirstQuestion}
+                    disabled={isFirstQuestion || isSubmitting}
                     onClick={handlePreviousQuestion}
                   >
                     <svg
@@ -457,31 +609,57 @@ export const QuestionsList = memo(function QuestionsList({
                     Previous
                   </button>
 
-                  {isLastQuestion ? (
-                    <button className="px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium">
-                      Finish Interview
-                    </button>
-                  ) : (
-                    <button
-                      className="flex items-center gap-2 px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium"
-                      onClick={handleNextQuestion}
-                    >
-                      Next
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                  <div className="flex items-center gap-3">
+                    {/* Skip Button */}
+                    {!isLastQuestion && (
+                      <button
+                        className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                        disabled={isSubmitting}
+                        onClick={handleSkipQuestion}
                       >
-                        <path
-                          d="M9 5l7 7-7 7"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                        />
-                      </svg>
-                    </button>
-                  )}
+                        Skip
+                      </button>
+                    )}
+
+                    {/* Next/Finish Button */}
+                    {isLastQuestion ? (
+                      <button
+                        className="px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isSubmitting}
+                        onClick={handleFinishInterview}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Spinner color="white" size="sm" />
+                            Evaluating your answers...
+                          </>
+                        ) : (
+                          "Finish Interview"
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        className="flex items-center gap-2 px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium disabled:opacity-50"
+                        disabled={isSubmitting}
+                        onClick={handleNextQuestion}
+                      >
+                        Next
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M9 5l7 7-7 7"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

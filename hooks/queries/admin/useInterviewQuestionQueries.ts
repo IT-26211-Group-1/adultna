@@ -50,7 +50,7 @@ const questionApi = {
     }),
 
   updateStatus: (
-    data: UpdateQuestionStatusRequest
+    data: UpdateQuestionStatusRequest,
   ): Promise<UpdateQuestionStatusResponse> =>
     ApiClient.patch(`/interview-questions/${data.questionId}/status`, {
       status: data.status,
@@ -67,7 +67,7 @@ const questionApi = {
     ApiClient.delete(`/interview-questions/${questionId}/permanent`),
 
   generateAI: (
-    data: GenerateAIQuestionRequest
+    data: GenerateAIQuestionRequest,
   ): Promise<GenerateAIQuestionResponse> =>
     ApiClient.post("/interview-questions/generate-ai", data),
 
@@ -78,7 +78,7 @@ const questionApi = {
   }> => ApiClient.get("/interview-questions/industries"),
 
   getAudioUrl: (
-    questionId: string
+    questionId: string,
   ): Promise<{
     success: boolean;
     message: string;
@@ -89,7 +89,7 @@ const questionApi = {
   }> => ApiClient.get(`/interview-questions/${questionId}/speech`),
 
   synthesizeText: (
-    text: string
+    text: string,
   ): Promise<{
     success: boolean;
     message: string;
@@ -119,7 +119,7 @@ const questionApi = {
   // Get transcription result
   getTranscription: (
     jobName: string,
-    userId: string
+    userId: string,
   ): Promise<{
     success: boolean;
     message: string;
@@ -394,6 +394,7 @@ export function useSpeechToText(userId: string) {
   // Check if Web Speech Recognition is supported
   const isSpeechRecognitionSupported = useCallback(() => {
     if (typeof window === "undefined") return false;
+
     return !!(
       (window as any).SpeechRecognition ||
       (window as any).webkitSpeechRecognition
@@ -406,6 +407,7 @@ export function useSpeechToText(userId: string) {
       // Check if running in browser
       if (typeof window === "undefined") {
         console.warn("Speech recognition only works in browser");
+
         return false;
       }
 
@@ -416,8 +418,9 @@ export function useSpeechToText(userId: string) {
 
       if (!SpeechRecognition) {
         console.warn(
-          "Real-time transcription not supported in this browser. Using AWS Transcribe only."
+          "Real-time transcription not supported in this browser. Using AWS Transcribe only.",
         );
+
         return false;
       }
 
@@ -436,6 +439,7 @@ export function useSpeechToText(userId: string) {
           // Loop through results
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
+
             if (event.results[i].isFinal) {
               // Final result - append to permanent transcript
               finalTranscript += transcript + " ";
@@ -447,6 +451,7 @@ export function useSpeechToText(userId: string) {
 
           // Combine final and interim for real-time display
           const fullTranscript = (finalTranscript + interimTranscript).trim();
+
           setRealtimeTranscript(fullTranscript);
           onTranscriptUpdate(fullTranscript);
         };
@@ -460,13 +465,13 @@ export function useSpeechToText(userId: string) {
             event.error === "permission-denied"
           ) {
             alert(
-              "Microphone access denied. Please allow microphone access in your browser settings."
+              "Microphone access denied. Please allow microphone access in your browser settings.",
             );
           } else if (event.error === "no-speech") {
             console.warn("No speech detected. Please try speaking again.");
           } else if (event.error === "network") {
             console.error(
-              "Network error. Please check your internet connection."
+              "Network error. Please check your internet connection.",
             );
           } else if (event.error === "aborted") {
             console.warn("Speech recognition aborted.");
@@ -490,10 +495,11 @@ export function useSpeechToText(userId: string) {
         return true;
       } catch (error) {
         console.error("Failed to start speech recognition:", error);
+
         return false;
       }
     },
-    []
+    [],
   );
 
   // Stop real-time speech recognition
@@ -538,10 +544,12 @@ export function useSpeechToText(userId: string) {
     // Convert blob to base64
     const base64Audio = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
+
       reader.onloadend = () => {
         const base64 = reader.result as string;
         // Remove data URL prefix
         const base64Data = base64.split(",")[1];
+
         resolve(base64Data);
       };
       reader.onerror = reject;
@@ -557,6 +565,7 @@ export function useSpeechToText(userId: string) {
 
     // Poll for result
     const transcript = await pollTranscription(transcribeResult.data.jobName);
+
     return transcript;
   };
 

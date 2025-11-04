@@ -29,7 +29,7 @@ function GenerateAIQuestionModal({
   const { generateAIQuestion, isGeneratingAI } = useInterviewQuestions();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingData, setPendingData] = useState<GenerateAIQuestionForm | null>(
-    null
+    null,
   );
 
   const categoryOptions: { value: QuestionCategory; label: string }[] = useMemo(
@@ -39,7 +39,7 @@ function GenerateAIQuestionModal({
       { value: "situational", label: "Situational" },
       { value: "background", label: "Background" },
     ],
-    []
+    [],
   );
 
   const industryOptions = useMemo(
@@ -50,9 +50,10 @@ function GenerateAIQuestionModal({
       { value: "communication", label: "Communication" },
       { value: "education", label: "Education" },
       { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
+      { value: "general", label: "General" },
       { value: "other", label: "Other" },
     ],
-    []
+    [],
   );
 
   const {
@@ -84,7 +85,7 @@ function GenerateAIQuestionModal({
       setPendingData(data);
       setShowConfirmation(true);
     }),
-    [handleSubmit]
+    [handleSubmit],
   );
 
   const handleConfirmGenerate = useCallback(() => {
