@@ -30,7 +30,7 @@ type StoredResultsData = {
 
 export function InterviewResults() {
   const router = useRouter();
-  const { getSecureItem, removeSecureItem } = useSecureStorage();
+  const { getSecureItem } = useSecureStorage();
   const [answerIds, setAnswerIds] = useState<string[]>([]);
   const [sessionMetadata, setSessionMetadata] = useState<Omit<
     SessionResults,
@@ -113,7 +113,7 @@ export function InterviewResults() {
   const averagePercentage =
     gradedAnswers.reduce(
       (sum, result) => sum + (result?.percentageScore || 0),
-      0
+      0,
     ) / gradedAnswers.length;
   const scorePercentage = Math.round(averagePercentage);
 
@@ -121,27 +121,27 @@ export function InterviewResults() {
     starCompleteness:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.starCompleteness || 0),
-        0
+        0,
       ) / gradedAnswers.length,
     actionSpecificity:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.actionSpecificity || 0),
-        0
+        0,
       ) / gradedAnswers.length,
     resultQuantification:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.resultQuantification || 0),
-        0
+        0,
       ) / gradedAnswers.length,
     relevanceToRole:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.relevanceToRole || 0),
-        0
+        0,
       ) / gradedAnswers.length,
     deliveryFluency:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.deliveryFluency || 0),
-        0
+        0,
       ) / gradedAnswers.length,
   };
   const scoreLabel =
@@ -152,14 +152,14 @@ export function InterviewResults() {
         : "Needs Improvement";
 
   const allStrengths = gradedAnswers.flatMap(
-    (result) => result.evaluation?.strengths || []
+    (result) => result.evaluation?.strengths || [],
   );
   const uniqueStrengths = Array.from(new Set(allStrengths)).slice(0, 4);
 
   const allFeedback = gradedAnswers
     .map(
       (result, index) =>
-        `**Question ${index + 1}:**\n${result.evaluation?.starFeedback.overall || "No feedback available"}`
+        `**Question ${index + 1}:**\n${result.evaluation?.starFeedback.overall || "No feedback available"}`,
     )
     .join("\n\n");
   const verdict = allFeedback;
@@ -192,15 +192,15 @@ export function InterviewResults() {
           <Card className="bg-white">
             <CardBody className="p-12 flex flex-col items-center justify-center text-center">
               <h1 className="text-4xl font-bold text-gray-900 mb-6">
-                You're One Step Closer
+                You&apos;re One Step Closer
                 <br />
                 to the Real Thing!
               </h1>
               <p className="text-gray-600 mb-8 max-w-md">
-                You've completed {sessionMetadata.answeredQuestions} out of{" "}
+                You&apos;ve completed {sessionMetadata.answeredQuestions} out of{" "}
                 {sessionMetadata.totalQuestions} questions — great job!
                 Practicing your answers is a key step toward showing up
-                confident. Here's a summary of how you did and what you can
+                confident. Here&apos;s a summary of how you did and what you can
                 improve.
               </p>
               <div className="flex gap-4 w-full max-w-md">
@@ -302,7 +302,7 @@ export function InterviewResults() {
             {/* What's Working Well Section */}
             <div className="bg-white rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                What's Working Well
+                What&apos;s Working Well
               </h3>
               <ul className="space-y-2">
                 {uniqueStrengths.length > 0 ? (
@@ -324,11 +324,21 @@ export function InterviewResults() {
             </div>
 
             <StarMetricCards
-              starCompleteness={Math.round(averageScores.starCompleteness * 10) / 10}
-              actionSpecificity={Math.round(averageScores.actionSpecificity * 10) / 10}
-              resultQuantification={Math.round(averageScores.resultQuantification * 10) / 10}
-              relevanceToRole={Math.round(averageScores.relevanceToRole * 10) / 10}
-              deliveryFluency={Math.round(averageScores.deliveryFluency * 10) / 10}
+              actionSpecificity={
+                Math.round(averageScores.actionSpecificity * 10) / 10
+              }
+              deliveryFluency={
+                Math.round(averageScores.deliveryFluency * 10) / 10
+              }
+              relevanceToRole={
+                Math.round(averageScores.relevanceToRole * 10) / 10
+              }
+              resultQuantification={
+                Math.round(averageScores.resultQuantification * 10) / 10
+              }
+              starCompleteness={
+                Math.round(averageScores.starCompleteness * 10) / 10
+              }
             />
           </div>
         </div>

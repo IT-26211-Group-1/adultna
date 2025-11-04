@@ -73,7 +73,9 @@ export function QuestionBreakdown({ answers }: QuestionBreakdownProps) {
                       <h4 className="text-sm font-semibold text-gray-900 mb-1">
                         Question
                       </h4>
-                      <p className="text-sm text-gray-700">{answer.questionText}</p>
+                      <p className="text-sm text-gray-700">
+                        {answer.questionText}
+                      </p>
                     </div>
 
                     <div>
@@ -167,7 +169,7 @@ export function QuestionBreakdown({ answers }: QuestionBreakdownProps) {
                                       </span>
                                       <span>{strength}</span>
                                     </li>
-                                  )
+                                  ),
                                 )}
                               </ul>
                             </div>
@@ -191,7 +193,7 @@ export function QuestionBreakdown({ answers }: QuestionBreakdownProps) {
                                       </span>
                                       <span>{improvement}</span>
                                     </li>
-                                  )
+                                  ),
                                 )}
                               </ul>
                             </div>

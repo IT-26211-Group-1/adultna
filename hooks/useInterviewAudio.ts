@@ -25,9 +25,7 @@ type InterviewAudioReturn = {
     stopRecording: () => void;
     clearRecording: () => void;
     transcribeAndPoll: (audioBlob: Blob) => Promise<string | null>;
-    startRealtimeRecognition: (
-      onTranscript: (text: string) => void
-    ) => boolean;
+    startRealtimeRecognition: (onTranscript: (text: string) => void) => boolean;
     stopRealtimeRecognition: () => void;
   };
 };
@@ -35,12 +33,13 @@ type InterviewAudioReturn = {
 export function useInterviewAudio(
   currentQuestionText: string,
   userId: string,
-  shouldFetchTTS: boolean = true
+  shouldFetchTTS: boolean = true,
 ): InterviewAudioReturn {
   const { getSecureItem, setSecureItem } = useSecureStorage();
 
   const [isMuted, setIsMuted] = useState(() => {
     const saved = getSecureItem("interview_tts_muted");
+
     return saved === "true";
   });
 
@@ -60,7 +59,7 @@ export function useInterviewAudio(
   const shouldFetch = !isMuted && shouldFetchTTS && !!currentQuestionText;
   const { audioUrl, isLoadingAudio } = useTextToSpeechAudio(
     currentQuestionText,
-    shouldFetch
+    shouldFetch,
   );
 
   const {
@@ -74,7 +73,7 @@ export function useInterviewAudio(
       const timeout = setTimeout(async () => {
         try {
           await play(audioUrl);
-        } catch (error) {
+        } catch {
           // Auto-play blocked by browser
         }
       }, 100);
@@ -85,6 +84,7 @@ export function useInterviewAudio(
 
   const toggleMute = useCallback(() => {
     const newMuted = !isMuted;
+
     setIsMuted(newMuted);
     setSecureItem("interview_tts_muted", String(newMuted), 60 * 24 * 30);
     if (newMuted && isPlaying) {
@@ -97,12 +97,13 @@ export function useInterviewAudio(
       setIsTranscribing(true);
       try {
         const result = await originalTranscribeAndPoll(audioBlob);
+
         return result;
       } finally {
         setIsTranscribing(false);
       }
     },
-    [originalTranscribeAndPoll]
+    [originalTranscribeAndPoll],
   );
 
   return {

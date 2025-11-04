@@ -42,6 +42,7 @@ export function useMockInterviewState() {
     if (typeof window === "undefined") return DEFAULT_STATE;
 
     const stored = getSecureItem(STORAGE_KEY);
+
     if (stored) {
       try {
         return JSON.parse(stored) as MockInterviewState;
@@ -83,7 +84,7 @@ export function useMockInterviewState() {
         currentStep: "questions",
       }));
     },
-    []
+    [],
   );
 
   const setCurrentQuestionIndex = useCallback((index: number) => {
@@ -136,7 +137,15 @@ export function useMockInterviewState() {
       goBack,
       reset,
     }),
-    [selectField, selectJobRole, startQuestions, setCurrentQuestionIndex, goToStep, goBack, reset]
+    [
+      selectField,
+      selectJobRole,
+      startQuestions,
+      setCurrentQuestionIndex,
+      goToStep,
+      goBack,
+      reset,
+    ],
   );
 
   return { state, actions };

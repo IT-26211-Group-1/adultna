@@ -51,6 +51,7 @@ export const QuestionsList = memo(function QuestionsList({
 
   const handleBeforeNavigate = () => {
     const question = navigation.currentQuestion;
+
     if (question) {
       saveCurrentAnswer(question.id);
 
@@ -65,19 +66,23 @@ export const QuestionsList = memo(function QuestionsList({
   const navigation = useQuestionNavigation(
     sessionQuestions,
     handleBeforeNavigate,
-    state.currentQuestionIndex
+    state.currentQuestionIndex,
   );
 
   useEffect(() => {
     if (state.currentQuestionIndex !== navigation.currentIndex) {
       actions.setCurrentQuestionIndex(navigation.currentIndex);
     }
-  }, [navigation.currentIndex, state.currentQuestionIndex, actions.setCurrentQuestionIndex]);
+  }, [
+    navigation.currentIndex,
+    state.currentQuestionIndex,
+    actions.setCurrentQuestionIndex,
+  ]);
 
   const audio = useInterviewAudio(
     navigation.currentQuestion?.question || "",
     userId,
-    true
+    true,
   );
 
   const { isSubmitting, submitInterview } = useInterviewSubmission();
@@ -102,6 +107,7 @@ export const QuestionsList = memo(function QuestionsList({
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [answers, currentAnswer]);
 
@@ -124,12 +130,15 @@ export const QuestionsList = memo(function QuestionsList({
     if (audio.stt.audioBlob && !audio.stt.isRecording) {
       const transcribe = async () => {
         try {
-          const awsTranscript = await audio.stt.transcribeAndPoll(audio.stt.audioBlob!);
+          const awsTranscript = await audio.stt.transcribeAndPoll(
+            audio.stt.audioBlob!,
+          );
+
           if (awsTranscript) {
             setCurrentAnswer(awsTranscript);
           }
           audio.stt.clearRecording();
-        } catch (error) {
+        } catch {
           // Keep the Web Speech API result if AWS fails
         }
       };
@@ -142,8 +151,14 @@ export const QuestionsList = memo(function QuestionsList({
     if (navigation.currentQuestion) {
       saveCurrentAnswer(navigation.currentQuestion.id);
 
-      if (currentAnswer.trim() && !submittedAnswerIds.has(navigation.currentQuestion.id)) {
-        await submitForGrading(navigation.currentQuestion.id, navigation.currentQuestion.question);
+      if (
+        currentAnswer.trim() &&
+        !submittedAnswerIds.has(navigation.currentQuestion.id)
+      ) {
+        await submitForGrading(
+          navigation.currentQuestion.id,
+          navigation.currentQuestion.question,
+        );
       }
     }
 
@@ -213,7 +228,8 @@ export const QuestionsList = memo(function QuestionsList({
             <div className="mb-6">
               <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                 <span>
-                  Question {navigation.progress.current} of {navigation.progress.total}
+                  Question {navigation.progress.current} of{" "}
+                  {navigation.progress.total}
                 </span>
                 <span className="text-adult-green font-medium">
                   {navigation.currentQuestion?.isGeneral
@@ -231,8 +247,16 @@ export const QuestionsList = memo(function QuestionsList({
               </div>
               {lastSavedAt && (
                 <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                  <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-3 h-3 text-green-500"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      clipRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      fillRule="evenodd"
+                    />
                   </svg>
                   Saved
                 </div>
@@ -307,12 +331,15 @@ export const QuestionsList = memo(function QuestionsList({
                           >
                             <circle cx="10" cy="10" r="8" />
                           </svg>
-                          Recording... Your speech will be transcribed when you stop.
+                          Recording... Your speech will be transcribed when you
+                          stop.
                         </div>
                       )}
                     </div>
                     {audio.stt.recordingError && (
-                      <p className="text-xs text-red-600">{audio.stt.recordingError}</p>
+                      <p className="text-xs text-red-600">
+                        {audio.stt.recordingError}
+                      </p>
                     )}
                   </div>
                   <div className="relative">
@@ -389,9 +416,24 @@ export const QuestionsList = memo(function QuestionsList({
                     </button>
                   </div>
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{currentAnswer.length} characters • {currentAnswer.trim().split(/\s+/).length} words</span>
-                    <span className={currentAnswer.length < 150 ? "text-yellow-600" : currentAnswer.length > 500 ? "text-yellow-600" : "text-green-600"}>
-                      {currentAnswer.length < 150 ? "Too short" : currentAnswer.length > 500 ? "Getting long" : "Good length"}
+                    <span>
+                      {currentAnswer.length} characters •{" "}
+                      {currentAnswer.trim().split(/\s+/).length} words
+                    </span>
+                    <span
+                      className={
+                        currentAnswer.length < 150
+                          ? "text-yellow-600"
+                          : currentAnswer.length > 500
+                            ? "text-yellow-600"
+                            : "text-green-600"
+                      }
+                    >
+                      {currentAnswer.length < 150
+                        ? "Too short"
+                        : currentAnswer.length > 500
+                          ? "Getting long"
+                          : "Good length"}
                     </span>
                   </div>
                 </div>

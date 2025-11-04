@@ -88,8 +88,7 @@ export function useSubmitAnswer() {
 
       return completedAnswer;
     },
-    onSuccess: (data) => {
-      console.log("[useSubmitAnswer] Success! Invalidating queries");
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["interview-answers"] });
     },
     onError: (error) => {

@@ -14,7 +14,7 @@ type InterviewSubmissionReturn = {
   error: string | null;
   submitInterview: (
     answerIds: string[],
-    metadata: SessionMetadata
+    metadata: SessionMetadata,
   ) => Promise<void>;
 };
 
@@ -32,6 +32,7 @@ export function useInterviewSubmission(): InterviewSubmissionReturn {
           description: "Please try answering the questions again.",
           color: "warning",
         });
+
         return;
       }
 
@@ -45,7 +46,11 @@ export function useInterviewSubmission(): InterviewSubmissionReturn {
           timestamp: new Date().toISOString(),
         };
 
-        setSecureItem("interview_results", JSON.stringify(resultsData), 60 * 24);
+        setSecureItem(
+          "interview_results",
+          JSON.stringify(resultsData),
+          60 * 24,
+        );
 
         addToast({
           title: "Interview completed!",
@@ -55,7 +60,9 @@ export function useInterviewSubmission(): InterviewSubmissionReturn {
 
         router.push("/mock-interview/results");
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
+
         setError(errorMessage);
         addToast({
           title: "Failed to complete interview. Please try again.",
@@ -65,7 +72,7 @@ export function useInterviewSubmission(): InterviewSubmissionReturn {
         setIsSubmitting(false);
       }
     },
-    [router, setSecureItem]
+    [router, setSecureItem],
   );
 
   return {

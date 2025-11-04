@@ -65,7 +65,9 @@ export function StarMetricCards({
           <Card key={metric.label} className="bg-gray-50 shadow-none">
             <CardBody className="p-4">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-semibold text-gray-900 text-sm">{metric.label}</h4>
+                <h4 className="font-semibold text-gray-900 text-sm">
+                  {metric.label}
+                </h4>
                 <span className="text-2xl font-bold text-gray-900">
                   {metric.score.toFixed(1)}
                   <span className="text-sm text-gray-500">/5</span>

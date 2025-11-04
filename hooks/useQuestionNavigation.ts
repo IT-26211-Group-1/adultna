@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { SessionQuestion } from "@/types/interview-question";
 
 type NavigationProgress = {
@@ -24,7 +24,7 @@ type QuestionNavigationReturn = {
 export function useQuestionNavigation(
   sessionQuestions: SessionQuestion[],
   onBeforeNavigate?: () => void,
-  initialIndex: number = 0
+  initialIndex: number = 0,
 ): QuestionNavigationReturn {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -46,9 +46,10 @@ export function useQuestionNavigation(
     () => ({
       current: currentIndex + 1,
       total: totalQuestions,
-      percentage: totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0,
+      percentage:
+        totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0,
     }),
-    [currentIndex, totalQuestions]
+    [currentIndex, totalQuestions],
   );
 
   const isFirstQuestion = currentIndex === 0;
@@ -89,7 +90,7 @@ export function useQuestionNavigation(
         setCurrentIndex(index);
       }
     },
-    [totalQuestions, onBeforeNavigate]
+    [totalQuestions, onBeforeNavigate],
   );
 
   return {
