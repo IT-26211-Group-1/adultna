@@ -15,15 +15,15 @@ type QuestionNavigationReturn = {
   canGoNext: boolean;
   isFirstQuestion: boolean;
   isLastQuestion: boolean;
-  goNext: () => void;
-  goPrevious: () => void;
+  goNext: () => Promise<void>;
+  goPrevious: () => Promise<void>;
   skip: () => void;
-  goToQuestion: (index: number) => void;
+  goToQuestion: (index: number) => Promise<void>;
 };
 
 export function useQuestionNavigation(
   sessionQuestions: SessionQuestion[],
-  onBeforeNavigate?: () => void,
+  onBeforeNavigate?: () => void | Promise<void>,
   initialIndex: number = 0,
 ): QuestionNavigationReturn {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -57,19 +57,19 @@ export function useQuestionNavigation(
   const canGoPrevious = !isFirstQuestion;
   const canGoNext = !isLastQuestion;
 
-  const goNext = useCallback(() => {
+  const goNext = useCallback(async () => {
     if (canGoNext) {
       if (onBeforeNavigate) {
-        onBeforeNavigate();
+        await onBeforeNavigate();
       }
       setCurrentIndex((prev) => prev + 1);
     }
   }, [canGoNext, onBeforeNavigate]);
 
-  const goPrevious = useCallback(() => {
+  const goPrevious = useCallback(async () => {
     if (canGoPrevious) {
       if (onBeforeNavigate) {
-        onBeforeNavigate();
+        await onBeforeNavigate();
       }
       setCurrentIndex((prev) => prev - 1);
     }
@@ -82,10 +82,10 @@ export function useQuestionNavigation(
   }, [canGoNext]);
 
   const goToQuestion = useCallback(
-    (index: number) => {
+    async (index: number) => {
       if (index >= 0 && index < totalQuestions) {
         if (onBeforeNavigate) {
-          onBeforeNavigate();
+          await onBeforeNavigate();
         }
         setCurrentIndex(index);
       }

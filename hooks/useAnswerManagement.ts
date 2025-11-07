@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react";
 import { interviewStorage } from "@/utils/interviewStorage";
-import { useSubmitAnswer } from "@/hooks/queries/useInterviewAnswers";
+import { useSubmitAnswerToQueue } from "@/hooks/queries/useInterviewAnswers";
 
 export function useAnswerManagement(sessionId: string) {
-  const { mutateAsync: submitAnswer } = useSubmitAnswer();
+  const { mutateAsync: submitAnswerToQueue } = useSubmitAnswerToQueue();
 
   const [answers, setAnswers] = useState<Map<string, string>>(() =>
     interviewStorage.load(sessionId),
@@ -43,23 +43,28 @@ export function useAnswerManagement(sessionId: string) {
       }
 
       try {
-        const gradedAnswer = await submitAnswer({
+        // Submit to queue without waiting for grading to complete
+        const pendingAnswer = await submitAnswerToQueue({
           sessionQuestionId: questionId,
           userAnswer: answer,
         });
 
         setSubmittedAnswerIds((prev) =>
-          new Map(prev).set(questionId, gradedAnswer.id),
+          new Map(prev).set(questionId, pendingAnswer.id),
         );
 
-        return gradedAnswer.id;
+        console.log(
+          `[useAnswerManagement] Answer ${pendingAnswer.id} submitted to grading queue for question ${questionId}`,
+        );
+
+        return pendingAnswer.id;
       } catch (error) {
-        console.error("Background grading failed:", error);
+        console.error("Background grading submission failed:", error);
 
         return null;
       }
     },
-    [currentAnswer, submittedAnswerIds, submitAnswer],
+    [currentAnswer, submittedAnswerIds, submitAnswerToQueue],
   );
 
   const clearSession = useCallback((sessionId: string) => {

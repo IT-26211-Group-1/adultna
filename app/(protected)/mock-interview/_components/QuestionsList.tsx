@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useMockInterviewState } from "@/hooks/useMockInterviewState";
 import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
@@ -10,6 +10,8 @@ import { useInterviewSubmission } from "@/hooks/useInterviewSubmission";
 import type { SessionQuestion } from "@/types/interview-question";
 import { AutoPlayToggle } from "./AutoPlayToggle";
 import { Spinner } from "@heroui/react";
+import { GradingProgressModal } from "@/components/ui/GradingProgressModal";
+import { addToast } from "@heroui/toast";
 
 type QuestionsListProps = {
   selectedIndustry: string;
@@ -37,6 +39,10 @@ export const QuestionsList = memo(function QuestionsList({
 
   const { state, actions } = useMockInterviewState();
 
+  const [gradingProgress, setGradingProgress] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [isGrading, setIsGrading] = useState(false);
+
   const {
     answers,
     currentAnswer,
@@ -46,16 +52,17 @@ export const QuestionsList = memo(function QuestionsList({
     saveCurrentAnswer,
     submitForGrading,
     loadAnswerForQuestion,
+    clearSession,
   } = useAnswerManagement(sessionId);
 
-  const handleBeforeNavigate = () => {
+  const handleBeforeNavigate = async () => {
     const question = navigation.currentQuestion;
 
     if (question) {
       saveCurrentAnswer(question.id);
 
       if (currentAnswer.trim() && !submittedAnswerIds.has(question.id)) {
-        submitForGrading(question.id, question.question);
+        await submitForGrading(question.id, question.question);
       }
     }
     audio.tts.stop();
@@ -151,6 +158,9 @@ export const QuestionsList = memo(function QuestionsList({
   }, [audio.stt.audioBlob, audio.stt.isRecording]);
 
   const handleFinishInterview = async () => {
+    let lastAnswerId: string | null = null;
+
+    // Submit last answer to queue if not already submitted
     if (navigation.currentQuestion) {
       saveCurrentAnswer(navigation.currentQuestion.id);
 
@@ -158,24 +168,76 @@ export const QuestionsList = memo(function QuestionsList({
         currentAnswer.trim() &&
         !submittedAnswerIds.has(navigation.currentQuestion.id)
       ) {
-        await submitForGrading(
+        lastAnswerId = await submitForGrading(
           navigation.currentQuestion.id,
           navigation.currentQuestion.question,
         );
       }
     }
 
-    const gradedAnswerIds = Array.from(submittedAnswerIds.values());
+    // Get all submitted answer IDs, including the last one if it was just submitted
+    const gradedAnswerIds = lastAnswerId
+      ? [...Array.from(submittedAnswerIds.values()), lastAnswerId]
+      : Array.from(submittedAnswerIds.values());
 
-    await submitInterview(
-      gradedAnswerIds,
-      {
-        jobRole: selectedJobRole,
-        totalQuestions: navigation.progress.total,
-        answeredQuestions: gradedAnswerIds.length,
-      },
-      sessionId,
-    );
+    if (gradedAnswerIds.length === 0) {
+      addToast({
+        title: "No answers to grade",
+        description: "Please answer at least one question.",
+        color: "warning",
+      });
+
+      return;
+    }
+
+    // Show modal and wait for all answers to be graded
+    setIsGrading(true);
+    setGradingProgress(0);
+    setCompletedCount(0);
+
+    try {
+      // Poll all answers until they're all graded
+      const { pollMultipleAnswersUntilComplete } = await import(
+        "@/hooks/queries/useInterviewAnswers"
+      );
+
+      await pollMultipleAnswersUntilComplete(
+        gradedAnswerIds,
+        (completed, total) => {
+          setCompletedCount(completed);
+          const progress = Math.round((completed / total) * 100);
+
+          setGradingProgress(progress);
+          console.log(
+            `[QuestionsList] Grading progress: ${completed}/${total} (${progress}%)`,
+          );
+        },
+      );
+
+      clearSession(sessionId);
+      actions.reset(); 
+
+      // Navigate to results
+      await submitInterview(
+        gradedAnswerIds,
+        {
+          jobRole: selectedJobRole,
+          totalQuestions: navigation.progress.total,
+          answeredQuestions: gradedAnswerIds.length,
+        },
+        sessionId,
+      );
+    } catch (error) {
+      console.error("[QuestionsList] Grading failed:", error);
+      setIsGrading(false);
+
+      addToast({
+        title: "Grading failed",
+        description:
+          "Some answers could not be graded. Please try again later.",
+        color: "danger",
+      });
+    }
   };
 
   if (sessionQuestions.length === 0) {
@@ -524,6 +586,13 @@ export const QuestionsList = memo(function QuestionsList({
           </div>
         </div>
       </div>
+
+      <GradingProgressModal
+        isOpen={isGrading}
+        progress={gradingProgress}
+        currentQuestion={completedCount}
+        totalQuestions={submittedAnswerIds.size}
+      />
     </div>
   );
 });

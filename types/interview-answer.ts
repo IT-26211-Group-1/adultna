@@ -29,6 +29,7 @@ export type InterviewAnswer = {
   userId: string;
   transcriptJobName: string | null;
   status: AnswerStatus;
+  gradingProgress: number;
   scores: InterviewAnswerScores | null;
   totalScore: number | null;
   percentageScore: number | null;

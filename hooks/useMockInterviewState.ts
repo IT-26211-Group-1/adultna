@@ -59,10 +59,13 @@ export function useMockInterviewState() {
   }, [state, setSecureItem]);
 
   const selectField = useCallback((fieldId: string) => {
+    const isGeneral = fieldId.toLowerCase() === "general";
+
     setState((prev) => ({
       ...prev,
       selectedField: fieldId,
-      currentStep: "jobRole",
+      selectedJobRole: isGeneral ? "General" : null,
+      currentStep: isGeneral ? "guidelines" : "jobRole",
     }));
   }, []);
 
@@ -104,12 +107,14 @@ export function useMockInterviewState() {
             currentStep: "field",
           };
         case "guidelines":
+          const isGeneral = prev.selectedField?.toLowerCase() === "general";
           return {
             ...prev,
             selectedJobRole: null,
             sessionId: null,
             sessionQuestions: [],
-            currentStep: "jobRole",
+            currentStep: isGeneral ? "field" : "jobRole",
+            selectedField: isGeneral ? null : prev.selectedField,
           };
         case "questions":
           return {
