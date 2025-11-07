@@ -102,7 +102,36 @@ const questionApi = {
   createSession: (data: CreateSessionRequest): Promise<CreateSessionResponse> =>
     ApiClient.post("/interview-sessions", data),
 
-  // Transcribe audio to text (Speech-to-Text)
+  // Get presigned URL for direct S3 upload
+  getPresignedUrl: (data: {
+    userId: string;
+    format?: string;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      uploadUrl: string;
+      s3Key: string;
+      jobName: string;
+    };
+  }> => ApiClient.post("/transcribe/presigned-url", data),
+
+  // Start transcription with S3 key
+  startTranscription: (data: {
+    jobName: string;
+    s3Key: string;
+    userId: string;
+    format?: string;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      jobName: string;
+      status: string;
+    };
+  }> => ApiClient.post("/transcribe/start", data),
+
+  // Transcribe audio to text (Speech-to-Text) - Legacy
   transcribeAudio: (data: {
     userId: string;
     audioData: string;
@@ -516,55 +545,69 @@ export function useSpeechToText(userId: string) {
     setRealtimeTranscript("");
   }, []);
 
-  // Poll for transcription result (AWS Transcribe)
+  // Poll for transcription result with exponential backoff + jitter
   const pollTranscription = async (jobName: string): Promise<string> => {
     const maxAttempts = 60;
-    const delayMs = 2000;
+    const delays = [500, 1000, 1500, 2000, 3000, 5000];
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const result = await questionApi.getTranscription(jobName, userId);
+      try {
+        const result = await questionApi.getTranscription(jobName, userId);
 
-      if (result.data.status === "COMPLETED" && result.data.transcript) {
-        return result.data.transcript;
+        if (result.data.status === "COMPLETED" && result.data.transcript) {
+          return result.data.transcript;
+        }
+
+        if (result.data.status === "FAILED") {
+          throw new Error("Transcription failed");
+        }
+
+        const baseDelay = delays[Math.min(attempt, delays.length - 1)];
+        const jitter = Math.random() * 500;
+        const delayMs = baseDelay + jitter;
+
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      } catch (error: any) {
+        if (error?.message?.includes("429") || error?.message?.includes("rate limit")) {
+          const backoffDelay = Math.min(10000, 1000 * Math.pow(2, attempt));
+          console.warn(`Rate limited, backing off for ${backoffDelay}ms`);
+          await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+        } else if (attempt === maxAttempts - 1) {
+          throw error;
+        }
       }
-
-      if (result.data.status === "FAILED") {
-        throw new Error("Transcription failed");
-      }
-
-      // Wait before next poll
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
 
     throw new Error("Transcription timed out");
   };
 
-  // Combined transcribe and poll (AWS Transcribe for final accuracy)
+  // Combined transcribe and poll (AWS Transcribe with presigned URL)
   const transcribeAndPoll = async (audioBlob: Blob): Promise<string> => {
-    // Convert blob to base64
-    const base64Audio = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
+    const format = "webm";
 
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        // Remove data URL prefix
-        const base64Data = base64.split(",")[1];
-
-        resolve(base64Data);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(audioBlob);
-    });
-
-    // Start transcription
-    const transcribeResult = await questionApi.transcribeAudio({
+    const presignedResult = await questionApi.getPresignedUrl({
       userId,
-      audioData: base64Audio,
-      format: "webm",
+      format,
     });
 
-    // Poll for result
-    const transcript = await pollTranscription(transcribeResult.data.jobName);
+    const { uploadUrl, s3Key, jobName } = presignedResult.data;
+
+    await fetch(uploadUrl, {
+      method: "PUT",
+      body: audioBlob,
+      headers: {
+        "Content-Type": audioBlob.type || "audio/webm",
+      },
+    });
+
+    await questionApi.startTranscription({
+      jobName,
+      s3Key,
+      userId,
+      format,
+    });
+
+    const transcript = await pollTranscription(jobName);
 
     return transcript;
   };

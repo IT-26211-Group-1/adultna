@@ -45,7 +45,6 @@ export const QuestionsList = memo(function QuestionsList({
     setCurrentAnswer,
     saveCurrentAnswer,
     submitForGrading,
-    clearSession,
     loadAnswerForQuestion,
   } = useAnswerManagement(sessionId);
 
@@ -130,15 +129,19 @@ export const QuestionsList = memo(function QuestionsList({
     if (audio.stt.audioBlob && !audio.stt.isRecording) {
       const transcribe = async () => {
         try {
+          console.log("🎤 Starting AWS transcription...");
           const awsTranscript = await audio.stt.transcribeAndPoll(
             audio.stt.audioBlob!,
           );
+
+          console.log("✅ AWS transcript received:", awsTranscript?.substring(0, 50));
 
           if (awsTranscript) {
             setCurrentAnswer(awsTranscript);
           }
           audio.stt.clearRecording();
-        } catch {
+        } catch (error) {
+          console.error("❌ AWS transcription failed:", error);
           // Keep the Web Speech API result if AWS fails
         }
       };
@@ -164,13 +167,15 @@ export const QuestionsList = memo(function QuestionsList({
 
     const gradedAnswerIds = Array.from(submittedAnswerIds.values());
 
-    await submitInterview(gradedAnswerIds, {
-      jobRole: selectedJobRole,
-      totalQuestions: navigation.progress.total,
-      answeredQuestions: gradedAnswerIds.length,
-    });
-
-    clearSession(sessionId);
+    await submitInterview(
+      gradedAnswerIds,
+      {
+        jobRole: selectedJobRole,
+        totalQuestions: navigation.progress.total,
+        answeredQuestions: gradedAnswerIds.length,
+      },
+      sessionId,
+    );
   };
 
   if (sessionQuestions.length === 0) {

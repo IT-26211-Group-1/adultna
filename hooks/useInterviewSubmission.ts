@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { addToast } from "@heroui/toast";
+import { interviewStorage } from "@/utils/interviewStorage";
 
 type SessionMetadata = {
   jobRole: string;
@@ -15,6 +16,7 @@ type InterviewSubmissionReturn = {
   submitInterview: (
     answerIds: string[],
     metadata: SessionMetadata,
+    sessionId?: string,
   ) => Promise<void>;
 };
 
@@ -25,7 +27,7 @@ export function useInterviewSubmission(): InterviewSubmissionReturn {
   const [error, setError] = useState<string | null>(null);
 
   const submitInterview = useCallback(
-    async (answerIds: string[], metadata: SessionMetadata) => {
+    async (answerIds: string[], metadata: SessionMetadata, sessionId?: string) => {
       if (answerIds.length === 0) {
         addToast({
           title: "No answers were graded",
@@ -57,6 +59,12 @@ export function useInterviewSubmission(): InterviewSubmissionReturn {
           description: `Successfully graded ${answerIds.length} answers`,
           color: "success",
         });
+
+        // Clear interview answers from localStorage before navigation
+        // This prevents old answers from appearing if the user starts a new session
+        if (sessionId) {
+          interviewStorage.clear(sessionId);
+        }
 
         router.push("/mock-interview/results");
       } catch (err) {
