@@ -27,7 +27,11 @@ export function useInterviewSubmission(): InterviewSubmissionReturn {
   const [error, setError] = useState<string | null>(null);
 
   const submitInterview = useCallback(
-    async (answerIds: string[], metadata: SessionMetadata, sessionId?: string) => {
+    async (
+      answerIds: string[],
+      metadata: SessionMetadata,
+      sessionId?: string,
+    ) => {
       if (answerIds.length === 0) {
         addToast({
           title: "No answers were graded",

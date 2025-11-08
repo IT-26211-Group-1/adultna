@@ -568,8 +568,12 @@ export function useSpeechToText(userId: string) {
 
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       } catch (error: any) {
-        if (error?.message?.includes("429") || error?.message?.includes("rate limit")) {
+        if (
+          error?.message?.includes("429") ||
+          error?.message?.includes("rate limit")
+        ) {
           const backoffDelay = Math.min(10000, 1000 * Math.pow(2, attempt));
+
           console.warn(`Rate limited, backing off for ${backoffDelay}ms`);
           await new Promise((resolve) => setTimeout(resolve, backoffDelay));
         } else if (attempt === maxAttempts - 1) {

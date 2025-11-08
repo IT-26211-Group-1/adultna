@@ -32,13 +32,13 @@ const GradingProgressModalComponent = ({
 
   return (
     <Modal
-      isOpen={isOpen}
-      isDismissable={false}
       hideCloseButton
-      size="md"
       classNames={{
         backdrop: "bg-black/80 backdrop-blur-sm",
       }}
+      isDismissable={false}
+      isOpen={isOpen}
+      size="md"
     >
       <ModalContent>
         <ModalBody className="py-10 px-8">
@@ -65,13 +65,13 @@ const GradingProgressModalComponent = ({
 
             <div className="w-full space-y-2">
               <Progress
-                value={progress}
-                color="success"
-                size="md"
                 classNames={{
                   track: "bg-gray-200",
                   indicator: "bg-[#11553F]",
                 }}
+                color="success"
+                size="md"
+                value={progress}
               />
               <p className="text-xs text-center text-gray-500">
                 {Math.round(progress)}%

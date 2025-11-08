@@ -108,6 +108,7 @@ export function useMockInterviewState() {
           };
         case "guidelines":
           const isGeneral = prev.selectedField?.toLowerCase() === "general";
+
           return {
             ...prev,
             selectedJobRole: null,
