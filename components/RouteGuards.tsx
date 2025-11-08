@@ -3,8 +3,7 @@
 import { ReactNode, useRef, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { LoadingScreen } from "./ui/LoadingScreen";
-// No loading component needed for quick route guards
+import { LoadingSpinner } from "./ui/LoadingSpinner";
 
 type RouteProps = {
   children: ReactNode;
