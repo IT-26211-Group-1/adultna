@@ -5,16 +5,6 @@ import { API_CONFIG } from "@/config/api";
 export const API_BASE_URL = API_CONFIG.API_URL;
 export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
 
-let tokenProvider: (() => string | null) | null = null;
-
-export function setTokenProvider(provider: () => string | null) {
-  tokenProvider = provider;
-}
-
-export function setRefreshTokenCallback(
-  _callback: () => Promise<string | null>,
-) {}
-
 export class ApiClient {
   private static buildHeaders(
     customHeaders?: HeadersInit,
@@ -30,12 +20,6 @@ export class ApiClient {
           headers[key] = value;
         }
       });
-    }
-
-    const token = tokenProvider?.();
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
     }
 
     return headers;

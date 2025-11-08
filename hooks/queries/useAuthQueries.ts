@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { API_CONFIG } from "@/config/api";
+import { useAuthSync } from "@/hooks/useAuthSync";
+import { useTokenRefresh } from "@/hooks/useTokenRefresh";
+import { useIdleTimeout } from "@/hooks/useIdleTimeout";
+import { useCallback } from "react";
 
 // Types
 export type User = {
@@ -66,6 +70,28 @@ export function useAuth() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { setSecureItem } = useSecureStorage();
+
+  // Sync auth state across tabs
+  useAuthSync();
+
+  // Proactive token refresh
+  useTokenRefresh();
+
+  // Idle timeout - logout after 30 minutes of inactivity
+  const handleIdleTimeout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error("Idle timeout logout failed:", error);
+    } finally {
+      import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
+        broadcastLogout();
+      });
+      queryClient.removeQueries({ queryKey: queryKeys.auth.all });
+      queryClient.setQueryData(queryKeys.auth.me(), null);
+      window.location.href = "/auth/login";
+    }
+  }, [queryClient]);
 
   const {
     data: user,
@@ -156,6 +182,11 @@ export function useAuth() {
     mutationFn: authApi.login,
     onSuccess: async (data) => {
       if (data.success) {
+        // Broadcast login to other tabs
+        import("@/hooks/useAuthSync").then(({ broadcastLogin }) => {
+          broadcastLogin();
+        });
+
         await queryClient.invalidateQueries({
           queryKey: queryKeys.auth.all,
           exact: false,
@@ -195,12 +226,23 @@ export function useAuth() {
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
+      // Broadcast logout to other tabs
+      import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
+        broadcastLogout();
+      });
+
       queryClient.removeQueries({ queryKey: queryKeys.auth.all });
       queryClient.setQueryData(queryKeys.auth.me(), null);
       window.location.href = "/auth/login";
     },
     onError: (error) => {
       console.error("Logout failed:", error);
+
+      // Broadcast logout to other tabs even on error
+      import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
+        broadcastLogout();
+      });
+
       queryClient.removeQueries({ queryKey: queryKeys.auth.all });
       queryClient.setQueryData(queryKeys.auth.me(), null);
       window.location.href = "/auth/login";
@@ -239,6 +281,9 @@ export function useAuth() {
 
     return dataAge < API_CONFIG.AUTH_QUERY.STALE_TIME;
   };
+
+  // Enable idle timeout only when user is authenticated
+  useIdleTimeout(handleIdleTimeout, !!user);
 
   const authState = {
     user,
