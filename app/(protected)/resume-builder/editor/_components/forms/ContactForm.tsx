@@ -59,7 +59,7 @@ export default function ContactForm({
             errorMessage={form.formState.errors.firstName?.message}
             isInvalid={!!form.formState.errors.firstName}
             label="First Name"
-            placeholder="Juan"
+            placeholder="Enter your First Name"
           />
 
           <Input
@@ -67,7 +67,7 @@ export default function ContactForm({
             errorMessage={form.formState.errors.lastName?.message}
             isInvalid={!!form.formState.errors.lastName}
             label="Last Name"
-            placeholder="Dela Cruz"
+            placeholder="Enter your Last Name"
           />
         </div>
 
@@ -77,7 +77,7 @@ export default function ContactForm({
             errorMessage={form.formState.errors.city?.message}
             isInvalid={!!form.formState.errors.city}
             label="City"
-            placeholder="Manila"
+            placeholder="Enter your City"
           />
 
           <Input
@@ -85,7 +85,7 @@ export default function ContactForm({
             errorMessage={form.formState.errors.region?.message}
             isInvalid={!!form.formState.errors.region}
             label="Region"
-            placeholder="NCR"
+            placeholder="Enter your Region"
           />
         </div>
 
@@ -94,7 +94,7 @@ export default function ContactForm({
           errorMessage={form.formState.errors.email?.message}
           isInvalid={!!form.formState.errors.email}
           label="Email"
-          placeholder="your@email.com"
+          placeholder="email@email.com"
           type="email"
         />
 
@@ -125,8 +125,8 @@ export default function ContactForm({
                     new CalendarDate(
                       val.getFullYear(),
                       val.getMonth() + 1,
-                      val.getDate(),
-                    ),
+                      val.getDate()
+                    )
                   );
                 } else {
                   field.onChange(val);
