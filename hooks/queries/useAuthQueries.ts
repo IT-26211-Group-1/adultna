@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { API_CONFIG } from "@/config/api";
@@ -65,16 +65,7 @@ const authApi = {
 export function useAuth() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const pathname = usePathname();
   const { setSecureItem } = useSecureStorage();
-
-  const isPublicRoute = [
-    "/auth/login",
-    "/auth/register",
-    "/auth/verify-email",
-    "/auth/forgot-password",
-    "/auth/google/callback",
-  ].some((route) => pathname?.startsWith(route));
 
   const {
     data: user,
@@ -83,7 +74,7 @@ export function useAuth() {
     refetch: checkAuth,
   } = useQuery({
     queryKey: queryKeys.auth.me(),
-    enabled: !isPublicRoute,
+    enabled: true,
     queryFn: async () => {
       try {
         const response = await authApi.me();
