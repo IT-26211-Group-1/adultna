@@ -19,10 +19,10 @@ const answerApi = {
     ApiClient.post("/interview-answer", data),
   getAnswerById: async (
     answerId: string,
-    loadContent = false,
+    loadContent = false
   ): Promise<InterviewAnswer> => {
     const response = await ApiClient.get<ApiResponse<InterviewAnswer>>(
-      `/interview-answer/${answerId}?loadContent=${loadContent}`,
+      `/interview-answer/${answerId}?loadContent=${loadContent}`
     );
 
     return response.data;
@@ -36,14 +36,12 @@ export function useSubmitAnswerToQueue() {
 
   return useMutation({
     mutationFn: async (data: SubmitAnswerRequest) => {
-      console.log("[useSubmitAnswerToQueue] Submitting answer to queue (non-blocking)...");
-
-      // Submit answer - returns immediately with pending status
+      // Submit answer - returns after grading completes (synchronous)
       const response = await answerApi.submitAnswer(data);
 
       console.log(
-        "[useSubmitAnswerToQueue] Answer submitted to queue, ID:",
-        response.id,
+        "[useSubmitAnswerToQueue] Answer submitted and graded, ID:",
+        response.id
       );
 
       return response;
@@ -59,14 +57,15 @@ export function useSubmitAnswerToQueue() {
 
 export async function pollMultipleAnswersUntilComplete(
   answerIds: string[],
-  onProgress?: (completedCount: number, totalCount: number) => void,
+  onProgress?: (completedCount: number, totalCount: number) => void
 ): Promise<InterviewAnswer[]> {
   const MAX_ATTEMPTS = 300; // 5 minutes max for all answers (increased for 1s polling)
   const POLL_INTERVAL = 1000; // Poll every 1 second for faster UI updates
+  const loggedAnswerIds = new Set<string>(); // Track which answers we've already logged
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     console.log(
-      `[pollMultipleAnswersUntilComplete] Polling attempt ${attempt + 1}/${MAX_ATTEMPTS} for ${answerIds.length} answers`,
+      `[pollMultipleAnswersUntilComplete] Polling attempt ${attempt + 1}/${MAX_ATTEMPTS} for ${answerIds.length} answers`
     );
 
     // Fetch all answers at once
@@ -78,8 +77,25 @@ export async function pollMultipleAnswersUntilComplete(
     const completedAnswers = answers.filter((a) => a.status === "completed");
     const failedAnswers = answers.filter((a) => a.status === "failed");
 
+    // Log newly completed answers with their grading results
+    completedAnswers.forEach((answer) => {
+      if (!loggedAnswerIds.has(answer.id) && answer.totalScore !== null) {
+        loggedAnswerIds.add(answer.id);
+        console.log(`✅ [Grading Complete] Answer ${answer.id}`, {
+          totalScore: answer.totalScore,
+          percentageScore: answer.percentageScore,
+          scores: answer.scores,
+          starFeedback: answer.evaluation?.starFeedback,
+          strengths: answer.evaluation?.strengths,
+          areasForImprovement: answer.evaluation?.areasForImprovement,
+          actionableRecommendations:
+            answer.evaluation?.actionableRecommendations,
+        });
+      }
+    });
+
     console.log(
-      `[pollMultipleAnswersUntilComplete] Completed: ${completedAnswers.length}/${answerIds.length}, Failed: ${failedAnswers.length}`,
+      `[pollMultipleAnswersUntilComplete] Completed: ${completedAnswers.length}/${answerIds.length}, Failed: ${failedAnswers.length}`
     );
 
     if (onProgress) {
@@ -101,6 +117,50 @@ export async function pollMultipleAnswersUntilComplete(
   }
 
   throw new Error("Grading timed out. Please check back later.");
+}
+
+export async function pollSingleAnswerUntilComplete(
+  answerId: string
+): Promise<InterviewAnswer> {
+  const MAX_ATTEMPTS = 300; // 5 minutes max
+  const POLL_INTERVAL = 1000; // Poll every 1 second
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    console.log(
+      `[pollSingleAnswerUntilComplete] Polling answer ${answerId}, attempt ${attempt + 1}/${MAX_ATTEMPTS}`
+    );
+
+    // Fetch the answer
+    const answer = await answerApi.getAnswerById(answerId, false);
+
+    console.log(
+      `[pollSingleAnswerUntilComplete] Answer status: ${answer.status}, progress: ${answer.gradingProgress}%`
+    );
+
+    // Check if completed or failed
+    if (answer.status === "completed") {
+      // Fetch with full content
+      const fullAnswer = await answerApi.getAnswerById(answerId, true);
+
+      console.log(`✅ [pollSingleAnswerUntilComplete] Grading complete!`, {
+        answerId: fullAnswer.id,
+        totalScore: fullAnswer.totalScore,
+        percentageScore: fullAnswer.percentageScore,
+        scores: fullAnswer.scores,
+      });
+
+      return fullAnswer;
+    }
+
+    if (answer.status === "failed") {
+      throw new Error(`Grading failed for answer ${answerId}`);
+    }
+
+    // Still processing, wait and try again
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
+  }
+
+  throw new Error(`Grading timed out for answer ${answerId}`);
 }
 
 export function useGetAnswersByIds(answerIds: string[], enabled = true) {

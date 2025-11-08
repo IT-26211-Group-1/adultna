@@ -62,7 +62,14 @@ export const QuestionsList = memo(function QuestionsList({
       saveCurrentAnswer(question.id);
 
       if (currentAnswer.trim() && !submittedAnswerIds.has(question.id)) {
-        await submitForGrading(question.id, question.question);
+        console.log(`[QuestionsList] Submitting and grading answer: ${question.id}`);
+
+        // Submit and grade immediately (synchronous grading with Bedrock)
+        const result = await submitForGrading(question.id, question.question);
+
+        if (result) {
+          console.log(`[QuestionsList] ✅ Answer ${result} graded successfully`);
+        }
       }
     }
     audio.tts.stop();
