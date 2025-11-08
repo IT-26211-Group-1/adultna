@@ -9,6 +9,7 @@ interface FormInputProps {
   type?: string;
   error?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 const getDetailedValidationMessage = (
@@ -69,6 +70,7 @@ export const FormInput = ({
   type = "text",
   error,
   className = "",
+  disabled = false,
 }: FormInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldValue, setFieldValue] = useState("");
@@ -99,6 +101,7 @@ export const FormInput = ({
           innerWrapper: "items-center",
         }}
         color={error ? "danger" : "default"}
+        disabled={disabled}
         endContent={
           isPasswordField && (
             <button
