@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/apiClient";
+import { queryKeys, isPublicRoute } from "@/lib/apiClient";
 
 const AUTH_CHANNEL_NAME = "auth-sync";
 
@@ -22,8 +22,10 @@ export function useAuthSync() {
         queryClient.removeQueries({ queryKey: queryKeys.auth.all });
         queryClient.setQueryData(queryKeys.auth.me(), null);
 
-        // Redirect to login
-        window.location.href = "/auth/login";
+        // Only redirect to login if not on a public route
+        if (!isPublicRoute(window.location.pathname)) {
+          window.location.href = "/auth/login";
+        }
       }
 
       if (event.data.type === "LOGIN") {
