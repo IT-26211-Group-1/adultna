@@ -52,10 +52,10 @@ export function PersonalDetailsScore({
 
         {/* Progress Bar */}
         <Progress
-          value={percentage}
+          className="w-full"
           color={percentage === 100 ? "success" : "default"}
           size="md"
-          className="w-full"
+          value={percentage}
         />
 
         {/* Status Text */}

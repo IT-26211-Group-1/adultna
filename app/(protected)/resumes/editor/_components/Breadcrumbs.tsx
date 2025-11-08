@@ -17,10 +17,7 @@ export default function HeroBreadcrumbs({
     <div className="flex justify-center">
       <Breadcrumbs onAction={(key) => setCurrentStep(key as string)}>
         {steps.map((step) => (
-          <BreadcrumbItem
-            key={step.key}
-            isCurrent={step.key === currentStep}
-          >
+          <BreadcrumbItem key={step.key} isCurrent={step.key === currentStep}>
             {step.title}
           </BreadcrumbItem>
         ))}

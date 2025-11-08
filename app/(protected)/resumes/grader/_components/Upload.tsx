@@ -99,8 +99,8 @@ export function Upload() {
                 Grade Your Resume
               </h1>
               <p className="text-center text-gray-500">
-                Get an instant ATS-friendly analysis of your resume with AI-powered
-                recommendations for improvement
+                Get an instant ATS-friendly analysis of your resume with
+                AI-powered recommendations for improvement
               </p>
             </div>
 
@@ -203,7 +203,12 @@ export function Upload() {
                       AI-Powered Analysis Disclaimer
                     </h3>
                     <p className="text-xs text-amber-800 leading-relaxed">
-                      This resume analysis is powered by artificial intelligence and provides general recommendations. While our AI is trained on industry best practices and ATS requirements, results should be used as guidance alongside professional judgment. Individual results may vary based on specific industries, roles, and company requirements.
+                      This resume analysis is powered by artificial intelligence
+                      and provides general recommendations. While our AI is
+                      trained on industry best practices and ATS requirements,
+                      results should be used as guidance alongside professional
+                      judgment. Individual results may vary based on specific
+                      industries, roles, and company requirements.
                     </p>
                   </div>
                 </div>

@@ -13,8 +13,16 @@ export default function ColorPicker({ color, onChange }: ColorPickerProps) {
   const [customHex, setCustomHex] = useState(color || "#000000");
 
   const colors = [
-    "#000000", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", 
-    "#FECA57", "#FF9FF3", "#54A0FF", "#5F27CD", "#00D2D3"
+    "#000000",
+    "#FF6B6B",
+    "#4ECDC4",
+    "#45B7D1",
+    "#96CEB4",
+    "#FECA57",
+    "#FF9FF3",
+    "#54A0FF",
+    "#5F27CD",
+    "#00D2D3",
   ];
 
   const isValidHex = (hex: string): boolean => {
@@ -29,16 +37,16 @@ export default function ColorPicker({ color, onChange }: ColorPickerProps) {
   };
 
   return (
-    <Popover 
-      isOpen={showPopover} 
-      onOpenChange={setShowPopover}
+    <Popover
+      isOpen={showPopover}
       placement="bottom-end"
+      onOpenChange={setShowPopover}
     >
       <PopoverTrigger>
         <Button
-          variant="bordered"
           isIconOnly
           aria-label="Change resume color"
+          variant="bordered"
           onPress={() => setShowPopover(true)}
         >
           <PaletteIcon className="size-5" />
@@ -54,7 +62,9 @@ export default function ColorPicker({ color, onChange }: ColorPickerProps) {
                 <button
                   key={colorOption}
                   className={`w-8 h-8 rounded border-2 hover:scale-110 transition-transform ${
-                    color === colorOption ? 'border-gray-800' : 'border-gray-300'
+                    color === colorOption
+                      ? "border-gray-800"
+                      : "border-gray-300"
                   }`}
                   style={{ backgroundColor: colorOption }}
                   onClick={() => {
@@ -72,19 +82,27 @@ export default function ColorPicker({ color, onChange }: ColorPickerProps) {
             <p className="text-sm font-medium mb-2">Custom Color</p>
             <div className="flex gap-2 items-center">
               <Input
-                size="sm"
-                placeholder="#000000"
-                value={customHex}
-                onChange={(e) => handleCustomColorChange(e.target.value)}
                 className="flex-1"
-                startContent={
-                  <div 
-                    className="w-4 h-4 rounded border border-gray-300 flex-shrink-0"
-                    style={{ backgroundColor: isValidHex(customHex) ? customHex : '#transparent' }}
-                  />
+                errorMessage={
+                  customHex !== "" && !isValidHex(customHex)
+                    ? "Invalid hex color"
+                    : ""
                 }
                 isInvalid={customHex !== "" && !isValidHex(customHex)}
-                errorMessage={customHex !== "" && !isValidHex(customHex) ? "Invalid hex color" : ""}
+                placeholder="#000000"
+                size="sm"
+                startContent={
+                  <div
+                    className="w-4 h-4 rounded border border-gray-300 flex-shrink-0"
+                    style={{
+                      backgroundColor: isValidHex(customHex)
+                        ? customHex
+                        : "#transparent",
+                    }}
+                  />
+                }
+                value={customHex}
+                onChange={(e) => handleCustomColorChange(e.target.value)}
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">

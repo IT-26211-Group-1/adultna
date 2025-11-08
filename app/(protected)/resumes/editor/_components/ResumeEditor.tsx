@@ -19,14 +19,19 @@ export default function ResumeEditor() {
   const [isCompleted, setIsCompleted] = useState(false);
 
   function setStep(key: string) {
-    const newSearchParams = new URLSearchParams(searchParams)
-    newSearchParams.set("step", key)
+    const newSearchParams = new URLSearchParams(searchParams);
+
+    newSearchParams.set("step", key);
     window.history.pushState(null, "", `?${newSearchParams.toString()}`);
   }
 
-  const FormComponent = steps.find((step) => step.key === currentStep)?.component;
+  const FormComponent = steps.find(
+    (step) => step.key === currentStep,
+  )?.component;
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
-  const currentStepTitle = steps.find((step) => step.key === currentStep)?.title;
+  const currentStepTitle = steps.find(
+    (step) => step.key === currentStep,
+  )?.title;
   const isLastStep = currentStepIndex === steps.length - 1;
   const isContactForm = currentStep === "contact";
 
@@ -34,6 +39,7 @@ export default function ResumeEditor() {
     if (isFormValid) {
       if (!isLastStep) {
         const nextStep = steps[currentStepIndex + 1];
+
         setStep(nextStep.key);
       } else {
         // Complete the resume and show completion page
@@ -47,7 +53,12 @@ export default function ResumeEditor() {
   const validateCurrentStep = () => {
     switch (currentStep) {
       case "contact":
-        return !!(resumeData.firstName && resumeData.lastName && resumeData.email && resumeData.phone);
+        return !!(
+          resumeData.firstName &&
+          resumeData.lastName &&
+          resumeData.email &&
+          resumeData.phone
+        );
       case "work":
         // Work experience is optional, so always valid
         return true;
@@ -71,10 +82,10 @@ export default function ResumeEditor() {
   const handleSkip = () => {
     if (!isLastStep && !isContactForm) {
       const nextStep = steps[currentStepIndex + 1];
+
       setStep(nextStep.key);
     }
   };
-  
 
   // Update form validation whenever resumeData or currentStep changes
   useEffect(() => {
@@ -94,32 +105,34 @@ export default function ResumeEditor() {
           Follow the steps below to create your resume. Your progress will be
           saved automatically.
         </p> */}
-        <Navbar/>
+        <Navbar />
       </header>
       <main className="relative grow">
         <div className="absolute bottom-0 top-0 flex w-full">
           <div className="w-full md:w-1/2 flex flex-col">
             <div className="flex-1 overflow-y-auto p-6">
               <Breadcrumbs currentStep={currentStep} setCurrentStep={setStep} />
-              {FormComponent && <FormComponent
-                resumeData={resumeData}
-                setResumeData={setResumeData}
-              />}
+              {FormComponent && (
+                <FormComponent
+                  resumeData={resumeData}
+                  setResumeData={setResumeData}
+                />
+              )}
             </div>
             <div className="p-6">
               <div className="max-w-xs mx-auto space-y-3">
                 <LoadingButton
-                  onClick={handleContinue}
                   className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!isFormValid}
+                  onClick={handleContinue}
                 >
                   {isLastStep ? "Complete" : "Continue"}
                 </LoadingButton>
-                
+
                 {!isContactForm && !isLastStep && (
                   <button
-                    onClick={handleSkip}
                     className="w-full text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
+                    onClick={handleSkip}
                   >
                     Skip {currentStepTitle}
                   </button>
@@ -129,9 +142,9 @@ export default function ResumeEditor() {
           </div>
           <div className="hidden md:flex md:w-1/2 md:border-l">
             <ResumePreviewSection
+              className="w-full"
               resumeData={resumeData}
               setResumeData={setResumeData}
-              className="w-full"
             />
           </div>
         </div>

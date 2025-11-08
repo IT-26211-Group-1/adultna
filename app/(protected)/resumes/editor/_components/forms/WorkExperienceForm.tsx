@@ -1,6 +1,11 @@
 import { workSchema, WorkExperienceData } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, useFieldArray, UseFormReturn } from "react-hook-form";
+import {
+  useForm,
+  Controller,
+  useFieldArray,
+  UseFormReturn,
+} from "react-hook-form";
 import { Input, Textarea, Checkbox, DatePicker, Button } from "@heroui/react";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
@@ -17,7 +22,6 @@ import {
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
@@ -27,18 +31,23 @@ import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 import AISuggestions from "../AISuggestions";
 
-export default function WorkExperienceForm({ resumeData, setResumeData }: EditorFormProps) {
+export default function WorkExperienceForm({
+  resumeData,
+  setResumeData,
+}: EditorFormProps) {
   const form = useForm<WorkExperienceData>({
     resolver: zodResolver(workSchema),
     defaultValues: {
-      workExperiences: resumeData.workExperiences || [{ 
-        jobTitle: "", 
-        employer: "", 
-        startDate: undefined, 
-        endDate: undefined, 
-        isCurrentlyWorkingHere: false, 
-        description: "" 
-      }],
+      workExperiences: resumeData.workExperiences || [
+        {
+          jobTitle: "",
+          employer: "",
+          startDate: undefined,
+          endDate: undefined,
+          isCurrentlyWorkingHere: false,
+          description: "",
+        },
+      ],
     },
   });
 
@@ -60,6 +69,7 @@ export default function WorkExperienceForm({ resumeData, setResumeData }: Editor
     if (over && active.id !== over.id) {
       const oldIndex = fields.findIndex((field) => field.id === active.id);
       const newIndex = fields.findIndex((field) => field.id === over.id);
+
       move(oldIndex, newIndex);
     }
   }
@@ -67,43 +77,57 @@ export default function WorkExperienceForm({ resumeData, setResumeData }: Editor
   useEffect(() => {
     const { unsubscribe } = form.watch(async (values) => {
       const isValid = await form.trigger();
+
       if (!isValid) return;
       setResumeData({
         ...resumeData,
-        workExperiences: values.workExperiences?.filter((exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== "") as any[] || [],
+        workExperiences:
+          (values.workExperiences?.filter(
+            (exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== "",
+          ) as any[]) || [],
       });
     });
+
     return unsubscribe;
   }, [form, resumeData, setResumeData]);
-    
+
   // Function to count words in the description
   const getWordCount = (text: string): number => {
     if (!text || text.trim() === "") return 0;
+
     return text.trim().split(/\s+/).length;
   };
 
   const addWorkExperience = () => {
-    append({ 
-      jobTitle: "", 
-      employer: "", 
-      startDate: undefined, 
-      endDate: undefined, 
-      isCurrentlyWorkingHere: false, 
-      description: "" 
+    append({
+      jobTitle: "",
+      employer: "",
+      startDate: undefined,
+      endDate: undefined,
+      isCurrentlyWorkingHere: false,
+      description: "",
     });
   };
 
-  // Test data for the design replace with the actual API 
+  // Test data for the design replace with the actual API
   const aiWorkDescriptions: string[] = [
-    "Developed and maintained web applications using JavaScript, React, and Node.js."
+    "Developed and maintained web applications using JavaScript, React, and Node.js.",
   ];
 
-  const handleApplyDescription = (description: string, currentIndex: number) => {
-    const currentDescription = form.watch(`workExperiences.${currentIndex}.description`) || "";
-    const newDescription = currentDescription.trim() 
+  const handleApplyDescription = (
+    description: string,
+    currentIndex: number,
+  ) => {
+    const currentDescription =
+      form.watch(`workExperiences.${currentIndex}.description`) || "";
+    const newDescription = currentDescription.trim()
       ? `${currentDescription}\n• ${description}`
       : `• ${description}`;
-    form.setValue(`workExperiences.${currentIndex}.description`, newDescription);
+
+    form.setValue(
+      `workExperiences.${currentIndex}.description`,
+      newDescription,
+    );
   };
 
   return (
@@ -111,16 +135,17 @@ export default function WorkExperienceForm({ resumeData, setResumeData }: Editor
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Work Experience</h2>
         <p className="text-sm text-default-500">
-          Start with your most recent job, then add as many work experiences as you like.
+          Start with your most recent job, then add as many work experiences as
+          you like.
         </p>
       </div>
 
       <form className="space-y-6">
         <DndContext
-          sensors={sensors}
           collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
           modifiers={[restrictToVerticalAxis]}
+          sensors={sensors}
+          onDragEnd={handleDragEnd}
         >
           <SortableContext
             items={fields}
@@ -129,12 +154,12 @@ export default function WorkExperienceForm({ resumeData, setResumeData }: Editor
             {fields.map((field, index) => (
               <WorkExperienceItem
                 key={field.id}
+                aiSuggestions={aiWorkDescriptions}
+                form={form}
+                getWordCount={getWordCount}
                 id={field.id}
                 index={index}
-                form={form}
                 remove={remove}
-                getWordCount={getWordCount}
-                aiSuggestions={aiWorkDescriptions}
                 onApplyDescription={handleApplyDescription}
               />
             ))}
@@ -143,11 +168,11 @@ export default function WorkExperienceForm({ resumeData, setResumeData }: Editor
 
         <div className="flex justify-center">
           <Button
+            color="primary"
+            startContent={<PlusIcon size={16} />}
             type="button"
             variant="flat"
-            color="primary"
             onClick={addWorkExperience}
-            startContent={<PlusIcon size={16} />}
           >
             Add Another Work Experience
           </Button>
@@ -187,11 +212,11 @@ function WorkExperienceItem({
 
   return (
     <div
+      ref={setNodeRef}
       className={cn(
         "space-y-3 p-4 border border-default-200 rounded-lg bg-background",
         isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
       )}
-      ref={setNodeRef}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
@@ -206,11 +231,11 @@ function WorkExperienceItem({
             {...listeners}
           />
           <Button
-            type="button"
             isIconOnly
-            size="sm"
-            variant="flat"
             color="danger"
+            size="sm"
+            type="button"
+            variant="flat"
             onClick={() => remove(index)}
           >
             <TrashIcon size={16} />
@@ -220,18 +245,22 @@ function WorkExperienceItem({
 
       <Input
         {...form.register(`workExperiences.${index}.jobTitle`)}
+        errorMessage={
+          form.formState.errors.workExperiences?.[index]?.jobTitle?.message
+        }
+        isInvalid={!!form.formState.errors.workExperiences?.[index]?.jobTitle}
         label="Job Title"
         placeholder="Software Engineer"
-        isInvalid={!!form.formState.errors.workExperiences?.[index]?.jobTitle}
-        errorMessage={form.formState.errors.workExperiences?.[index]?.jobTitle?.message}
       />
 
       <Input
         {...form.register(`workExperiences.${index}.employer`)}
+        errorMessage={
+          form.formState.errors.workExperiences?.[index]?.employer?.message
+        }
+        isInvalid={!!form.formState.errors.workExperiences?.[index]?.employer}
         label="Employer"
         placeholder="Company Name"
-        isInvalid={!!form.formState.errors.workExperiences?.[index]?.employer}
-        errorMessage={form.formState.errors.workExperiences?.[index]?.employer?.message}
       />
 
       <div className="grid grid-cols-2 gap-3">
@@ -240,6 +269,7 @@ function WorkExperienceItem({
           name={`workExperiences.${index}.startDate`}
           render={({ field, fieldState }) => {
             let value = field.value;
+
             if (!(value instanceof CalendarDate)) {
               value = undefined;
             }
@@ -249,21 +279,22 @@ function WorkExperienceItem({
                   new CalendarDate(
                     val.getFullYear(),
                     val.getMonth() + 1,
-                    val.getDate()
-                  )
+                    val.getDate(),
+                  ),
                 );
               } else {
                 field.onChange(val);
               }
             };
+
             return (
               <DatePicker
+                errorMessage={fieldState.error?.message}
+                isInvalid={!!fieldState.error}
                 label="Start Date"
                 value={value}
-                onChange={handleChange}
                 onBlur={field.onBlur}
-                isInvalid={!!fieldState.error}
-                errorMessage={fieldState.error?.message}
+                onChange={handleChange}
               />
             );
           }}
@@ -274,6 +305,7 @@ function WorkExperienceItem({
           name={`workExperiences.${index}.endDate`}
           render={({ field, fieldState }) => {
             let value = field.value;
+
             if (!(value instanceof CalendarDate)) {
               value = undefined;
             }
@@ -283,55 +315,71 @@ function WorkExperienceItem({
                   new CalendarDate(
                     val.getFullYear(),
                     val.getMonth() + 1,
-                    val.getDate()
-                  )
+                    val.getDate(),
+                  ),
                 );
               } else {
                 field.onChange(val);
               }
             };
+
             return (
               <DatePicker
+                errorMessage={fieldState.error?.message}
+                isDisabled={form.watch(
+                  `workExperiences.${index}.isCurrentlyWorkingHere`,
+                )}
+                isInvalid={!!fieldState.error}
                 label="End Date"
                 value={value}
-                onChange={handleChange}
                 onBlur={field.onBlur}
-                isInvalid={!!fieldState.error}
-                errorMessage={fieldState.error?.message}
-                isDisabled={form.watch(`workExperiences.${index}.isCurrentlyWorkingHere`)}
+                onChange={handleChange}
               />
             );
           }}
         />
       </div>
-      
+
       <Checkbox
         {...form.register(`workExperiences.${index}.isCurrentlyWorkingHere`)}
-        isSelected={form.watch(`workExperiences.${index}.isCurrentlyWorkingHere`)}
-        onValueChange={(value) => form.setValue(`workExperiences.${index}.isCurrentlyWorkingHere`, value)}
+        isSelected={form.watch(
+          `workExperiences.${index}.isCurrentlyWorkingHere`,
+        )}
+        onValueChange={(value) =>
+          form.setValue(
+            `workExperiences.${index}.isCurrentlyWorkingHere`,
+            value,
+          )
+        }
       >
         Currently working here?
       </Checkbox>
 
       <Textarea
         {...form.register(`workExperiences.${index}.description`)}
-        label="Job Description"
         description={`${form.watch(`workExperiences.${index}.description`) ? `${getWordCount(form.watch(`workExperiences.${index}.description`) || "")} / 100 words` : "Maximum 100 words"}`}
-        placeholder="Describe your key responsibilities and achievements..."
+        errorMessage={
+          form.formState.errors.workExperiences?.[index]?.description?.message
+        }
+        isInvalid={
+          !!form.formState.errors.workExperiences?.[index]?.description
+        }
+        label="Job Description"
         minRows={4}
-        isInvalid={!!form.formState.errors.workExperiences?.[index]?.description}
-        errorMessage={form.formState.errors.workExperiences?.[index]?.description?.message}
+        placeholder="Describe your key responsibilities and achievements..."
       />
 
       {/* Only show AISuggestions when aiSuggestions has data */}
       {aiSuggestions.length > 0 && (
         <AISuggestions
-          title="AI Recommendations for Juan Miguel's Work Description"
-          subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
-          suggestions={aiSuggestions}
-          onApplySuggestion={(suggestion: string) => onApplyDescription(suggestion, index)}
           buttonType="plus"
           className="mt-4"
+          subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
+          suggestions={aiSuggestions}
+          title="AI Recommendations for Juan Miguel's Work Description"
+          onApplySuggestion={(suggestion: string) =>
+            onApplyDescription(suggestion, index)
+          }
         />
       )}
     </div>

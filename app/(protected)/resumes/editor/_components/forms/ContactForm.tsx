@@ -47,8 +47,8 @@ export default function ContactForm({
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Contact Information</h2>
         <p className="text-sm text-default-500">
-          Let&apos;s kick things off! Start by entering your name, email, and phone
-          number to set up your resume and keep everything organized.
+          Let&apos;s kick things off! Start by entering your name, email, and
+          phone number to set up your resume and keep everything organized.
         </p>
       </div>
 

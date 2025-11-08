@@ -17,6 +17,7 @@ export default function useDimensions(
 
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0];
+
       if (entry) {
         setDimensions(getDimensions());
       }

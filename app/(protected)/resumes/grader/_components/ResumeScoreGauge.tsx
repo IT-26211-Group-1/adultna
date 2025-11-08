@@ -5,14 +5,12 @@ interface ResumeScoreGaugeProps {
   verdict: string;
 }
 
-export function ResumeScoreGauge({
-  score,
-  verdict,
-}: ResumeScoreGaugeProps) {
+export function ResumeScoreGauge({ score, verdict }: ResumeScoreGaugeProps) {
   // Determine color based on score
   const getScoreColor = (score: number) => {
     if (score >= 80) return "#10b981";
     if (score >= 60) return "#f59e0b";
+
     return "#ef4444";
   };
 
@@ -26,18 +24,18 @@ export function ResumeScoreGauge({
             d="M 20 100 A 80 80 0 0 1 180 100"
             fill="none"
             stroke="#e5e7eb"
-            strokeWidth="20"
             strokeLinecap="round"
+            strokeWidth="20"
           />
           {/* Progress arc */}
           <path
+            className="transition-all duration-1000"
             d="M 20 100 A 80 80 0 0 1 180 100"
             fill="none"
             stroke={getScoreColor(score)}
-            strokeWidth="20"
-            strokeLinecap="round"
             strokeDasharray={`${(score / 100) * 251.2} 251.2`}
-            className="transition-all duration-1000"
+            strokeLinecap="round"
+            strokeWidth="20"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center pt-8">

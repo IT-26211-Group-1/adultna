@@ -59,8 +59,8 @@ export default function SummaryForm({
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Professional Summary</h2>
         <p className="text-sm text-default-500">
-          Write a short introduction for your resume. Don&apos;t worry! Our AI will
-          help you out and give recommendations.
+          Write a short introduction for your resume. Don&apos;t worry! Our AI
+          will help you out and give recommendations.
         </p>
       </div>
 

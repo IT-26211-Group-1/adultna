@@ -1,7 +1,10 @@
 "use client";
 
 import { Input, Button } from "@heroui/react";
-import { CertificationFormData, certificationSchema } from "@/validators/resumeSchema";
+import {
+  CertificationFormData,
+  certificationSchema,
+} from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
@@ -33,10 +36,12 @@ export default function CertificationForm({
   const form = useForm<CertificationFormData>({
     resolver: zodResolver(certificationSchema),
     defaultValues: {
-      certificates: resumeData.certificates || [{
-        certificate: "",
-        issuingOrganization: "",
-      }],
+      certificates: resumeData.certificates || [
+        {
+          certificate: "",
+          issuingOrganization: "",
+        },
+      ],
     },
   });
 
@@ -58,6 +63,7 @@ export default function CertificationForm({
     if (over && active.id !== over.id) {
       const oldIndex = fields.findIndex((field) => field.id === active.id);
       const newIndex = fields.findIndex((field) => field.id === over.id);
+
       move(oldIndex, newIndex);
     }
   }
@@ -65,12 +71,18 @@ export default function CertificationForm({
   useEffect(() => {
     const { unsubscribe } = form.watch(async (values) => {
       const isValid = await form.trigger();
+
       if (!isValid) return;
       setResumeData({
         ...resumeData,
-        certificates: values.certificates?.filter((cert) => cert && cert.certificate && cert.certificate.trim() !== "") as any[] || [],
+        certificates:
+          (values.certificates?.filter(
+            (cert) =>
+              cert && cert.certificate && cert.certificate.trim() !== "",
+          ) as any[]) || [],
       });
     });
+
     return unsubscribe;
   }, [form, resumeData, setResumeData]);
 
@@ -86,16 +98,17 @@ export default function CertificationForm({
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Certifications</h2>
         <p className="text-sm text-default-500">
-          Great Job! Add certifications that are related to your job requirements.
+          Great Job! Add certifications that are related to your job
+          requirements.
         </p>
       </div>
 
       <form className="space-y-6">
         <DndContext
-          sensors={sensors}
           collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
           modifiers={[restrictToVerticalAxis]}
+          sensors={sensors}
+          onDragEnd={handleDragEnd}
         >
           <SortableContext
             items={fields}
@@ -104,9 +117,9 @@ export default function CertificationForm({
             {fields.map((field, index) => (
               <CertificationItem
                 key={field.id}
+                form={form}
                 id={field.id}
                 index={index}
-                form={form}
                 remove={remove}
               />
             ))}
@@ -115,11 +128,11 @@ export default function CertificationForm({
 
         <div className="flex justify-center">
           <Button
+            color="primary"
+            startContent={<PlusIcon size={16} />}
             type="button"
             variant="flat"
-            color="primary"
             onClick={addCertification}
-            startContent={<PlusIcon size={16} />}
           >
             Add Another Certification
           </Button>
@@ -153,11 +166,11 @@ function CertificationItem({
 
   return (
     <div
+      ref={setNodeRef}
       className={cn(
         "space-y-3 p-4 border border-default-200 rounded-lg bg-background",
         isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
       )}
-      ref={setNodeRef}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
@@ -172,11 +185,11 @@ function CertificationItem({
             {...listeners}
           />
           <Button
-            type="button"
             isIconOnly
-            size="sm"
-            variant="flat"
             color="danger"
+            size="sm"
+            type="button"
+            variant="flat"
             onClick={() => remove(index)}
           >
             <TrashIcon size={16} />
@@ -186,18 +199,25 @@ function CertificationItem({
 
       <Input
         {...form.register(`certificates.${index}.certificate`)}
+        errorMessage={
+          form.formState.errors.certificates?.[index]?.certificate?.message
+        }
+        isInvalid={!!form.formState.errors.certificates?.[index]?.certificate}
         label="Certificate Name"
         placeholder="AWS Certified Solutions Architect"
-        isInvalid={!!form.formState.errors.certificates?.[index]?.certificate}
-        errorMessage={form.formState.errors.certificates?.[index]?.certificate?.message}
       />
 
       <Input
         {...form.register(`certificates.${index}.issuingOrganization`)}
+        errorMessage={
+          form.formState.errors.certificates?.[index]?.issuingOrganization
+            ?.message
+        }
+        isInvalid={
+          !!form.formState.errors.certificates?.[index]?.issuingOrganization
+        }
         label="Issuing Organization"
         placeholder="Amazon Web Services"
-        isInvalid={!!form.formState.errors.certificates?.[index]?.issuingOrganization}
-        errorMessage={form.formState.errors.certificates?.[index]?.issuingOrganization?.message}
       />
     </div>
   );

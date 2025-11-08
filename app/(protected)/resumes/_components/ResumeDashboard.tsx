@@ -1,18 +1,20 @@
-'use client'
+"use client";
 
-import NextLink from "next/link"
-import { Card, CardBody } from "@heroui/react"
+import NextLink from "next/link";
+import { Card, CardBody } from "@heroui/react";
 
 export function ResumeDashboard() {
   const options = [
     {
       title: "Build a Resume",
-      description: "Choose from our templates then we’ll guide you through each section.",
+      description:
+        "Choose from our templates then we’ll guide you through each section.",
       href: "/resumes/editor",
     },
     {
       title: "Upload your Existing Resume",
-      description: "Transfer your current resume’s details to one of our templates.",
+      description:
+        "Transfer your current resume’s details to one of our templates.",
       href: "/resumes/import",
     },
     {
@@ -25,7 +27,7 @@ export function ResumeDashboard() {
       description: "Manage your saved resumes or continue where you left off.",
       href: "/resumes",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -39,19 +41,25 @@ export function ResumeDashboard() {
 
       {/* Main Container */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-4xl">
-        <h2 className="text-2xl font-semibold text-center text-gray-900 mb-8">How would you like to start?</h2>
-        
+        <h2 className="text-2xl font-semibold text-center text-gray-900 mb-8">
+          How would you like to start?
+        </h2>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {options.map((option, idx) => (
-            <NextLink key={idx} href={option.href} passHref>
+            <NextLink key={idx} passHref href={option.href}>
               <Card
                 isPressable
-                shadow="none"
                 className="h-full border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200"
+                shadow="none"
               >
                 <CardBody className="p-6 flex flex-col items-center justify-center text-center min-h-[180px]">
-                  <h3 className="text-base font-semibold text-gray-900 mb-3">{option.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{option.description}</p>
+                  <h3 className="text-base font-semibold text-gray-900 mb-3">
+                    {option.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {option.description}
+                  </p>
                 </CardBody>
               </Card>
             </NextLink>
@@ -59,5 +67,5 @@ export function ResumeDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }

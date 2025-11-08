@@ -15,9 +15,7 @@ export default function ResumePreviewSection({
   className,
 }: ResumePreviewSectionProps) {
   return (
-    <div
-      className={cn("group relative w-full h-full flex", className)}
-    >
+    <div className={cn("group relative w-full h-full flex", className)}>
       <div className="absolute left-1 top-1 flex flex-none flex-col gap-3 opacity-50 transition-opacity group-hover:opacity-100 lg:left-3 lg:top-3 xl:opacity-100 z-10">
         <ColorPicker
           color={resumeData.colorHex}
@@ -28,8 +26,8 @@ export default function ResumePreviewSection({
       </div>
       <div className="flex w-full justify-center overflow-y-auto bg-gray-100 p-3">
         <ResumePreview
-          resumeData={resumeData}
           classsName="max-w-2xl shadow-md"
+          resumeData={resumeData}
         />
       </div>
     </div>
