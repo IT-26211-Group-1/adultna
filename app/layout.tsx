@@ -47,6 +47,7 @@ export default function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning //added so the body will handle browser extension differences while keeping the app function normally
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
           fontSans.variable,

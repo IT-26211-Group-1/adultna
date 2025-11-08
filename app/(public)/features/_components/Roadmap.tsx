@@ -1,15 +1,55 @@
+"use client";
+
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useGLTF, Environment } from "@react-three/drei";
+import { Suspense, useRef } from "react";
+import { Group } from "three";
+
+function RoadmapModelMesh() {
+  const { scene } = useGLTF("/models/roadmap.glb");
+  const groupRef = useRef<Group>(null);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.04;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* eslint-disable-next-line react/no-unknown-property */}
+      <primitive object={scene} position={[0, 1, 0]} scale={[1.5, 1.5, 1.5]} />
+    </group>
+  );
+}
+
+function RoadmapModel3D() {
+  return (
+    <div className="w-full h-full">
+      <Canvas
+        camera={{ position: [6, 11, 12], fov: 40 }}
+        style={{ background: "transparent" }}
+      >
+        <Suspense fallback={null}>
+          <Environment preset="sunset" />
+          {/* eslint-disable-next-line react/no-unknown-property */}
+          <ambientLight intensity={0.6} />
+          {/* eslint-disable-next-line react/no-unknown-property */}
+          <directionalLight intensity={1} position={[8, 8, 5]} />
+          <RoadmapModelMesh />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
+
 export function Roadmap() {
   return (
-    <section className="w-full min-h-[600px] top-10 py-16 bg-transparent relative flex flex-col gap-2 px-4 md:px-22 max-w-6xl text-justify">
-      <h2 className="text-2xl font-bold mb-4 drop-shadow-gray-700 text-ultra-violet">
-        Personalized Roadmap
-      </h2>
-      <p className="text-base md:text-lg text-gray-400 max-w-lg font-inter">
-        Your personalized roadmap is a tailored guide designed to help you
-        navigate the complexities of adulthood. It provides a structured plan
-        that outlines key milestones and actionable steps to achieve your
-        personal and professional goals.
-      </p>
+    <section
+      className="w-full bg-white h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]"
+      id="roadmap-section"
+    >
+      <RoadmapModel3D />
     </section>
   );
 }
