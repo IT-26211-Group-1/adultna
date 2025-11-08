@@ -1,22 +1,13 @@
 "use client";
 
 import { API_CONFIG } from "@/config/api";
+import { PUBLIC_ROUTES } from "@/config/site";
 
 export const API_BASE_URL = API_CONFIG.API_URL;
 export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
 
-const PUBLIC_PATHS = [
-  "/auth",
-  "/admin/login",
-  "/admin/register",
-  "/",
-  "/about",
-  "/features",
-  "/faq",
-];
-
 export function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_PATHS.some((path) => {
+  return PUBLIC_ROUTES.some((path) => {
     if (path === "/") {
       return pathname === "/";
     }
