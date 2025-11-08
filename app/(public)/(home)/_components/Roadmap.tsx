@@ -11,7 +11,7 @@ export function Roadmap() {
         </h2>
 
         <p className="text-sm sm:text-base md:text-base text-gray-700 max-w-4xl sm:max-w-5xl mx-auto font-inter leading-relaxed mb-8">
-          From first job to financial independence, AdultNa transforms overwhelming adult responsibilities into clear, achievable steps. Get personalized guidance, track your progress, and unlock each stage of your journey with confidence.
+          AdultNa transforms overwhelming adult responsibilities into clear, achievable steps. Get personalized guidance, track your progress, and unlock each stage of your journey with confidence.
         </p>
 
         <div className="max-w-2xl mx-auto">

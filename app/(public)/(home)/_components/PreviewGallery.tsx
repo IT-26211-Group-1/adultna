@@ -2,17 +2,34 @@ import Image from "next/image";
 
 export function PreviewGallery() {
   return (
-    <section className="absolute top-0 right-0 h-full w-1/2 hidden md:flex items-center justify-end z-10">
-      <div className="w-full h-auto">
+    <>
+      {/* Mobile/Tablet/Small Laptop Image - Stacked Layout */}
+      <div className="lg:hidden">
         <Image
           alt="Preview Gallery"
-          className="w-full h-auto rounded-l-3xl"
-          height={1600}
-          sizes="50vw"
+          className="h-auto rounded-l-xl"
+          height={600}
+          sizes="(max-width: 640px) 60vw, (max-width: 1024px) 50vw, 400px"
           src="/PreviewImage.png"
-          width={2000}
+          width={800}
+          priority
         />
       </div>
-    </section>
+
+      {/* Large Desktop/Laptop Image - Positioned at very right */}
+      <div className="hidden lg:block absolute top-0 right-0 h-full w-1/2 z-10">
+        <div className="h-full flex items-center justify-end">
+          <Image
+            alt="Preview Gallery"
+            className="w-full h-auto rounded-l-3xl"
+            height={1600}
+            sizes="50vw"
+            src="/PreviewImage.png"
+            width={2000}
+            priority
+          />
+        </div>
+      </div>
+    </>
   );
 }
