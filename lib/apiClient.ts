@@ -96,7 +96,9 @@ export class ApiClient {
               // Refresh token expired, logout user
               if (typeof window !== "undefined") {
                 const currentPath = window.location.pathname;
-                const isPublicRoute = currentPath.startsWith("/auth/") || currentPath.startsWith("/admin/login");
+                const isPublicRoute =
+                  currentPath.startsWith("/auth/") ||
+                  currentPath.startsWith("/admin/login");
 
                 // Only redirect if not already on a public route
                 if (!isPublicRoute) {
@@ -115,7 +117,9 @@ export class ApiClient {
             // If refresh fails, logout user
             if (typeof window !== "undefined") {
               const currentPath = window.location.pathname;
-              const isPublicRoute = currentPath.startsWith("/auth/") || currentPath.startsWith("/admin/login");
+              const isPublicRoute =
+                currentPath.startsWith("/auth/") ||
+                currentPath.startsWith("/admin/login");
 
               // Only redirect if not already on a public route
               if (!isPublicRoute) {

@@ -24,7 +24,10 @@ type InterviewAudioReturn = {
     startRecording: () => Promise<void>;
     stopRecording: () => void;
     clearRecording: () => void;
-    transcribeAndPoll: (audioBlob: Blob, jobRole?: string) => Promise<string | null>;
+    transcribeAndPoll: (
+      audioBlob: Blob,
+      jobRole?: string,
+    ) => Promise<string | null>;
     startRealtimeRecognition: (onTranscript: (text: string) => void) => boolean;
     stopRealtimeRecognition: () => void;
   };

@@ -587,7 +587,10 @@ export function useSpeechToText(userId: string) {
   };
 
   // Combined transcribe and poll (AWS Transcribe with presigned URL)
-  const transcribeAndPoll = async (audioBlob: Blob, jobRole?: string): Promise<string> => {
+  const transcribeAndPoll = async (
+    audioBlob: Blob,
+    jobRole?: string,
+  ): Promise<string> => {
     const format = "webm";
 
     const presignedResult = await questionApi.getPresignedUrl({
