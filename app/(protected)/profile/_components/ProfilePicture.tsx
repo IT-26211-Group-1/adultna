@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Camera } from "lucide-react";
 import Image from "next/image";
 
-export function ProfilePicture() {
+type ProfilePictureProps = {
+  onImageChange?: () => void;
+};
+
+export function ProfilePicture({ onImageChange }: ProfilePictureProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,6 +19,7 @@ export function ProfilePicture() {
 
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        onImageChange?.(); // Notify parent that image has changed
       };
       reader.readAsDataURL(file);
     }

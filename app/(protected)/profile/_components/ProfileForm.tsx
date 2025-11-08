@@ -10,16 +10,21 @@ import {
   profileUpdateSchema,
   ProfileUpdateInput,
 } from "@/validators/profileSchema";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export function ProfileForm() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showRefreshModal, setShowRefreshModal] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [profilePictureChanged, setProfilePictureChanged] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
+    watch,
+    reset,
   } = useForm<ProfileUpdateInput>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
@@ -29,6 +34,30 @@ export function ProfileForm() {
       email: "",
     },
   });
+
+  const formValues = watch();
+
+  // Track changes in form values and profile picture
+  useEffect(() => {
+    const hasChanges = isDirty || profilePictureChanged;
+    setHasUnsavedChanges(hasChanges);
+  }, [isDirty, profilePictureChanged]);
+
+  // Handle beforeunload event to warn about unsaved changes
+  const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      e.returnValue = "";
+      return "";
+    }
+  }, [hasUnsavedChanges]);
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [handleBeforeUnload]);
 
   const handleSaveClick = () => {
     handleSubmit(() => {
@@ -45,6 +74,9 @@ export function ProfileForm() {
 
       setIsSaving(false);
       setShowConfirmModal(false);
+      setProfilePictureChanged(false);
+      reset(data); // Reset form to mark as not dirty
+      setHasUnsavedChanges(false);
 
       // You can add a success toast notification here
     })();
@@ -56,10 +88,24 @@ export function ProfileForm() {
     }
   };
 
+  const handleProfilePictureChange = useCallback(() => {
+    setProfilePictureChanged(true);
+  }, []);
+
+  const handleRefreshConfirm = () => {
+    setHasUnsavedChanges(false);
+    setShowRefreshModal(false);
+    window.location.reload();
+  };
+
+  const handleRefreshCancel = () => {
+    setShowRefreshModal(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Profile Picture */}
-      <ProfilePicture />
+      <ProfilePicture onImageChange={handleProfilePictureChange} />
 
       {/* Display Name Field */}
       <FormInput
@@ -109,7 +155,7 @@ export function ProfileForm() {
         </Button>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Save Confirmation Modal */}
       <ConfirmationModal
         cancelText="Cancel"
         confirmText="Save Changes"
@@ -119,6 +165,18 @@ export function ProfileForm() {
         title="Save Profile Changes"
         onClose={handleCloseModal}
         onConfirm={handleConfirmSave}
+      />
+
+      {/* Refresh Warning Modal */}
+      <ConfirmationModal
+        cancelText="Stay"
+        confirmText="Leave Page"
+        isLoading={false}
+        message="You have unsaved changes. Your details will be deleted if you proceed. Are you sure you want to leave this page?"
+        open={showRefreshModal}
+        title="Unsaved Changes"
+        onClose={handleRefreshCancel}
+        onConfirm={handleRefreshConfirm}
       />
     </div>
   );
