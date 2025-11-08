@@ -27,6 +27,7 @@ export function useIdleTimeout(onIdle: () => void, enabled: boolean = true) {
     if (enabled) {
       idleTimerRef.current = setTimeout(() => {
         const idleTime = Date.now() - lastActivityRef.current;
+
         if (idleTime >= IDLE_TIMEOUT) {
           onIdle();
         }
@@ -39,6 +40,7 @@ export function useIdleTimeout(onIdle: () => void, enabled: boolean = true) {
       if (idleTimerRef.current) {
         clearTimeout(idleTimerRef.current);
       }
+
       return;
     }
 

@@ -31,6 +31,7 @@ export function useTokenRefresh() {
 
           if (response.ok) {
             const data = await response.json();
+
             lastRefreshRef.current = Date.now();
 
             // Schedule next refresh
@@ -48,6 +49,7 @@ export function useTokenRefresh() {
   useEffect(() => {
     // Schedule initial refresh based on access token expiry (15 minutes)
     const initialExpiresAt = Date.now() + API_CONFIG.TOKEN.ACCESS_EXPIRY;
+
     scheduleRefresh(initialExpiresAt);
 
     return () => {

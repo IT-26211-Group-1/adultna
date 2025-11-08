@@ -44,6 +44,7 @@ export function broadcastLogout() {
   }
 
   const channel = new BroadcastChannel(AUTH_CHANNEL_NAME);
+
   channel.postMessage({ type: "LOGOUT" });
   channel.close();
 }
@@ -54,6 +55,7 @@ export function broadcastLogin() {
   }
 
   const channel = new BroadcastChannel(AUTH_CHANNEL_NAME);
+
   channel.postMessage({ type: "LOGIN" });
   channel.close();
 }
