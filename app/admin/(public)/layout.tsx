@@ -2,7 +2,7 @@
 
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useRouter, usePathname } from "next/navigation";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface AdminPublicLayoutProps {
@@ -32,13 +32,15 @@ export default function AdminPublicLayout({
     };
   }, [isLoading, isAuthenticated, pathname, user]);
 
-  // Show loading for auth check or redirect
-  if (isLoading || shouldRedirect) {
+  useEffect(() => {
     if (shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace(shouldRedirect.to), 0);
+      router.replace(shouldRedirect.to);
     }
+  }, [shouldRedirect, router]);
 
+  // Show loading for auth check or redirect
+  if (isLoading || shouldRedirect) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F1F8F5]">
         <LoadingSpinner />

@@ -97,7 +97,10 @@ export function useAuth() {
 
         return null;
       } catch (error) {
-        if (error instanceof ApiError && error.isForbidden) {
+        if (
+          error instanceof ApiError &&
+          (error.isForbidden || error.isUnauthorized)
+        ) {
           return null;
         }
 
@@ -129,7 +132,10 @@ export function useAuth() {
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
     retry: (failureCount, error) => {
-      if (error instanceof ApiError && error.isForbidden) {
+      if (
+        error instanceof ApiError &&
+        (error.isForbidden || error.isUnauthorized)
+      ) {
         return false;
       }
 
@@ -139,11 +145,6 @@ export function useAuth() {
         error.message?.includes("Account is not active")
       ) {
         return false;
-      }
-
-      // retry once to allow token refresh
-      if (error instanceof ApiError && error.isUnauthorized) {
-        return failureCount < 1;
       }
 
       return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
