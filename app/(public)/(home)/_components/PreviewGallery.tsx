@@ -2,15 +2,15 @@ import Image from "next/image";
 
 export function PreviewGallery() {
   return (
-    <section className="flex-1 flex items-center justify-center mt-10 md:mt-0 px-4">
-      <div className="w-full max-w-4xl">
+    <section className="absolute top-0 right-0 h-full w-1/2 hidden md:flex items-center justify-end z-10">
+      <div className="w-full h-auto">
         <Image
           alt="Preview Gallery"
-          className="w-full h-auto rounded-md"
-          height={800}
-          sizes="(max-width: 640px) 90vw, (max-width: 1024px) 80vw, 1200px"
-          src="/Preview Element.png"
-          width={1200}
+          className="w-full h-auto rounded-l-3xl"
+          height={1600}
+          sizes="50vw"
+          src="/PreviewImage.png"
+          width={2000}
         />
       </div>
     </section>

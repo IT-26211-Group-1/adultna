@@ -1,6 +1,8 @@
 import { Hero } from "@/app/(public)/(home)/_components/Hero";
 import { Problem } from "@/app/(public)/(home)/_components/Problem";
 import { Preview } from "@/app/(public)/(home)/_components/Preview";
+import { Roadmap } from "@/app/(public)/(home)/_components/Roadmap";
+import { CTA } from "@/app/(public)/(home)/_components/CTA";
 
 export default function Home() {
   return (
@@ -8,6 +10,8 @@ export default function Home() {
       <Hero />
       <Problem />
       <Preview />
+      <Roadmap />
+      <CTA />
     </section>
   );
 }
