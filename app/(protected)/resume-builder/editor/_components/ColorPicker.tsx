@@ -97,7 +97,7 @@ export default function ColorPicker({ color, onChange }: ColorPickerProps) {
                     style={{
                       backgroundColor: isValidHex(customHex)
                         ? customHex
-                        : "#transparent",
+                        : "transparent",
                     }}
                   />
                 }

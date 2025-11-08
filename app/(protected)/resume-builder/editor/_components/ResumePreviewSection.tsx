@@ -26,7 +26,7 @@ export default function ResumePreviewSection({
       </div>
       <div className="flex w-full justify-center overflow-y-auto bg-gray-100 p-3">
         <ResumePreview
-          classsName="max-w-2xl shadow-md"
+          className="max-w-2xl shadow-md"
           resumeData={resumeData}
         />
       </div>

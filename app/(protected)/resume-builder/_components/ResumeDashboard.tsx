@@ -9,23 +9,23 @@ export function ResumeDashboard() {
       title: "Build a Resume",
       description:
         "Choose from our templates then we’ll guide you through each section.",
-      href: "/resumes/editor",
+      href: "/resume-builder/editor",
     },
     {
       title: "Upload your Existing Resume",
       description:
         "Transfer your current resume’s details to one of our templates.",
-      href: "/resumes/import",
+      href: "/resume-builder/import",
     },
     {
       title: "Grade Your Resume",
       description: "Get AI recommendations to improve your resume.",
-      href: "/resumes/grader",
+      href: "/resume-builder/grader",
     },
     {
       title: "My Resumes",
       description: "Manage your saved resumes or continue where you left off.",
-      href: "/resumes",
+      href: "/resume-builder",
     },
   ];
 

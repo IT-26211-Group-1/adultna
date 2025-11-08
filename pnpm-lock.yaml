@@ -74,6 +74,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.1
         version: 5.2.2(react-hook-form@7.66.0(react@18.3.1))
+      '@internationalized/date':
+        specifier: ^3.10.0
+        version: 3.10.0
       '@nextui-org/react':
         specifier: ^2.6.11
         version: 2.6.11(@types/react@18.3.3)(framer-motion@11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@4.1.11)
@@ -10793,7 +10796,7 @@ snapshots:
 
   '@react-aria/calendar@3.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.10.0
       '@react-aria/i18n': 3.12.4(react@18.3.1)
       '@react-aria/interactions': 3.22.5(react@18.3.1)
       '@react-aria/live-announcer': 3.4.4
@@ -10897,7 +10900,7 @@ snapshots:
 
   '@react-aria/datepicker@3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.10.0
       '@internationalized/number': 3.6.5
       '@internationalized/string': 3.2.7
       '@react-aria/focus': 3.21.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -11772,7 +11775,7 @@ snapshots:
 
   '@react-stately/calendar@3.6.0(react@18.3.1)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.10.0
       '@react-stately/utils': 3.10.5(react@18.3.1)
       '@react-types/calendar': 3.5.0(react@18.3.1)
       '@react-types/shared': 3.30.0(react@18.3.1)
@@ -11851,7 +11854,7 @@ snapshots:
 
   '@react-stately/datepicker@3.11.0(react@18.3.1)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.10.0
       '@internationalized/string': 3.2.7
       '@react-stately/form': 3.2.2(react@18.3.1)
       '@react-stately/overlays': 3.6.20(react@18.3.1)
@@ -12278,7 +12281,7 @@ snapshots:
 
   '@react-types/calendar@3.5.0(react@18.3.1)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.10.0
       '@react-types/shared': 3.30.0(react@18.3.1)
       react: 18.3.1
 
@@ -12318,7 +12321,7 @@ snapshots:
 
   '@react-types/datepicker@3.9.0(react@18.3.1)':
     dependencies:
-      '@internationalized/date': 3.6.0
+      '@internationalized/date': 3.10.0
       '@react-types/calendar': 3.8.0(react@18.3.1)
       '@react-types/overlays': 3.9.2(react@18.3.1)
       '@react-types/shared': 3.30.0(react@18.3.1)

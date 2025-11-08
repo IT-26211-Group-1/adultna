@@ -4,14 +4,14 @@ import { cn } from "@/lib/utils";
 import { useRef } from "react";
 import useDimensions from "@/hooks/useDimensions";
 
-interface ResumePreviewProps {
+type ResumePreviewProps = {
   resumeData: ResumeData & { colorHex?: string };
-  classsName?: string;
-}
+  className?: string;
+};
 
 export default function ResumePreview({
   resumeData,
-  classsName,
+  className,
 }: ResumePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width } = useDimensions(containerRef);
@@ -26,7 +26,7 @@ export default function ResumePreview({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day,
+          dateValue.day
         ).toLocaleDateString();
       }
 
@@ -48,7 +48,7 @@ export default function ResumePreview({
   return (
     <div
       ref={containerRef}
-      className={cn("aspect-[210/297] h-fit w-full bg-white", classsName)}
+      className={cn("aspect-[210/297] h-fit w-full bg-white", className)}
     >
       <Card className="shadow-lg w-full h-full rounded-lg">
         <CardBody

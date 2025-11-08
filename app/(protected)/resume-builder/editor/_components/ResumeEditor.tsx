@@ -1,9 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Breadcrumbs from "./Breadcrumbs";
-import { Navbar } from "@/components/ui/Navbar";
 import { steps } from "./steps";
 import { ResumeData } from "@/validators/resumeSchema";
 import ResumePreviewSection from "./ResumePreviewSection";
@@ -15,7 +14,6 @@ export default function ResumeEditor() {
   const currentStep = searchParams.get("step") || steps[0].key;
 
   const [resumeData, setResumeData] = useState<ResumeData>({} as ResumeData);
-  const [isFormValid, setIsFormValid] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
   function setStep(key: string) {
@@ -35,22 +33,7 @@ export default function ResumeEditor() {
   const isLastStep = currentStepIndex === steps.length - 1;
   const isContactForm = currentStep === "contact";
 
-  const handleContinue = () => {
-    if (isFormValid) {
-      if (!isLastStep) {
-        const nextStep = steps[currentStepIndex + 1];
-
-        setStep(nextStep.key);
-      } else {
-        // Complete the resume and show completion page
-        console.log("Resume completed!", resumeData);
-        setIsCompleted(true);
-      }
-    }
-  };
-
-  // Validate current step requirements
-  const validateCurrentStep = () => {
+  const isFormValid = useMemo(() => {
     switch (currentStep) {
       case "contact":
         return !!(
@@ -60,22 +43,26 @@ export default function ResumeEditor() {
           resumeData.phone
         );
       case "work":
-        // Work experience is optional, so always valid
-        return true;
       case "education":
-        // Education is optional, so always valid
-        return true;
       case "certifications":
-        // Certifications are optional, so always valid
-        return true;
       case "skills":
-        // Skills are optional, so always valid
-        return true;
       case "summary":
-        // Summary is optional, so always valid
         return true;
       default:
         return true;
+    }
+  }, [resumeData, currentStep]);
+
+  const handleContinue = () => {
+    if (isFormValid) {
+      if (!isLastStep) {
+        const nextStep = steps[currentStepIndex + 1];
+
+        setStep(nextStep.key);
+      } else {
+        console.log("Resume completed!", resumeData);
+        setIsCompleted(true);
+      }
     }
   };
 
@@ -87,25 +74,19 @@ export default function ResumeEditor() {
     }
   };
 
-  // Update form validation whenever resumeData or currentStep changes
-  useEffect(() => {
-    setIsFormValid(validateCurrentStep());
-  }, [resumeData, currentStep]);
-
   // Show completion page if resume is completed
   if (isCompleted) {
     return <Completed resumeData={resumeData} />;
   }
 
   return (
-    <div className="flex grow pt-16 flex-col">
+    <div className="flex grow flex-col min-h-screen">
       <header className="space-y-1.5 border-b px-3 py-5 text-center">
-        {/* <h1 className="text-2xl font-bold">Design your resume</h1>
+        <h1 className="text-2xl font-bold">Design your resume</h1>
         <p className="text-sm text-muted-foreground">
           Follow the steps below to create your resume. Your progress will be
           saved automatically.
-        </p> */}
-        <Navbar />
+        </p>
       </header>
       <main className="relative grow">
         <div className="absolute bottom-0 top-0 flex w-full">
