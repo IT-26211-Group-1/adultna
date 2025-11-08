@@ -11,21 +11,23 @@ export function CTA() {
               <span className="italic text-adult-green">today.</span>
             </h2>
             <p className="text-sm sm:text-base md:text-base text-gray-700 font-inter leading-relaxed">
-              Navigate your adult life with confidence and clarity. Join thousands of young adults mastering essential skills with AdultNa's personalized guidance.
+              Navigate your adult life with confidence and clarity. Join
+              thousands of young adults mastering essential skills with
+              AdultNa&apos;s personalized guidance.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 lg:flex-shrink-0">
             <Link
-              href="/features"
               className="bg-transparent text-adult-green border-2 border-adult-green px-6 py-3 rounded-xl font-medium text-base hover:bg-adult-green hover:text-white transition-colors duration-200 flex items-center justify-center"
+              href="/features"
             >
               Learn more
             </Link>
 
             <Link
-              href="/auth/login"
               className="bg-adult-green text-white px-6 py-3 rounded-xl font-medium text-base hover:bg-adult-green/90 transition-colors duration-200 flex items-center justify-center"
+              href="/auth/login"
             >
               Get Started
             </Link>

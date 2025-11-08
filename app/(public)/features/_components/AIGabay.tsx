@@ -45,7 +45,7 @@ export function AIGabay() {
             <div className="flex items-center gap-2 sm:gap-3">
               <span className="text-adult-green text-base sm:text-lg">✓</span>
               <span className="text-gray-700 font-inter text-xs sm:text-sm">
-                Support for using AdultNa's features
+                Support for using AdultNa&apos;s features
               </span>
             </div>
           </div>

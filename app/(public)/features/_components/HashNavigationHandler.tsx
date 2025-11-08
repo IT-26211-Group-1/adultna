@@ -14,7 +14,8 @@ export function HashNavigationHandler() {
       const element = document.getElementById(sectionId);
 
       if (element && element.offsetHeight > 0) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+
         return;
       }
 

@@ -20,6 +20,7 @@ export function isPublicRoute(pathname: string): boolean {
     if (path === "/") {
       return pathname === "/";
     }
+
     return pathname === path || pathname.startsWith(path + "/");
   });
 }

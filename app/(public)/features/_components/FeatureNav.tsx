@@ -40,7 +40,10 @@ export function FeatureNav() {
 
   return (
     <section className="w-full py-4 sm:py-6 pb-12 sm:pb-16 md:pb-20 bg-transparent relative flex flex-col gap-2 sm:gap-3 px-2 sm:px-4 md:px-8 lg:px-16 xl:px-22 max-w-6xl mx-auto items-center justify-center">
-      <nav className="flex flex-col gap-2 sm:gap-3 font-inter w-full" id="feature-nav">
+      <nav
+        className="flex flex-col gap-2 sm:gap-3 font-inter w-full"
+        id="feature-nav"
+      >
         {/* Mobile and Tablet: Let items flow naturally into rows with tighter spacing */}
         <div className="md:hidden">
           <div className="flex justify-center gap-1 sm:gap-2 flex-wrap">

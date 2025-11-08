@@ -4,7 +4,6 @@ import { ProblemSubject } from "./ProblemSubject";
 export function Problem() {
   return (
     <section className="relative z-0 w-full min-h-screen md:min-h-[1200px] py-10 sm:py-16 lg:py-24 flex flex-col justify-center">
-    
       <div className="absolute inset-0">
         <svg
           className="w-full h-full"

@@ -39,9 +39,11 @@ export const Navbar = () => {
       <NavbarContent className="hidden md:flex basis-1/3" justify="center">
         <ul className="flex gap-8">
           {siteConfig.navItems.map((item) => {
-            const isActive = item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
+            const isActive =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.href);
+
             return (
               <NavbarItem key={item.href}>
                 <NextLink
@@ -90,8 +92,8 @@ export const Navbar = () => {
             href="/auth/login"
           >
             <span className="relative z-10">Login</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="absolute -inset-1 bg-gradient-to-r from-adult-green to-green-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-adult-green to-green-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300" />
           </NextLink>
         </NavbarItem>
       </NavbarContent>
@@ -100,9 +102,11 @@ export const Navbar = () => {
       <NavbarMenu className="lg:hidden">
         <ul className="flex flex-col gap-4 p-4">
           {siteConfig.navItems.map((item) => {
-            const isActive = item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
+            const isActive =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.href);
+
             return (
               <li key={item.href}>
                 <NextLink
@@ -135,8 +139,8 @@ export const Navbar = () => {
               href="/auth/login"
             >
               <span className="relative z-10">Login</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="absolute -inset-1 bg-gradient-to-r from-adult-green to-green-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute -inset-1 bg-gradient-to-r from-adult-green to-green-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300" />
             </NextLink>
           </li>
         </ul>
