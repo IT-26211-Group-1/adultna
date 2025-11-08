@@ -6,7 +6,7 @@ export function useAnswerManagement(sessionId: string) {
   const { mutateAsync: submitAnswerToQueue } = useSubmitAnswerToQueue();
 
   const [answers, setAnswers] = useState<Map<string, string>>(() =>
-    interviewStorage.load(sessionId),
+    interviewStorage.load(sessionId)
   );
 
   const [currentAnswer, setCurrentAnswer] = useState("");
@@ -20,7 +20,7 @@ export function useAnswerManagement(sessionId: string) {
       if (currentAnswer.trim()) {
         const updatedAnswers = new Map(answers).set(
           questionId,
-          currentAnswer.trim(),
+          currentAnswer.trim()
         );
 
         setAnswers(updatedAnswers);
@@ -28,13 +28,13 @@ export function useAnswerManagement(sessionId: string) {
         setLastSavedAt(new Date());
       }
     },
-    [currentAnswer, answers, sessionId],
+    [currentAnswer, answers, sessionId]
   );
 
   const submitForGrading = useCallback(
     async (
       questionId: string,
-      _questionText: string,
+      _questionText: string
     ): Promise<string | null> => {
       const answer = currentAnswer.trim();
 
@@ -50,11 +50,7 @@ export function useAnswerManagement(sessionId: string) {
         });
 
         setSubmittedAnswerIds((prev) =>
-          new Map(prev).set(questionId, pendingAnswer.id),
-        );
-
-        console.log(
-          `[useAnswerManagement] Answer ${pendingAnswer.id} submitted to grading queue for question ${questionId}`,
+          new Map(prev).set(questionId, pendingAnswer.id)
         );
 
         return pendingAnswer.id;
@@ -64,7 +60,7 @@ export function useAnswerManagement(sessionId: string) {
         return null;
       }
     },
-    [currentAnswer, submittedAnswerIds, submitAnswerToQueue],
+    [currentAnswer, submittedAnswerIds, submitAnswerToQueue]
   );
 
   const clearSession = useCallback((sessionId: string) => {
@@ -81,7 +77,7 @@ export function useAnswerManagement(sessionId: string) {
 
       setCurrentAnswer(savedAnswer);
     },
-    [answers],
+    [answers]
   );
 
   return {

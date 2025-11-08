@@ -62,15 +62,11 @@ export const QuestionsList = memo(function QuestionsList({
       saveCurrentAnswer(question.id);
 
       if (currentAnswer.trim() && !submittedAnswerIds.has(question.id)) {
-        console.log(`[QuestionsList] Submitting answer for grading in background: ${question.id}`);
-
-        // Fire and forget - grade in background while user proceeds to next question
-        submitForGrading(question.id, question.question).then((result) => {
-          if (result) {
-            console.log(`[QuestionsList] ✅ Answer ${result} graded successfully`);
-          }
-        }).catch((error) => {
-          console.error(`[QuestionsList] ❌ Failed to grade answer ${question.id}:`, error);
+        submitForGrading(question.id, question.question).catch((error) => {
+          console.error(
+            `[QuestionsList] ❌ Failed to grade answer ${question.id}:`,
+            error
+          );
         });
       }
     }
@@ -81,7 +77,7 @@ export const QuestionsList = memo(function QuestionsList({
   const navigation = useQuestionNavigation(
     sessionQuestions,
     handleBeforeNavigate,
-    state.currentQuestionIndex,
+    state.currentQuestionIndex
   );
 
   useEffect(() => {
@@ -97,7 +93,7 @@ export const QuestionsList = memo(function QuestionsList({
   const audio = useInterviewAudio(
     navigation.currentQuestion?.question || "",
     userId,
-    true,
+    true
   );
 
   const { isSubmitting, submitInterview } = useInterviewSubmission();
@@ -145,12 +141,9 @@ export const QuestionsList = memo(function QuestionsList({
     if (audio.stt.audioBlob && !audio.stt.isRecording) {
       const transcribe = async () => {
         try {
-          console.log("🎤 Starting AWS transcription...");
           const awsTranscript = await audio.stt.transcribeAndPoll(
-            audio.stt.audioBlob!,
+            audio.stt.audioBlob!
           );
-
-          console.log("✅ AWS transcript received:", awsTranscript?.substring(0, 50));
 
           if (awsTranscript) {
             setCurrentAnswer(awsTranscript);
@@ -158,7 +151,6 @@ export const QuestionsList = memo(function QuestionsList({
           audio.stt.clearRecording();
         } catch (error) {
           console.error("❌ AWS transcription failed:", error);
-          // Keep the Web Speech API result if AWS fails
         }
       };
 
@@ -179,7 +171,7 @@ export const QuestionsList = memo(function QuestionsList({
       ) {
         lastAnswerId = await submitForGrading(
           navigation.currentQuestion.id,
-          navigation.currentQuestion.question,
+          navigation.currentQuestion.question
         );
       }
     }
@@ -218,13 +210,13 @@ export const QuestionsList = memo(function QuestionsList({
 
           setGradingProgress(progress);
           console.log(
-            `[QuestionsList] Grading progress: ${completed}/${total} (${progress}%)`,
+            `[QuestionsList] Grading progress: ${completed}/${total} (${progress}%)`
           );
-        },
+        }
       );
 
       clearSession(sessionId);
-      actions.reset(); 
+      actions.reset();
 
       // Navigate to results
       await submitInterview(
@@ -234,7 +226,7 @@ export const QuestionsList = memo(function QuestionsList({
           totalQuestions: navigation.progress.total,
           answeredQuestions: gradedAnswerIds.length,
         },
-        sessionId,
+        sessionId
       );
     } catch (error) {
       console.error("[QuestionsList] Grading failed:", error);
