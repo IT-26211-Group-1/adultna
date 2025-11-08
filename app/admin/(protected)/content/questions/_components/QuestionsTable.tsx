@@ -15,7 +15,7 @@ import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestio
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditQuestionModal from "./EditQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
-import { formatDate } from "@/constants/formatDate";
+import { formatDate } from "@/constants/format-date";
 
 // Question Status Badge Component
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
@@ -39,7 +39,7 @@ const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
         {labels[status]}
       </Badge>
     );
-  },
+  }
 );
 
 QuestionStatusBadge.displayName = "QuestionStatusBadge";
@@ -77,7 +77,7 @@ const QuestionSourceBadge = React.memo<{ source: QuestionSource }>(
         {labels[source]}
       </Badge>
     );
-  },
+  }
 );
 
 QuestionSourceBadge.displayName = "QuestionSourceBadge";
@@ -217,7 +217,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               />
             </svg>
           ),
-        },
+        }
       );
     }
 
@@ -267,7 +267,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               />
             </svg>
           ),
-        },
+        }
       );
     }
 
@@ -321,7 +321,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
         }
       />
     );
-  },
+  }
 );
 
 QuestionActions.displayName = "QuestionActions";
@@ -334,10 +334,10 @@ const QuestionsTable: React.FC = () => {
   const [selectedQuestionForStatus, setSelectedQuestionForStatus] =
     useState<InterviewQuestion | null>(null);
   const [deletingQuestionId, setDeletingQuestionId] = useState<string | null>(
-    null,
+    null
   );
   const [restoringQuestionId, setRestoringQuestionId] = useState<string | null>(
-    null,
+    null
   );
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
     useState<string | null>(null);
@@ -375,7 +375,7 @@ const QuestionsTable: React.FC = () => {
         setEditModalOpen(true);
       }
     },
-    [displayQuestions],
+    [displayQuestions]
   );
 
   const handleQuestionUpdated = useCallback(() => {
@@ -398,7 +398,7 @@ const QuestionsTable: React.FC = () => {
         setStatusModalOpen(true);
       }
     },
-    [displayQuestions],
+    [displayQuestions]
   );
 
   const handleStatusUpdated = useCallback(() => {
@@ -438,7 +438,7 @@ const QuestionsTable: React.FC = () => {
         },
       });
     },
-    [softDeleteQuestion],
+    [softDeleteQuestion]
   );
 
   const handleRestore = useCallback(
@@ -467,14 +467,14 @@ const QuestionsTable: React.FC = () => {
         },
       });
     },
-    [restoreQuestion],
+    [restoreQuestion]
   );
 
   const handlePermanentDelete = useCallback(
     (questionId: string) => {
       if (
         !confirm(
-          "Are you sure you want to permanently delete this question? This action cannot be undone!",
+          "Are you sure you want to permanently delete this question? This action cannot be undone!"
         )
       )
         return;
@@ -501,7 +501,7 @@ const QuestionsTable: React.FC = () => {
         },
       });
     },
-    [permanentDeleteQuestion],
+    [permanentDeleteQuestion]
   );
 
   const columns: Column<InterviewQuestion>[] = useMemo(
@@ -683,7 +683,7 @@ const QuestionsTable: React.FC = () => {
       restoringQuestionId,
       permanentDeletingQuestionId,
       user?.role,
-    ],
+    ]
   );
 
   // Error state

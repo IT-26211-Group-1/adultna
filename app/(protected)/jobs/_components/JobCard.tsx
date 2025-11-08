@@ -3,7 +3,7 @@
 import { JobCardProps } from "@/types/job";
 import { memo, useCallback, lazy, Suspense } from "react";
 import { useDisclosure } from "@heroui/modal";
-import { getJobCardColor } from "../../../../constants/jobCardColors";
+import { getJobCardColor } from "../../../../constants/job-card-color";
 
 const ExternalRedirectModal = lazy(() => import("./ExternalRedirectModal"));
 
@@ -132,7 +132,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
               const daysAgo = job.listedDate
                 ? Math.floor(
                     (Date.now() - Date.parse(job.listedDate)) /
-                      (1000 * 60 * 60 * 24),
+                      (1000 * 60 * 60 * 24)
                   )
                 : 0;
 

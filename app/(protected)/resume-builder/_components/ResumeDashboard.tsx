@@ -2,33 +2,9 @@
 
 import NextLink from "next/link";
 import { Card, CardBody } from "@heroui/react";
+import { RESUME_LINKS } from "@/constants/resume-links";
 
 export function ResumeDashboard() {
-  const options = [
-    {
-      title: "Build a Resume",
-      description:
-        "Choose from our templates then we’ll guide you through each section.",
-      href: "/resume-builder/editor",
-    },
-    {
-      title: "Upload your Existing Resume",
-      description:
-        "Transfer your current resume’s details to one of our templates.",
-      href: "/resume-builder/import",
-    },
-    {
-      title: "Grade Your Resume",
-      description: "Get AI recommendations to improve your resume.",
-      href: "/resume-builder/grader",
-    },
-    {
-      title: "My Resumes",
-      description: "Manage your saved resumes or continue where you left off.",
-      href: "/resume-builder",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       {/* Header */}
@@ -46,8 +22,8 @@ export function ResumeDashboard() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {options.map((option, idx) => (
-            <NextLink key={idx} passHref href={option.href}>
+          {RESUME_LINKS.map((RESUME_LINKS, idx) => (
+            <NextLink key={idx} passHref href={RESUME_LINKS.href}>
               <Card
                 isPressable
                 className="h-full border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200"
@@ -55,10 +31,10 @@ export function ResumeDashboard() {
               >
                 <CardBody className="p-6 flex flex-col items-center justify-center text-center min-h-[180px]">
                   <h3 className="text-base font-semibold text-gray-900 mb-3">
-                    {option.title}
+                    {RESUME_LINKS.title}
                   </h3>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {option.description}
+                    {RESUME_LINKS.description}
                   </p>
                 </CardBody>
               </Card>

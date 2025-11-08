@@ -7,8 +7,8 @@ import { User, UsersTableProps } from "@/types/admin";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
-import { getUsersTableColumns } from "@/constants/adminTables";
-import { formatDate } from "@/constants/formatDate";
+import { getUsersTableColumns } from "@/constants/admin-tables";
+import { formatDate } from "@/constants/format-date";
 
 // Memoized actions dropdown
 const UserActions = React.memo<{
@@ -152,7 +152,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       }
       onEditUser?.(userId);
     },
-    [users, onEditUser],
+    [users, onEditUser]
   );
 
   const handleUserUpdated = useCallback(
@@ -161,7 +161,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       setEditModalOpen(false);
       setSelectedUser(null);
     },
-    [refetchUsers],
+    [refetchUsers]
   );
 
   const handleCloseEditModal = useCallback(() => {
@@ -208,11 +208,11 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
                 timeout: 4000,
               });
             },
-          },
+          }
         );
       }
     },
-    [updateUserStatus],
+    [updateUserStatus]
   );
 
   // Memoized user list
@@ -237,7 +237,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         displayName: user.displayName,
         roleName: user.roleName || "",
       })),
-    [users],
+    [users]
   );
 
   // Memoized table columns
@@ -249,7 +249,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         handleResetPassword,
         handleToggleAccountStatus,
         isUpdatingStatus,
-        UserActions,
+        UserActions
       ),
     [
       formatDate,
@@ -257,7 +257,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       handleResetPassword,
       handleToggleAccountStatus,
       isUpdatingStatus,
-    ],
+    ]
   );
 
   // Error state
