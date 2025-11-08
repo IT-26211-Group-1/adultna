@@ -5,16 +5,6 @@ import { API_CONFIG } from "@/config/api";
 export const API_BASE_URL = API_CONFIG.API_URL;
 export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
 
-let tokenProvider: (() => string | null) | null = null;
-
-export function setTokenProvider(provider: () => string | null) {
-  tokenProvider = provider;
-}
-
-export function setRefreshTokenCallback(
-  _callback: () => Promise<string | null>,
-) {}
-
 export class ApiClient {
   private static buildHeaders(
     customHeaders?: HeadersInit,
@@ -30,12 +20,6 @@ export class ApiClient {
           headers[key] = value;
         }
       });
-    }
-
-    const token = tokenProvider?.();
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
     }
 
     return headers;
@@ -71,56 +55,65 @@ export class ApiClient {
           ? await response.json()
           : await response.text();
 
-        // If 401 and not already retrying, try to refresh token via verify-token endpoint
+        // If 401 and not already retrying, try to refresh token
         if (
           response.status === 401 &&
           !isRetry &&
-          !endpoint.includes("/verify-token") &&
+          !endpoint.includes("/refresh-token") &&
           !endpoint.includes("/login")
         ) {
-          console.log("[ApiClient] 401 detected, attempting token refresh...", {
-            endpoint,
-            baseUrl,
-          });
-
           try {
-            // Call verify-token which will automatically refresh if needed
-            const verifyUrl = baseUrl.includes("/admin")
-              ? "/admin/verify-token"
-              : "/auth/me";
+            const refreshUrl = baseUrl.includes("/admin")
+              ? "/admin/refresh-token"
+              : "/auth/refresh-token";
 
-            console.log("[ApiClient] Calling", verifyUrl, "for token refresh");
-
-            const refreshResponse = await fetch(`${baseUrl}${verifyUrl}`, {
+            const refreshResponse = await fetch(`${baseUrl}${refreshUrl}`, {
+              method: "POST",
               credentials: "include",
             });
 
-            console.log(
-              "[ApiClient] Refresh response status:",
-              refreshResponse.status,
-            );
-
             if (!refreshResponse.ok) {
               console.log(
-                "[ApiClient] ❌ Refresh failed with status:",
-                refreshResponse.status,
+                "[ApiClient] ❌ Refresh failed - refresh token expired, logging out",
               );
-              throw new Error("Token refresh failed");
-            }
 
-            console.log(
-              "[ApiClient] ✅ Token refreshed, retrying original request",
-            );
+              // Refresh token expired, logout user
+              if (typeof window !== "undefined") {
+                const currentPath = window.location.pathname;
+                const isPublicRoute =
+                  currentPath.startsWith("/auth/") ||
+                  currentPath.startsWith("/admin/login");
+
+                // Only redirect if not already on a public route
+                if (!isPublicRoute) {
+                  window.location.href = "/auth/login";
+                }
+              }
+
+              throw new Error("Refresh token expired");
+            }
 
             // Retry the original request once
             return this.request<T>(endpoint, options, baseUrl, true);
           } catch (error) {
             console.log("[ApiClient] ❌ Token refresh error:", error);
-            // If refresh fails, throw the original 401 error
+
+            // If refresh fails, logout user
+            if (typeof window !== "undefined") {
+              const currentPath = window.location.pathname;
+              const isPublicRoute =
+                currentPath.startsWith("/auth/") ||
+                currentPath.startsWith("/admin/login");
+
+              // Only redirect if not already on a public route
+              if (!isPublicRoute) {
+                window.location.href = "/auth/login";
+              }
+            }
+
             throw new ApiError(
-              errorData?.message ||
-                `HTTP ${response.status}: ${response.statusText}`,
-              response.status,
+              "Session expired. Please login again.",
+              401,
               errorData,
             );
           }

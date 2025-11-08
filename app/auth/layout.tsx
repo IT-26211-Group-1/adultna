@@ -2,8 +2,8 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter, usePathname } from "next/navigation";
-import { useMemo, useRef } from "react";
-// No loading screen needed for quick auth checks
+import { useEffect, useMemo, useRef } from "react";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -28,14 +28,20 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     return true;
   }, [isLoading, isAuthenticated, pathname]);
 
-  // Show loading for auth check or redirect
-  if (isLoading || shouldRedirect) {
+  useEffect(() => {
     if (shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace("/dashboard"), 0);
+      router.replace("/dashboard");
     }
+  }, [shouldRedirect, router]);
 
-    return null;
+  // Show loading for auth check or redirect
+  if (isLoading || shouldRedirect) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return <>{children}</>;

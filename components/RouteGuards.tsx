@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useRef, useMemo } from "react";
+import { ReactNode, useRef, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingScreen } from "./ui/LoadingScreen";
@@ -32,13 +32,15 @@ export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
     return { redirect: false, to: null };
   }, [isLoading, isAuthenticated, user, roles]);
 
-  if (isLoading || shouldRedirect.redirect) {
+  useEffect(() => {
     if (shouldRedirect.redirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace(shouldRedirect.to!), 0);
+      router.replace(shouldRedirect.to!);
     }
+  }, [shouldRedirect, router]);
 
-    return fallback || null;
+  if (isLoading || shouldRedirect.redirect) {
+    return fallback || <LoadingSpinner />;
   }
 
   return <>{children}</>;
@@ -52,20 +54,15 @@ export function PublicRoute({ children, fallback }: RouteProps) {
 
   const shouldRedirect = !isLoading && isAuthenticated;
 
-  if (isLoading || shouldRedirect) {
+  useEffect(() => {
     if (shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace("/dashboard"), 0);
+      router.replace("/dashboard");
     }
+  }, [shouldRedirect, router]);
 
-    return (
-      fallback || (
-        <LoadingScreen
-          isVisible={isLoading || shouldRedirect}
-          message="Loading AdultNa..."
-        />
-      )
-    );
+  if (isLoading || shouldRedirect) {
+    return fallback || <LoadingSpinner />;
   }
 
   return <>{children}</>;
@@ -90,20 +87,15 @@ export function OnboardingRoute({ children, fallback }: RouteProps) {
     return { redirect: false, to: null };
   }, [isLoading, isAuthenticated, user]);
 
-  if (isLoading || shouldRedirect.redirect) {
+  useEffect(() => {
     if (shouldRedirect.redirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace(shouldRedirect.to!), 0);
+      router.replace(shouldRedirect.to!);
     }
+  }, [shouldRedirect, router]);
 
-    return (
-      fallback || (
-        <LoadingScreen
-          isVisible={isLoading || shouldRedirect.redirect}
-          message="Setting up your journey..."
-        />
-      )
-    );
+  if (isLoading || shouldRedirect.redirect) {
+    return fallback || <LoadingSpinner />;
   }
 
   return <>{children}</>;
