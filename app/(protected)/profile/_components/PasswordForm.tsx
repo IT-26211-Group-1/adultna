@@ -9,17 +9,20 @@ import {
   passwordUpdateSchema,
   PasswordUpdateInput,
 } from "@/validators/profileSchema";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export function PasswordForm() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showRefreshModal, setShowRefreshModal] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
+    watch,
   } = useForm<PasswordUpdateInput>({
     resolver: zodResolver(passwordUpdateSchema),
     defaultValues: {
@@ -28,6 +31,29 @@ export function PasswordForm() {
       confirmPassword: "",
     },
   });
+
+  const formValues = watch();
+
+  // Track changes in form values
+  useEffect(() => {
+    setHasUnsavedChanges(isDirty);
+  }, [isDirty]);
+
+  // Handle beforeunload event to warn about unsaved changes
+  const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      e.returnValue = "";
+      return "";
+    }
+  }, [hasUnsavedChanges]);
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [handleBeforeUnload]);
 
   const handleSaveClick = () => {
     handleSubmit(() => {
@@ -48,6 +74,7 @@ export function PasswordForm() {
 
       // Clear form after successful update
       reset();
+      setHasUnsavedChanges(false);
 
       // You can add a success toast notification here
     })();
@@ -57,6 +84,16 @@ export function PasswordForm() {
     if (!isSaving) {
       setShowConfirmModal(false);
     }
+  };
+
+  const handleRefreshConfirm = () => {
+    setHasUnsavedChanges(false);
+    setShowRefreshModal(false);
+    window.location.reload();
+  };
+
+  const handleRefreshCancel = () => {
+    setShowRefreshModal(false);
   };
 
   return (
@@ -99,7 +136,7 @@ export function PasswordForm() {
         </Button>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Save Confirmation Modal */}
       <ConfirmationModal
         cancelText="Cancel"
         confirmText="Update Password"
@@ -109,6 +146,18 @@ export function PasswordForm() {
         title="Update Password"
         onClose={handleCloseModal}
         onConfirm={handleConfirmSave}
+      />
+
+      {/* Refresh Warning Modal */}
+      <ConfirmationModal
+        cancelText="Stay"
+        confirmText="Leave Page"
+        isLoading={false}
+        message="You have unsaved changes. Your password details will be deleted if you proceed. Are you sure you want to leave this page?"
+        open={showRefreshModal}
+        title="Unsaved Changes"
+        onClose={handleRefreshCancel}
+        onConfirm={handleRefreshConfirm}
       />
     </div>
   );
