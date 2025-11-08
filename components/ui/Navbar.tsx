@@ -66,18 +66,18 @@ export const Navbar = () => {
       {/* Mobile menu toggle (visible on small screens) */}
       <NavbarContent className="flex md:hidden basis-1/3" justify="end">
         <NavbarItem>
-          <NavbarMenuToggle className="p-2 rounded-md hover:bg-muted" />
+          <NavbarMenuToggle className="p-2 rounded-xl hover:bg-adult-green/10 hover:text-adult-green transition-all duration-300 ease-in-out transform hover:scale-110" />
         </NavbarItem>
       </NavbarContent>
 
       {/* Right side (buttons) */}
       <NavbarContent
-        className="hidden md:flex basis-1/5 sm:basis-full"
+        className="hidden md:flex basis-1/5 sm:basis-full gap-3"
         justify="end"
       >
         <NavbarItem>
           <NextLink
-            className="px-8 py-3 rounded-lg  text-sm font-medium hover:bg-adult-green hover:text-white transition"
+            className="relative px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-adult-green hover:bg-adult-green/10 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
             href="/auth/register"
           >
             Sign Up
@@ -86,10 +86,12 @@ export const Navbar = () => {
 
         <NavbarItem>
           <NextLink
-            className="px-8 py-3 rounded-lg text-sm font-medium bg-adult-green text-white hover:bg-orange-800 transition"
+            className="relative px-6 py-2.5 rounded-xl text-sm font-semibold bg-adult-green text-white hover:bg-adult-green/90 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl shadow-adult-green/25 overflow-hidden group"
             href="/auth/login"
           >
-            Login
+            <span className="relative z-10">Login</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-adult-green to-green-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
           </NextLink>
         </NavbarItem>
       </NavbarContent>
@@ -120,7 +122,7 @@ export const Navbar = () => {
 
           <li>
             <NextLink
-              className="block w-full px-4 py-2 rounded-lg text-base font-medium hover:bg-adult-green hover:text-white transition"
+              className="block w-full px-4 py-3 text-base font-medium text-gray-700 hover:text-adult-green hover:bg-adult-green/10 transition-all duration-300 ease-in-out text-center rounded-lg transform hover:scale-[1.02]"
               href="/auth/register"
             >
               Sign Up
@@ -129,10 +131,12 @@ export const Navbar = () => {
 
           <li>
             <NextLink
-              className="block w-full px-4 py-2 rounded-lg text-base font-medium bg-adult-green text-white hover:bg-orange-800 transition"
+              className="relative block w-full px-5 py-3 rounded-xl text-base font-semibold bg-adult-green text-white hover:bg-adult-green/90 transition-all duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl shadow-adult-green/25 text-center overflow-hidden group"
               href="/auth/login"
             >
-              Login
+              <span className="relative z-10">Login</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-adult-green to-green-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
             </NextLink>
           </li>
         </ul>
