@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { loginSchema } from "@/validators/authSchema";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
@@ -101,34 +101,10 @@ export function useLogin() {
     });
   });
 
-  const handleGoogleLogin = async () => {
-    try {
-      const res = await fetch("/api/auth/google");
-      const { url } = await res.json();
-
-      if (url) {
-        window.location.href = url;
-      } else {
-        addToast({
-          title: "Error",
-          description: "Unable to initiate Google login",
-          color: "danger",
-        });
-      }
-    } catch {
-      addToast({
-        title: "Error",
-        description: "Failed to connect to Google login",
-        color: "danger",
-      });
-    }
-  };
-
   return {
     register,
     errors,
     loading: isLoggingIn,
     onSubmit,
-    handleGoogleLogin,
   };
 }

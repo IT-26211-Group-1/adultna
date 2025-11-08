@@ -71,7 +71,7 @@ export default function DashboardClient() {
         if (result?.message?.includes("Personalized Roadmap")) {
           setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
           addToast({
-            title: "Personalizing your Roadmap",
+            title: "Registration Successful",
             color: "success",
           });
         } else {

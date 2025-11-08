@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { ApiClient } from "@/lib/apiClient";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 
 // Types
 export type ForgotPasswordSendOtpRequest = {
