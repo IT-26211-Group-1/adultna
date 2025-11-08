@@ -62,14 +62,16 @@ export const QuestionsList = memo(function QuestionsList({
       saveCurrentAnswer(question.id);
 
       if (currentAnswer.trim() && !submittedAnswerIds.has(question.id)) {
-        console.log(`[QuestionsList] Submitting and grading answer: ${question.id}`);
+        console.log(`[QuestionsList] Submitting answer for grading in background: ${question.id}`);
 
-        // Submit and grade immediately (synchronous grading with Bedrock)
-        const result = await submitForGrading(question.id, question.question);
-
-        if (result) {
-          console.log(`[QuestionsList] ✅ Answer ${result} graded successfully`);
-        }
+        // Fire and forget - grade in background while user proceeds to next question
+        submitForGrading(question.id, question.question).then((result) => {
+          if (result) {
+            console.log(`[QuestionsList] ✅ Answer ${result} graded successfully`);
+          }
+        }).catch((error) => {
+          console.error(`[QuestionsList] ❌ Failed to grade answer ${question.id}:`, error);
+        });
       }
     }
     audio.tts.stop();
