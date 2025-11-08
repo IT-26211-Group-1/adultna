@@ -41,7 +41,7 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
 
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType,
-        audioBitsPerSecond: 16000,
+        audioBitsPerSecond: 32000,
       });
 
       mediaRecorderRef.current = mediaRecorder;

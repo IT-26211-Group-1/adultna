@@ -24,7 +24,7 @@ type InterviewAudioReturn = {
     startRecording: () => Promise<void>;
     stopRecording: () => void;
     clearRecording: () => void;
-    transcribeAndPoll: (audioBlob: Blob) => Promise<string | null>;
+    transcribeAndPoll: (audioBlob: Blob, jobRole?: string) => Promise<string | null>;
     startRealtimeRecognition: (onTranscript: (text: string) => void) => boolean;
     stopRealtimeRecognition: () => void;
   };
@@ -93,10 +93,10 @@ export function useInterviewAudio(
   }, [isMuted, isPlaying, stop, setSecureItem]);
 
   const transcribeAndPoll = useCallback(
-    async (audioBlob: Blob): Promise<string | null> => {
+    async (audioBlob: Blob, jobRole?: string): Promise<string | null> => {
       setIsTranscribing(true);
       try {
-        const result = await originalTranscribeAndPoll(audioBlob);
+        const result = await originalTranscribeAndPoll(audioBlob, jobRole);
 
         return result;
       } finally {

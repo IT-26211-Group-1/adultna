@@ -122,6 +122,7 @@ const questionApi = {
     s3Key: string;
     userId: string;
     format?: string;
+    jobRole?: string;
   }): Promise<{
     success: boolean;
     message: string;
@@ -586,7 +587,7 @@ export function useSpeechToText(userId: string) {
   };
 
   // Combined transcribe and poll (AWS Transcribe with presigned URL)
-  const transcribeAndPoll = async (audioBlob: Blob): Promise<string> => {
+  const transcribeAndPoll = async (audioBlob: Blob, jobRole?: string): Promise<string> => {
     const format = "webm";
 
     const presignedResult = await questionApi.getPresignedUrl({
@@ -609,6 +610,7 @@ export function useSpeechToText(userId: string) {
       s3Key,
       userId,
       format,
+      jobRole,
     });
 
     const transcript = await pollTranscription(jobName);

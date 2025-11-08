@@ -143,6 +143,7 @@ export const QuestionsList = memo(function QuestionsList({
         try {
           const awsTranscript = await audio.stt.transcribeAndPoll(
             audio.stt.audioBlob!,
+            selectedJobRole,
           );
 
           if (awsTranscript) {
@@ -156,7 +157,7 @@ export const QuestionsList = memo(function QuestionsList({
 
       transcribe();
     }
-  }, [audio.stt.audioBlob, audio.stt.isRecording]);
+  }, [audio.stt.audioBlob, audio.stt.isRecording, selectedJobRole]);
 
   const handleFinishInterview = async () => {
     let lastAnswerId: string | null = null;
