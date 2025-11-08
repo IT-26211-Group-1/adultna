@@ -116,23 +116,23 @@ export function ProfileForm() {
         type="text"
       />
 
-      {/* First Name Field */}
-      <FormInput
-        error={errors.firstName?.message}
-        name="firstName"
-        placeholder="First Name"
-        register={register}
-        type="text"
-      />
-
-      {/* Last Name Field */}
-      <FormInput
-        error={errors.lastName?.message}
-        name="lastName"
-        placeholder="Last Name"
-        register={register}
-        type="text"
-      />
+      {/* First Name and Last Name Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormInput
+          error={errors.firstName?.message}
+          name="firstName"
+          placeholder="First Name"
+          register={register}
+          type="text"
+        />
+        <FormInput
+          error={errors.lastName?.message}
+          name="lastName"
+          placeholder="Last Name"
+          register={register}
+          type="text"
+        />
+      </div>
 
       {/* Email Field */}
       <FormInput
@@ -147,11 +147,11 @@ export function ProfileForm() {
       {/* Save Button */}
       <div className="flex justify-end">
         <Button
-          className="bg-adult-green text-white hover:bg-adult-green/80 font-medium px-8"
+          className="bg-adult-green hover:bg-adult-green/90 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0"
           size="md"
           onClick={handleSaveClick}
         >
-          SAVE
+          Save Changes
         </Button>
       </div>
 

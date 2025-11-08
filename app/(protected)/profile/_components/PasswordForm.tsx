@@ -70,32 +70,32 @@ export function PasswordForm() {
         type="password"
       />
 
-      {/* New Password Field */}
-      <FormInput
-        error={errors.newPassword?.message}
-        name="newPassword"
-        placeholder="New Password"
-        register={register}
-        type="password"
-      />
-
-      {/* Confirm Password Field */}
-      <FormInput
-        error={errors.confirmPassword?.message}
-        name="confirmPassword"
-        placeholder="Confirm Password"
-        register={register}
-        type="password"
-      />
+      {/* New Password and Confirm Password Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormInput
+          error={errors.newPassword?.message}
+          name="newPassword"
+          placeholder="New Password"
+          register={register}
+          type="password"
+        />
+        <FormInput
+          error={errors.confirmPassword?.message}
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          register={register}
+          type="password"
+        />
+      </div>
 
       {/* Save Button */}
       <div className="flex justify-end">
         <Button
-          className="bg-adult-green text-white hover:bg-adult-green/80 font-medium px-8"
+          className="bg-adult-green hover:bg-adult-green/90 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0"
           size="md"
           onClick={handleSaveClick}
         >
-          SAVE
+          Save Changes
         </Button>
       </div>
 
