@@ -1,9 +1,20 @@
 "use client";
 
 import { API_CONFIG } from "@/config/api";
+import { PUBLIC_ROUTES } from "@/config/site";
 
 export const API_BASE_URL = API_CONFIG.API_URL;
 export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
+
+export function isPublicRoute(pathname: string): boolean {
+  return PUBLIC_ROUTES.some((path) => {
+    if (path === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === path || pathname.startsWith(path + "/");
+  });
+}
 
 export class ApiClient {
   private static buildHeaders(
@@ -80,12 +91,9 @@ export class ApiClient {
               // Refresh token expired, logout user
               if (typeof window !== "undefined") {
                 const currentPath = window.location.pathname;
-                const isPublicRoute =
-                  currentPath.startsWith("/auth/") ||
-                  currentPath.startsWith("/admin/login");
 
                 // Only redirect if not already on a public route
-                if (!isPublicRoute) {
+                if (!isPublicRoute(currentPath)) {
                   window.location.href = "/auth/login";
                 }
               }
@@ -101,12 +109,9 @@ export class ApiClient {
             // If refresh fails, logout user
             if (typeof window !== "undefined") {
               const currentPath = window.location.pathname;
-              const isPublicRoute =
-                currentPath.startsWith("/auth/") ||
-                currentPath.startsWith("/admin/login");
 
               // Only redirect if not already on a public route
-              if (!isPublicRoute) {
+              if (!isPublicRoute(currentPath)) {
                 window.location.href = "/auth/login";
               }
             }
