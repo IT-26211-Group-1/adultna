@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { loginSchema } from "@/validators/authSchema";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 

@@ -21,7 +21,10 @@ export function useSecureStorage() {
       const secureData = {
         value: encrypt(value),
         expiry,
-        checksum: btoa(value + expiry.toString()).slice(0, 8),
+        checksum: btoa(encodeURIComponent(value + expiry.toString())).slice(
+          0,
+          8,
+        ),
       };
 
       try {
@@ -56,7 +59,7 @@ export function useSecureStorage() {
 
         // Verify integrity
         const expectedChecksum = btoa(
-          decryptedValue + secureData.expiry.toString(),
+          encodeURIComponent(decryptedValue + secureData.expiry.toString()),
         ).slice(0, 8);
 
         if (expectedChecksum !== secureData.checksum) {

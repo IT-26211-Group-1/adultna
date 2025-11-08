@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 import { AuthButton } from "../../register/_components/AuthButton";
 import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
 import { forgotPasswordOtpSchema } from "@/validators/authSchema";

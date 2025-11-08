@@ -13,6 +13,8 @@ export type InterviewQuestion = {
   question: string;
   category: QuestionCategory;
   industry?: string | null;
+  jobRole?: string | null; // Legacy field - kept for backward compatibility
+  jobRoles?: string[]; // New field - array of job roles
   source: QuestionSource;
   status: QuestionStatus;
   createdBy: string;
@@ -31,6 +33,7 @@ export type CreateQuestionRequest = {
   question: string;
   category: QuestionCategory;
   industry?: string;
+  jobRoles?: string[];
   source: QuestionSource;
 };
 
@@ -45,6 +48,7 @@ export type UpdateQuestionRequest = {
   question?: string;
   category?: QuestionCategory;
   industry?: string;
+  jobRoles?: string[];
   source?: QuestionSource;
 };
 
@@ -110,4 +114,28 @@ export type GenerateAIQuestionResponse = {
 
 export type QuestionsTableProps = {
   onEditQuestion?: (questionId: string) => void;
+};
+
+// Interview Session Types
+export type SessionQuestion = {
+  id: string;
+  question: string;
+  category: QuestionCategory;
+  order: number;
+  isGeneral: boolean;
+};
+
+export type CreateSessionRequest = {
+  userId: string;
+  industry: string;
+  jobRole: string;
+};
+
+export type CreateSessionResponse = {
+  success: boolean;
+  message: string;
+  data?: {
+    sessionId: string;
+    questions: SessionQuestion[];
+  };
 };

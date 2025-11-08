@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 import { useAuth } from "@/hooks/useAuth";
 
 interface LogoutButtonProps {

@@ -2,7 +2,7 @@
 
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface AdminRouteGuardProps {
@@ -57,13 +57,15 @@ export function AdminRouteGuard({
     return false;
   }, [isLoading, isAuthenticated, user, redirectAuthenticated, allowedRoles]);
 
-  // show loading
-  if (isLoading || shouldRedirect) {
+  useEffect(() => {
     if (shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace(shouldRedirect.to), 0);
+      router.replace(shouldRedirect.to);
     }
+  }, [shouldRedirect, router]);
 
+  // show loading
+  if (isLoading || shouldRedirect) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <LoadingSpinner />
