@@ -1,10 +1,49 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import NextLink from "next/link";
 import { Card, CardBody } from "@heroui/react";
 import { RESUME_LINKS } from "@/constants/resume-links";
+import { TemplateSelector } from "./TemplateSelector";
+import { TemplateId } from "@/constants/templates";
+import { ResumeList } from "./ResumeList";
+
+type View = "dashboard" | "template-selection" | "my-resumes";
 
 export function ResumeDashboard() {
+  const [currentView, setCurrentView] = useState<View>("dashboard");
+  const router = useRouter();
+
+  const handleTemplateSelect = (templateId: TemplateId) => {
+    router.push(`/resume-builder/editor?templateId=${templateId}`);
+  };
+
+  const handleCardClick = (href: string, title: string) => {
+    if (title === "Build a Resume") {
+      setCurrentView("template-selection");
+    } else if (title === "My Resumes") {
+      setCurrentView("my-resumes");
+    } else {
+      router.push(href);
+    }
+  };
+
+  if (currentView === "template-selection") {
+    return (
+      <TemplateSelector
+        onSelect={handleTemplateSelect}
+        onBack={() => setCurrentView("dashboard")}
+      />
+    );
+  }
+
+  if (currentView === "my-resumes") {
+    return (
+      <ResumeList onBack={() => setCurrentView("dashboard")} />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       {/* Header */}
@@ -22,24 +61,50 @@ export function ResumeDashboard() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {RESUME_LINKS.map((RESUME_LINKS, idx) => (
-            <NextLink key={idx} passHref href={RESUME_LINKS.href}>
-              <Card
-                isPressable
-                className="h-full border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200"
-                shadow="none"
-              >
-                <CardBody className="p-6 flex flex-col items-center justify-center text-center min-h-[180px]">
-                  <h3 className="text-base font-semibold text-gray-900 mb-3">
-                    {RESUME_LINKS.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {RESUME_LINKS.description}
-                  </p>
-                </CardBody>
-              </Card>
-            </NextLink>
-          ))}
+          {RESUME_LINKS.map((link, idx) => {
+            const isBuildResume = link.title === "Build a Resume";
+            const isMyResumes = link.title === "My Resumes";
+
+            if (isBuildResume || isMyResumes) {
+              return (
+                <Card
+                  key={idx}
+                  isPressable
+                  className="h-full border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200"
+                  shadow="none"
+                  onPress={() => handleCardClick(link.href, link.title)}
+                >
+                  <CardBody className="p-6 flex flex-col items-center justify-center text-center min-h-[180px]">
+                    <h3 className="text-base font-semibold text-gray-900 mb-3">
+                      {link.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {link.description}
+                    </p>
+                  </CardBody>
+                </Card>
+              );
+            }
+
+            return (
+              <NextLink key={idx} passHref href={link.href}>
+                <Card
+                  isPressable
+                  className="h-full border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200"
+                  shadow="none"
+                >
+                  <CardBody className="p-6 flex flex-col items-center justify-center text-center min-h-[180px]">
+                    <h3 className="text-base font-semibold text-gray-900 mb-3">
+                      {link.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {link.description}
+                    </p>
+                  </CardBody>
+                </Card>
+              </NextLink>
+            );
+          })}
         </div>
       </div>
     </div>

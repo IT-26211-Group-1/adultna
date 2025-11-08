@@ -1,0 +1,306 @@
+"use client";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ApiClient, queryKeys } from "@/lib/apiClient";
+import { Resume, CreateResumeInput, UpdateResumeInput } from "@/types/resume";
+
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  statusCode: number;
+  resume?: T;
+  resumes?: T[];
+}
+
+export function useResumes() {
+  return useQuery({
+    queryKey: queryKeys.resumes.list(),
+    queryFn: async () => {
+      const response = await ApiClient.get<ApiResponse<Resume>>("/resumes");
+      return response.resumes || [];
+    },
+  });
+}
+
+export function useResume(resumeId?: string) {
+  return useQuery({
+    queryKey: queryKeys.resumes.detail(resumeId!),
+    queryFn: async () => {
+      const response = await ApiClient.get<ApiResponse<Resume>>(
+        `/resumes/${resumeId}`
+      );
+      return response.resume;
+    },
+    enabled: !!resumeId,
+  });
+}
+
+export function useCreateResume() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CreateResumeInput) => {
+      const response = await ApiClient.post<ApiResponse<Resume>>(
+        "/resumes",
+        data
+      );
+      return response.resume!;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.list() });
+    },
+  });
+}
+
+export function useUpdateResume(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: UpdateResumeInput) => {
+      const response = await ApiClient.patch<ApiResponse<Resume>>(
+        `/resumes/${resumeId}`,
+        data
+      );
+      return response.resume!;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.list() });
+    },
+  });
+}
+
+export function useDeleteResume() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (resumeId: string) => {
+      await ApiClient.delete<ApiResponse<never>>(`/resumes/${resumeId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.list() });
+    },
+  });
+}
+
+export function useExportResume() {
+  return useMutation({
+    mutationFn: async (resumeId: string) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API}/resumes/${resumeId}/export`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export resume");
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch
+        ? filenameMatch[1]
+        : "resume.pdf";
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
+  });
+}
+
+export function useAddWorkExperience(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await ApiClient.post<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/work-experiences`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useUpdateWorkExperience(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const response = await ApiClient.put<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/work-experiences/${id}`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useDeleteWorkExperience(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await ApiClient.delete(`/resumes/${resumeId}/work-experiences/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useAddEducation(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await ApiClient.post<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/education`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useUpdateEducation(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const response = await ApiClient.put<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/education/${id}`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useDeleteEducation(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await ApiClient.delete(`/resumes/${resumeId}/education/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useAddCertification(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await ApiClient.post<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/certifications`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useUpdateCertification(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const response = await ApiClient.put<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/certifications/${id}`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useDeleteCertification(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await ApiClient.delete(`/resumes/${resumeId}/certifications/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useAddSkill(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await ApiClient.post<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/skills`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useUpdateSkill(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const response = await ApiClient.put<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/skills/${id}`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}
+
+export function useDeleteSkill(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await ApiClient.delete(`/resumes/${resumeId}/skills/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}

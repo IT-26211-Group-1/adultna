@@ -330,4 +330,11 @@ export const queryKeys = {
     detail: (fileId: string) => ["filebox", "detail", fileId] as const,
     quota: () => ["filebox", "quota"] as const,
   },
+
+  // Resume queries
+  resumes: {
+    all: ["resumes"] as const,
+    list: () => ["resumes", "list"] as const,
+    detail: (resumeId: string) => ["resumes", "detail", resumeId] as const,
+  },
 } as const;
