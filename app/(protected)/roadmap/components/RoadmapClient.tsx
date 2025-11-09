@@ -32,6 +32,29 @@ export function RoadmapClient() {
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
     null,
   );
+  const [milestoneAnimation, setMilestoneAnimation] = useState<CameraAnimation | null>(null);
+
+  // Calculate camera position for milestone zoom
+  const createMilestoneZoom = (milestone: Milestone): CameraAnimation => {
+    const { x, y, z } = milestone.position;
+
+    // Calculate optimal camera angle based on milestone position with top-down view
+    const offsetX = x > 0 ? 1.2 : -1.2; // Reduced horizontal offset
+    const offsetZ = z > 0 ? 1.2 : -1.2; // Reduced depth offset
+
+    return {
+      from: {
+        position: [5, 8, 5], // Current camera position after initial animation
+        fov: 40,
+      },
+      to: {
+        position: [x + offsetX, y + 3.5, z + offsetZ], // Higher Y for top-down view
+        fov: 30, // Less aggressive zoom
+      },
+      duration: 1200,
+      delay: 0,
+    };
+  };
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
     console.log("🎯 handleMilestoneClick called with:", interaction);
@@ -40,11 +63,18 @@ export function RoadmapClient() {
 
     if (milestone) {
       setSelectedMilestone(milestone);
+      const zoomAnimation = createMilestoneZoom(milestone);
+      setMilestoneAnimation(zoomAnimation);
       onOpen();
-      console.log("✅ Modal should open now");
+      console.log("✅ Modal should open now with camera zoom");
     } else {
       console.log("❌ No milestone found for ID:", interaction.milestoneId);
     }
+  };
+
+  const handleModalClose = () => {
+    setMilestoneAnimation(null); // Reset camera animation
+    onClose();
   };
 
   // Fallback click handler for the Canvas element
@@ -56,7 +86,7 @@ export function RoadmapClient() {
     <>
       <div
         className={`w-full h-full relative transition-transform duration-500 ease-in-out ${
-          isOpen ? '-translate-x-64' : 'translate-x-0'
+          isOpen ? '-translate-x-48' : 'translate-x-0'
         }`}
       >
         <Canvas
@@ -65,7 +95,10 @@ export function RoadmapClient() {
           onClick={handleCanvasClick}
           resize={{ scroll: false, debounce: { scroll: 50, resize: 100 } }}
         >
-          <CameraController animation={CAMERA_ANIMATION} />
+          <CameraController
+            animation={CAMERA_ANIMATION}
+            milestoneAnimation={milestoneAnimation}
+          />
           {/* eslint-disable-next-line react/no-unknown-property */}
           <ambientLight intensity={1.2} />
           {/* eslint-disable-next-line react/no-unknown-property */}
@@ -92,7 +125,7 @@ export function RoadmapClient() {
       <MilestoneModal
         isOpen={isOpen}
         milestone={selectedMilestone}
-        onClose={onClose}
+        onClose={handleModalClose}
       />
     </>
   );
