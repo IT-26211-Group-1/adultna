@@ -18,6 +18,7 @@ import {
   mapApiResumeToResumeData
 } from "@/lib/resume/mappers";
 import { addToast } from "@heroui/toast";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
@@ -141,11 +142,7 @@ export default function ResumeEditor() {
   }
 
   if (isLoadingResume) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adult-green" />
-      </div>
-    );
+    return <LoadingSpinner fullScreen />;
   }
 
   function setStep(key: string) {
