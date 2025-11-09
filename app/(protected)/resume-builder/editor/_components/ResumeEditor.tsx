@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Breadcrumbs from "./Breadcrumbs";
 import { steps } from "./steps";
 import { ResumeData } from "@/validators/resumeSchema";
@@ -28,13 +28,26 @@ export default function ResumeEditor() {
 
   const { data: existingResume, isLoading: isLoadingResume } = useResume(resumeId || undefined);
 
-  const initialResumeData = useMemo(() => {
-    return existingResume ? mapApiResumeToResumeData(existingResume) : ({} as ResumeData);
-  }, [existingResume]);
-
-  const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
+  const [loadedResumeId, setLoadedResumeId] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(resumeId);
+
+  const initialData = useMemo(() => {
+    if (existingResume && loadedResumeId !== existingResume.id) {
+      return mapApiResumeToResumeData(existingResume);
+    }
+    return null;
+  }, [existingResume, loadedResumeId]);
+
+  const [resumeData, setResumeData] = useState<ResumeData>(() =>
+    existingResume ? mapApiResumeToResumeData(existingResume) : ({} as ResumeData)
+  );
+
+  if (initialData && existingResume && loadedResumeId !== existingResume.id) {
+    setResumeData(initialData);
+    setLoadedResumeId(existingResume.id);
+    setCurrentResumeId(existingResume.id);
+  }
 
   const createResume = useCreateResume();
   const updateResume = useUpdateResume(currentResumeId || "");
@@ -42,35 +55,6 @@ export default function ResumeEditor() {
 
   const isSaving = createResume.isPending || updateResume.isPending;
   const isExporting = exportResume.isPending;
-
-  useEffect(() => {
-    if (existingResume && !resumeData.firstName) {
-      setResumeData(mapApiResumeToResumeData(existingResume));
-      setCurrentResumeId(existingResume.id);
-    }
-  }, [existingResume, resumeData.firstName]);
-
-  if (!templateId && !resumeId) {
-    router.push("/resume-builder");
-    return null;
-  }
-
-  if (isLoadingResume) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adult-green" />
-      </div>
-    );
-  }
-
-  function setStep(key: string) {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("step", key);
-
-    router.replace(`/resume-builder/editor?${newSearchParams.toString()}`, {
-      scroll: false,
-    });
-  }
 
   const FormComponent = steps.find(
     (step) => step.key === currentStep,
@@ -150,6 +134,28 @@ export default function ResumeEditor() {
       }
     }
   }, [currentResumeId, templateId, resumeData, createResume, updateResume, searchParams, router]);
+
+  if (!templateId && !resumeId) {
+    router.push("/resume-builder");
+    return null;
+  }
+
+  if (isLoadingResume) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adult-green" />
+      </div>
+    );
+  }
+
+  function setStep(key: string) {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("step", key);
+
+    router.replace(`/resume-builder/editor?${newSearchParams.toString()}`, {
+      scroll: false,
+    });
+  }
 
   const handleContinue = () => {
     if (isFormValid) {

@@ -59,6 +59,6 @@ export const isValidTemplateId = (id: string): id is TemplateId => {
   return TEMPLATE_IDS.includes(id as TemplateId);
 };
 
-export const getTemplate = (id: TemplateId): Template => {
-  return TEMPLATES[id];
+export const getTemplate = (id: TemplateId | string): Template => {
+  return TEMPLATES[id as TemplateId] || TEMPLATES["reverse-chronological"];
 };
