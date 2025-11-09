@@ -8,8 +8,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { PlusIcon, TrashIcon, GripHorizontal } from "lucide-react";
+import { debounce } from "@/lib/utils/debounce";
 import {
   closestCenter,
   DndContext,
@@ -68,11 +69,10 @@ export default function CertificationForm({
     }
   }
 
-  useEffect(() => {
-    const { unsubscribe } = form.watch(async (values) => {
-      const isValid = await form.trigger();
-
-      if (!isValid) return;
+  const syncFormData = useCallback(async () => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      const values = form.getValues();
       setResumeData({
         ...resumeData,
         certificates:
@@ -81,10 +81,21 @@ export default function CertificationForm({
               cert && cert.certificate && cert.certificate.trim() !== "",
           ) as any[]) || [],
       });
+    }
+  }, [form, resumeData, setResumeData]);
+
+  const debouncedSync = useMemo(
+    () => debounce(syncFormData, 500),
+    [syncFormData]
+  );
+
+  useEffect(() => {
+    const { unsubscribe} = form.watch(() => {
+      debouncedSync();
     });
 
     return unsubscribe;
-  }, [form, resumeData, setResumeData]);
+  }, [form, debouncedSync]);
 
   const addCertification = () => {
     append({

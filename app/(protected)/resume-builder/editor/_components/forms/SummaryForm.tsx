@@ -5,8 +5,9 @@ import { SummaryFormData, summarySchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import AISuggestions from "../AISuggestions";
+import { debounce } from "@/lib/utils/debounce";
 
 export default function SummaryForm({
   resumeData,
@@ -28,16 +29,26 @@ export default function SummaryForm({
     form.setValue("summary", summaryText);
   }, [summaryText, form]);
 
-  useEffect(() => {
-    const { unsubscribe } = form.watch(async (values) => {
-      const isValid = await form.trigger();
-
-      if (!isValid) return;
+  const syncFormData = useCallback(async () => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      const values = form.getValues();
       setResumeData({ ...resumeData, ...values });
+    }
+  }, [form, resumeData, setResumeData]);
+
+  const debouncedSync = useMemo(
+    () => debounce(syncFormData, 500),
+    [syncFormData]
+  );
+
+  useEffect(() => {
+    const { unsubscribe } = form.watch(() => {
+      debouncedSync();
     });
 
     return unsubscribe;
-  }, [form, resumeData, setResumeData]);
+  }, [form, debouncedSync]);
 
   // Function to count words in the summary
   const getWordCount = (text: string): number => {

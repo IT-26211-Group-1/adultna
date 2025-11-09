@@ -7,13 +7,14 @@ import { useForm } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import AISuggestions from "../AISuggestions";
+import { debounce } from "@/lib/utils/debounce";
 
 export default function SkillsForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
   const [skillsText, setSkillsText] = useState<string>(
-    resumeData.skills?.join(", ") || "",
+    resumeData.skills?.join(", ") || ""
   );
 
   const form = useForm<SkillFormData>({
@@ -34,7 +35,7 @@ export default function SkillsForm({
   // Memoized skills array - only recalculates when skillsText changes
   const skillsArray = useMemo(
     () => parseSkills(skillsText),
-    [skillsText, parseSkills],
+    [skillsText, parseSkills]
   );
 
   // Test lang for the design
@@ -52,23 +53,33 @@ export default function SkillsForm({
     form.setValue("skills", skillsArray);
   }, [skillsArray, form]);
 
-  useEffect(() => {
-    const { unsubscribe } = form.watch(async (values) => {
-      const isValid = await form.trigger();
-
-      if (!isValid) return;
+  const syncFormData = useCallback(async () => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      const values = form.getValues();
       setResumeData({
         ...resumeData,
         skills:
           values.skills?.filter(
             (skill): skill is string =>
-              skill !== undefined && skill.trim() !== "",
+              skill !== undefined && skill.trim() !== ""
           ) || [],
       });
+    }
+  }, [form, resumeData, setResumeData]);
+
+  const debouncedSync = useMemo(
+    () => debounce(syncFormData, 500),
+    [syncFormData]
+  );
+
+  useEffect(() => {
+    const { unsubscribe } = form.watch(() => {
+      debouncedSync();
     });
 
     return unsubscribe;
-  }, [form, resumeData, setResumeData]);
+  }, [form, debouncedSync]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">

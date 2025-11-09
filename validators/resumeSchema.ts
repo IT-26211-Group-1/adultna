@@ -22,8 +22,15 @@ export const contactSchema = z.object({
     .max(100, "Email must be less than 100 characters"),
   phone: z
     .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .max(12, "Phone number must be at most 12 digits"),
+    .regex(
+      /^(\+?63|0)?9\d{9}$/,
+      "Please enter a valid Philippine mobile number (e.g., 09123456789)"
+    )
+    .or(
+      z
+        .string()
+        .regex(/^\d{10,12}$/, "Phone number must be 10-12 digits")
+    ),
   city: z.string().max(50, "City must be less than 50 characters").optional(),
   region: z
     .string()
@@ -33,11 +40,35 @@ export const contactSchema = z.object({
   linkedin: z
     .string()
     .max(255, "LinkedIn URL must be less than 255 characters")
-    .optional(),
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val === "") return true;
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      "Please enter a valid LinkedIn URL"
+    ),
   portfolio: z
     .string()
     .max(255, "Portfolio URL must be less than 255 characters")
-    .optional(),
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val === "") return true;
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      "Please enter a valid portfolio URL"
+    ),
 });
 export type ContactFormData = z.infer<typeof contactSchema>;
 
@@ -147,4 +178,5 @@ export const resumeSchema = z.object({
 
 export type ResumeData = z.infer<typeof resumeSchema> & {
   id?: string; // Optional ID field for existing resumes
+  colorHex?: string; // Optional color customization
 };

@@ -6,6 +6,7 @@ import { Card, CardBody, Button } from "@heroui/react";
 import { ArrowLeft, FileText, Trash2, Eye, Edit, Plus, Download } from "lucide-react";
 import { getTemplate } from "@/constants/templates";
 import { useState } from "react";
+import ResumeListSkeleton from "./ResumeListSkeleton";
 
 interface ResumeListProps {
   onBack: () => void;
@@ -76,11 +77,7 @@ export function ResumeList({ onBack }: ResumeListProps) {
       </div>
 
       {/* Loading State */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adult-green" />
-        </div>
-      )}
+      {isLoading && <ResumeListSkeleton />}
 
       {/* Empty State */}
       {!isLoading && resumes.length === 0 && (

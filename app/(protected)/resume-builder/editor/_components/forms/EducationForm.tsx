@@ -11,8 +11,9 @@ import {
 } from "react-hook-form";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { PlusIcon, TrashIcon, GripHorizontal } from "lucide-react";
+import { debounce } from "@/lib/utils/debounce";
 import {
   closestCenter,
   DndContext,
@@ -74,11 +75,10 @@ export default function EducationForm({
     }
   }
 
-  useEffect(() => {
-    const { unsubscribe } = form.watch(async (values) => {
-      const isValid = await form.trigger();
-
-      if (!isValid) return;
+  const syncFormData = useCallback(async () => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      const values = form.getValues();
       setResumeData({
         ...resumeData,
         educationItems:
@@ -86,10 +86,21 @@ export default function EducationForm({
             (edu) => edu && edu.schoolName && edu.schoolName.trim() !== "",
           ) as any[]) || [],
       });
+    }
+  }, [form, resumeData, setResumeData]);
+
+  const debouncedSync = useMemo(
+    () => debounce(syncFormData, 500),
+    [syncFormData]
+  );
+
+  useEffect(() => {
+    const { unsubscribe } = form.watch(() => {
+      debouncedSync();
     });
 
     return unsubscribe;
-  }, [form, resumeData, setResumeData]);
+  }, [form, debouncedSync]);
 
   const addEducation = () => {
     append({

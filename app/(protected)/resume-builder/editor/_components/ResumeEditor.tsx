@@ -8,9 +8,16 @@ import { ResumeData } from "@/validators/resumeSchema";
 import ResumePreviewSection from "./ResumePreviewSection";
 import { LoadingButton } from "@/components/ui/Button";
 import Completed from "./Completed";
+import { SaveStatusIndicator } from "./SaveStatusIndicator";
+import { ExportButton } from "./ExportButton";
 import { useResume, useCreateResume, useUpdateResume, useExportResume } from "@/hooks/queries/useResumeQueries";
 import { TemplateId, isValidTemplateId } from "@/constants/templates";
-import { useDebounce } from "@/hooks/useDebounce";
+import {
+  mapResumeDataToCreatePayload,
+  mapResumeDataToUpdatePayload,
+  mapApiResumeToResumeData
+} from "@/lib/resume/mappers";
+import { addToast } from "@heroui/toast";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
@@ -22,7 +29,7 @@ export default function ResumeEditor() {
   const { data: existingResume, isLoading: isLoadingResume } = useResume(resumeId || undefined);
 
   const initialResumeData = useMemo(() => {
-    return existingResume ? (existingResume as ResumeData) : ({} as ResumeData);
+    return existingResume ? mapApiResumeToResumeData(existingResume) : ({} as ResumeData);
   }, [existingResume]);
 
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
@@ -36,105 +43,12 @@ export default function ResumeEditor() {
   const isSaving = createResume.isPending || updateResume.isPending;
   const isExporting = exportResume.isPending;
 
-  const debouncedResumeData = useDebounce(resumeData, 3000);
-
-  const handleAutoSave = useCallback(async () => {
-    if (!templateId || !isValidTemplateId(templateId)) return;
-
-    createResume.mutate(
-      {
-        title: `${resumeData.firstName || "My"} ${resumeData.lastName || "Resume"}`,
-        templateId,
-        status: "draft",
-        firstName: resumeData.firstName,
-        lastName: resumeData.lastName,
-        email: resumeData.email,
-        phone: resumeData.phone,
-        city: resumeData.city,
-        region: resumeData.region,
-        birthDate: resumeData.birthDate,
-        linkedin: resumeData.linkedin,
-        portfolio: resumeData.portfolio,
-        workExperiences: resumeData.workExperiences?.map((exp, index) => ({
-          ...exp,
-          order: index,
-        })),
-        educationItems: resumeData.educationItems?.map((edu, index) => ({
-          ...edu,
-          order: index,
-        })),
-        certificates: resumeData.certificates?.map((cert, index) => ({
-          certificate: cert.certificate,
-          issuingOrganization: cert.issuingOrganization,
-          order: index,
-        })),
-        skills: resumeData.skills?.map((skill, index) => ({
-          skill,
-          order: index,
-        })),
-        summary: resumeData.summary,
-      },
-      {
-        onSuccess: (newResume) => {
-          setCurrentResumeId(newResume.id);
-          const newParams = new URLSearchParams(searchParams);
-          newParams.delete("templateId");
-          newParams.set("resumeId", newResume.id);
-          window.history.replaceState(null, "", `?${newParams.toString()}`);
-        },
-      }
-    );
-  }, [templateId, resumeData, createResume, searchParams]);
-
-  const handleAutoUpdate = useCallback(async () => {
-    if (!currentResumeId) return;
-
-    updateResume.mutate({
-      title: `${resumeData.firstName || "My"} ${resumeData.lastName || "Resume"}`,
-      firstName: resumeData.firstName,
-      lastName: resumeData.lastName,
-      email: resumeData.email,
-      phone: resumeData.phone,
-      city: resumeData.city,
-      region: resumeData.region,
-      birthDate: resumeData.birthDate,
-      linkedin: resumeData.linkedin,
-      portfolio: resumeData.portfolio,
-      workExperiences: resumeData.workExperiences?.map((exp, index) => ({
-        ...exp,
-        order: index,
-      })),
-      educationItems: resumeData.educationItems?.map((edu, index) => ({
-        ...edu,
-        order: index,
-      })),
-      certificates: resumeData.certificates?.map((cert, index) => ({
-        certificate: cert.certificate,
-        issuingOrganization: cert.issuingOrganization,
-        order: index,
-      })),
-      skills: resumeData.skills?.map((skill, index) => ({
-        skill,
-        order: index,
-      })),
-      summary: resumeData.summary,
-    });
-  }, [currentResumeId, resumeData, updateResume]);
-
   useEffect(() => {
     if (existingResume && !resumeData.firstName) {
-      setResumeData(existingResume as ResumeData);
+      setResumeData(mapApiResumeToResumeData(existingResume));
       setCurrentResumeId(existingResume.id);
     }
   }, [existingResume, resumeData.firstName]);
-
-  useEffect(() => {
-    if (!currentResumeId && debouncedResumeData.firstName) {
-      handleAutoSave();
-    } else if (currentResumeId && debouncedResumeData.firstName) {
-      handleAutoUpdate();
-    }
-  }, [debouncedResumeData, currentResumeId, handleAutoSave, handleAutoUpdate]);
 
   if (!templateId && !resumeId) {
     router.push("/resume-builder");
@@ -151,9 +65,11 @@ export default function ResumeEditor() {
 
   function setStep(key: string) {
     const newSearchParams = new URLSearchParams(searchParams);
-
     newSearchParams.set("step", key);
-    window.history.pushState(null, "", `?${newSearchParams.toString()}`);
+
+    router.replace(`/resume-builder/editor?${newSearchParams.toString()}`, {
+      scroll: false,
+    });
   }
 
   const FormComponent = steps.find(
@@ -186,30 +102,99 @@ export default function ResumeEditor() {
     }
   }, [resumeData, currentStep]);
 
+  const handleSave = useCallback(async (onSuccessCallback?: () => void) => {
+    if (!currentResumeId && templateId && isValidTemplateId(templateId)) {
+      const payload = mapResumeDataToCreatePayload(resumeData, templateId);
+
+      createResume.mutate(payload, {
+        onSuccess: (newResume) => {
+          setCurrentResumeId(newResume.id);
+          const newParams = new URLSearchParams(searchParams);
+          newParams.delete("templateId");
+          newParams.set("resumeId", newResume.id);
+          router.replace(`/resume-builder/editor?${newParams.toString()}`, {
+            scroll: false,
+          });
+          if (onSuccessCallback) {
+            onSuccessCallback();
+          }
+        },
+        onError: (error: any) => {
+          addToast({
+            title: "Failed to save resume",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+        },
+      });
+    } else if (currentResumeId && resumeData.firstName) {
+      const payload = mapResumeDataToUpdatePayload(resumeData);
+
+      updateResume.mutate(payload, {
+        onSuccess: () => {
+          if (onSuccessCallback) {
+            onSuccessCallback();
+          }
+        },
+        onError: (error: any) => {
+          addToast({
+            title: "Failed to update resume",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+        },
+      });
+    } else {
+      if (onSuccessCallback) {
+        onSuccessCallback();
+      }
+    }
+  }, [currentResumeId, templateId, resumeData, createResume, updateResume, searchParams, router]);
+
   const handleContinue = () => {
     if (isFormValid) {
-      if (!isLastStep) {
-        const nextStep = steps[currentStepIndex + 1];
+      const navigateNext = () => {
+        if (!isLastStep) {
+          const nextStep = steps[currentStepIndex + 1];
+          setStep(nextStep.key);
+        } else {
+          console.log("Resume completed!", resumeData);
+          setIsCompleted(true);
+        }
+      };
 
-        setStep(nextStep.key);
-      } else {
-        console.log("Resume completed!", resumeData);
-        setIsCompleted(true);
-      }
+      handleSave(navigateNext);
     }
   };
 
   const handleSkip = () => {
     if (!isLastStep && !isContactForm) {
-      const nextStep = steps[currentStepIndex + 1];
+      const navigateNext = () => {
+        const nextStep = steps[currentStepIndex + 1];
+        setStep(nextStep.key);
+      };
 
-      setStep(nextStep.key);
+      handleSave(navigateNext);
     }
   };
 
   const handleExport = () => {
     if (currentResumeId) {
-      exportResume.mutate(currentResumeId);
+      exportResume.mutate(currentResumeId, {
+        onSuccess: () => {
+          addToast({
+            title: "Resume exported successfully",
+            color: "success",
+          });
+        },
+        onError: (error: any) => {
+          addToast({
+            title: "Failed to export resume",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+        },
+      });
     }
   };
 
@@ -223,45 +208,14 @@ export default function ResumeEditor() {
       <header className="space-y-1.5 border-b px-3 py-5 text-center relative">
         <div className="absolute right-4 top-4 flex items-center gap-3 text-sm">
           {currentResumeId && (
-            <button
-              onClick={handleExport}
-              disabled={isExporting}
-              className="px-4 py-2 bg-[#11553F] hover:bg-[#0e4634] text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {isExporting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Export PDF
-                </>
-              )}
-            </button>
+            <ExportButton onExport={handleExport} isExporting={isExporting} />
           )}
-          {isSaving && (
-            <span className="text-gray-500 flex items-center gap-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500" />
-              Saving...
-            </span>
-          )}
-          {!isSaving && currentResumeId && (
-            <span className="text-green-600 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Saved
-            </span>
-          )}
+          <SaveStatusIndicator isSaving={isSaving} hasSaved={!!currentResumeId && !isSaving} />
         </div>
         <h1 className="text-2xl font-bold">Design your resume</h1>
         <p className="text-sm text-muted-foreground">
           Follow the steps below to create your resume. Your progress will be
-          saved automatically.
+          saved when you navigate between steps.
         </p>
       </header>
       <main className="relative grow">
