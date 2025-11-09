@@ -9,65 +9,12 @@ import ModernTemplate from "../templates/_components/ModernTemplate";
 import SkillBasedTemplate from "../templates/_components/SkillBasedTemplate";
 import HybridTemplate from "../templates/_components/HybridTemplate";
 import { ResumeData } from "@/validators/resumeSchema";
+import { SAMPLE_RESUME_DATA } from "@/constants/template-date";
 
 type TemplateCardProps = {
   template: Template;
   isSelected: boolean;
   onSelect: () => void;
-};
-
-const SAMPLE_RESUME_DATA: ResumeData & { colorHex?: string } = {
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@email.com",
-  phone: "(555) 123-4567",
-  city: "New York",
-  region: "NY",
-  linkedin: "linkedin.com/in/johndoe",
-  portfolio: "johndoe.com",
-  summary:
-    "Experienced professional with a proven track record of delivering high-quality results in fast-paced environments. Skilled in leadership, problem-solving, and strategic planning.",
-  workExperiences: [
-    {
-      jobTitle: "Senior Manager",
-      employer: "Tech Company Inc.",
-      startDate: new Date(2020, 0, 1),
-      endDate: new Date(2024, 0, 1),
-      description:
-        "Led team of 10 developers\nImplemented agile methodologies\nIncreased productivity by 40%",
-    },
-    {
-      jobTitle: "Project Manager",
-      employer: "Startup Solutions",
-      startDate: new Date(2018, 0, 1),
-      endDate: new Date(2020, 0, 1),
-      description:
-        "Managed multiple projects simultaneously\nCoordinated cross-functional teams",
-    },
-  ],
-  educationItems: [
-    {
-      degree: "Master of Business Administration",
-      fieldOfStudy: "Business Management",
-      schoolName: "University of California",
-      schoolLocation: "Los Angeles, CA",
-      graduationDate: new Date(2018, 5, 1),
-    },
-  ],
-  skills: [
-    "Leadership",
-    "Project Management",
-    "Strategic Planning",
-    "Communication",
-    "Data Analysis",
-    "Problem Solving",
-  ],
-  certificates: [
-    {
-      certificate: "PMP Certification",
-      issuingOrganization: "PMI",
-    },
-  ],
 };
 
 export function TemplateCard({
@@ -145,10 +92,10 @@ export function TemplateCard({
           <div
             className="w-full h-full"
             style={{
-              transform: "scale(0.25)",
+              transform: "scale(0.6)",
               transformOrigin: "top left",
-              width: "400%",
-              height: "400%",
+              width: "166.67%",
+              height: "166.67%",
             }}
           >
             {getTemplateComponent()}

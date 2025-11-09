@@ -77,7 +77,7 @@ export default function ResumePreview({
         <CardBody
           className={cn("p-0", !width && "invisible")}
           style={{
-            zoom: (1 / 794) * width,
+            zoom: (1 / 650) * width,
           }}
         >
           {getTemplateComponent()}

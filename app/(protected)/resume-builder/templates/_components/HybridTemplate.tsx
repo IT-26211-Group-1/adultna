@@ -1,5 +1,13 @@
 import { ResumeData } from "@/validators/resumeSchema";
-import { MapPin, Linkedin, Phone, Mail, Briefcase, GraduationCap, Award } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Linkedin,
+  Briefcase,
+  GraduationCap,
+  Award,
+} from "lucide-react";
 
 type TemplateProps = {
   resumeData: ResumeData & { colorHex?: string };
@@ -13,7 +21,7 @@ export default function HybridTemplate({
   const accentColor = resumeData.colorHex || "#000000";
 
   return (
-    <div className="bg-white p-10 space-y-5 text-black">
+    <div className="bg-white text-black p-10 space-y-4">
       {/* Header */}
       <div className="space-y-1">
         <h1 className="text-3xl font-bold">
@@ -25,10 +33,10 @@ export default function HybridTemplate({
       </div>
 
       {/* Contact Info with Icons */}
-      <div className="grid grid-cols-2 gap-2 text-xs">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
         {(resumeData.city || resumeData.region) && (
           <div className="flex items-center gap-2">
-            <MapPin className="w-3 h-3" />
+            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
             <span>
               {resumeData.city}
               {resumeData.city && resumeData.region && ", "}
@@ -38,34 +46,37 @@ export default function HybridTemplate({
         )}
         {resumeData.linkedin && (
           <div className="flex items-center gap-2">
-            <Linkedin className="w-3 h-3" />
-            <span className="text-blue-600 truncate">
-              {resumeData.linkedin}
+            <Linkedin className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate">
+              {resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}
             </span>
           </div>
         )}
         {resumeData.phone && (
           <div className="flex items-center gap-2">
-            <Phone className="w-3 h-3" />
+            <Phone className="w-3.5 h-3.5 flex-shrink-0" />
             <span>{resumeData.phone}</span>
           </div>
         )}
         {resumeData.email && (
           <div className="flex items-center gap-2">
-            <Mail className="w-3 h-3" />
+            <Mail className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">{resumeData.email}</span>
           </div>
         )}
       </div>
 
-      {/* Summary/Skills Section */}
+      {/* Summary Section */}
       {resumeData.summary && (
         <div className="space-y-2">
           <h2 className="text-sm font-bold">Software Development</h2>
           <ul className="text-xs leading-relaxed list-disc pl-5 space-y-1">
-            {resumeData.summary.split(".").filter(s => s.trim()).map((sentence, i) => (
-              <li key={i}>{sentence.trim()}.</li>
-            ))}
+            {resumeData.summary
+              .split(".")
+              .filter((s) => s.trim())
+              .map((sentence, i) => (
+                <li key={i}>{sentence.trim()}.</li>
+              ))}
           </ul>
         </div>
       )}
@@ -78,7 +89,7 @@ export default function HybridTemplate({
               className="w-6 h-6 flex items-center justify-center text-white rounded"
               style={{ backgroundColor: accentColor }}
             >
-              <Briefcase className="w-3 h-3" />
+              <Briefcase className="w-3.5 h-3.5" />
             </div>
             <h2 className="text-sm font-bold">Work Experience</h2>
           </div>
@@ -86,12 +97,21 @@ export default function HybridTemplate({
             {resumeData.workExperiences.map((work, index) => (
               <div key={index} className="flex gap-4">
                 <div className="w-24 flex-shrink-0 text-xs text-gray-600">
-                  {work.startDate && formatDate(work.startDate)}
-                  {" - "}
+                  {work.startDate &&
+                    formatDate(work.startDate).replace(
+                      /^\d{1,2}\/\d{1,2}\//,
+                      ""
+                    )}
+                  {work.startDate &&
+                    (work.isCurrentlyWorkingHere || work.endDate) &&
+                    " - "}
                   {work.isCurrentlyWorkingHere
                     ? "present"
                     : work.endDate
-                      ? formatDate(work.endDate)
+                      ? formatDate(work.endDate).replace(
+                          /^\d{1,2}\/\d{1,2}\//,
+                          ""
+                        )
                       : ""}
                 </div>
                 <div className="flex-1 space-y-1">
@@ -102,10 +122,13 @@ export default function HybridTemplate({
                     </p>
                   </div>
                   {work.description && (
-                    <ul className="text-xs leading-snug list-disc pl-4 space-y-0.5">
-                      {work.description.split("\n").filter(line => line.trim()).map((line, i) => (
-                        <li key={i}>{line.trim()}</li>
-                      ))}
+                    <ul className="text-xs leading-relaxed list-disc pl-4 space-y-0.5">
+                      {work.description
+                        .split("\n")
+                        .filter((line) => line.trim())
+                        .map((line, i) => (
+                          <li key={i}>{line.trim()}</li>
+                        ))}
                     </ul>
                   )}
                 </div>
@@ -123,20 +146,22 @@ export default function HybridTemplate({
               className="w-6 h-6 flex items-center justify-center text-white rounded"
               style={{ backgroundColor: accentColor }}
             >
-              <GraduationCap className="w-3 h-3" />
+              <GraduationCap className="w-3.5 h-3.5" />
             </div>
             <h2 className="text-sm font-bold">Education</h2>
           </div>
           {resumeData.educationItems.map((edu, index) => (
             <div key={index} className="flex gap-4">
               <div className="w-24 flex-shrink-0 text-xs text-gray-600">
-                {edu.graduationDate && formatDate(edu.graduationDate)}
+                {edu.graduationDate &&
+                  formatDate(edu.graduationDate).replace(
+                    /^\d{1,2}\/\d{1,2}\//,
+                    ""
+                  )}
               </div>
               <div>
                 <h3 className="text-xs font-bold">{edu.degree}</h3>
-                <p className="text-xs italic text-gray-600">
-                  {edu.schoolName}
-                </p>
+                <p className="text-xs italic text-gray-600">{edu.schoolName}</p>
               </div>
             </div>
           ))}
@@ -151,29 +176,34 @@ export default function HybridTemplate({
               className="w-6 h-6 flex items-center justify-center text-white rounded"
               style={{ backgroundColor: accentColor }}
             >
-              <Award className="w-3 h-3" />
+              <Award className="w-3.5 h-3.5" />
             </div>
             <h2 className="text-sm font-bold">Additional Skills</h2>
           </div>
           <div className="space-y-2">
-            {resumeData.skills.slice(0, 6).map((skill, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <span className="text-xs w-16">{skill}</span>
-                <div className="flex-1 flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-3 h-3 border"
-                      style={{
-                        backgroundColor:
-                          i < (index % 3) + 3 ? accentColor : "white",
-                        borderColor: accentColor,
-                      }}
-                    ></div>
-                  ))}
+            {resumeData.skills.slice(0, 6).map((skill, index) => {
+              // Skill levels - varied for visual interest
+              const skillLevels = [5, 3, 4, 4, 5, 5];
+              const level = skillLevels[index] || 4;
+
+              return (
+                <div key={index} className="flex items-center gap-3">
+                  <span className="text-xs w-24 flex-shrink-0">{skill}</span>
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-3 h-3"
+                        style={{
+                          backgroundColor: i < level ? accentColor : "white",
+                          border: `1px solid ${accentColor}`,
+                        }}
+                      ></div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
