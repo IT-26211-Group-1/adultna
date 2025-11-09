@@ -2,17 +2,14 @@
 
 import { useResumes, useDeleteResume, useExportResume } from "@/hooks/queries/useResumeQueries";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Card, CardBody, Button } from "@heroui/react";
 import { ArrowLeft, FileText, Trash2, Eye, Edit, Plus, Download } from "lucide-react";
 import { getTemplate } from "@/constants/templates";
 import { useState } from "react";
 import ResumeListSkeleton from "./ResumeListSkeleton";
 
-interface ResumeListProps {
-  onBack: () => void;
-}
-
-export function ResumeList({ onBack }: ResumeListProps) {
+export function ResumeList() {
   const router = useRouter();
   const { data: resumes = [], isLoading } = useResumes();
   const deleteResume = useDeleteResume();
@@ -57,20 +54,21 @@ export function ResumeList({ onBack }: ResumeListProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button
-            onClick={onBack}
+          <Link
+            href="/resume-builder"
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back</span>
-          </button>
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900">My Resumes</h1>
         </div>
         <Button
+          as={Link}
+          href="/resume-builder/templates"
           color="success"
           className="bg-adult-green text-white"
           startContent={<Plus className="w-4 h-4" />}
-          onPress={onBack}
         >
           Create New Resume
         </Button>
@@ -90,9 +88,10 @@ export function ResumeList({ onBack }: ResumeListProps) {
             Start building your first resume to get started
           </p>
           <Button
+            as={Link}
+            href="/resume-builder/templates"
             color="success"
             className="bg-adult-green text-white"
-            onPress={onBack}
           >
             Create Your First Resume
           </Button>

@@ -304,3 +304,69 @@ export function useDeleteSkill(resumeId: string) {
     },
   });
 }
+
+export function useGetContactInfo(resumeId: string) {
+  return useQuery({
+    queryKey: queryKeys.resumes.contactInfo(resumeId),
+    queryFn: async () => {
+      const response = await ApiClient.get<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/contact-info`
+      );
+      return response.data;
+    },
+    enabled: !!resumeId,
+  });
+}
+
+export function useCreateContactInfo(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await ApiClient.post<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/contact-info`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.contactInfo(resumeId) });
+    },
+  });
+}
+
+export function useUpdateContactInfo(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await ApiClient.put<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/contact-info`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.contactInfo(resumeId) });
+    },
+  });
+}
+
+export function useUpdateSummary(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (summary: string) => {
+      const response = await ApiClient.put<{ success: boolean; data: any }>(
+        `/resumes/${resumeId}/summary`,
+        { summary }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+    },
+  });
+}

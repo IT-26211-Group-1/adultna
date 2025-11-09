@@ -4,6 +4,11 @@ import { Template } from "@/constants/templates";
 import { Card, CardBody, CardFooter } from "@heroui/react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ReverseChronologicalTemplate from "../templates/_components/ReverseChronologicalTemplate";
+import ModernTemplate from "../templates/_components/ModernTemplate";
+import SkillBasedTemplate from "../templates/_components/SkillBasedTemplate";
+import HybridTemplate from "../templates/_components/HybridTemplate";
+import { ResumeData } from "@/validators/resumeSchema";
 
 type TemplateCardProps = {
   template: Template;
@@ -11,11 +16,104 @@ type TemplateCardProps = {
   onSelect: () => void;
 };
 
+const SAMPLE_RESUME_DATA: ResumeData & { colorHex?: string } = {
+  firstName: "John",
+  lastName: "Doe",
+  email: "john.doe@email.com",
+  phone: "(555) 123-4567",
+  city: "New York",
+  region: "NY",
+  linkedin: "linkedin.com/in/johndoe",
+  portfolio: "johndoe.com",
+  summary:
+    "Experienced professional with a proven track record of delivering high-quality results in fast-paced environments. Skilled in leadership, problem-solving, and strategic planning.",
+  workExperiences: [
+    {
+      jobTitle: "Senior Manager",
+      employer: "Tech Company Inc.",
+      startDate: new Date(2020, 0, 1),
+      endDate: new Date(2024, 0, 1),
+      description:
+        "Led team of 10 developers\nImplemented agile methodologies\nIncreased productivity by 40%",
+    },
+    {
+      jobTitle: "Project Manager",
+      employer: "Startup Solutions",
+      startDate: new Date(2018, 0, 1),
+      endDate: new Date(2020, 0, 1),
+      description:
+        "Managed multiple projects simultaneously\nCoordinated cross-functional teams",
+    },
+  ],
+  educationItems: [
+    {
+      degree: "Master of Business Administration",
+      fieldOfStudy: "Business Management",
+      schoolName: "University of California",
+      schoolLocation: "Los Angeles, CA",
+      graduationDate: new Date(2018, 5, 1),
+    },
+  ],
+  skills: [
+    "Leadership",
+    "Project Management",
+    "Strategic Planning",
+    "Communication",
+    "Data Analysis",
+    "Problem Solving",
+  ],
+  certificates: [
+    {
+      certificate: "PMP Certification",
+      issuingOrganization: "PMI",
+    },
+  ],
+};
+
 export function TemplateCard({
   template,
   isSelected,
   onSelect,
 }: TemplateCardProps) {
+  const formatDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day
+        ).toLocaleDateString("en-US", { year: "numeric" });
+      }
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-US", { year: "numeric" });
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
+
+  const resumeDataWithColor = {
+    ...SAMPLE_RESUME_DATA,
+    colorHex: template.colorScheme,
+  };
+
+  const getTemplateComponent = () => {
+    const props = { resumeData: resumeDataWithColor, formatDate };
+    switch (template.id) {
+      case "reverse-chronological":
+        return <ReverseChronologicalTemplate {...props} />;
+      case "modern":
+        return <ModernTemplate {...props} />;
+      case "skill-based":
+        return <SkillBasedTemplate {...props} />;
+      case "hybrid":
+        return <HybridTemplate {...props} />;
+      default:
+        return <ReverseChronologicalTemplate {...props} />;
+    }
+  };
+
   return (
     <Card
       isPressable
@@ -43,136 +141,17 @@ export function TemplateCard({
         </div>
 
         {/* Template Preview */}
-        <div className="aspect-[8.5/11] bg-gray-50 rounded-lg overflow-hidden relative border border-gray-200">
+        <div className="aspect-[8.5/11] bg-white rounded-lg overflow-hidden relative border border-gray-200">
           <div
-            className="w-full h-full p-4 text-[0.5rem] leading-tight"
+            className="w-full h-full"
             style={{
-              fontFamily: template.fontFamily,
+              transform: "scale(0.25)",
+              transformOrigin: "top left",
+              width: "400%",
+              height: "400%",
             }}
           >
-            {/* Header simulation */}
-            <div className="text-center border-b border-gray-300 pb-2 mb-2">
-              <h1
-                className="font-bold text-sm mb-1"
-                style={{ color: template.colorScheme }}
-              >
-                {template.layoutType === "two-column"
-                  ? "First Name Last Name"
-                  : "SIMPLE RESUME FORMAT"}
-              </h1>
-              <div className="text-[0.4rem] text-gray-600 space-y-0.5">
-                <p>Email Address | Phone Number</p>
-                <p>City, State | LinkedIn | Portfolio</p>
-              </div>
-            </div>
-
-            {/* Content simulation based on layout */}
-            {template.layoutType === "single-column" ? (
-              <div className="space-y-2">
-                <div>
-                  <h2
-                    className="font-semibold text-[0.5rem] border-b mb-1"
-                    style={{ borderColor: template.colorScheme }}
-                  >
-                    PROFESSIONAL EXPERIENCE
-                  </h2>
-                  <div className="space-y-1">
-                    <div className="text-[0.35rem]">
-                      <p className="font-semibold">Job Title</p>
-                      <p className="text-gray-600">Company Name</p>
-                      <div className="mt-0.5">• Achievement line</div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h2
-                    className="font-semibold text-[0.5rem] border-b mb-1"
-                    style={{ borderColor: template.colorScheme }}
-                  >
-                    EDUCATION
-                  </h2>
-                  <div className="text-[0.35rem]">
-                    <p className="font-semibold">Degree Name</p>
-                    <p className="text-gray-600">University Name</p>
-                  </div>
-                </div>
-              </div>
-            ) : template.layoutType === "two-column" ? (
-              <div className="grid grid-cols-3 gap-2">
-                <div className="col-span-2 space-y-2">
-                  <div>
-                    <h2
-                      className="font-semibold text-[0.5rem] mb-1"
-                      style={{ color: template.colorScheme }}
-                    >
-                      PROFESSIONAL EXPERIENCE
-                    </h2>
-                    <div className="text-[0.35rem] space-y-1">
-                      <div>
-                        <p className="font-semibold">Senior Position Title</p>
-                        <p className="text-gray-600">Company Name</p>
-                        <div className="mt-0.5">• Key achievement</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h2
-                      className="font-semibold text-[0.5rem] mb-1"
-                      style={{ color: template.colorScheme }}
-                    >
-                      EDUCATION
-                    </h2>
-                    <div className="text-[0.35rem]">
-                      <p className="font-semibold">Degree</p>
-                      <p className="text-gray-600">University</p>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="space-y-2 border-l pl-2"
-                  style={{ borderColor: template.colorScheme + "40" }}
-                >
-                  <div>
-                    <h2
-                      className="font-semibold text-[0.5rem] mb-1"
-                      style={{ color: template.colorScheme }}
-                    >
-                      SKILLS
-                    </h2>
-                    <div className="text-[0.35rem] space-y-0.5">
-                      <p>• Skill 1</p>
-                      <p>• Skill 2</p>
-                      <p>• Skill 3</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              // Asymmetric layout
-              <div className="space-y-2">
-                <div
-                  className="p-2 rounded"
-                  style={{ backgroundColor: template.colorScheme + "10" }}
-                >
-                  <h2
-                    className="font-bold text-[0.5rem] mb-1"
-                    style={{ color: template.colorScheme }}
-                  >
-                    EXPERIENCE
-                  </h2>
-                  <div className="text-[0.35rem]">
-                    <p className="font-semibold">Creative Role</p>
-                    <p className="text-gray-600">Studio Name</p>
-                  </div>
-                </div>
-                <div className="text-[0.35rem] space-y-1">
-                  <div>
-                    <h2 className="font-semibold text-[0.45rem]">EDUCATION</h2>
-                    <p>Degree Program</p>
-                  </div>
-                </div>
-              </div>
-            )}
+            {getTemplateComponent()}
           </div>
         </div>
       </CardBody>

@@ -1,4 +1,4 @@
-export type TemplateId = "classic" | "modern" | "minimal" | "creative" | "professional";
+export type TemplateId = "reverse-chronological" | "modern" | "skill-based" | "hybrid";
 
 export type LayoutType = "single-column" | "two-column" | "asymmetric";
 
@@ -13,54 +13,45 @@ export type Template = {
 };
 
 export const TEMPLATES: Record<TemplateId, Template> = {
-  classic: {
-    id: "classic",
-    name: "Classic",
-    description: "Traditional single-column layout with professional serif fonts",
+  "reverse-chronological": {
+    id: "reverse-chronological",
+    name: "Reverse-Chronological",
+    description: "Traditional layout with orange accents and black contact bar",
     layoutType: "single-column",
-    colorScheme: "#1e3a8a",
-    fontFamily: "Georgia, serif",
-    previewImageUrl: "/templates/classic-preview.png",
+    colorScheme: "#FF8C00",
+    fontFamily: "Arial, sans-serif",
+    previewImageUrl: "/templates/Reverse-CHronological.png",
   },
   modern: {
     id: "modern",
     name: "Modern",
-    description: "Clean two-column design with contemporary sans-serif typography",
+    description: "Two-column design with timeline and icon-based sections",
     layoutType: "two-column",
-    colorScheme: "#0891b2",
-    fontFamily: "Inter, sans-serif",
-    previewImageUrl: "/templates/modern-preview.png",
-  },
-  minimal: {
-    id: "minimal",
-    name: "Minimal",
-    description: "Simplistic single-column layout with thin, elegant fonts",
-    layoutType: "single-column",
     colorScheme: "#000000",
-    fontFamily: "Helvetica Neue, sans-serif",
-    previewImageUrl: "/templates/minimal-preview.png",
+    fontFamily: "Inter, sans-serif",
+    previewImageUrl: "/templates/Modern.png",
   },
-  creative: {
-    id: "creative",
-    name: "Creative",
-    description: "Unique asymmetric layout with modern styling for creative professionals",
+  "skill-based": {
+    id: "skill-based",
+    name: "Skill-based",
+    description: "Centered layout emphasizing skills with burgundy accents",
+    layoutType: "single-column",
+    colorScheme: "#A64D79",
+    fontFamily: "Georgia, serif",
+    previewImageUrl: "/templates/Skill-based.png",
+  },
+  hybrid: {
+    id: "hybrid",
+    name: "Hybrid",
+    description: "Date-based layout with skill bars and icon sections",
     layoutType: "asymmetric",
     colorScheme: "#7c3aed",
-    fontFamily: "Poppins, sans-serif",
-    previewImageUrl: "/templates/creative-preview.png",
-  },
-  professional: {
-    id: "professional",
-    name: "Professional",
-    description: "Balanced two-column format ideal for corporate and business roles",
-    layoutType: "two-column",
-    colorScheme: "#1e40af",
-    fontFamily: "Roboto, sans-serif",
-    previewImageUrl: "/templates/professional-preview.png",
+    fontFamily: "Arial, sans-serif",
+    previewImageUrl: "/templates/Hybrid.png",
   },
 };
 
-export const TEMPLATE_IDS: TemplateId[] = ["classic", "modern", "minimal", "creative", "professional"];
+export const TEMPLATE_IDS: TemplateId[] = ["reverse-chronological", "modern", "skill-based", "hybrid"];
 
 export const TEMPLATE_LIST: Template[] = TEMPLATE_IDS.map(id => TEMPLATES[id]);
 

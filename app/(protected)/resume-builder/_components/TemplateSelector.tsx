@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { TEMPLATE_LIST, TemplateId } from "@/constants/templates";
 import { Button } from "@heroui/react";
 import { TemplateGrid } from "./TemplateGrid";
@@ -10,13 +11,11 @@ import { ArrowLeft } from "lucide-react";
 interface TemplateSelectorProps {
   onSelect: (templateId: TemplateId) => void;
   selectedTemplateId?: TemplateId;
-  onBack?: () => void;
 }
 
 export function TemplateSelector({
   onSelect,
   selectedTemplateId,
-  onBack,
 }: TemplateSelectorProps) {
   const [selected, setSelected] = useState<TemplateId | undefined>(
     selectedTemplateId
@@ -37,15 +36,13 @@ export function TemplateSelector({
   return (
     <div className="w-full max-w-7xl mx-auto space-y-8 p-6">
       {/* Back Button */}
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium">Back</span>
-        </button>
-      )}
+      <Link
+        href="/resume-builder"
+        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span className="font-medium">Back</span>
+      </Link>
 
       {/* Header */}
       <TemplateSelectorHeader />

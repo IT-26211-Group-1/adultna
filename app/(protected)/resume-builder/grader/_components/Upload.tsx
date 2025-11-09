@@ -84,7 +84,7 @@ export function Upload() {
         <div className="absolute top-6 left-6">
           <NextLink
             className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
-            href="/resumes"
+            href="/resume-builder"
           >
             <ArrowLeft className="mr-2" size={20} />
             Back

@@ -2,8 +2,8 @@ export const RESUME_LINKS = [
   {
     title: "Build a Resume",
     description:
-      "Choose from our templates then we’ll guide you through each section.",
-    href: "/resume-builder/editor",
+      "Choose from our templates then we'll guide you through each section.",
+    href: "/resume-builder/templates",
   },
   {
     title: "Upload your Existing Resume",
@@ -19,6 +19,6 @@ export const RESUME_LINKS = [
   {
     title: "My Resumes",
     description: "Manage your saved resumes or continue where you left off.",
-    href: "/resume-builder",
+    href: "/resume-builder/my-resumes",
   },
 ];

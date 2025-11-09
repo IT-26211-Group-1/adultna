@@ -42,7 +42,7 @@ export default function Completed({ resumeData }: CompletedProps) {
 
               {/* Action Buttons */}
               <div className="space-y-4 max-w-md mx-auto w-full">
-                <NextLink className="block" href="/resumes/editor">
+                <NextLink className="block" href="/resume-builder/editor">
                   <Button className="w-full py-3 text-base" variant="bordered">
                     Edit Resume
                   </Button>
@@ -62,7 +62,7 @@ export default function Completed({ resumeData }: CompletedProps) {
                   </Button>
                 </NextLink>
 
-                <NextLink className="block" href="/resumes/editor">
+                <NextLink className="block" href="/resume-builder/editor">
                   <Button className="w-full py-3 text-base" variant="bordered">
                     Start New Resume
                   </Button>

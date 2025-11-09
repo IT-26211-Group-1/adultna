@@ -7,7 +7,9 @@ type EditorLayoutProps = {
 export default function EditorLayout({ children }: EditorLayoutProps) {
   return (
     <ProtectedRoute roles={["user"]}>
-      <div className="min-h-screen">{children}</div>
+      <div className="min-h-screen bg-background">
+        {children}
+      </div>
     </ProtectedRoute>
   );
 }

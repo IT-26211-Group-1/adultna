@@ -341,5 +341,6 @@ export const queryKeys = {
     all: ["resumes"] as const,
     list: () => ["resumes", "list"] as const,
     detail: (resumeId: string) => ["resumes", "detail", resumeId] as const,
+    contactInfo: (resumeId: string) => ["resumes", "contactInfo", resumeId] as const,
   },
 } as const;
