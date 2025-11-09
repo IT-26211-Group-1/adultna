@@ -34,12 +34,22 @@ export function RoadmapClient() {
   );
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
+    console.log("🎯 handleMilestoneClick called with:", interaction);
     const milestone = MilestoneService.getMilestone(interaction.milestoneId);
+    console.log("📊 Found milestone:", milestone);
 
     if (milestone) {
       setSelectedMilestone(milestone);
       onOpen();
+      console.log("✅ Modal should open now");
+    } else {
+      console.log("❌ No milestone found for ID:", interaction.milestoneId);
     }
+  };
+
+  // Fallback click handler for the Canvas element
+  const handleCanvasClick = (event: React.MouseEvent) => {
+    console.log("🖱️  Canvas clicked at:", event.clientX, event.clientY);
   };
 
   return (
@@ -48,6 +58,7 @@ export function RoadmapClient() {
         <Canvas
           camera={{ position: [0, 5, 15], fov: 55 }}
           className="w-full h-full"
+          onClick={handleCanvasClick}
           resize={{ scroll: false, debounce: { scroll: 50, resize: 100 } }}
         >
           <CameraController animation={CAMERA_ANIMATION} />
