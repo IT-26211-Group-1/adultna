@@ -11,7 +11,7 @@ import {
 } from "react-hook-form";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo, useRef } from "react";
 import { PlusIcon, TrashIcon, GripHorizontal } from "lucide-react";
 import { debounce } from "@/lib/utils/debounce";
 import {
@@ -37,6 +37,8 @@ export default function EducationForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
+  const isSyncingRef = useRef(false);
+
   const form = useForm<EducationFormData>({
     resolver: zodResolver(educationSchema),
     defaultValues: {
@@ -79,6 +81,7 @@ export default function EducationForm({
     const isValid = await form.trigger();
 
     if (isValid) {
+      isSyncingRef.current = true;
       const values = form.getValues();
 
       setResumeData({
@@ -88,6 +91,10 @@ export default function EducationForm({
             (edu) => edu && edu.schoolName && edu.schoolName.trim() !== "",
           ) as any[]) || [],
       });
+
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 100);
     }
   }, [form, resumeData, setResumeData]);
 
@@ -105,12 +112,12 @@ export default function EducationForm({
   }, [form, debouncedSync]);
 
   useEffect(() => {
-    if (resumeData.educationItems && resumeData.educationItems.length > 0) {
+    if (!isSyncingRef.current && resumeData.educationItems && resumeData.educationItems.length > 0) {
       form.reset({
         educationItems: resumeData.educationItems,
       });
     }
-  }, [resumeData, form]);
+  }, [resumeData.educationItems, form]);
 
   const addEducation = () => {
     append({

@@ -13,7 +13,7 @@ import {
 import { Input, Textarea, Checkbox, DatePicker, Button } from "@heroui/react";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useCallback, useState, useMemo } from "react";
+import { useEffect, useCallback, useState, useMemo, useRef } from "react";
 import { PlusIcon, TrashIcon, GripHorizontal, Sparkles } from "lucide-react";
 import { debounce } from "@/lib/utils/debounce";
 import { useGenerateWorkDescriptionSuggestions } from "@/hooks/queries/useAIQueries";
@@ -42,6 +42,8 @@ export default function WorkExperienceForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
+  const isSyncingRef = useRef(false);
+
   const form = useForm<WorkExperienceData>({
     resolver: zodResolver(workSchema),
     defaultValues: {
@@ -85,6 +87,7 @@ export default function WorkExperienceForm({
     const isValid = await form.trigger();
 
     if (isValid) {
+      isSyncingRef.current = true;
       const values = form.getValues();
 
       setResumeData({
@@ -94,6 +97,10 @@ export default function WorkExperienceForm({
             (exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== "",
           ) as any[]) || [],
       });
+
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 100);
     }
   }, [form, resumeData, setResumeData]);
 
@@ -111,12 +118,12 @@ export default function WorkExperienceForm({
   }, [form, debouncedSync]);
 
   useEffect(() => {
-    if (resumeData.workExperiences && resumeData.workExperiences.length > 0) {
+    if (!isSyncingRef.current && resumeData.workExperiences && resumeData.workExperiences.length > 0) {
       form.reset({
         workExperiences: resumeData.workExperiences,
       });
     }
-  }, [resumeData, form]);
+  }, [resumeData.workExperiences, form]);
 
   // Function to count words in the description
   const getWordCount = (text: string): number => {

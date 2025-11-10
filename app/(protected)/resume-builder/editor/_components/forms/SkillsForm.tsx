@@ -9,14 +9,18 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import AISuggestions from "../AISuggestions";
 import { debounce } from "@/lib/utils/debounce";
 import ProficiencyRating from "../ProficiencyRating";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Sparkles } from "lucide-react";
 import { Skill } from "@/types/resume";
+import { useGenerateSkillsSuggestions } from "@/hooks/queries/useAIQueries";
+import { addToast } from "@heroui/toast";
 
 export default function SkillsForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
   const [skills, setSkills] = useState<Skill[]>(resumeData.skills || []);
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
   const form = useForm<SkillFormData>({
     resolver: zodResolver(skillSchema),
@@ -25,7 +29,9 @@ export default function SkillsForm({
     },
   });
 
-  const aiSuggestedSkills: string[] = ["JavaScript", "React", "Node.js"];
+  const generateSkillsSuggestions = useGenerateSkillsSuggestions(
+    resumeData.id || "",
+  );
 
   const handleAddSkill = () => {
     const newSkill: Skill = {
@@ -71,6 +77,57 @@ export default function SkillsForm({
     };
 
     setSkills([...skills, newSkill]);
+  };
+
+  const handleGenerateAISuggestions = async () => {
+    if (
+      !resumeData.jobPosition &&
+      (!resumeData.workExperiences || resumeData.workExperiences.length === 0)
+    ) {
+      addToast({
+        title: "Missing information",
+        description:
+          "Please add a job position or work experience before generating skill suggestions",
+        color: "warning",
+      });
+
+      return;
+    }
+
+    setIsGeneratingAI(true);
+
+    try {
+      const suggestions = await generateSkillsSuggestions.mutateAsync({
+        jobPosition: resumeData.jobPosition,
+        workExperiences: resumeData.workExperiences?.map((exp) => ({
+          jobTitle: exp.jobTitle,
+          employer: exp.employer,
+          description: exp.description,
+        })),
+        educationItems: resumeData.educationItems?.map((edu) => ({
+          degree: edu.degree,
+          institution: edu.schoolName,
+          fieldOfStudy: edu.fieldOfStudy,
+        })),
+        existingSkills: skills.map((s) => s.skill).filter(Boolean),
+      });
+
+      setAiSuggestions(suggestions);
+
+      addToast({
+        title: "AI suggestions generated",
+        description: "Click + to add skills to your resume",
+        color: "success",
+      });
+    } catch {
+      addToast({
+        title: "Failed to generate suggestions",
+        description: "Please try again",
+        color: "danger",
+      });
+    } finally {
+      setIsGeneratingAI(false);
+    }
   };
 
   useEffect(() => {
@@ -128,6 +185,20 @@ export default function SkillsForm({
       </div>
 
       <form className="space-y-6">
+        <div className="flex justify-center">
+          <Button
+            color="success"
+            isLoading={isGeneratingAI}
+            size="sm"
+            startContent={isGeneratingAI ? null : <Sparkles size={16} />}
+            type="button"
+            variant="flat"
+            onPress={handleGenerateAISuggestions}
+          >
+            {isGeneratingAI ? "Generating..." : "Get AI Suggestions"}
+          </Button>
+        </div>
+
         <div className="space-y-4">
           {skills.map((skill, index) => (
             <div key={index} className="flex items-center gap-3">
@@ -184,10 +255,11 @@ export default function SkillsForm({
           </p>
         </div>
 
-        {aiSuggestedSkills.length > 0 && (
+        {aiSuggestions.length > 0 && (
           <AISuggestions
+            buttonType="plus"
             subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
-            suggestions={aiSuggestedSkills}
+            suggestions={aiSuggestions}
             title="AI Recommendations for Skills"
             onApplySuggestion={handleApplySkill}
           />
