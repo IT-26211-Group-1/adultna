@@ -49,6 +49,7 @@ export function mapResumeDataToUpdatePayload(
 ): UpdateResumeInput {
   const payload: UpdateResumeInput = {};
 
+  if (data.title !== undefined) payload.title = data.title;
   if (data.firstName !== undefined) payload.firstName = data.firstName;
   if (data.lastName !== undefined) payload.lastName = data.lastName;
   if (data.jobPosition !== undefined) payload.jobPosition = data.jobPosition;
@@ -88,6 +89,7 @@ export function mapResumeDataToUpdatePayload(
 export function mapApiResumeToResumeData(resume: Resume): ResumeData {
   return {
     id: resume.id,
+    title: resume.title,
     templateId: resume.templateId,
     firstName: resume.firstName,
     lastName: resume.lastName,

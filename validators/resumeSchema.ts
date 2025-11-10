@@ -192,7 +192,8 @@ export const resumeSchema = z.object({
 });
 
 export type ResumeData = z.infer<typeof resumeSchema> & {
-  id?: string; // Optional ID field for existing resumes
-  templateId?: string; // Template ID for the resume
-  colorHex?: string; // Optional color customization
+  id?: string;
+  title?: string;
+  templateId?: string;
+  colorHex?: string;
 };

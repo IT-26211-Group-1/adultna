@@ -25,6 +25,7 @@ import {
 import { addToast } from "@heroui/toast";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { debounce } from "@/lib/utils/debounce";
+import InlineEditableTitle from "./InlineEditableTitle";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
@@ -281,24 +282,38 @@ export default function ResumeEditor() {
     return <Completed resumeData={resumeData} />;
   }
 
+  const handleTitleChange = (newTitle: string) => {
+    setResumeData((prev) => ({ ...prev, title: newTitle }));
+  };
+
   return (
     <div className="flex grow flex-col min-h-screen">
-      <header className="space-y-1.5 border-b px-3 py-5 text-center relative">
-        <div className="absolute right-4 top-4 flex items-center gap-3 text-sm">
-          {currentResumeId && (
-            <ExportButton onExport={handleExport} isExporting={isExporting} />
-          )}
-          <SaveStatusIndicator
-            isSaving={isSaving}
-            hasSaved={!!currentResumeId && !isSaving && !hasUnsavedChanges}
-            hasUnsavedChanges={hasUnsavedChanges && !isSaving}
-          />
+      <header className="border-b px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            {currentResumeId ? (
+              <InlineEditableTitle
+                resumeId={currentResumeId}
+                currentTitle={resumeData.title || existingResume?.title || "Untitled Resume"}
+                onTitleChange={handleTitleChange}
+              />
+            ) : (
+              <h1 className="text-2xl font-bold">
+                {resumeData.title || "Untitled Resume"}
+              </h1>
+            )}
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            {currentResumeId && (
+              <ExportButton onExport={handleExport} isExporting={isExporting} />
+            )}
+            <SaveStatusIndicator
+              isSaving={isSaving}
+              hasSaved={!!currentResumeId && !isSaving && !hasUnsavedChanges}
+              hasUnsavedChanges={hasUnsavedChanges && !isSaving}
+            />
+          </div>
         </div>
-        <h1 className="text-2xl font-bold">Design your resume</h1>
-        <p className="text-sm text-muted-foreground">
-          Follow the steps below to create your resume. Your progress will be
-          saved when you navigate between steps.
-        </p>
       </header>
       <main className="relative grow">
         <div className="absolute bottom-0 top-0 flex w-full">
