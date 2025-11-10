@@ -187,8 +187,8 @@ export function InterviewResults() {
               <span className="font-medium">{sessionMetadata.jobRole}</span>
             </button>
           </div>
-          <div className="text-2xl font-bold text-[#11553F]">AdultNa.</div>
-          <div className="w-10 h-10 rounded-full bg-[#11553F] flex items-center justify-center">
+          <div className="text-2xl font-bold text-adult-green">AdultNa.</div>
+          <div className="w-10 h-10 rounded-full bg-adult-green flex items-center justify-center">
             <span className="text-white text-sm font-semibold">U</span>
           </div>
         </div>
@@ -222,7 +222,7 @@ export function InterviewResults() {
                   Go to Dashboard
                 </Button>
                 <Button
-                  className="flex-1 bg-[#11553F] text-white hover:bg-[#11553F]/90 font-medium"
+                  className="flex-1 bg-adult-green text-white hover:bg-adult-green/90 font-medium"
                   size="lg"
                   onPress={handleRetake}
                 >
