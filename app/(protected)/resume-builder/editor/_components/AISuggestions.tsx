@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardBody, Button, Chip } from "@heroui/react";
-import { Lightbulb, Plus } from "lucide-react";
+import { Lightbulb, Plus, Info } from "lucide-react";
 import { useState } from "react";
 
 interface AISuggestionsProps {
@@ -48,6 +48,12 @@ export default function AISuggestions({
                 {title}
               </h3>
               <p className="text-sm text-amber-700 mt-1">{subtitle}</p>
+              <div className="flex items-center gap-1.5 mt-2">
+                <Info className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
+                <p className="text-xs text-amber-700">
+                  AI can make mistakes. Please review suggestions carefully.
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">

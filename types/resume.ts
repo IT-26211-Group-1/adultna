@@ -67,6 +67,26 @@ export type Resume = {
   updatedAt: Date | string;
 };
 
-export type CreateResumeInput = Omit<Resume, "id" | "userId" | "createdAt" | "updatedAt">;
+export type CreateResumeInput = Omit<
+  Resume,
+  "id" | "userId" | "createdAt" | "updatedAt"
+>;
 
-export type UpdateResumeInput = Partial<Omit<Resume, "id" | "userId" | "createdAt" | "updatedAt">>;
+export type UpdateResumeInput = Partial<
+  Omit<Resume, "id" | "userId" | "createdAt" | "updatedAt">
+>;
+
+export type GenerateWorkDescriptionInput = {
+  jobTitle?: string;
+  employer?: string;
+  startDate?: Date | string;
+  endDate?: Date | string;
+  isCurrentlyWorkingHere?: boolean;
+};
+
+export type GenerateWorkDescriptionResponse = {
+  success: boolean;
+  message: string;
+  statusCode: number;
+  suggestions?: string[];
+};

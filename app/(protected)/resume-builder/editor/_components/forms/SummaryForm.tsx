@@ -92,7 +92,7 @@ export default function SummaryForm({
             buttonType="addSummary"
             subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
             suggestions={aiSummaryOptions}
-            title="AI Recommendations for Juan Miguel's Professional Summary"
+            title={`AI Recommendations for ${resumeData.firstName || ""} ${resumeData.lastName || ""}`.trim() + "'s Professional Summary"}
             onApplySuggestion={handleApplySummary}
           />
         )}

@@ -1,4 +1,8 @@
-import { workSchema, WorkExperienceData } from "@/validators/resumeSchema";
+import {
+  workSchema,
+  WorkExperienceData,
+  ResumeData,
+} from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useForm,
@@ -9,9 +13,11 @@ import {
 import { Input, Textarea, Checkbox, DatePicker, Button } from "@heroui/react";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useCallback, useMemo } from "react";
-import { PlusIcon, TrashIcon, GripHorizontal } from "lucide-react";
+import { useEffect, useCallback, useMemo, useState } from "react";
+import { PlusIcon, TrashIcon, GripHorizontal, Sparkles } from "lucide-react";
 import { debounce } from "@/lib/utils/debounce";
+import { useGenerateWorkDescriptionSuggestions } from "@/hooks/queries/useAIQueries";
+import { addToast } from "@heroui/toast";
 import {
   closestCenter,
   DndContext,
@@ -61,7 +67,7 @@ export default function WorkExperienceForm({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -83,7 +89,7 @@ export default function WorkExperienceForm({
         ...resumeData,
         workExperiences:
           (values.workExperiences?.filter(
-            (exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== "",
+            (exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== ""
           ) as any[]) || [],
       });
     }
@@ -120,24 +126,85 @@ export default function WorkExperienceForm({
     });
   };
 
-  // Test data for the design replace with the actual API
-  const aiWorkDescriptions: string[] = [
-    "Developed and maintained web applications using JavaScript, React, and Node.js.",
-  ];
+  const [aiSuggestionsMap, setAiSuggestionsMap] = useState<
+    Record<number, string[]>
+  >({});
+  const [loadingIndexes, setLoadingIndexes] = useState<Set<number>>(new Set());
+
+  const generateAISuggestions = useGenerateWorkDescriptionSuggestions(
+    resumeData.id || ""
+  );
+
+  const handleGenerateSuggestions = async (workExpIndex: number) => {
+    const workExp = form.watch(`workExperiences.${workExpIndex}`);
+
+    if (!workExp) {
+      return;
+    }
+
+    const currentDescription = workExp.description?.trim();
+
+    if (!currentDescription && !workExp.jobTitle && !workExp.employer) {
+      addToast({
+        title: "Missing information",
+        description:
+          "Please add a job title or employer before generating suggestions",
+        color: "warning",
+      });
+      return;
+    }
+
+    setLoadingIndexes((prev) => new Set(prev).add(workExpIndex));
+
+    try {
+      const suggestions = await generateAISuggestions.mutateAsync({
+        jobTitle: workExp.jobTitle,
+        employer: workExp.employer,
+        startDate: workExp.startDate,
+        endDate: workExp.endDate,
+        isCurrentlyWorkingHere: workExp.isCurrentlyWorkingHere,
+        existingDescription: currentDescription || undefined,
+      });
+
+      setAiSuggestionsMap((prev) => ({
+        ...prev,
+        [workExpIndex]: suggestions,
+      }));
+
+      addToast({
+        title: "AI suggestions generated",
+        description: "Click + to add suggestions",
+        color: "success",
+      });
+    } catch (error) {
+      addToast({
+        title: "Failed to generate suggestions",
+        description: "Please try again",
+        color: "danger",
+      });
+    } finally {
+      setLoadingIndexes((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(workExpIndex);
+        return newSet;
+      });
+    }
+  };
 
   const handleApplyDescription = (
     description: string,
-    currentIndex: number,
+    currentIndex: number
   ) => {
     const currentDescription =
       form.watch(`workExperiences.${currentIndex}.description`) || "";
     const newDescription = currentDescription.trim()
-      ? `${currentDescription}\n• ${description}`
-      : `• ${description}`;
+      ? `${currentDescription}\n${description}`
+      : description;
 
     form.setValue(
       `workExperiences.${currentIndex}.description`,
       newDescription,
+      { shouldValidate: true, shouldDirty: true, shouldTouch: true }
     );
   };
 
@@ -165,13 +232,16 @@ export default function WorkExperienceForm({
             {fields.map((field, index) => (
               <WorkExperienceItem
                 key={field.id}
-                aiSuggestions={aiWorkDescriptions}
+                aiSuggestions={aiSuggestionsMap[index] || []}
                 form={form}
                 getWordCount={getWordCount}
                 id={field.id}
                 index={index}
+                isGeneratingAI={loadingIndexes.has(index)}
                 remove={remove}
+                resumeData={resumeData}
                 onApplyDescription={handleApplyDescription}
+                onGenerateAI={handleGenerateSuggestions}
               />
             ))}
           </SortableContext>
@@ -200,7 +270,10 @@ interface WorkExperienceItemProps {
   remove: (index: number) => void;
   getWordCount: (text: string) => number;
   aiSuggestions: string[];
+  isGeneratingAI: boolean;
+  resumeData: ResumeData;
   onApplyDescription: (description: string, index: number) => void;
+  onGenerateAI: (index: number) => void;
 }
 
 function WorkExperienceItem({
@@ -210,7 +283,10 @@ function WorkExperienceItem({
   remove,
   getWordCount,
   aiSuggestions,
+  isGeneratingAI,
+  resumeData,
   onApplyDescription,
+  onGenerateAI,
 }: WorkExperienceItemProps) {
   const {
     attributes,
@@ -226,7 +302,7 @@ function WorkExperienceItem({
       ref={setNodeRef}
       className={cn(
         "space-y-3 p-4 border border-default-200 rounded-lg bg-background",
-        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
+        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50"
       )}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -290,8 +366,8 @@ function WorkExperienceItem({
                   new CalendarDate(
                     val.getFullYear(),
                     val.getMonth() + 1,
-                    val.getDate(),
-                  ),
+                    val.getDate()
+                  )
                 );
               } else {
                 field.onChange(val);
@@ -326,8 +402,8 @@ function WorkExperienceItem({
                   new CalendarDate(
                     val.getFullYear(),
                     val.getMonth() + 1,
-                    val.getDate(),
-                  ),
+                    val.getDate()
+                  )
                 );
               } else {
                 field.onChange(val);
@@ -338,7 +414,7 @@ function WorkExperienceItem({
               <DatePicker
                 errorMessage={fieldState.error?.message}
                 isDisabled={form.watch(
-                  `workExperiences.${index}.isCurrentlyWorkingHere`,
+                  `workExperiences.${index}.isCurrentlyWorkingHere`
                 )}
                 isInvalid={!!fieldState.error}
                 label="End Date"
@@ -354,31 +430,50 @@ function WorkExperienceItem({
       <Checkbox
         {...form.register(`workExperiences.${index}.isCurrentlyWorkingHere`)}
         isSelected={form.watch(
-          `workExperiences.${index}.isCurrentlyWorkingHere`,
+          `workExperiences.${index}.isCurrentlyWorkingHere`
         )}
         onValueChange={(value) =>
           form.setValue(
             `workExperiences.${index}.isCurrentlyWorkingHere`,
-            value,
+            value
           )
         }
       >
         Currently working here?
       </Checkbox>
 
-      <Textarea
-        {...form.register(`workExperiences.${index}.description`)}
-        description={`${form.watch(`workExperiences.${index}.description`) ? `${getWordCount(form.watch(`workExperiences.${index}.description`) || "")} / 100 words` : "Maximum 100 words"}`}
-        errorMessage={
-          form.formState.errors.workExperiences?.[index]?.description?.message
-        }
-        isInvalid={
-          !!form.formState.errors.workExperiences?.[index]?.description
-        }
-        label="Job Description"
-        minRows={4}
-        placeholder="Describe your key responsibilities and achievements..."
-      />
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <label className="text-sm font-medium">Job Description</label>
+          <Button
+            color="success"
+            size="sm"
+            startContent={isGeneratingAI ? null : <Sparkles size={16} />}
+            type="button"
+            variant="flat"
+            isLoading={isGeneratingAI}
+            onClick={() => onGenerateAI(index)}
+          >
+            {isGeneratingAI ? "Generating..." : "Get AI Suggestions"}
+          </Button>
+        </div>
+        <Controller
+          control={form.control}
+          name={`workExperiences.${index}.description`}
+          render={({ field, fieldState }) => (
+            <Textarea
+              description={`${field.value ? `${getWordCount(field.value || "")} / 100 words` : "Maximum 100 words"}`}
+              errorMessage={fieldState.error?.message}
+              isInvalid={!!fieldState.error}
+              minRows={4}
+              placeholder="Describe your key responsibilities and achievements..."
+              value={field.value || ""}
+              onBlur={field.onBlur}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      </div>
 
       {/* Only show AISuggestions when aiSuggestions has data */}
       {aiSuggestions.length > 0 && (
@@ -387,7 +482,10 @@ function WorkExperienceItem({
           className="mt-4"
           subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
           suggestions={aiSuggestions}
-          title="AI Recommendations for Juan Miguel's Work Description"
+          title={
+            `AI Recommendations for ${resumeData.firstName || ""} ${resumeData.lastName || ""}`.trim() +
+            "'s Work Description"
+          }
           onApplySuggestion={(suggestion: string) =>
             onApplyDescription(suggestion, index)
           }
