@@ -11,6 +11,7 @@ import ReactMarkdown from "react-markdown";
 import { ResultsLoadingSkeleton } from "./ResultsLoadingSkeleton";
 import { StarMetricCards } from "./StarMetricCards";
 import { QuestionBreakdown } from "./QuestionBreakdown";
+import { useMockInterviewState } from "@/hooks/useMockInterviewState";
 
 type SessionResults = {
   jobRole: string;
@@ -30,7 +31,8 @@ type StoredResultsData = {
 
 export function InterviewResults() {
   const router = useRouter();
-  const { getSecureItem } = useSecureStorage();
+  const { getSecureItem, removeSecureItem } = useSecureStorage();
+  const { actions } = useMockInterviewState();
   const [answerIds, setAnswerIds] = useState<string[]>([]);
   const [sessionMetadata, setSessionMetadata] = useState<Omit<
     SessionResults,
@@ -164,6 +166,13 @@ export function InterviewResults() {
     .join("\n\n");
   const verdict = allFeedback;
 
+  const handleRetake = () => {
+    // Resets the states so it does not skip to the last part
+    removeSecureItem("interview_results");
+    actions.reset();
+    router.push("/mock-interview");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -215,7 +224,7 @@ export function InterviewResults() {
                 <Button
                   className="flex-1 bg-[#11553F] text-white hover:bg-[#11553F]/90 font-medium"
                   size="lg"
-                  onPress={() => router.push("/mock-interview")}
+                  onPress={handleRetake}
                 >
                   Retake
                 </Button>
