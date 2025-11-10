@@ -10,12 +10,17 @@ import { LoadingButton } from "@/components/ui/Button";
 import Completed from "./Completed";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
 import { ExportButton } from "./ExportButton";
-import { useResume, useCreateResume, useUpdateResume, useExportResume } from "@/hooks/queries/useResumeQueries";
+import {
+  useResume,
+  useCreateResume,
+  useUpdateResume,
+  useExportResume,
+} from "@/hooks/queries/useResumeQueries";
 import { TemplateId, isValidTemplateId } from "@/constants/templates";
 import {
   mapResumeDataToCreatePayload,
   mapResumeDataToUpdatePayload,
-  mapApiResumeToResumeData
+  mapApiResumeToResumeData,
 } from "@/lib/resume/mappers";
 import { addToast } from "@heroui/toast";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -28,11 +33,15 @@ export default function ResumeEditor() {
   const templateId = searchParams.get("templateId") as TemplateId | null;
   const resumeId = searchParams.get("resumeId") || null;
 
-  const { data: existingResume, isLoading: isLoadingResume } = useResume(resumeId || undefined);
+  const { data: existingResume, isLoading: isLoadingResume } = useResume(
+    resumeId || undefined
+  );
 
   const [loadedResumeId, setLoadedResumeId] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [currentResumeId, setCurrentResumeId] = useState<string | null>(resumeId);
+  const [currentResumeId, setCurrentResumeId] = useState<string | null>(
+    resumeId
+  );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const lastSavedDataRef = useRef<string>("");
   const isInitialMount = useRef(true);
@@ -45,7 +54,9 @@ export default function ResumeEditor() {
   }, [existingResume, loadedResumeId]);
 
   const [resumeData, setResumeData] = useState<ResumeData>(() =>
-    existingResume ? mapApiResumeToResumeData(existingResume) : ({} as ResumeData)
+    existingResume
+      ? mapApiResumeToResumeData(existingResume)
+      : ({} as ResumeData)
   );
 
   if (initialData && existingResume && loadedResumeId !== existingResume.id) {
@@ -62,11 +73,11 @@ export default function ResumeEditor() {
   const isExporting = exportResume.isPending;
 
   const FormComponent = steps.find(
-    (step) => step.key === currentStep,
+    (step) => step.key === currentStep
   )?.component;
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
   const currentStepTitle = steps.find(
-    (step) => step.key === currentStep,
+    (step) => step.key === currentStep
   )?.title;
   const isLastStep = currentStepIndex === steps.length - 1;
   const isContactForm = currentStep === "contact";
@@ -91,66 +102,78 @@ export default function ResumeEditor() {
     }
   }, [resumeData, currentStep]);
 
-  const handleSave = useCallback(async (onSuccessCallback?: () => void) => {
-    if (!currentResumeId && templateId && isValidTemplateId(templateId)) {
-      const payload = mapResumeDataToCreatePayload(resumeData, templateId);
+  const handleSave = useCallback(
+    async (onSuccessCallback?: () => void) => {
+      if (!currentResumeId && templateId && isValidTemplateId(templateId)) {
+        const payload = mapResumeDataToCreatePayload(resumeData, templateId);
 
-      createResume.mutate(payload, {
-        onSuccess: (newResume) => {
-          setCurrentResumeId(newResume.id);
-          setHasUnsavedChanges(false);
-          lastSavedDataRef.current = JSON.stringify(resumeData);
-          const newParams = new URLSearchParams(searchParams);
-          newParams.delete("templateId");
-          newParams.set("resumeId", newResume.id);
-          router.replace(`/resume-builder/editor?${newParams.toString()}`, {
-            scroll: false,
-          });
-          if (onSuccessCallback) {
-            onSuccessCallback();
-          }
-        },
-        onError: (error: any) => {
-          addToast({
-            title: "Failed to save resume",
-            description: error?.message || "Please try again",
-            color: "danger",
-          });
-        },
-      });
-    } else if (currentResumeId && resumeData.firstName) {
-      const payload = mapResumeDataToUpdatePayload(resumeData);
+        createResume.mutate(payload, {
+          onSuccess: (newResume) => {
+            setCurrentResumeId(newResume.id);
+            setHasUnsavedChanges(false);
+            lastSavedDataRef.current = JSON.stringify(resumeData);
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("templateId");
+            newParams.set("resumeId", newResume.id);
+            router.replace(`/resume-builder/editor?${newParams.toString()}`, {
+              scroll: false,
+            });
+            if (onSuccessCallback) {
+              onSuccessCallback();
+            }
+          },
+          onError: (error: any) => {
+            addToast({
+              title: "Failed to save resume",
+              description: error?.message || "Please try again",
+              color: "danger",
+            });
+          },
+        });
+      } else if (currentResumeId && resumeData.firstName) {
+        const payload = mapResumeDataToUpdatePayload(resumeData);
 
-      updateResume.mutate(payload, {
-        onSuccess: () => {
-          setHasUnsavedChanges(false);
-          lastSavedDataRef.current = JSON.stringify(resumeData);
-          if (onSuccessCallback) {
-            onSuccessCallback();
-          }
-        },
-        onError: (error: any) => {
-          addToast({
-            title: "Failed to update resume",
-            description: error?.message || "Please try again",
-            color: "danger",
-          });
-        },
-      });
-    } else {
-      if (onSuccessCallback) {
-        onSuccessCallback();
+        updateResume.mutate(payload, {
+          onSuccess: () => {
+            setHasUnsavedChanges(false);
+            lastSavedDataRef.current = JSON.stringify(resumeData);
+            if (onSuccessCallback) {
+              onSuccessCallback();
+            }
+          },
+          onError: (error: any) => {
+            addToast({
+              title: "Failed to update resume",
+              description: error?.message || "Please try again",
+              color: "danger",
+            });
+          },
+        });
+      } else {
+        if (onSuccessCallback) {
+          onSuccessCallback();
+        }
       }
-    }
-  }, [currentResumeId, templateId, resumeData, createResume, updateResume, searchParams, router]);
+    },
+    [
+      currentResumeId,
+      templateId,
+      resumeData,
+      createResume,
+      updateResume,
+      searchParams,
+      router,
+    ]
+  );
 
   // Auto-save when resumeData changes
   const debouncedAutoSave = useMemo(
-    () => debounce(() => {
-      if (!isInitialMount.current) {
-        handleSave();
-      }
-    }, 2000),
+    () =>
+      debounce(() => {
+        if (!isInitialMount.current) {
+          handleSave();
+        }
+      }, 2000),
     [handleSave]
   );
 
@@ -177,22 +200,16 @@ export default function ResumeEditor() {
     };
   }, [resumeData, debouncedAutoSave]);
 
-  // Beforeunload handler to warn about unsaved changes
+  // Beforeunload handler to warn about data loss on refresh
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = "";
-        return "";
-      }
+    window.onbeforeunload = () => {
+      return "Are you sure you want to refresh? Data might not be saved.";
     };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.onbeforeunload = null;
     };
-  }, [hasUnsavedChanges]);
+  }, []);
 
   if (!templateId && !resumeId) {
     router.push("/resume-builder");
