@@ -27,9 +27,11 @@ export default function HybridTemplate({
         <h1 className="text-3xl font-bold">
           {resumeData.firstName} {resumeData.lastName}
         </h1>
-        <p className="text-sm text-gray-600 font-semibold">
-          Senior Software Engineer
-        </p>
+        {resumeData.jobPosition && (
+          <p className="text-sm text-gray-600 font-semibold">
+            {resumeData.jobPosition}
+          </p>
+        )}
       </div>
 
       {/* Contact Info with Icons */}
@@ -181,21 +183,22 @@ export default function HybridTemplate({
             <h2 className="text-sm font-bold">Additional Skills</h2>
           </div>
           <div className="space-y-2">
-            {resumeData.skills.slice(0, 6).map((skill, index) => {
-              // Skill levels - varied for visual interest
-              const skillLevels = [5, 3, 4, 4, 5, 5];
-              const level = skillLevels[index] || 4;
+            {resumeData.skills.slice(0, 6).map((skillItem, index) => {
+              const proficiency = skillItem.proficiency || 0;
 
               return (
                 <div key={index} className="flex items-center gap-3">
-                  <span className="text-xs w-24 flex-shrink-0">{skill}</span>
+                  <span className="text-xs w-24 flex-shrink-0">
+                    {skillItem.skill}
+                  </span>
                   <div className="flex gap-0.5">
                     {[...Array(5)].map((_, i) => (
                       <div
                         key={i}
                         className="w-3 h-3"
                         style={{
-                          backgroundColor: i < level ? accentColor : "white",
+                          backgroundColor:
+                            i < proficiency ? accentColor : "white",
                           border: `1px solid ${accentColor}`,
                         }}
                       ></div>

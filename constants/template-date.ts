@@ -39,12 +39,12 @@ export const SAMPLE_RESUME_DATA: ResumeData & { colorHex?: string } = {
     },
   ],
   skills: [
-    "Leadership",
-    "Project Management",
-    "Strategic Planning",
-    "Communication",
-    "Data Analysis",
-    "Problem Solving",
+    { skill: "Leadership", proficiency: 5 },
+    { skill: "Project Management", proficiency: 5 },
+    { skill: "Strategic Planning", proficiency: 4 },
+    { skill: "Communication", proficiency: 4 },
+    { skill: "Data Analysis", proficiency: 4 },
+    { skill: "Problem Solving", proficiency: 5 },
   ],
   certificates: [
     {

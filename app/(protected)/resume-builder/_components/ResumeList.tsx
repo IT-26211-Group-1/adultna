@@ -1,13 +1,29 @@
 "use client";
 
-import { useResumes, useDeleteResume, useExportResume } from "@/hooks/queries/useResumeQueries";
+import {
+  useResumes,
+  useDeleteResume,
+  useExportResume,
+} from "@/hooks/queries/useResumeQueries";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardBody, Button } from "@heroui/react";
-import { ArrowLeft, FileText, Trash2, Eye, Edit, Plus, Download } from "lucide-react";
+import {
+  ArrowLeft,
+  FileText,
+  Trash2,
+  Eye,
+  Edit,
+  Plus,
+  Download,
+} from "lucide-react";
 import { getTemplate } from "@/constants/templates";
 import { useState } from "react";
 import ResumeListSkeleton from "./ResumeListSkeleton";
+import ReverseChronologicalTemplate from "../templates/_components/ReverseChronologicalTemplate";
+import ModernTemplate from "../templates/_components/ModernTemplate";
+import SkillBasedTemplate from "../templates/_components/SkillBasedTemplate";
+import HybridTemplate from "../templates/_components/HybridTemplate";
 
 export function ResumeList() {
   const router = useRouter();
@@ -47,6 +63,64 @@ export function ResumeList() {
       month: "short",
       day: "numeric",
     });
+  };
+
+  const formatResumeDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day
+        ).toLocaleDateString("en-US", { year: "numeric" });
+      }
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-US", { year: "numeric" });
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
+
+  const normalizeSkills = (skills: any): string[] => {
+    if (!Array.isArray(skills)) return [];
+    return skills.map((skill) =>
+      typeof skill === "string" ? skill : skill.skill
+    );
+  };
+
+  const normalizeCertificates = (certificates: any) => {
+    if (!Array.isArray(certificates)) return [];
+    return certificates.map((cert) =>
+      typeof cert === "string" ? { certificate: cert } : cert
+    );
+  };
+
+  const getTemplateComponent = (resume: any) => {
+    // Normalize the resume data to match the expected format
+    const normalizedResume = {
+      ...resume,
+      skills: normalizeSkills(resume.skills),
+      certificates: normalizeCertificates(resume.certificates),
+    };
+
+    const props = {
+      resumeData: normalizedResume,
+      formatDate: formatResumeDate,
+    };
+    switch (resume.templateId) {
+      case "reverse-chronological":
+        return <ReverseChronologicalTemplate {...props} />;
+      case "modern":
+        return <ModernTemplate {...props} />;
+      case "skill-based":
+        return <SkillBasedTemplate {...props} />;
+      case "hybrid":
+        return <HybridTemplate {...props} />;
+      default:
+        return <ReverseChronologicalTemplate {...props} />;
+    }
   };
 
   return (
@@ -102,7 +176,9 @@ export function ResumeList() {
       {!isLoading && resumes.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {resumes.map((resume) => {
-            const template = getTemplate(resume.templateId) || getTemplate("reverse-chronological");
+            const template =
+              getTemplate(resume.templateId) ||
+              getTemplate("reverse-chronological");
             const isDeleting = deletingId === resume.id;
 
             return (
@@ -113,18 +189,17 @@ export function ResumeList() {
               >
                 <CardBody className="p-6">
                   {/* Template Preview */}
-                  <div
-                    className="aspect-[8.5/11] rounded-md mb-4 flex items-center justify-center"
-                    style={{ backgroundColor: template.colorScheme + "15" }}
-                  >
-                    <div className="text-center">
-                      <FileText
-                        className="w-16 h-16 mx-auto mb-2"
-                        style={{ color: template.colorScheme }}
-                      />
-                      <div className="text-xs text-gray-500 uppercase tracking-wider">
-                        {template.name}
-                      </div>
+                  <div className="aspect-[8.5/11] bg-white rounded-lg overflow-hidden relative border border-gray-200 mb-4">
+                    <div
+                      className="w-full h-full"
+                      style={{
+                        transform: "scale(0.6)",
+                        transformOrigin: "top left",
+                        width: "166.67%",
+                        height: "166.67%",
+                      }}
+                    >
+                      {getTemplateComponent(resume)}
                     </div>
                   </div>
 
@@ -145,8 +220,8 @@ export function ResumeList() {
                           resume.status === "completed"
                             ? "bg-green-100 text-green-700"
                             : resume.status === "draft"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-100 text-gray-700"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-gray-100 text-gray-700"
                         }`}
                       >
                         {resume.status.charAt(0).toUpperCase() +

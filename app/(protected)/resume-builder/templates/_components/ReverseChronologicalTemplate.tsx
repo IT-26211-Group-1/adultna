@@ -19,6 +19,11 @@ export default function ReverseChronologicalTemplate({
           <span className="text-black">{resumeData.firstName} </span>
           <span style={{ color: accentColor }}>{resumeData.lastName}</span>
         </h1>
+        {resumeData.jobPosition && (
+          <p className="text-sm text-gray-600 uppercase tracking-wide mt-1">
+            {resumeData.jobPosition}
+          </p>
+        )}
       </div>
 
       {/* Contact Header - Black Background */}
@@ -93,8 +98,8 @@ export default function ReverseChronologicalTemplate({
           <div className="space-y-1.5">
             <h2 className="text-sm font-bold">Skills</h2>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs list-disc pl-5">
-              {resumeData.skills.map((skill, index) => (
-                <li key={index}>{skill}</li>
+              {resumeData.skills.map((skillItem, index) => (
+                <li key={index}>{skillItem.skill}</li>
               ))}
             </ul>
           </div>

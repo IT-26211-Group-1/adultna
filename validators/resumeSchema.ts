@@ -15,6 +15,10 @@ const calendarDateToDate = z.any().transform((val) => {
 export const contactSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
+  jobPosition: z
+    .string()
+    .max(100, "Job position must be less than 100 characters")
+    .optional(),
   email: z
     .string()
     .email("Please enter a valid email address")
@@ -149,7 +153,18 @@ export type CertificationFormData = z.infer<typeof certificationSchema>;
 
 export const skillSchema = z.object({
   skills: z
-    .array(z.string().max(50, "Skill must be less than 50 characters"))
+    .array(
+      z.object({
+        id: z.string().optional(),
+        skill: z.string().max(50, "Skill must be less than 50 characters"),
+        proficiency: z
+          .number()
+          .min(0, "Proficiency must be at least 0")
+          .max(5, "Proficiency must be at most 5")
+          .optional(),
+        order: z.number().optional(),
+      })
+    )
     .optional(),
 });
 export type SkillFormData = z.infer<typeof skillSchema>;
@@ -178,5 +193,6 @@ export const resumeSchema = z.object({
 
 export type ResumeData = z.infer<typeof resumeSchema> & {
   id?: string; // Optional ID field for existing resumes
+  templateId?: string; // Template ID for the resume
   colorHex?: string; // Optional color customization
 };

@@ -21,6 +21,11 @@ export default function SkillBasedTemplate({
         >
           {resumeData.firstName} {resumeData.lastName}
         </h1>
+        {resumeData.jobPosition && (
+          <p className="text-sm text-gray-600 uppercase tracking-wide">
+            {resumeData.jobPosition}
+          </p>
+        )}
 
         {/* Divider Line */}
         <div
@@ -66,8 +71,8 @@ export default function SkillBasedTemplate({
             Skills
           </h2>
           <ul className="grid grid-cols-3 gap-x-6 gap-y-1 text-xs list-disc pl-5">
-            {resumeData.skills.map((skill, index) => (
-              <li key={index}>{skill}</li>
+            {resumeData.skills.map((skillItem, index) => (
+              <li key={index}>{skillItem.skill}</li>
             ))}
           </ul>
         </div>

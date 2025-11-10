@@ -3,15 +3,17 @@
 import { Input, DatePicker } from "@heroui/react";
 import { ContactFormData, contactSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
+import { debounce } from "@/lib/utils/debounce";
 
 export default function ContactForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
+  const [showJobPosition, setShowJobPosition] = useState(!!resumeData.jobPosition);
   const [showBirthDate, setShowBirthDate] = useState(!!resumeData.birthDate);
   const [showLinkedIn, setShowLinkedIn] = useState(!!resumeData.linkedin);
   const [showPortfolio, setShowPortfolio] = useState(!!resumeData.portfolio);
@@ -23,6 +25,7 @@ export default function ContactForm({
       phone: resumeData.phone || "",
       firstName: resumeData.firstName || "",
       lastName: resumeData.lastName || "",
+      jobPosition: resumeData.jobPosition || "",
       city: resumeData.city || "",
       region: resumeData.region || "",
       birthDate: resumeData.birthDate || undefined,
@@ -31,16 +34,26 @@ export default function ContactForm({
     },
   });
 
-  useEffect(() => {
-    const { unsubscribe } = form.watch(async (values) => {
-      const isValid = await form.trigger();
-
-      if (!isValid) return;
+  const syncFormData = useCallback(async () => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      const values = form.getValues();
       setResumeData({ ...resumeData, ...values });
+    }
+  }, [form, resumeData, setResumeData]);
+
+  const debouncedSync = useMemo(
+    () => debounce(syncFormData, 500),
+    [syncFormData]
+  );
+
+  useEffect(() => {
+    const { unsubscribe } = form.watch(() => {
+      debouncedSync();
     });
 
     return unsubscribe;
-  }, [form, resumeData, setResumeData]);
+  }, [form, debouncedSync]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
@@ -70,6 +83,16 @@ export default function ContactForm({
             placeholder="Enter your Last Name"
           />
         </div>
+
+        {showJobPosition && (
+          <Input
+            {...form.register("jobPosition")}
+            errorMessage={form.formState.errors.jobPosition?.message}
+            isInvalid={!!form.formState.errors.jobPosition}
+            label="Job Position"
+            placeholder="e.g., Senior Software Engineer"
+          />
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <Input
@@ -169,6 +192,15 @@ export default function ContactForm({
 
         {/* Optional Fields Section */}
         <div className="flex flex-wrap gap-2 mt-4">
+          {!showJobPosition && (
+            <button
+              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              type="button"
+              onClick={() => setShowJobPosition(true)}
+            >
+              + Job Position
+            </button>
+          )}
           {!showBirthDate && (
             <button
               className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"

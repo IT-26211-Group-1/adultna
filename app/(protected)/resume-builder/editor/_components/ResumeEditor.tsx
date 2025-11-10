@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import Breadcrumbs from "./Breadcrumbs";
 import { steps } from "./steps";
 import { ResumeData } from "@/validators/resumeSchema";
@@ -19,6 +19,7 @@ import {
 } from "@/lib/resume/mappers";
 import { addToast } from "@heroui/toast";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { debounce } from "@/lib/utils/debounce";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
@@ -32,6 +33,9 @@ export default function ResumeEditor() {
   const [loadedResumeId, setLoadedResumeId] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(resumeId);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const lastSavedDataRef = useRef<string>("");
+  const isInitialMount = useRef(true);
 
   const initialData = useMemo(() => {
     if (existingResume && loadedResumeId !== existingResume.id) {
@@ -94,6 +98,8 @@ export default function ResumeEditor() {
       createResume.mutate(payload, {
         onSuccess: (newResume) => {
           setCurrentResumeId(newResume.id);
+          setHasUnsavedChanges(false);
+          lastSavedDataRef.current = JSON.stringify(resumeData);
           const newParams = new URLSearchParams(searchParams);
           newParams.delete("templateId");
           newParams.set("resumeId", newResume.id);
@@ -117,6 +123,8 @@ export default function ResumeEditor() {
 
       updateResume.mutate(payload, {
         onSuccess: () => {
+          setHasUnsavedChanges(false);
+          lastSavedDataRef.current = JSON.stringify(resumeData);
           if (onSuccessCallback) {
             onSuccessCallback();
           }
@@ -135,6 +143,56 @@ export default function ResumeEditor() {
       }
     }
   }, [currentResumeId, templateId, resumeData, createResume, updateResume, searchParams, router]);
+
+  // Auto-save when resumeData changes
+  const debouncedAutoSave = useMemo(
+    () => debounce(() => {
+      if (!isInitialMount.current) {
+        handleSave();
+      }
+    }, 2000),
+    [handleSave]
+  );
+
+  useEffect(() => {
+    const currentDataString = JSON.stringify(resumeData);
+
+    // Skip on initial mount or when data is empty
+    if (isInitialMount.current) {
+      if (currentDataString !== "{}") {
+        lastSavedDataRef.current = currentDataString;
+        isInitialMount.current = false;
+      }
+      return;
+    }
+
+    // Check if data has changed
+    if (currentDataString !== lastSavedDataRef.current) {
+      setHasUnsavedChanges(true);
+      debouncedAutoSave();
+    }
+
+    return () => {
+      debouncedAutoSave.cancel();
+    };
+  }, [resumeData, debouncedAutoSave]);
+
+  // Beforeunload handler to warn about unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   if (!templateId && !resumeId) {
     router.push("/resume-builder");
@@ -213,7 +271,11 @@ export default function ResumeEditor() {
           {currentResumeId && (
             <ExportButton onExport={handleExport} isExporting={isExporting} />
           )}
-          <SaveStatusIndicator isSaving={isSaving} hasSaved={!!currentResumeId && !isSaving} />
+          <SaveStatusIndicator
+            isSaving={isSaving}
+            hasSaved={!!currentResumeId && !isSaving && !hasUnsavedChanges}
+            hasUnsavedChanges={hasUnsavedChanges && !isSaving}
+          />
         </div>
         <h1 className="text-2xl font-bold">Design your resume</h1>
         <p className="text-sm text-muted-foreground">

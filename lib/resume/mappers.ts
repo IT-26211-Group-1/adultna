@@ -23,6 +23,7 @@ export function mapResumeDataToCreatePayload(
     status: "draft" as const,
     firstName: data.firstName || "",
     lastName: data.lastName || "",
+    jobPosition: data.jobPosition,
     email: data.email || "",
     phone: data.phone || "",
     city: data.city,
@@ -33,8 +34,9 @@ export function mapResumeDataToCreatePayload(
     workExperiences: addOrderToArray(data.workExperiences),
     educationItems: addOrderToArray(data.educationItems),
     certificates: addOrderToArray(data.certificates),
-    skills: data.skills?.map((skill, index) => ({
-      skill,
+    skills: data.skills?.map((skillItem, index) => ({
+      skill: skillItem.skill,
+      proficiency: skillItem.proficiency,
       order: index,
     })),
     summary: data.summary,
@@ -49,6 +51,7 @@ export function mapResumeDataToUpdatePayload(
 
   if (data.firstName !== undefined) payload.firstName = data.firstName;
   if (data.lastName !== undefined) payload.lastName = data.lastName;
+  if (data.jobPosition !== undefined) payload.jobPosition = data.jobPosition;
   if (data.email !== undefined) payload.email = data.email;
   if (data.phone !== undefined) payload.phone = data.phone;
   if (data.city !== undefined) payload.city = data.city;
@@ -72,8 +75,9 @@ export function mapResumeDataToUpdatePayload(
   }
 
   if (data.skills !== undefined) {
-    payload.skills = data.skills.map((skill, index) => ({
-      skill,
+    payload.skills = data.skills.map((skillItem, index) => ({
+      skill: skillItem.skill,
+      proficiency: skillItem.proficiency,
       order: index,
     }));
   }
@@ -84,8 +88,10 @@ export function mapResumeDataToUpdatePayload(
 export function mapApiResumeToResumeData(resume: Resume): ResumeData {
   return {
     id: resume.id,
+    templateId: resume.templateId,
     firstName: resume.firstName,
     lastName: resume.lastName,
+    jobPosition: resume.jobPosition,
     email: resume.email,
     phone: resume.phone,
     city: resume.city,
@@ -104,7 +110,7 @@ export function mapApiResumeToResumeData(resume: Resume): ResumeData {
       .map(({ id, order, ...rest }) => rest),
     skills: resume.skills
       ?.sort((a, b) => (a.order || 0) - (b.order || 0))
-      .map((s) => s.skill),
+      .map(({ id, order, ...rest }) => rest),
     summary: resume.summary,
     colorHex: resume.colorHex,
   };

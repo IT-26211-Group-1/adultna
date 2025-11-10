@@ -33,6 +33,7 @@ export type Certification = {
 export type Skill = {
   id?: string;
   skill: string;
+  proficiency?: number;
   order?: number;
 };
 
@@ -45,6 +46,7 @@ export type Resume = {
 
   firstName: string;
   lastName: string;
+  jobPosition?: string;
   email: string;
   phone: string;
   city?: string;

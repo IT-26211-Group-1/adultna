@@ -1,6 +1,6 @@
 "use client";
 
-import { Textarea } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import { SkillFormData, skillSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -8,13 +8,16 @@ import { EditorFormProps } from "@/lib/resume/types";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import AISuggestions from "../AISuggestions";
 import { debounce } from "@/lib/utils/debounce";
+import ProficiencyRating from "../ProficiencyRating";
+import { Plus, Trash2 } from "lucide-react";
+import { Skill } from "@/types/resume";
 
 export default function SkillsForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
-  const [skillsText, setSkillsText] = useState<string>(
-    resumeData.skills?.join(", ") || ""
+  const [skills, setSkills] = useState<Skill[]>(
+    resumeData.skills || []
   );
 
   const form = useForm<SkillFormData>({
@@ -24,34 +27,52 @@ export default function SkillsForm({
     },
   });
 
-  // Memoized function to parse comma-separated skills into an array
-  const parseSkills = useCallback((skillsText: string): string[] => {
-    return skillsText
-      .split(",")
-      .map((skill) => skill.trim())
-      .filter((skill) => skill.length > 0);
-  }, []);
-
-  // Memoized skills array - only recalculates when skillsText changes
-  const skillsArray = useMemo(
-    () => parseSkills(skillsText),
-    [skillsText, parseSkills]
-  );
-
-  // Test lang for the design
   const aiSuggestedSkills: string[] = ["JavaScript", "React", "Node.js"];
 
-  const handleApplySkill = (skill: string) => {
-    const currentSkills = skillsText.trim();
-    const newSkillsText = currentSkills ? `${currentSkills}, ${skill}` : skill;
-
-    setSkillsText(newSkillsText);
+  const handleAddSkill = () => {
+    const newSkill: Skill = {
+      skill: "",
+      proficiency: 0,
+      order: skills.length,
+    };
+    setSkills([...skills, newSkill]);
   };
 
-  // Update preview when skillsArray changes
+  const handleRemoveSkill = (index: number) => {
+    const updatedSkills = skills.filter((_, i) => i !== index);
+    setSkills(updatedSkills);
+  };
+
+  const handleSkillChange = (index: number, value: string) => {
+    const updatedSkills = [...skills];
+    updatedSkills[index] = {
+      ...updatedSkills[index],
+      skill: value,
+    };
+    setSkills(updatedSkills);
+  };
+
+  const handleProficiencyChange = (index: number, value: number) => {
+    const updatedSkills = [...skills];
+    updatedSkills[index] = {
+      ...updatedSkills[index],
+      proficiency: value || 0,
+    };
+    setSkills(updatedSkills);
+  };
+
+  const handleApplySkill = (skill: string) => {
+    const newSkill: Skill = {
+      skill,
+      proficiency: 0,
+      order: skills.length,
+    };
+    setSkills([...skills, newSkill]);
+  };
+
   useEffect(() => {
-    form.setValue("skills", skillsArray);
-  }, [skillsArray, form]);
+    form.setValue("skills", skills);
+  }, [skills, form]);
 
   const syncFormData = useCallback(async () => {
     const isValid = await form.trigger();
@@ -61,8 +82,8 @@ export default function SkillsForm({
         ...resumeData,
         skills:
           values.skills?.filter(
-            (skill): skill is string =>
-              skill !== undefined && skill.trim() !== ""
+            (skill) =>
+              skill && skill.skill && skill.skill.trim() !== ""
           ) || [],
       });
     }
@@ -86,29 +107,70 @@ export default function SkillsForm({
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Skills</h2>
         <p className="text-sm text-default-500">
-          Nice Work! You’re almost there. Best if you add 4-6 skills for the job
-          you’re applying for..
+          Nice Work! You're almost there. Best if you add 4-6 skills for the job
+          you're applying for.
         </p>
       </div>
 
       <form className="space-y-6">
-        <Textarea
-          description="Enter skills separated by commas."
-          errorMessage={form.formState.errors.skills?.message}
-          isInvalid={!!form.formState.errors.skills}
-          label="Skills"
-          minRows={4}
-          placeholder="JavaScript, React, Node.js, Python, SQL, Git"
-          value={skillsText}
-          onChange={(e) => setSkillsText(e.target.value)}
-        />
+        <div className="space-y-4">
+          {skills.map((skill, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <div className="flex-1">
+                <Input
+                  label={`Skill ${index + 1}`}
+                  placeholder="e.g., JavaScript, React, Python"
+                  value={skill.skill}
+                  onChange={(e) => handleSkillChange(index, e.target.value)}
+                  isInvalid={!!form.formState.errors.skills?.[index]?.skill}
+                  errorMessage={form.formState.errors.skills?.[index]?.skill?.message}
+                />
+              </div>
+              <div className="flex flex-col gap-1 items-center">
+                <span className="text-xs text-default-500">Proficiency</span>
+                <ProficiencyRating
+                  value={skill.proficiency || 0}
+                  onChange={(value) => handleProficiencyChange(index, value)}
+                  color={resumeData.colorHex || "#7c3aed"}
+                />
+              </div>
+              <Button
+                isIconOnly
+                color="danger"
+                variant="light"
+                size="sm"
+                onPress={() => handleRemoveSkill(index)}
+                aria-label="Remove skill"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
 
-        {/* TODO: Backend Developer - Only show AISuggestions when aiSuggestedSkills has data */}
+          <Button
+            color="primary"
+            variant="bordered"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={handleAddSkill}
+            className="w-full"
+          >
+            Add Skill
+          </Button>
+        </div>
+
+        <div className="text-xs text-default-500 bg-default-100 p-3 rounded-lg">
+          <p className="font-medium mb-1">Tip:</p>
+          <p>
+            Proficiency ratings are optional and will be displayed as visual bars
+            in the Hybrid template. Leave them at 0 if you prefer not to show proficiency levels.
+          </p>
+        </div>
+
         {aiSuggestedSkills.length > 0 && (
           <AISuggestions
             subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
             suggestions={aiSuggestedSkills}
-            title="AI Recommendations for Juan Miguel's Skills"
+            title="AI Recommendations for Skills"
             onApplySuggestion={handleApplySkill}
           />
         )}

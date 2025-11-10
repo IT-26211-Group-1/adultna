@@ -70,8 +70,8 @@ export default function ModernTemplate({
               SKILLS
             </h2>
             <ul className="space-y-1.5 list-disc pl-4">
-              {resumeData.skills.map((skill, index) => (
-                <li key={index}>{skill}</li>
+              {resumeData.skills.map((skillItem, index) => (
+                <li key={index}>{skillItem.skill}</li>
               ))}
             </ul>
           </div>
@@ -115,9 +115,11 @@ export default function ModernTemplate({
           >
             {resumeData.firstName} {resumeData.lastName}
           </h1>
-          <p className="text-sm text-gray-600 uppercase mt-1 tracking-wide">
-            MARKETING MANAGER
-          </p>
+          {resumeData.jobPosition && (
+            <p className="text-sm text-gray-600 uppercase mt-1 tracking-wide">
+              {resumeData.jobPosition}
+            </p>
+          )}
         </div>
 
         {/* Vertical Timeline Line */}

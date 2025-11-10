@@ -22,7 +22,8 @@ export default function ResumePreview({
   const containerRef = useRef<HTMLDivElement>(null);
   const { width } = useDimensions(containerRef);
   const searchParams = useSearchParams();
-  const templateId = (searchParams.get("templateId") ||
+  const templateId = (resumeData.templateId ||
+    searchParams.get("templateId") ||
     "reverse-chronological") as TemplateId;
 
   const formatDate = (dateValue: any): string => {
