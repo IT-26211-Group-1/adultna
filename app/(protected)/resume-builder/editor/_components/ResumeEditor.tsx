@@ -178,7 +178,9 @@ export default function ResumeEditor() {
   useEffect(() => {
     // Skip on initial mount or when data is empty
     if (isInitialMount.current) {
-      const hasData = Object.keys(resumeData).length > 0 && resumeData.firstName;
+      const hasData =
+        Object.keys(resumeData).length > 0 && resumeData.firstName;
+
       if (hasData) {
         lastSavedDataRef.current = { ...resumeData };
         isInitialMount.current = false;

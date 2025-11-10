@@ -62,7 +62,7 @@ export default function InlineEditableTitle({
       onTitleChange(trimmedTitle);
       setError(null);
       setIsEditing(false);
-    } catch (err) {
+    } catch {
       setError("Failed to update title");
       setTitle(currentTitle);
       setIsEditing(false);
@@ -109,20 +109,13 @@ export default function InlineEditableTitle({
 
   return (
     <div className="flex items-center gap-2">
-      <h1
-        className="text-lg font-semibold cursor-pointer hover:bg-[#11553F]/10 px-2 py-1 rounded transition-colors"
-        role="button"
-        tabIndex={0}
+      <button
+        className="text-lg font-semibold cursor-pointer hover:bg-[#11553F]/10 px-2 py-1 rounded transition-colors text-left"
+        type="button"
         onClick={() => setIsEditing(true)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setIsEditing(true);
-          }
-        }}
       >
         {currentTitle || "Untitled Resume"}
-      </h1>
+      </button>
       {updateResume.isPending && (
         <span className="text-sm text-[#11553F]">Saving...</span>
       )}

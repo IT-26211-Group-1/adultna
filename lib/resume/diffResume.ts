@@ -36,7 +36,7 @@ function deepEqual(obj1: any, obj2: any): boolean {
 
 export function diffResume(
   oldData: ResumeData | null,
-  newData: ResumeData | null
+  newData: ResumeData | null,
 ): DiffResult {
   if (!oldData || !newData) {
     return {
@@ -50,8 +50,7 @@ export function diffResume(
   if (oldData.title !== newData.title) changedFields.push("title");
   if (oldData.templateId !== newData.templateId)
     changedFields.push("templateId");
-  if (oldData.firstName !== newData.firstName)
-    changedFields.push("firstName");
+  if (oldData.firstName !== newData.firstName) changedFields.push("firstName");
   if (oldData.lastName !== newData.lastName) changedFields.push("lastName");
   if (oldData.jobPosition !== newData.jobPosition)
     changedFields.push("jobPosition");
@@ -60,14 +59,11 @@ export function diffResume(
   if (oldData.city !== newData.city) changedFields.push("city");
   if (oldData.region !== newData.region) changedFields.push("region");
   if (oldData.linkedin !== newData.linkedin) changedFields.push("linkedin");
-  if (oldData.portfolio !== newData.portfolio)
-    changedFields.push("portfolio");
+  if (oldData.portfolio !== newData.portfolio) changedFields.push("portfolio");
   if (oldData.summary !== newData.summary) changedFields.push("summary");
   if (oldData.colorHex !== newData.colorHex) changedFields.push("colorHex");
 
-  if (
-    oldData.birthDate?.toString() !== newData.birthDate?.toString()
-  ) {
+  if (oldData.birthDate?.toString() !== newData.birthDate?.toString()) {
     changedFields.push("birthDate");
   }
 
@@ -95,7 +91,7 @@ export function diffResume(
 
 export function hasResumeChanged(
   oldData: ResumeData | null,
-  newData: ResumeData | null
+  newData: ResumeData | null,
 ): boolean {
   return diffResume(oldData, newData).hasChanges;
 }

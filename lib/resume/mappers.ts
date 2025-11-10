@@ -106,16 +106,16 @@ export function mapApiResumeToResumeData(resume: Resume): ResumeData {
     portfolio: resume.portfolio,
     workExperiences: resume.workExperiences
       ?.sort((a, b) => (a.order || 0) - (b.order || 0))
-      .map(({ id, order, ...rest }) => rest),
+      .map(({ id: _id, order: _order, ...rest }) => rest),
     educationItems: resume.educationItems
       ?.sort((a, b) => (a.order || 0) - (b.order || 0))
-      .map(({ id, order, ...rest }) => rest),
+      .map(({ id: _id, order: _order, ...rest }) => rest),
     certificates: resume.certificates
       ?.sort((a, b) => (a.order || 0) - (b.order || 0))
-      .map(({ id, order, ...rest }) => rest),
+      .map(({ id: _id, order: _order, ...rest }) => rest),
     skills: resume.skills
       ?.sort((a, b) => (a.order || 0) - (b.order || 0))
-      .map(({ id, order, ...rest }) => rest),
+      .map(({ id: _id, order: _order, ...rest }) => rest),
     summary: resume.summary,
     colorHex: resume.colorHex,
   };

@@ -187,7 +187,7 @@ export default function WorkExperienceForm({
         description: "Click + to add suggestions",
         color: "success",
       });
-    } catch (error) {
+    } catch {
       addToast({
         title: "Failed to generate suggestions",
         description: "Please try again",
@@ -457,7 +457,7 @@ function WorkExperienceItem({
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <label className="text-sm font-medium">Job Description</label>
+          <span className="text-sm font-medium">Job Description</span>
           <Button
             color="success"
             isLoading={isGeneratingAI}

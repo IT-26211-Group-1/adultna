@@ -55,6 +55,7 @@ export default function SummaryForm({
   useEffect(() => {
     if (resumeData.summary) {
       const summary = resumeData.summary;
+
       setSummaryText(summary);
       form.reset({
         summary,

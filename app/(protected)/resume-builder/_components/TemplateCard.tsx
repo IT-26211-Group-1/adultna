@@ -36,7 +36,7 @@ export function TemplateCard({
       if (isNaN(date.getTime())) return "Invalid Date";
 
       return date.toLocaleDateString("en-US", { year: "numeric" });
-    } catch (error) {
+    } catch {
       return "Invalid Date";
     }
   };

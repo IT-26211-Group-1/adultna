@@ -16,7 +16,6 @@ import {
   Plus,
   Download,
 } from "lucide-react";
-import { getTemplate } from "@/constants/templates";
 import { useState } from "react";
 import ResumeListSkeleton from "./ResumeListSkeleton";
 import ReverseChronologicalTemplate from "../templates/_components/ReverseChronologicalTemplate";
@@ -79,7 +78,7 @@ export function ResumeList() {
       if (isNaN(date.getTime())) return "Invalid Date";
 
       return date.toLocaleDateString("en-US", { year: "numeric" });
-    } catch (error) {
+    } catch {
       return "Invalid Date";
     }
   };
@@ -180,9 +179,6 @@ export function ResumeList() {
       {!isLoading && resumes.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {resumes.map((resume) => {
-            const template =
-              getTemplate(resume.templateId) ||
-              getTemplate("reverse-chronological");
             const isDeleting = deletingId === resume.id;
 
             return (

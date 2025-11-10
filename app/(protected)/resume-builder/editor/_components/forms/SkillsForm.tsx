@@ -109,6 +109,7 @@ export default function SkillsForm({
   useEffect(() => {
     if (resumeData.skills && resumeData.skills.length > 0) {
       const skillsData = resumeData.skills;
+
       setSkills(skillsData);
       form.reset({
         skills: skillsData,
@@ -121,8 +122,8 @@ export default function SkillsForm({
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Skills</h2>
         <p className="text-sm text-default-500">
-          Nice Work! You're almost there. Best if you add 4-6 skills for the job
-          you're applying for.
+          Nice Work! You&apos;re almost there. Best if you add 4-6 skills for
+          the job you&apos;re applying for.
         </p>
       </div>
 
