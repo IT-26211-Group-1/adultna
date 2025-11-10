@@ -8,7 +8,6 @@ import ReverseChronologicalTemplate from "../templates/_components/ReverseChrono
 import ModernTemplate from "../templates/_components/ModernTemplate";
 import SkillBasedTemplate from "../templates/_components/SkillBasedTemplate";
 import HybridTemplate from "../templates/_components/HybridTemplate";
-import { ResumeData } from "@/validators/resumeSchema";
 import { SAMPLE_RESUME_DATA } from "@/constants/template-date";
 
 type TemplateCardProps = {
@@ -29,11 +28,13 @@ export function TemplateCard({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day
+          dateValue.day,
         ).toLocaleDateString("en-US", { year: "numeric" });
       }
       const date = new Date(dateValue);
+
       if (isNaN(date.getTime())) return "Invalid Date";
+
       return date.toLocaleDateString("en-US", { year: "numeric" });
     } catch (error) {
       return "Invalid Date";
@@ -47,6 +48,7 @@ export function TemplateCard({
 
   const getTemplateComponent = () => {
     const props = { resumeData: resumeDataWithColor, formatDate };
+
     switch (template.id) {
       case "reverse-chronological":
         return <ReverseChronologicalTemplate {...props} />;
@@ -63,11 +65,11 @@ export function TemplateCard({
 
   return (
     <Card
-      isPressable
       isHoverable
+      isPressable
       className={cn(
         "cursor-pointer transition-all border",
-        isSelected && "ring-2 ring-adult-green shadow-lg border-adult-green"
+        isSelected && "ring-2 ring-adult-green shadow-lg border-adult-green",
       )}
       onPress={onSelect}
     >

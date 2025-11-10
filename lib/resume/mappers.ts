@@ -10,15 +10,18 @@ type OrderedItem<T> = T & { order: number };
 
 function addOrderToArray<T>(items?: T[]): OrderedItem<T>[] | undefined {
   if (!items || items.length === 0) return undefined;
+
   return items.map((item, index) => ({ ...item, order: index }));
 }
 
 export function mapResumeDataToCreatePayload(
   data: ResumeData,
-  templateId: string
+  templateId: string,
 ): CreateResumeInput {
   return {
-    title: data.id ? `${data.firstName || "My"} ${data.lastName || "Resume"}` : "Untitled Resume",
+    title: data.id
+      ? `${data.firstName || "My"} ${data.lastName || "Resume"}`
+      : "Untitled Resume",
     templateId: templateId as TemplateId,
     status: "draft" as const,
     firstName: data.firstName || "",
@@ -45,7 +48,7 @@ export function mapResumeDataToCreatePayload(
 }
 
 export function mapResumeDataToUpdatePayload(
-  data: ResumeData
+  data: ResumeData,
 ): UpdateResumeInput {
   const payload: UpdateResumeInput = {};
 

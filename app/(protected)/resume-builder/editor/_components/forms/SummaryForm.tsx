@@ -31,15 +31,17 @@ export default function SummaryForm({
 
   const syncFormData = useCallback(async () => {
     const isValid = await form.trigger();
+
     if (isValid) {
       const values = form.getValues();
+
       setResumeData({ ...resumeData, ...values });
     }
   }, [form, resumeData, setResumeData]);
 
   const debouncedSync = useMemo(
-    () => debounce(syncFormData, 500),
-    [syncFormData]
+    () => debounce(syncFormData, 300),
+    [syncFormData],
   );
 
   useEffect(() => {
@@ -49,6 +51,16 @@ export default function SummaryForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (resumeData.summary) {
+      const summary = resumeData.summary;
+      setSummaryText(summary);
+      form.reset({
+        summary,
+      });
+    }
+  }, [resumeData, form]);
 
   // Function to count words in the summary
   const getWordCount = (text: string): number => {
@@ -92,7 +104,10 @@ export default function SummaryForm({
             buttonType="addSummary"
             subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
             suggestions={aiSummaryOptions}
-            title={`AI Recommendations for ${resumeData.firstName || ""} ${resumeData.lastName || ""}`.trim() + "'s Professional Summary"}
+            title={
+              `AI Recommendations for ${resumeData.firstName || ""} ${resumeData.lastName || ""}`.trim() +
+              "'s Professional Summary"
+            }
             onApplySuggestion={handleApplySummary}
           />
         )}

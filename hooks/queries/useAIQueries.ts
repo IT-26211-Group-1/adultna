@@ -12,8 +12,9 @@ export function useGenerateWorkDescriptionSuggestions(resumeId: string) {
     mutationFn: async (data: GenerateWorkDescriptionInput) => {
       const response = await ApiClient.post<GenerateWorkDescriptionResponse>(
         `/resumes/${resumeId}/ai/work-description-suggestions`,
-        data
+        data,
       );
+
       return response.suggestions || [];
     },
   });

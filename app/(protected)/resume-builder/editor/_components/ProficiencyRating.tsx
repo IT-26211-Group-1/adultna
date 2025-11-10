@@ -30,14 +30,14 @@ export default function ProficiencyRating({
         return (
           <button
             key={index}
-            type="button"
+            aria-label={`Set proficiency to ${level} out of ${maxLevel}`}
             className="w-4 h-4 border transition-all hover:scale-110"
             style={{
               backgroundColor: isFilled ? color : "white",
               borderColor: color,
             }}
+            type="button"
             onClick={() => handleBarClick(level)}
-            aria-label={`Set proficiency to ${level} out of ${maxLevel}`}
           />
         );
       })}

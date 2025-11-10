@@ -132,7 +132,7 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
               const daysAgo = job.listedDate
                 ? Math.floor(
                     (Date.now() - Date.parse(job.listedDate)) /
-                      (1000 * 60 * 60 * 24)
+                      (1000 * 60 * 60 * 24),
                   )
                 : 0;
 

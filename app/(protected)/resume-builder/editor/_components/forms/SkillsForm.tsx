@@ -16,9 +16,7 @@ export default function SkillsForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
-  const [skills, setSkills] = useState<Skill[]>(
-    resumeData.skills || []
-  );
+  const [skills, setSkills] = useState<Skill[]>(resumeData.skills || []);
 
   const form = useForm<SkillFormData>({
     resolver: zodResolver(skillSchema),
@@ -35,16 +33,19 @@ export default function SkillsForm({
       proficiency: 0,
       order: skills.length,
     };
+
     setSkills([...skills, newSkill]);
   };
 
   const handleRemoveSkill = (index: number) => {
     const updatedSkills = skills.filter((_, i) => i !== index);
+
     setSkills(updatedSkills);
   };
 
   const handleSkillChange = (index: number, value: string) => {
     const updatedSkills = [...skills];
+
     updatedSkills[index] = {
       ...updatedSkills[index],
       skill: value,
@@ -54,6 +55,7 @@ export default function SkillsForm({
 
   const handleProficiencyChange = (index: number, value: number) => {
     const updatedSkills = [...skills];
+
     updatedSkills[index] = {
       ...updatedSkills[index],
       proficiency: value || 0,
@@ -67,6 +69,7 @@ export default function SkillsForm({
       proficiency: 0,
       order: skills.length,
     };
+
     setSkills([...skills, newSkill]);
   };
 
@@ -76,22 +79,23 @@ export default function SkillsForm({
 
   const syncFormData = useCallback(async () => {
     const isValid = await form.trigger();
+
     if (isValid) {
       const values = form.getValues();
+
       setResumeData({
         ...resumeData,
         skills:
           values.skills?.filter(
-            (skill) =>
-              skill && skill.skill && skill.skill.trim() !== ""
+            (skill) => skill && skill.skill && skill.skill.trim() !== "",
           ) || [],
       });
     }
   }, [form, resumeData, setResumeData]);
 
   const debouncedSync = useMemo(
-    () => debounce(syncFormData, 500),
-    [syncFormData]
+    () => debounce(syncFormData, 300),
+    [syncFormData],
   );
 
   useEffect(() => {
@@ -101,6 +105,16 @@ export default function SkillsForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (resumeData.skills && resumeData.skills.length > 0) {
+      const skillsData = resumeData.skills;
+      setSkills(skillsData);
+      form.reset({
+        skills: skillsData,
+      });
+    }
+  }, [resumeData, form]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
@@ -118,29 +132,31 @@ export default function SkillsForm({
             <div key={index} className="flex items-center gap-3">
               <div className="flex-1">
                 <Input
+                  errorMessage={
+                    form.formState.errors.skills?.[index]?.skill?.message
+                  }
+                  isInvalid={!!form.formState.errors.skills?.[index]?.skill}
                   label={`Skill ${index + 1}`}
                   placeholder="e.g., JavaScript, React, Python"
                   value={skill.skill}
                   onChange={(e) => handleSkillChange(index, e.target.value)}
-                  isInvalid={!!form.formState.errors.skills?.[index]?.skill}
-                  errorMessage={form.formState.errors.skills?.[index]?.skill?.message}
                 />
               </div>
               <div className="flex flex-col gap-1 items-center">
                 <span className="text-xs text-default-500">Proficiency</span>
                 <ProficiencyRating
+                  color={resumeData.colorHex || "#7c3aed"}
                   value={skill.proficiency || 0}
                   onChange={(value) => handleProficiencyChange(index, value)}
-                  color={resumeData.colorHex || "#7c3aed"}
                 />
               </div>
               <Button
                 isIconOnly
-                color="danger"
-                variant="light"
-                size="sm"
-                onPress={() => handleRemoveSkill(index)}
                 aria-label="Remove skill"
+                color="danger"
+                size="sm"
+                variant="light"
+                onPress={() => handleRemoveSkill(index)}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -148,11 +164,11 @@ export default function SkillsForm({
           ))}
 
           <Button
-            color="primary"
-            variant="bordered"
-            startContent={<Plus className="w-4 h-4" />}
-            onPress={handleAddSkill}
             className="w-full"
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            variant="bordered"
+            onPress={handleAddSkill}
           >
             Add Skill
           </Button>
@@ -161,8 +177,9 @@ export default function SkillsForm({
         <div className="text-xs text-default-500 bg-default-100 p-3 rounded-lg">
           <p className="font-medium mb-1">Tip:</p>
           <p>
-            Proficiency ratings are optional and will be displayed as visual bars
-            in the Hybrid template. Leave them at 0 if you prefer not to show proficiency levels.
+            Proficiency ratings are optional and will be displayed as visual
+            bars in the Hybrid template. Leave them at 0 if you prefer not to
+            show proficiency levels.
           </p>
         </div>
 

@@ -39,6 +39,7 @@ export default function InlineEditableTitle({
       setError("Title is required");
       setTitle(currentTitle);
       setIsEditing(false);
+
       return;
     }
 
@@ -46,11 +47,13 @@ export default function InlineEditableTitle({
       setError("Title must be less than 100 characters");
       setTitle(currentTitle);
       setIsEditing(false);
+
       return;
     }
 
     if (trimmedTitle === currentTitle) {
       setIsEditing(false);
+
       return;
     }
 

@@ -31,7 +31,7 @@ export default function SkillBasedTemplate({
         <div
           className="border-t-2 w-full"
           style={{ borderColor: accentColor }}
-        ></div>
+        />
       </div>
 
       {/* Contact Info - Centered, one line */}
@@ -99,7 +99,7 @@ export default function SkillBasedTemplate({
                     {work.startDate &&
                       formatDate(work.startDate).replace(
                         /^\d{1,2}\/\d{1,2}\//,
-                        ""
+                        "",
                       )}{" "}
                     -{" "}
                     {work.isCurrentlyWorkingHere
@@ -107,7 +107,7 @@ export default function SkillBasedTemplate({
                       : work.endDate
                         ? formatDate(work.endDate).replace(
                             /^\d{1,2}\/\d{1,2}\//,
-                            ""
+                            "",
                           )
                         : ""}
                     )

@@ -123,7 +123,7 @@ export default function ModernTemplate({
         </div>
 
         {/* Vertical Timeline Line */}
-        <div className="absolute left-8 top-32 bottom-0 w-0.5 bg-gray-300"></div>
+        <div className="absolute left-8 top-32 bottom-0 w-0.5 bg-gray-300" />
 
         {/* Profile/Summary */}
         {resumeData.summary && (
@@ -140,7 +140,7 @@ export default function ModernTemplate({
             <p className="text-xs leading-relaxed text-justify">
               {resumeData.summary}
             </p>
-            <div className="absolute left-[15px] top-10 w-2 h-2 rounded-full bg-gray-300"></div>
+            <div className="absolute left-[15px] top-10 w-2 h-2 rounded-full bg-gray-300" />
           </div>
         )}
 
@@ -160,14 +160,14 @@ export default function ModernTemplate({
               <div className="space-y-4">
                 {resumeData.workExperiences.map((work, index) => (
                   <div key={index} className="space-y-1 relative">
-                    <div className="absolute left-[-33px] top-2 w-2 h-2 rounded-full bg-gray-300"></div>
+                    <div className="absolute left-[-33px] top-2 w-2 h-2 rounded-full bg-gray-300" />
                     <div className="flex justify-between items-baseline">
                       <h3 className="text-xs font-bold">{work.employer}</h3>
                       <span className="text-xs whitespace-nowrap ml-2">
                         {work.startDate &&
                           formatDate(work.startDate).replace(
                             /^\d{1,2}\/\d{1,2}\//,
-                            ""
+                            "",
                           )}{" "}
                         -{" "}
                         {work.isCurrentlyWorkingHere
@@ -175,7 +175,7 @@ export default function ModernTemplate({
                           : work.endDate
                             ? formatDate(work.endDate).replace(
                                 /^\d{1,2}\/\d{1,2}\//,
-                                ""
+                                "",
                               )
                             : ""}
                       </span>
@@ -211,14 +211,14 @@ export default function ModernTemplate({
             </h2>
             {resumeData.educationItems.map((edu, index) => (
               <div key={index} className="space-y-1 relative">
-                <div className="absolute left-[-33px] top-2 w-2 h-2 rounded-full bg-gray-300"></div>
+                <div className="absolute left-[-33px] top-2 w-2 h-2 rounded-full bg-gray-300" />
                 <div className="flex justify-between items-baseline">
                   <h3 className="text-xs font-bold">{edu.degree}</h3>
                   <span className="text-xs whitespace-nowrap ml-2">
                     {edu.graduationDate &&
                       formatDate(edu.graduationDate).replace(
                         /^\d{1,2}\/\d{1,2}\//,
-                        ""
+                        "",
                       )}
                   </span>
                 </div>

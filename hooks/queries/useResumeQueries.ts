@@ -17,6 +17,7 @@ export function useResumes() {
     queryKey: queryKeys.resumes.list(),
     queryFn: async () => {
       const response = await ApiClient.get<ApiResponse<Resume>>("/resumes");
+
       return response.resumes || [];
     },
   });
@@ -27,8 +28,9 @@ export function useResume(resumeId?: string) {
     queryKey: queryKeys.resumes.detail(resumeId!),
     queryFn: async () => {
       const response = await ApiClient.get<ApiResponse<Resume>>(
-        `/resumes/${resumeId}`
+        `/resumes/${resumeId}`,
       );
+
       return response.resume;
     },
     enabled: !!resumeId,
@@ -42,8 +44,9 @@ export function useCreateResume() {
     mutationFn: async (data: CreateResumeInput) => {
       const response = await ApiClient.post<ApiResponse<Resume>>(
         "/resumes",
-        data
+        data,
       );
+
       return response.resume!;
     },
     onSuccess: () => {
@@ -56,16 +59,20 @@ export function useUpdateResume(resumeId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: ["updateResume", resumeId],
     mutationFn: async (data: UpdateResumeInput) => {
       const response = await ApiClient.patch<ApiResponse<Resume>>(
         `/resumes/${resumeId}`,
-        data
+        data,
       );
+
       return response.resume!;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.list() });
+    onSuccess: (updatedResume) => {
+      queryClient.setQueryData(
+        queryKeys.resumes.detail(resumeId),
+        updatedResume,
+      );
     },
   });
 }
@@ -91,7 +98,7 @@ export function useExportResume() {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -101,12 +108,11 @@ export function useExportResume() {
       const blob = await response.blob();
       const contentDisposition = response.headers.get("Content-Disposition");
       const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const filename = filenameMatch
-        ? filenameMatch[1]
-        : "resume.pdf";
+      const filename = filenameMatch ? filenameMatch[1] : "resume.pdf";
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
+
       link.href = url;
       link.download = filename;
       document.body.appendChild(link);
@@ -124,12 +130,15 @@ export function useAddWorkExperience(resumeId: string) {
     mutationFn: async (data: any) => {
       const response = await ApiClient.post<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/work-experiences`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -141,12 +150,15 @@ export function useUpdateWorkExperience(resumeId: string) {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const response = await ApiClient.put<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/work-experiences/${id}`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -159,7 +171,9 @@ export function useDeleteWorkExperience(resumeId: string) {
       await ApiClient.delete(`/resumes/${resumeId}/work-experiences/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -171,12 +185,15 @@ export function useAddEducation(resumeId: string) {
     mutationFn: async (data: any) => {
       const response = await ApiClient.post<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/education`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -188,12 +205,15 @@ export function useUpdateEducation(resumeId: string) {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const response = await ApiClient.put<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/education/${id}`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -206,7 +226,9 @@ export function useDeleteEducation(resumeId: string) {
       await ApiClient.delete(`/resumes/${resumeId}/education/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -218,12 +240,15 @@ export function useAddCertification(resumeId: string) {
     mutationFn: async (data: any) => {
       const response = await ApiClient.post<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/certifications`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -235,12 +260,15 @@ export function useUpdateCertification(resumeId: string) {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const response = await ApiClient.put<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/certifications/${id}`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -253,7 +281,9 @@ export function useDeleteCertification(resumeId: string) {
       await ApiClient.delete(`/resumes/${resumeId}/certifications/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -265,12 +295,15 @@ export function useAddSkill(resumeId: string) {
     mutationFn: async (data: any) => {
       const response = await ApiClient.post<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/skills`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -282,12 +315,15 @@ export function useUpdateSkill(resumeId: string) {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const response = await ApiClient.put<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/skills/${id}`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -300,7 +336,9 @@ export function useDeleteSkill(resumeId: string) {
       await ApiClient.delete(`/resumes/${resumeId}/skills/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }
@@ -310,8 +348,9 @@ export function useGetContactInfo(resumeId: string) {
     queryKey: queryKeys.resumes.contactInfo(resumeId),
     queryFn: async () => {
       const response = await ApiClient.get<{ success: boolean; data: any }>(
-        `/resumes/${resumeId}/contact-info`
+        `/resumes/${resumeId}/contact-info`,
       );
+
       return response.data;
     },
     enabled: !!resumeId,
@@ -325,13 +364,18 @@ export function useCreateContactInfo(resumeId: string) {
     mutationFn: async (data: any) => {
       const response = await ApiClient.post<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/contact-info`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.contactInfo(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.contactInfo(resumeId),
+      });
     },
   });
 }
@@ -343,13 +387,18 @@ export function useUpdateContactInfo(resumeId: string) {
     mutationFn: async (data: any) => {
       const response = await ApiClient.put<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/contact-info`,
-        data
+        data,
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.contactInfo(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.contactInfo(resumeId),
+      });
     },
   });
 }
@@ -361,12 +410,15 @@ export function useUpdateSummary(resumeId: string) {
     mutationFn: async (summary: string) => {
       const response = await ApiClient.put<{ success: boolean; data: any }>(
         `/resumes/${resumeId}/summary`,
-        { summary }
+        { summary },
       );
+
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.detail(resumeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }

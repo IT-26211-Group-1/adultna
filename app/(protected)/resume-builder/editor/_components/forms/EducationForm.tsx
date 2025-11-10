@@ -77,8 +77,10 @@ export default function EducationForm({
 
   const syncFormData = useCallback(async () => {
     const isValid = await form.trigger();
+
     if (isValid) {
       const values = form.getValues();
+
       setResumeData({
         ...resumeData,
         educationItems:
@@ -90,8 +92,8 @@ export default function EducationForm({
   }, [form, resumeData, setResumeData]);
 
   const debouncedSync = useMemo(
-    () => debounce(syncFormData, 500),
-    [syncFormData]
+    () => debounce(syncFormData, 300),
+    [syncFormData],
   );
 
   useEffect(() => {
@@ -101,6 +103,14 @@ export default function EducationForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (resumeData.educationItems && resumeData.educationItems.length > 0) {
+      form.reset({
+        educationItems: resumeData.educationItems,
+      });
+    }
+  }, [resumeData, form]);
 
   const addEducation = () => {
     append({

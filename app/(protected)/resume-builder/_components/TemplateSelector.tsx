@@ -18,7 +18,7 @@ export function TemplateSelector({
   selectedTemplateId,
 }: TemplateSelectorProps) {
   const [selected, setSelected] = useState<TemplateId | undefined>(
-    selectedTemplateId
+    selectedTemplateId,
   );
 
   const handleSelect = (templateId: TemplateId) => {
@@ -37,8 +37,8 @@ export function TemplateSelector({
     <div className="w-full max-w-7xl mx-auto space-y-8 p-6">
       {/* Back Button */}
       <Link
-        href="/resume-builder"
         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        href="/resume-builder"
       >
         <ArrowLeft className="w-5 h-5" />
         <span className="font-medium">Back</span>
@@ -49,8 +49,8 @@ export function TemplateSelector({
 
       {/* Template Grid */}
       <TemplateGrid
-        templates={TEMPLATE_LIST}
         selectedTemplateId={selected}
+        templates={TEMPLATE_LIST}
         onSelectTemplate={handleSelect}
       />
 
@@ -58,9 +58,9 @@ export function TemplateSelector({
       {selected && (
         <div className="flex justify-center pt-4">
           <Button
-            size="lg"
-            color="success"
             className="bg-adult-green text-white px-8"
+            color="success"
+            size="lg"
             onPress={handleContinue}
           >
             Continue with {selectedTemplate?.name}

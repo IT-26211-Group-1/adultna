@@ -13,7 +13,7 @@ import {
 import { Input, Textarea, Checkbox, DatePicker, Button } from "@heroui/react";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useCallback, useMemo, useState } from "react";
+import { useEffect, useCallback, useState, useMemo } from "react";
 import { PlusIcon, TrashIcon, GripHorizontal, Sparkles } from "lucide-react";
 import { debounce } from "@/lib/utils/debounce";
 import { useGenerateWorkDescriptionSuggestions } from "@/hooks/queries/useAIQueries";
@@ -67,7 +67,7 @@ export default function WorkExperienceForm({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -83,21 +83,23 @@ export default function WorkExperienceForm({
 
   const syncFormData = useCallback(async () => {
     const isValid = await form.trigger();
+
     if (isValid) {
       const values = form.getValues();
+
       setResumeData({
         ...resumeData,
         workExperiences:
           (values.workExperiences?.filter(
-            (exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== ""
+            (exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== "",
           ) as any[]) || [],
       });
     }
   }, [form, resumeData, setResumeData]);
 
   const debouncedSync = useMemo(
-    () => debounce(syncFormData, 500),
-    [syncFormData]
+    () => debounce(syncFormData, 300),
+    [syncFormData],
   );
 
   useEffect(() => {
@@ -107,6 +109,14 @@ export default function WorkExperienceForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (resumeData.workExperiences && resumeData.workExperiences.length > 0) {
+      form.reset({
+        workExperiences: resumeData.workExperiences,
+      });
+    }
+  }, [resumeData, form]);
 
   // Function to count words in the description
   const getWordCount = (text: string): number => {
@@ -132,7 +142,7 @@ export default function WorkExperienceForm({
   const [loadingIndexes, setLoadingIndexes] = useState<Set<number>>(new Set());
 
   const generateAISuggestions = useGenerateWorkDescriptionSuggestions(
-    resumeData.id || ""
+    resumeData.id || "",
   );
 
   const handleGenerateSuggestions = async (workExpIndex: number) => {
@@ -151,6 +161,7 @@ export default function WorkExperienceForm({
           "Please add a job title or employer before generating suggestions",
         color: "warning",
       });
+
       return;
     }
 
@@ -185,7 +196,9 @@ export default function WorkExperienceForm({
     } finally {
       setLoadingIndexes((prev) => {
         const newSet = new Set(prev);
+
         newSet.delete(workExpIndex);
+
         return newSet;
       });
     }
@@ -193,7 +206,7 @@ export default function WorkExperienceForm({
 
   const handleApplyDescription = (
     description: string,
-    currentIndex: number
+    currentIndex: number,
   ) => {
     const currentDescription =
       form.watch(`workExperiences.${currentIndex}.description`) || "";
@@ -204,7 +217,7 @@ export default function WorkExperienceForm({
     form.setValue(
       `workExperiences.${currentIndex}.description`,
       newDescription,
-      { shouldValidate: true, shouldDirty: true, shouldTouch: true }
+      { shouldValidate: true, shouldDirty: true, shouldTouch: true },
     );
   };
 
@@ -302,7 +315,7 @@ function WorkExperienceItem({
       ref={setNodeRef}
       className={cn(
         "space-y-3 p-4 border border-default-200 rounded-lg bg-background",
-        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50"
+        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
       )}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -366,8 +379,8 @@ function WorkExperienceItem({
                   new CalendarDate(
                     val.getFullYear(),
                     val.getMonth() + 1,
-                    val.getDate()
-                  )
+                    val.getDate(),
+                  ),
                 );
               } else {
                 field.onChange(val);
@@ -402,8 +415,8 @@ function WorkExperienceItem({
                   new CalendarDate(
                     val.getFullYear(),
                     val.getMonth() + 1,
-                    val.getDate()
-                  )
+                    val.getDate(),
+                  ),
                 );
               } else {
                 field.onChange(val);
@@ -414,7 +427,7 @@ function WorkExperienceItem({
               <DatePicker
                 errorMessage={fieldState.error?.message}
                 isDisabled={form.watch(
-                  `workExperiences.${index}.isCurrentlyWorkingHere`
+                  `workExperiences.${index}.isCurrentlyWorkingHere`,
                 )}
                 isInvalid={!!fieldState.error}
                 label="End Date"
@@ -430,12 +443,12 @@ function WorkExperienceItem({
       <Checkbox
         {...form.register(`workExperiences.${index}.isCurrentlyWorkingHere`)}
         isSelected={form.watch(
-          `workExperiences.${index}.isCurrentlyWorkingHere`
+          `workExperiences.${index}.isCurrentlyWorkingHere`,
         )}
         onValueChange={(value) =>
           form.setValue(
             `workExperiences.${index}.isCurrentlyWorkingHere`,
-            value
+            value,
           )
         }
       >
@@ -447,11 +460,11 @@ function WorkExperienceItem({
           <label className="text-sm font-medium">Job Description</label>
           <Button
             color="success"
+            isLoading={isGeneratingAI}
             size="sm"
             startContent={isGeneratingAI ? null : <Sparkles size={16} />}
             type="button"
             variant="flat"
-            isLoading={isGeneratingAI}
             onClick={() => onGenerateAI(index)}
           >
             {isGeneratingAI ? "Generating..." : "Get AI Suggestions"}

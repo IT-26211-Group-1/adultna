@@ -34,7 +34,7 @@ export default function ResumePreview({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day
+          dateValue.day,
         ).toLocaleDateString("en-US", { year: "numeric" });
       }
 

@@ -13,7 +13,9 @@ export default function ContactForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
-  const [showJobPosition, setShowJobPosition] = useState(!!resumeData.jobPosition);
+  const [showJobPosition, setShowJobPosition] = useState(
+    !!resumeData.jobPosition,
+  );
   const [showBirthDate, setShowBirthDate] = useState(!!resumeData.birthDate);
   const [showLinkedIn, setShowLinkedIn] = useState(!!resumeData.linkedin);
   const [showPortfolio, setShowPortfolio] = useState(!!resumeData.portfolio);
@@ -36,15 +38,17 @@ export default function ContactForm({
 
   const syncFormData = useCallback(async () => {
     const isValid = await form.trigger();
+
     if (isValid) {
       const values = form.getValues();
+
       setResumeData({ ...resumeData, ...values });
     }
   }, [form, resumeData, setResumeData]);
 
   const debouncedSync = useMemo(
-    () => debounce(syncFormData, 500),
-    [syncFormData]
+    () => debounce(syncFormData, 300),
+    [syncFormData],
   );
 
   useEffect(() => {
@@ -54,6 +58,23 @@ export default function ContactForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (resumeData.firstName) {
+      form.reset({
+        email: resumeData.email || "",
+        phone: resumeData.phone || "",
+        firstName: resumeData.firstName || "",
+        lastName: resumeData.lastName || "",
+        jobPosition: resumeData.jobPosition || "",
+        city: resumeData.city || "",
+        region: resumeData.region || "",
+        birthDate: resumeData.birthDate || undefined,
+        linkedin: resumeData.linkedin || "",
+        portfolio: resumeData.portfolio || "",
+      });
+    }
+  }, [resumeData, form]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
@@ -148,8 +169,8 @@ export default function ContactForm({
                     new CalendarDate(
                       val.getFullYear(),
                       val.getMonth() + 1,
-                      val.getDate()
-                    )
+                      val.getDate(),
+                    ),
                   );
                 } else {
                   field.onChange(val);

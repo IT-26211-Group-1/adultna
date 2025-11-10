@@ -28,13 +28,9 @@ export const contactSchema = z.object({
     .string()
     .regex(
       /^(\+?63|0)?9\d{9}$/,
-      "Please enter a valid Philippine mobile number (e.g., 09123456789)"
+      "Please enter a valid Philippine mobile number (e.g., 09123456789)",
     )
-    .or(
-      z
-        .string()
-        .regex(/^\d{10,12}$/, "Phone number must be 10-12 digits")
-    ),
+    .or(z.string().regex(/^\d{10,12}$/, "Phone number must be 10-12 digits")),
   city: z.string().max(50, "City must be less than 50 characters").optional(),
   region: z
     .string()
@@ -45,34 +41,30 @@ export const contactSchema = z.object({
     .string()
     .max(255, "LinkedIn URL must be less than 255 characters")
     .optional()
-    .refine(
-      (val) => {
-        if (!val || val === "") return true;
-        try {
-          new URL(val);
-          return true;
-        } catch {
-          return false;
-        }
-      },
-      "Please enter a valid LinkedIn URL"
-    ),
+    .refine((val) => {
+      if (!val || val === "") return true;
+      try {
+        new URL(val);
+
+        return true;
+      } catch {
+        return false;
+      }
+    }, "Please enter a valid LinkedIn URL"),
   portfolio: z
     .string()
     .max(255, "Portfolio URL must be less than 255 characters")
     .optional()
-    .refine(
-      (val) => {
-        if (!val || val === "") return true;
-        try {
-          new URL(val);
-          return true;
-        } catch {
-          return false;
-        }
-      },
-      "Please enter a valid portfolio URL"
-    ),
+    .refine((val) => {
+      if (!val || val === "") return true;
+      try {
+        new URL(val);
+
+        return true;
+      } catch {
+        return false;
+      }
+    }, "Please enter a valid portfolio URL"),
 });
 export type ContactFormData = z.infer<typeof contactSchema>;
 
@@ -163,7 +155,7 @@ export const skillSchema = z.object({
           .max(5, "Proficiency must be at most 5")
           .optional(),
         order: z.number().optional(),
-      })
+      }),
     )
     .optional(),
 });

@@ -26,6 +26,7 @@ import { addToast } from "@heroui/toast";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { debounce } from "@/lib/utils/debounce";
 import InlineEditableTitle from "./InlineEditableTitle";
+import { hasResumeChanged } from "@/lib/resume/diffResume";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
@@ -35,36 +36,31 @@ export default function ResumeEditor() {
   const resumeId = searchParams.get("resumeId") || null;
 
   const { data: existingResume, isLoading: isLoadingResume } = useResume(
-    resumeId || undefined
+    resumeId || undefined,
   );
 
   const [loadedResumeId, setLoadedResumeId] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(
-    resumeId
+    resumeId,
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const lastSavedDataRef = useRef<string>("");
+  const lastSavedDataRef = useRef<ResumeData | null>(null);
   const isInitialMount = useRef(true);
-
-  const initialData = useMemo(() => {
-    if (existingResume && loadedResumeId !== existingResume.id) {
-      return mapApiResumeToResumeData(existingResume);
-    }
-    return null;
-  }, [existingResume, loadedResumeId]);
 
   const [resumeData, setResumeData] = useState<ResumeData>(() =>
     existingResume
       ? mapApiResumeToResumeData(existingResume)
-      : ({} as ResumeData)
+      : ({} as ResumeData),
   );
 
-  if (initialData && existingResume && loadedResumeId !== existingResume.id) {
-    setResumeData(initialData);
-    setLoadedResumeId(existingResume.id);
-    setCurrentResumeId(existingResume.id);
-  }
+  useEffect(() => {
+    if (existingResume && loadedResumeId !== existingResume.id) {
+      setResumeData(mapApiResumeToResumeData(existingResume));
+      setLoadedResumeId(existingResume.id);
+      setCurrentResumeId(existingResume.id);
+    }
+  }, [existingResume?.id]);
 
   const createResume = useCreateResume();
   const updateResume = useUpdateResume(currentResumeId || "");
@@ -74,11 +70,11 @@ export default function ResumeEditor() {
   const isExporting = exportResume.isPending;
 
   const FormComponent = steps.find(
-    (step) => step.key === currentStep
+    (step) => step.key === currentStep,
   )?.component;
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
   const currentStepTitle = steps.find(
-    (step) => step.key === currentStep
+    (step) => step.key === currentStep,
   )?.title;
   const isLastStep = currentStepIndex === steps.length - 1;
   const isContactForm = currentStep === "contact";
@@ -112,8 +108,9 @@ export default function ResumeEditor() {
           onSuccess: (newResume) => {
             setCurrentResumeId(newResume.id);
             setHasUnsavedChanges(false);
-            lastSavedDataRef.current = JSON.stringify(resumeData);
+            lastSavedDataRef.current = { ...resumeData };
             const newParams = new URLSearchParams(searchParams);
+
             newParams.delete("templateId");
             newParams.set("resumeId", newResume.id);
             router.replace(`/resume-builder/editor?${newParams.toString()}`, {
@@ -137,7 +134,7 @@ export default function ResumeEditor() {
         updateResume.mutate(payload, {
           onSuccess: () => {
             setHasUnsavedChanges(false);
-            lastSavedDataRef.current = JSON.stringify(resumeData);
+            lastSavedDataRef.current = { ...resumeData };
             if (onSuccessCallback) {
               onSuccessCallback();
             }
@@ -164,7 +161,7 @@ export default function ResumeEditor() {
       updateResume,
       searchParams,
       router,
-    ]
+    ],
   );
 
   // Auto-save when resumeData changes
@@ -174,24 +171,24 @@ export default function ResumeEditor() {
         if (!isInitialMount.current) {
           handleSave();
         }
-      }, 2000),
-    [handleSave]
+      }, 1000),
+    [handleSave],
   );
 
   useEffect(() => {
-    const currentDataString = JSON.stringify(resumeData);
-
     // Skip on initial mount or when data is empty
     if (isInitialMount.current) {
-      if (currentDataString !== "{}") {
-        lastSavedDataRef.current = currentDataString;
+      const hasData = Object.keys(resumeData).length > 0 && resumeData.firstName;
+      if (hasData) {
+        lastSavedDataRef.current = { ...resumeData };
         isInitialMount.current = false;
       }
+
       return;
     }
 
-    // Check if data has changed
-    if (currentDataString !== lastSavedDataRef.current) {
+    // Check if data has actually changed using deep comparison
+    if (hasResumeChanged(lastSavedDataRef.current, resumeData)) {
       setHasUnsavedChanges(true);
       debouncedAutoSave();
     }
@@ -214,6 +211,7 @@ export default function ResumeEditor() {
 
   if (!templateId && !resumeId) {
     router.push("/resume-builder");
+
     return null;
   }
 
@@ -223,6 +221,7 @@ export default function ResumeEditor() {
 
   function setStep(key: string) {
     const newSearchParams = new URLSearchParams(searchParams);
+
     newSearchParams.set("step", key);
 
     router.replace(`/resume-builder/editor?${newSearchParams.toString()}`, {
@@ -235,6 +234,7 @@ export default function ResumeEditor() {
       const navigateNext = () => {
         if (!isLastStep) {
           const nextStep = steps[currentStepIndex + 1];
+
           setStep(nextStep.key);
         } else {
           console.log("Resume completed!", resumeData);
@@ -250,6 +250,7 @@ export default function ResumeEditor() {
     if (!isLastStep && !isContactForm) {
       const navigateNext = () => {
         const nextStep = steps[currentStepIndex + 1];
+
         setStep(nextStep.key);
       };
 
@@ -293,8 +294,10 @@ export default function ResumeEditor() {
           <div className="flex-1">
             {currentResumeId ? (
               <InlineEditableTitle
+                currentTitle={
+                  resumeData.title || existingResume?.title || "Untitled Resume"
+                }
                 resumeId={currentResumeId}
-                currentTitle={resumeData.title || existingResume?.title || "Untitled Resume"}
                 onTitleChange={handleTitleChange}
               />
             ) : (
@@ -305,12 +308,12 @@ export default function ResumeEditor() {
           </div>
           <div className="flex items-center gap-3 text-sm">
             {currentResumeId && (
-              <ExportButton onExport={handleExport} isExporting={isExporting} />
+              <ExportButton isExporting={isExporting} onExport={handleExport} />
             )}
             <SaveStatusIndicator
-              isSaving={isSaving}
               hasSaved={!!currentResumeId && !isSaving && !hasUnsavedChanges}
               hasUnsavedChanges={hasUnsavedChanges && !isSaving}
+              isSaving={isSaving}
             />
           </div>
         </div>

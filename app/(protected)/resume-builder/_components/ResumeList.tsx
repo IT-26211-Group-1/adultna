@@ -12,7 +12,6 @@ import {
   ArrowLeft,
   FileText,
   Trash2,
-  Eye,
   Edit,
   Plus,
   Download,
@@ -72,11 +71,13 @@ export function ResumeList() {
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day
+          dateValue.day,
         ).toLocaleDateString("en-US", { year: "numeric" });
       }
       const date = new Date(dateValue);
+
       if (isNaN(date.getTime())) return "Invalid Date";
+
       return date.toLocaleDateString("en-US", { year: "numeric" });
     } catch (error) {
       return "Invalid Date";
@@ -85,15 +86,17 @@ export function ResumeList() {
 
   const normalizeSkills = (skills: any): string[] => {
     if (!Array.isArray(skills)) return [];
+
     return skills.map((skill) =>
-      typeof skill === "string" ? skill : skill.skill
+      typeof skill === "string" ? skill : skill.skill,
     );
   };
 
   const normalizeCertificates = (certificates: any) => {
     if (!Array.isArray(certificates)) return [];
+
     return certificates.map((cert) =>
-      typeof cert === "string" ? { certificate: cert } : cert
+      typeof cert === "string" ? { certificate: cert } : cert,
     );
   };
 
@@ -109,6 +112,7 @@ export function ResumeList() {
       resumeData: normalizedResume,
       formatDate: formatResumeDate,
     };
+
     switch (resume.templateId) {
       case "reverse-chronological":
         return <ReverseChronologicalTemplate {...props} />;
@@ -129,8 +133,8 @@ export function ResumeList() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link
-            href="/resume-builder"
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            href="/resume-builder"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back</span>
@@ -139,9 +143,9 @@ export function ResumeList() {
         </div>
         <Button
           as={Link}
-          href="/resume-builder/templates"
-          color="success"
           className="bg-adult-green text-white"
+          color="success"
+          href="/resume-builder/templates"
           startContent={<Plus className="w-4 h-4" />}
         >
           Create New Resume
@@ -163,9 +167,9 @@ export function ResumeList() {
           </p>
           <Button
             as={Link}
-            href="/resume-builder/templates"
-            color="success"
             className="bg-adult-green text-white"
+            color="success"
+            href="/resume-builder/templates"
           >
             Create Your First Resume
           </Button>
@@ -233,30 +237,30 @@ export function ResumeList() {
                     {/* Actions */}
                     <div className="flex gap-2 pt-2">
                       <Button
-                        size="sm"
-                        variant="flat"
                         className="flex-1"
+                        size="sm"
                         startContent={<Edit className="w-4 h-4" />}
+                        variant="flat"
                         onPress={() => handleEdit(resume.id)}
                       >
                         Edit
                       </Button>
                       <Button
+                        isIconOnly
+                        color="success"
+                        isLoading={exportingId === resume.id}
                         size="sm"
                         variant="flat"
-                        color="success"
-                        isIconOnly
-                        isLoading={exportingId === resume.id}
                         onPress={() => handleExport(resume.id)}
                       >
                         <Download className="w-4 h-4" />
                       </Button>
                       <Button
+                        isIconOnly
+                        color="danger"
+                        isLoading={isDeleting}
                         size="sm"
                         variant="flat"
-                        color="danger"
-                        isIconOnly
-                        isLoading={isDeleting}
                         onPress={() => handleDelete(resume.id)}
                       >
                         <Trash2 className="w-4 h-4" />

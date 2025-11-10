@@ -5,7 +5,7 @@ type DebouncedFunction<T extends (...args: any[]) => any> = {
 
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): DebouncedFunction<T> {
   let timeout: NodeJS.Timeout | null = null;
 

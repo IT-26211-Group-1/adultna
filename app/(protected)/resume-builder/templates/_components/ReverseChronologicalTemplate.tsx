@@ -71,7 +71,7 @@ export default function ReverseChronologicalTemplate({
                       {work.startDate &&
                         formatDate(work.startDate).replace(
                           /^\d{1,2}\/\d{1,2}\//,
-                          ""
+                          "",
                         )}
                       {(work.endDate || work.isCurrentlyWorkingHere) &&
                         ` to ${work.isCurrentlyWorkingHere ? "Current" : formatDate(work.endDate).replace(/^\d{1,2}\/\d{1,2}\//, "")}`}

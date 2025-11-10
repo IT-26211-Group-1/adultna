@@ -102,7 +102,7 @@ export default function HybridTemplate({
                   {work.startDate &&
                     formatDate(work.startDate).replace(
                       /^\d{1,2}\/\d{1,2}\//,
-                      ""
+                      "",
                     )}
                   {work.startDate &&
                     (work.isCurrentlyWorkingHere || work.endDate) &&
@@ -112,7 +112,7 @@ export default function HybridTemplate({
                     : work.endDate
                       ? formatDate(work.endDate).replace(
                           /^\d{1,2}\/\d{1,2}\//,
-                          ""
+                          "",
                         )
                       : ""}
                 </div>
@@ -158,7 +158,7 @@ export default function HybridTemplate({
                 {edu.graduationDate &&
                   formatDate(edu.graduationDate).replace(
                     /^\d{1,2}\/\d{1,2}\//,
-                    ""
+                    "",
                   )}
               </div>
               <div>
@@ -201,7 +201,7 @@ export default function HybridTemplate({
                             i < proficiency ? accentColor : "white",
                           border: `1px solid ${accentColor}`,
                         }}
-                      ></div>
+                      />
                     ))}
                   </div>
                 </div>

@@ -1,4 +1,8 @@
-export type TemplateId = "reverse-chronological" | "modern" | "skill-based" | "hybrid";
+export type TemplateId =
+  | "reverse-chronological"
+  | "modern"
+  | "skill-based"
+  | "hybrid";
 
 export type LayoutType = "single-column" | "two-column" | "asymmetric";
 
@@ -51,9 +55,16 @@ export const TEMPLATES: Record<TemplateId, Template> = {
   },
 };
 
-export const TEMPLATE_IDS: TemplateId[] = ["reverse-chronological", "modern", "skill-based", "hybrid"];
+export const TEMPLATE_IDS: TemplateId[] = [
+  "reverse-chronological",
+  "modern",
+  "skill-based",
+  "hybrid",
+];
 
-export const TEMPLATE_LIST: Template[] = TEMPLATE_IDS.map(id => TEMPLATES[id]);
+export const TEMPLATE_LIST: Template[] = TEMPLATE_IDS.map(
+  (id) => TEMPLATES[id],
+);
 
 export const isValidTemplateId = (id: string): id is TemplateId => {
   return TEMPLATE_IDS.includes(id as TemplateId);

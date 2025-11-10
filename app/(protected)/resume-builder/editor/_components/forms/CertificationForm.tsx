@@ -71,8 +71,10 @@ export default function CertificationForm({
 
   const syncFormData = useCallback(async () => {
     const isValid = await form.trigger();
+
     if (isValid) {
       const values = form.getValues();
+
       setResumeData({
         ...resumeData,
         certificates:
@@ -85,17 +87,25 @@ export default function CertificationForm({
   }, [form, resumeData, setResumeData]);
 
   const debouncedSync = useMemo(
-    () => debounce(syncFormData, 500),
-    [syncFormData]
+    () => debounce(syncFormData, 300),
+    [syncFormData],
   );
 
   useEffect(() => {
-    const { unsubscribe} = form.watch(() => {
+    const { unsubscribe } = form.watch(() => {
       debouncedSync();
     });
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (resumeData.certificates && resumeData.certificates.length > 0) {
+      form.reset({
+        certificates: resumeData.certificates,
+      });
+    }
+  }, [resumeData, form]);
 
   const addCertification = () => {
     append({

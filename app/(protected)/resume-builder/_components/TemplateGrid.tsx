@@ -19,8 +19,8 @@ export function TemplateGrid({
       {templates.map((template) => (
         <TemplateCard
           key={template.id}
-          template={template}
           isSelected={selectedTemplateId === template.id}
+          template={template}
           onSelect={() => onSelectTemplate(template.id)}
         />
       ))}
