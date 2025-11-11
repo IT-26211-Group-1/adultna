@@ -1,83 +1,333 @@
 "use client";
 
+import { useState, useRef } from "react";
+import { Card, CardBody, Button, Textarea } from "@heroui/react";
+import { Files, FileText, Loader2, ArrowLeft } from "lucide-react";
+import NextLink from "next/link";
 import { ResumeScoreGauge } from "./ResumeScoreGauge";
 import { ResumeVerdict } from "./ResumeVerdict";
 import { GraderAIRecommendations } from "./GraderAIRecommendations";
-import { PersonalDetailsScore } from "./PersonalDetailsScore";
-// import ng Upload from "./Upload" tapos ternary operator nalang sa magdidisplay ng Upload o ResumeGrader base sa state;
+import { CategoryScores } from "./CategoryScores";
+import { useGradeResume, ATSGradingResult } from "@/hooks/queries/useResumeQueries";
+import { ApiClient } from "@/lib/apiClient";
 
 export default function ResumeGrader() {
-  // Mock data - replace with real data from backend
-  const resumeScore = 85;
-  const scoreVerdict = "Good!";
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [jobDescription, setJobDescription] = useState("");
+  const [gradingResult, setGradingResult] = useState<ATSGradingResult | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const verdict =
-    "Your resume shows strong potential with room for improvement. Follow our recommendations below to boost your ATS compatibility and overall effectiveness.";
+  const gradeResume = useGradeResume();
 
-  const workingWell = [
-    "Strong Technical Skills Section",
-    "ATS-Friendly Format",
-    "Clear Contact Information",
-    "Relevant Work Experience",
-  ];
+  const isValidFileType = (file: File): boolean => {
+    const validTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+    ];
+    const validExtensions = [".pdf", ".docx", ".doc"];
 
-  const recommendations = [
-    {
-      title: "Add Quantifiable Achievements",
-      description:
-        'Include specific metrics and numbers to demonstrate your impact (e.g., "Increased efficiency by 30%")',
-    },
-    {
-      title: "Optimize Keywords",
-      description:
-        'Add industry-specific keywords: "Agile", "CI/CD", "Cloud Computing" to improve ATS matching',
-    },
-    {
-      title: "Strengthen Professional Summary",
-      description:
-        "Your summary could better highlight your unique value proposition and career goals",
-    },
-    {
-      title: "Add Certifications Section",
-      description:
-        "Consider adding relevant certifications or training to strengthen your profile",
-    },
-  ];
+    return (
+      validTypes.includes(file.type) ||
+      validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext))
+    );
+  };
 
-  const personalDetailsFields = [
-    { label: "Name", status: "complete" as const },
-    { label: "Location", status: "complete" as const },
-    { label: "Phone Number", status: "complete" as const },
-    { label: "Professional Email Check", status: "complete" as const },
-  ];
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+
+    if (files.length > 0) {
+      const file = files[0];
+
+      if (isValidFileType(file)) {
+        setUploadedFile(file);
+      } else {
+        alert("Please upload a PDF or DOCX file only.");
+      }
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+
+    if (files && files.length > 0) {
+      const file = files[0];
+
+      if (isValidFileType(file)) {
+        setUploadedFile(file);
+      } else {
+        alert("Please upload a PDF or DOCX file only.");
+      }
+    }
+  };
+
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null);
+    setGradingResult(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleGradeResume = async () => {
+    if (!uploadedFile) return;
+
+    const fileSizeMB = uploadedFile.size / (1024 * 1024);
+    if (fileSizeMB > 10) {
+      alert("File too large. Please upload a file smaller than 10MB");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const uploadUrlResponse = await ApiClient.post<{
+        success: boolean;
+        data: { uploadUrl: string; fileKey: string };
+      }>("/resumes/generate-upload-url", {
+        fileName: uploadedFile.name,
+        contentType: uploadedFile.type,
+        fileSize: uploadedFile.size,
+      });
+
+      if (!uploadUrlResponse.success) {
+        throw new Error("Failed to generate upload URL");
+      }
+
+      await fetch(uploadUrlResponse.data.uploadUrl, {
+        method: "PUT",
+        body: uploadedFile,
+        headers: {
+          "Content-Type": uploadedFile.type,
+          "Content-Disposition": "inline",
+        },
+      });
+
+      const result = await gradeResume.mutateAsync({
+        fileKey: uploadUrlResponse.data.fileKey,
+        fileName: uploadedFile.name,
+        jobDescription: jobDescription.trim() || undefined,
+      });
+
+      setGradingResult(result);
+      setIsProcessing(false);
+    } catch (error: any) {
+      console.error("Grading error:", error);
+      alert(error?.message || "Failed to grade resume. Please try again.");
+      setIsProcessing(false);
+    }
+  };
+
+  const getScoreVerdict = (score: number): string => {
+    if (score >= 90) return "Excellent!";
+    if (score >= 75) return "Good!";
+    if (score >= 60) return "Fair";
+    return "Needs Work";
+  };
+
+  const getCategoryStrengths = () => {
+    if (!gradingResult) return [];
+
+    const allStrengths: string[] = [];
+    Object.values(gradingResult.categoryScores).forEach((category) => {
+      allStrengths.push(...category.strengths);
+    });
+
+    return allStrengths.slice(0, 4);
+  };
+
+  if (!gradingResult) {
+    return (
+      <div className="h-[100dvh] bg-gray-50 p-6 overflow-auto">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6">
+            <NextLink
+              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+              href="/resume-builder"
+            >
+              <ArrowLeft className="mr-2" size={20} />
+              Back to Resume Builder
+            </NextLink>
+          </div>
+
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-semibold font-playfair mb-2">
+              ATS Resume Grader
+            </h1>
+            <p className="text-gray-500">
+              Upload your resume to get an ATS compatibility score and personalized recommendations
+            </p>
+          </div>
+
+          <Card className="mb-6">
+            <CardBody className="p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Job Description (Optional)
+              </label>
+              <Textarea
+                placeholder="Paste the job description here for targeted ATS analysis and keyword matching..."
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                minRows={4}
+                maxRows={8}
+                className="mb-4"
+              />
+              <p className="text-xs text-gray-500">
+                Adding a job description helps us analyze how well your resume matches specific requirements
+              </p>
+            </CardBody>
+          </Card>
+
+          <Card
+            className={`border-2 border-dashed transition-all duration-200 ${
+              isDragOver
+                ? "border-green-400 bg-green-50"
+                : uploadedFile
+                  ? "border-green-300 bg-green-50"
+                  : "border-gray-300 hover:border-gray-400"
+            }`}
+          >
+            <CardBody
+              className="p-12 text-center cursor-pointer"
+              onClick={handleBrowseClick}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              {uploadedFile ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center">
+                    <FileText className="w-12 h-12 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-medium text-gray-900">
+                      {uploadedFile.name}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                  <div className="flex gap-3 justify-center">
+                    <Button
+                      color="success"
+                      variant="solid"
+                      isLoading={isProcessing}
+                      isDisabled={isProcessing}
+                      startContent={
+                        isProcessing ? (
+                          <Loader2 className="animate-spin" size={16} />
+                        ) : null
+                      }
+                      onPress={handleGradeResume}
+                    >
+                      {isProcessing ? "Analyzing..." : "Grade My Resume"}
+                    </Button>
+                    <Button
+                      color="default"
+                      variant="bordered"
+                      isDisabled={isProcessing}
+                      onPress={handleRemoveFile}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center">
+                    <Files
+                      className={`w-12 h-12 ${isDragOver ? "text-green-600" : "text-gray-400"}`}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-lg font-medium text-gray-900">
+                      {isDragOver
+                        ? "Drop your resume here"
+                        : "Drag and drop your resume"}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      or{" "}
+                      <span className="text-green-700 font-medium">
+                        browse
+                      </span>{" "}
+                      to choose a file
+                    </p>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    PDF, DOCX, and DOC files only, up to 10MB
+                  </p>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          <input
+            ref={fileInputRef}
+            accept=".pdf,.docx,.doc"
+            className="hidden"
+            type="file"
+            onChange={handleFileSelect}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[100dvh] bg-gray-50 p-6 overflow-hidden">
+      <div className="mb-4">
+        <Button
+          variant="light"
+          startContent={<ArrowLeft size={16} />}
+          onPress={handleRemoveFile}
+        >
+          Grade Another Resume
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-[1600px] mx-auto h-full">
-        {/* Left Column - Score and Verdict in Single Card */}
         <div className="flex flex-col h-full min-h-0">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-full overflow-y-auto">
-            {/* Score Section */}
             <div className="mb-6">
-              <ResumeScoreGauge score={resumeScore} verdict={scoreVerdict} />
+              <ResumeScoreGauge
+                score={gradingResult.overallScore}
+                verdict={getScoreVerdict(gradingResult.overallScore)}
+              />
             </div>
 
-            {/* Verdict Section */}
             <div className="flex-1">
-              <ResumeVerdict verdict={verdict} workingWell={workingWell} />
+              <ResumeVerdict
+                verdict={gradingResult.summary}
+                workingWell={getCategoryStrengths()}
+              />
             </div>
           </div>
         </div>
 
-        {/* Right Column - Recommendations and Details */}
         <div className="flex flex-col gap-6 h-full p-3 min-h-0 overflow-y-auto">
-          <GraderAIRecommendations recommendations={recommendations} />
-          <PersonalDetailsScore
-            fields={personalDetailsFields}
-            needsImprovement={0}
-            score={7}
-            totalFields={7}
+          <GraderAIRecommendations
+            recommendations={gradingResult.recommendations}
           />
+          <CategoryScores categoryScores={gradingResult.categoryScores} />
         </div>
       </div>
     </div>

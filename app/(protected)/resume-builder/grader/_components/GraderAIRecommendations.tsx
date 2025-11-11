@@ -3,14 +3,8 @@
 import { Card, CardBody } from "@heroui/react";
 import { Lightbulb } from "lucide-react";
 
-interface Recommendation {
-  title: string;
-  description: string;
-  type?: "danger" | "warning" | "info" | "success";
-}
-
 interface GraderAIRecommendationsProps {
-  recommendations: Recommendation[];
+  recommendations: string[];
   className?: string;
 }
 
@@ -39,13 +33,11 @@ export function GraderAIRecommendations({
               {recommendations.map((rec, index) => (
                 <div
                   key={index}
-                  className="p-3 rounded-lg border bg-white border-purple-200"
+                  className="p-3 rounded-lg border bg-white border-purple-200 flex items-start gap-2"
                 >
-                  <h4 className="font-medium text-sm mb-1 text-black-900">
-                    {rec.title}
-                  </h4>
-                  <p className="text-xs leading-relaxed text-black-700">
-                    {rec.description}
+                  <span className="text-purple-600 font-bold mt-0.5">•</span>
+                  <p className="text-sm leading-relaxed text-gray-700 flex-1">
+                    {rec}
                   </p>
                 </div>
               ))}

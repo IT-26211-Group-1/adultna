@@ -535,3 +535,48 @@ export function useCreateResumeFromImport() {
     },
   });
 }
+
+export type CategoryScore = {
+  score: number;
+  maxScore: number;
+  issues: string[];
+  strengths: string[];
+};
+
+export type ATSGradingResult = {
+  overallScore: number;
+  categoryScores: {
+    keywordOptimization: CategoryScore;
+    formatCompatibility: CategoryScore;
+    sectionCompleteness: CategoryScore;
+    contentQuality: CategoryScore;
+  };
+  recommendations: string[];
+  summary: string;
+  passRate: "excellent" | "good" | "fair" | "poor";
+};
+
+export function useGradeResume() {
+  return useMutation({
+    mutationFn: async (data: {
+      fileKey: string;
+      fileName: string;
+      jobDescription?: string;
+    }) => {
+      const response = await ApiClient.post<{
+        success: boolean;
+        message: string;
+        statusCode: number;
+        data?: {
+          gradingResult: ATSGradingResult;
+        };
+      }>("/resumes/grade", data);
+
+      if (!response.success) {
+        throw new Error(response.message || "Failed to grade resume");
+      }
+
+      return response.data!.gradingResult;
+    },
+  });
+}
