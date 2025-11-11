@@ -8,7 +8,6 @@ import { LoadingButton } from "@/components/ui/Button";
 import {
   addGuideSchema,
   AddGuideForm,
-  categoryLabels,
 } from "@/validators/guideSchema";
 import { addToast } from "@heroui/toast";
 import type { GovGuide } from "@/types/govguide";
@@ -40,7 +39,6 @@ function EditGuideModal({
     defaultValues: {
       title: "",
       issuingAgency: "",
-      category: "ID" as const,
       summary: "",
       estimatedProcessingTime: "",
       feeAmount: null,
@@ -83,7 +81,6 @@ function EditGuideModal({
       // For now, using mock data structure
       setValue("title", guide.title);
       setValue("issuingAgency", guide.issuingAgency);
-      setValue("category", guide.category);
       setValue("summary", guide.summary || "");
       setValue("estimatedProcessingTime", guide.estimatedProcessingTime || "");
       setValue("feeAmount", guide.feeAmount);
@@ -189,52 +186,25 @@ function EditGuideModal({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="issuingAgency"
-              >
-                Issuing Agency *
-              </label>
-              <input
-                {...register("issuingAgency")}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-                id="issuingAgency"
-                placeholder="e.g., SSS, PhilHealth, BIR"
-                type="text"
-              />
-              {errors.issuingAgency && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.issuingAgency.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="category"
-              >
-                Category *
-              </label>
-              <select
-                {...register("category")}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-                id="category"
-              >
-                {Object.entries(categoryLabels).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-              {errors.category && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.category.message}
-                </p>
-              )}
-            </div>
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="issuingAgency"
+            >
+              Issuing Agency *
+            </label>
+            <input
+              {...register("issuingAgency")}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+              id="issuingAgency"
+              placeholder="e.g., SSS, PhilHealth, BIR"
+              type="text"
+            />
+            {errors.issuingAgency && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.issuingAgency.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -333,6 +303,9 @@ function EditGuideModal({
                 key={field.id}
                 className="flex gap-2 items-start p-3 bg-gray-50 rounded-md"
               >
+                <div className="flex items-center justify-center w-8 h-8 bg-adult-green text-white rounded-full text-sm font-semibold flex-shrink-0 mt-1">
+                  {index + 1}
+                </div>
                 <div className="flex-1">
                   <input
                     {...register(`steps.${index}.title`)}
@@ -399,6 +372,9 @@ function EditGuideModal({
                 className="p-3 bg-gray-50 rounded-md space-y-2"
               >
                 <div className="flex gap-2 items-start">
+                  <div className="flex items-center justify-center w-8 h-8 bg-adult-green text-white rounded-full text-sm font-semibold flex-shrink-0">
+                    {index + 1}
+                  </div>
                   <div className="flex-1">
                     <input
                       {...register(`requirements.${index}.name`)}
@@ -434,12 +410,15 @@ function EditGuideModal({
                     </button>
                   )}
                 </div>
-                <textarea
-                  {...register(`requirements.${index}.description`)}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
-                  placeholder="Optional description"
-                  rows={1}
-                />
+                <div className="flex gap-2">
+                  <div className="w-8 flex-shrink-0"></div>
+                  <textarea
+                    {...register(`requirements.${index}.description`)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
+                    placeholder="Optional description"
+                    rows={1}
+                  />
+                </div>
               </div>
             ))}
           </div>
