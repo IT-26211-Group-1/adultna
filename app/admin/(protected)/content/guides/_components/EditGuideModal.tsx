@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useState, useCallback, useEffect } from "react";
+import React, { memo, useState, useCallback } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
@@ -25,6 +25,56 @@ function EditGuideModal({
   guide,
   onGuideUpdated,
 }: EditGuideModalProps) {
+  if (!guide) {
+    return (
+      <Modal open={open} title="Edit Guide" onClose={onClose}>
+        <div className="flex items-center justify-center py-8">
+          <svg
+            className="animate-spin h-8 w-8 text-adult-green"
+            fill="none"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      </Modal>
+    );
+  }
+
+  return (
+    <EditForm
+      open={open}
+      guide={guide}
+      onClose={onClose}
+      onGuideUpdated={onGuideUpdated}
+    />
+  );
+}
+
+function EditForm({
+  guide,
+  open,
+  onClose,
+  onGuideUpdated,
+}: {
+  guide: NonNullable<EditGuideModalProps["guide"]>;
+  open: boolean;
+  onClose: () => void;
+  onGuideUpdated?: () => void;
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -33,16 +83,15 @@ function EditGuideModal({
     formState: { errors, isDirty },
     reset,
     control,
-    setValue,
   } = useForm({
     resolver: zodResolver(addGuideSchema),
     defaultValues: {
-      title: "",
-      issuingAgency: "",
-      summary: "",
-      estimatedProcessingTime: "",
-      feeAmount: null,
-      status: "review" as const,
+      title: guide.title,
+      issuingAgency: guide.issuingAgency,
+      summary: guide.summary || "",
+      estimatedProcessingTime: guide.estimatedProcessingTime || "",
+      feeAmount: guide.feeAmount,
+      status: guide.status,
       steps: [{ stepNumber: 1, title: "" }],
       requirements: [
         {
@@ -73,27 +122,15 @@ function EditGuideModal({
     name: "requirements",
   });
 
-  // Populate form when guide changes
-  useEffect(() => {
-    if (guide && open) {
-      // TODO: Fetch full guide details with steps and requirements from API
-      // For now, using mock data structure
-      setValue("title", guide.title);
-      setValue("issuingAgency", guide.issuingAgency);
-      setValue("summary", guide.summary || "");
-      setValue("estimatedProcessingTime", guide.estimatedProcessingTime || "");
-      setValue("feeAmount", guide.feeAmount);
-      setValue("status", guide.status);
-
-      // TODO: Replace with actual steps from API
-      // Mock steps data
+  // TODO: Fetch full guide details with steps and requirements from API
+  // For now, using mock data
+  React.useEffect(() => {
+    if (open) {
       replaceSteps([
         { stepNumber: 1, title: "Step 1 placeholder" },
         { stepNumber: 2, title: "Step 2 placeholder" },
       ]);
 
-      // TODO: Replace with actual requirements from API
-      // Mock requirements data
       replaceRequirements([
         {
           name: "Requirement 1",
@@ -101,12 +138,10 @@ function EditGuideModal({
         },
       ]);
     }
-  }, [guide, open, setValue, replaceSteps, replaceRequirements]);
+  }, [open, replaceSteps, replaceRequirements]);
 
   const onSubmit = useCallback(
     handleSubmit(async (data: AddGuideForm) => {
-      if (!guide) return;
-
       setIsSubmitting(true);
 
       try {
@@ -139,9 +174,23 @@ function EditGuideModal({
   );
 
   const handleClose = useCallback(() => {
-    reset();
+    reset({
+      title: guide.title,
+      issuingAgency: guide.issuingAgency,
+      summary: guide.summary || "",
+      estimatedProcessingTime: guide.estimatedProcessingTime || "",
+      feeAmount: guide.feeAmount,
+      status: guide.status,
+      steps: [{ stepNumber: 1, title: "" }],
+      requirements: [
+        {
+          name: "",
+          description: "",
+        },
+      ],
+    });
     onClose();
-  }, [reset, onClose]);
+  }, [reset, guide, onClose]);
 
   const handleAddStep = () => {
     appendStep({ stepNumber: stepFields.length + 1, title: "" });
@@ -153,8 +202,6 @@ function EditGuideModal({
       description: "",
     });
   };
-
-  if (!guide) return null;
 
   return (
     <Modal open={open} title="Edit Guide" onClose={handleClose}>
