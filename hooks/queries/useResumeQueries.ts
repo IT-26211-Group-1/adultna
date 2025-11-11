@@ -525,7 +525,7 @@ export function useCreateResumeFromImport() {
 
       const response = await ApiClient.post<ApiResponse<Resume>>(
         "/resumes",
-        payload
+        payload,
       );
 
       return response.resume!;
@@ -541,6 +541,8 @@ export type CategoryScore = {
   maxScore: number;
   issues: string[];
   strengths: string[];
+  quantifiableMetricsCount?: number;
+  metricsExamples?: string[];
 };
 
 export type ATSGradingResult = {

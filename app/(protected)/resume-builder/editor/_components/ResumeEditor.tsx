@@ -37,13 +37,13 @@ export default function ResumeEditor() {
   const resumeId = searchParams.get("resumeId") || null;
 
   const { data: existingResume, isLoading: isLoadingResume } = useResume(
-    resumeId || undefined
+    resumeId || undefined,
   );
 
   const [loadedResumeId, setLoadedResumeId] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(
-    resumeId
+    resumeId,
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const lastSavedDataRef = useRef<ResumeData | null>(null);
@@ -61,6 +61,7 @@ export default function ResumeEditor() {
 
   // Reset completion state when step changes (for Edit Resume functionality)
   const previousStepRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (currentStep !== previousStepRef.current && isCompleted) {
       setIsCompleted(false);
@@ -76,11 +77,11 @@ export default function ResumeEditor() {
   const isExporting = exportResume.isPending;
 
   const FormComponent = steps.find(
-    (step) => step.key === currentStep
+    (step) => step.key === currentStep,
   )?.component;
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
   const currentStepTitle = steps.find(
-    (step) => step.key === currentStep
+    (step) => step.key === currentStep,
   )?.title;
   const isLastStep = currentStepIndex === steps.length - 1;
   const isContactForm = currentStep === "contact";
@@ -106,7 +107,10 @@ export default function ResumeEditor() {
   }, [resumeData, currentStep]);
 
   const handleSave = useCallback(
-    async (onSuccessCallback?: () => void, dataOverrides?: Partial<ResumeData & { status?: "draft" | "completed" }>) => {
+    async (
+      onSuccessCallback?: () => void,
+      dataOverrides?: Partial<ResumeData & { status?: "draft" | "completed" }>,
+    ) => {
       const dataToSave = { ...resumeData, ...dataOverrides };
 
       if (!currentResumeId && templateId && isValidTemplateId(templateId)) {
@@ -169,7 +173,7 @@ export default function ResumeEditor() {
       updateResume,
       searchParams,
       router,
-    ]
+    ],
   );
 
   // Auto-save when resumeData changes
@@ -180,7 +184,7 @@ export default function ResumeEditor() {
           handleSave();
         }
       }, 1000),
-    [handleSave]
+    [handleSave],
   );
 
   useEffect(() => {
@@ -257,13 +261,16 @@ export default function ResumeEditor() {
 
           setStep(nextStep.key);
         } else {
-          setResumeData((prev) => ({ ...prev, status: "completed" } as any));
+          setResumeData((prev) => ({ ...prev, status: "completed" }) as any);
           setIsCompleted(true);
         }
       };
 
       // If completing the last step, mark resume as completed when saving
-      const statusOverride = isLastStep ? { status: "completed" as const } : undefined;
+      const statusOverride = isLastStep
+        ? { status: "completed" as const }
+        : undefined;
+
       handleSave(navigateNext, statusOverride);
     }
   };

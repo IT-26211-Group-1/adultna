@@ -113,7 +113,11 @@ export default function EducationForm({
   }, [form, debouncedSync]);
 
   useEffect(() => {
-    if (!isSyncingRef.current && resumeData.educationItems && resumeData.educationItems.length > 0) {
+    if (
+      !isSyncingRef.current &&
+      resumeData.educationItems &&
+      resumeData.educationItems.length > 0
+    ) {
       const currentData = JSON.stringify(resumeData.educationItems);
 
       if (previousDataRef.current !== currentData) {
@@ -125,7 +129,7 @@ export default function EducationForm({
                 ? new CalendarDate(
                     edu.graduationDate.getFullYear(),
                     edu.graduationDate.getMonth() + 1,
-                    edu.graduationDate.getDate()
+                    edu.graduationDate.getDate(),
                   )
                 : edu.graduationDate,
           })) as any,

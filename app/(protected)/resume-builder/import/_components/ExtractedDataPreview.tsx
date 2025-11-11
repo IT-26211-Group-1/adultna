@@ -29,6 +29,7 @@ export default function ExtractedDataPreview({
   const convertStringToDate = (dateString?: string): Date | undefined => {
     if (!dateString) return undefined;
     const date = new Date(dateString);
+
     return isNaN(date.getTime()) ? undefined : date;
   };
 
@@ -78,7 +79,7 @@ export default function ExtractedDataPreview({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day
+          dateValue.day,
         ).toLocaleDateString("en-US", { year: "numeric" });
       }
 
@@ -91,6 +92,7 @@ export default function ExtractedDataPreview({
       return date.toLocaleDateString("en-US", { year: "numeric" });
     } catch (error) {
       console.error("Error formatting date:", error, dateValue);
+
       return "Invalid Date";
     }
   };

@@ -87,9 +87,7 @@ export function ResumeList() {
     if (!Array.isArray(skills)) return [];
 
     return skills.map((skill) =>
-      typeof skill === "string"
-        ? { skill, proficiency: 0 }
-        : skill,
+      typeof skill === "string" ? { skill, proficiency: 0 } : skill,
     );
   };
 

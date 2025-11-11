@@ -1,13 +1,15 @@
 "use client";
 
-import { Card, CardBody, Progress } from "@heroui/react";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { Card, CardBody, Progress, Chip } from "@heroui/react";
+import { CheckCircle2, XCircle, TrendingUp, AlertCircle } from "lucide-react";
 
 interface CategoryScore {
   score: number;
   maxScore: number;
   issues: string[];
   strengths: string[];
+  quantifiableMetricsCount?: number;
+  metricsExamples?: string[];
 }
 
 interface CategoryScoresProps {
@@ -49,8 +51,10 @@ export function CategoryScores({
 
   const getColorClass = (score: number, maxScore: number) => {
     const percentage = (score / maxScore) * 100;
+
     if (percentage >= 80) return "success";
     if (percentage >= 60) return "warning";
+
     return "danger";
   };
 
@@ -73,7 +77,7 @@ export function CategoryScores({
             return (
               <div key={category.key} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-1">
                     {isPassing ? (
                       <CheckCircle2 className="w-4 h-4 text-green-600" />
                     ) : (
@@ -82,6 +86,23 @@ export function CategoryScores({
                     <span className="text-sm font-medium text-gray-700">
                       {category.label}
                     </span>
+                    {category.key === "contentQuality" &&
+                      category.data.quantifiableMetricsCount !== undefined && (
+                        <Chip
+                          color={
+                            category.data.quantifiableMetricsCount >= 8
+                              ? "success"
+                              : category.data.quantifiableMetricsCount >= 5
+                                ? "warning"
+                                : "danger"
+                          }
+                          size="sm"
+                          startContent={<TrendingUp className="w-3 h-3" />}
+                          variant="flat"
+                        >
+                          {category.data.quantifiableMetricsCount} metrics
+                        </Chip>
+                      )}
                   </div>
                   <span className="text-sm font-semibold">
                     {category.data.score}/{category.data.maxScore}
@@ -92,11 +113,64 @@ export function CategoryScores({
                   className="w-full"
                   color={getColorClass(
                     category.data.score,
-                    category.data.maxScore
+                    category.data.maxScore,
                   )}
                   size="sm"
                   value={percentage}
                 />
+
+                {/* Strengths */}
+                {category.data.strengths.length > 0 && (
+                  <div className="pl-6 space-y-1">
+                    {category.data.strengths.slice(0, 2).map((strength, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-1.5 text-xs text-green-700"
+                      >
+                        <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                        <span>{strength}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Issues */}
+                {category.data.issues.length > 0 && (
+                  <div className="pl-6 space-y-1">
+                    {category.data.issues.slice(0, 2).map((issue, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-1.5 text-xs text-amber-700"
+                      >
+                        <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                        <span>{issue}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Metrics Examples (only for Content Quality) */}
+                {category.key === "contentQuality" &&
+                  category.data.metricsExamples &&
+                  category.data.metricsExamples.length > 0 && (
+                    <div className="text-xs text-gray-600 pl-6 pt-1">
+                      <span className="font-medium">Examples found: </span>
+                      {category.data.metricsExamples
+                        .slice(0, 3)
+                        .map((example, idx) => (
+                          <span key={idx}>
+                            &ldquo;{example}&rdquo;
+                            {idx <
+                            Math.min(
+                              2,
+                              category.data.metricsExamples!.length - 1,
+                            )
+                              ? ", "
+                              : ""}
+                          </span>
+                        ))}
+                    </div>
+                  )}
               </div>
             );
           })}

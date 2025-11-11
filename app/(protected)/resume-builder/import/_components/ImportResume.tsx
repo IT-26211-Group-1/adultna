@@ -5,6 +5,7 @@ import { Card, CardBody, Button } from "@heroui/react";
 import { ArrowLeft, Files, FileText, Loader2 } from "lucide-react";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { addToast } from "@heroui/toast";
 import {
   useImportResume,
   useCreateResumeFromImport,
@@ -68,7 +69,11 @@ export function ImportResume() {
       if (isValidFileType(file)) {
         setUploadedFile(file);
       } else {
-        alert("Please upload a PDF or DOCX file only.");
+        addToast({
+          title: "Invalid file type",
+          description: "Please upload a PDF or DOCX file only.",
+          color: "warning",
+        });
       }
     }
   };
@@ -82,7 +87,11 @@ export function ImportResume() {
       if (isValidFileType(file)) {
         setUploadedFile(file);
       } else {
-        alert("Please upload a PDF or DOCX file only.");
+        addToast({
+          title: "Invalid file type",
+          description: "Please upload a PDF or DOCX file only.",
+          color: "warning",
+        });
       }
     }
   };
@@ -102,8 +111,14 @@ export function ImportResume() {
     if (!uploadedFile) return;
 
     const fileSizeMB = uploadedFile.size / (1024 * 1024);
+
     if (fileSizeMB > 10) {
-      alert("File too large. Please upload a file smaller than 10MB");
+      addToast({
+        title: "File too large",
+        description: "Please upload a file smaller than 10MB",
+        color: "warning",
+      });
+
       return;
     }
 
@@ -142,7 +157,11 @@ export function ImportResume() {
       setShowTemplateSelection(true);
     } catch (error: any) {
       console.error("Import error:", error);
-      alert(error?.message || "Failed to import resume. Please try again.");
+      addToast({
+        title: "Import failed",
+        description: error?.message || "Failed to import resume. Please try again.",
+        color: "danger",
+      });
       setIsProcessing(false);
     }
   };
@@ -161,7 +180,11 @@ export function ImportResume() {
       router.push(`/resume-builder/editor?resumeId=${resume.id}&step=contact`);
     } catch (error: any) {
       console.error("Resume creation error:", error);
-      alert(error?.message || "Failed to create resume. Please try again.");
+      addToast({
+        title: "Creation failed",
+        description: error?.message || "Failed to create resume. Please try again.",
+        color: "danger",
+      });
       setIsCreatingResume(false);
     }
   };
@@ -169,7 +192,7 @@ export function ImportResume() {
   const convertToResumeData = (
     data: ExtractedResumeData,
     templateId: string,
-    colorHex?: string
+    colorHex?: string,
   ): ResumeData & { colorHex?: string } => {
     return {
       templateId: templateId as any,
@@ -275,22 +298,22 @@ export function ImportResume() {
                       <div className="flex gap-3 justify-center">
                         <Button
                           color="success"
-                          variant="solid"
-                          isLoading={isProcessing}
                           isDisabled={isProcessing}
+                          isLoading={isProcessing}
                           startContent={
                             isProcessing ? (
                               <Loader2 className="animate-spin" size={16} />
                             ) : null
                           }
+                          variant="solid"
                           onPress={handleImportResume}
                         >
                           {isProcessing ? "Processing..." : "Import Resume"}
                         </Button>
                         <Button
                           color="default"
-                          variant="bordered"
                           isDisabled={isProcessing}
+                          variant="bordered"
                           onPress={handleRemoveFile}
                         >
                           Remove
@@ -354,8 +377,8 @@ export function ImportResume() {
                   <Card
                     key={template.id}
                     isPressable
-                    isDisabled={isCreatingResume}
                     className="border-2 border-gray-200 hover:border-green-500 hover:shadow-lg transition-all"
+                    isDisabled={isCreatingResume}
                     onPress={() => handleTemplateSelect(template.id)}
                   >
                     <CardBody className="p-4">
@@ -365,7 +388,7 @@ export function ImportResume() {
                             resumeData={convertToResumeData(
                               extractedData,
                               template.id,
-                              template.colorScheme
+                              template.colorScheme,
                             )}
                           />
                         )}
@@ -387,13 +410,13 @@ export function ImportResume() {
               {/* Back Button */}
               <div className="mt-8 text-center">
                 <Button
+                  isDisabled={isCreatingResume}
                   variant="light"
                   onPress={() => {
                     setShowTemplateSelection(false);
                     setExtractedData(null);
                     setUploadedFile(null);
                   }}
-                  isDisabled={isCreatingResume}
                 >
                   ← Upload a different resume
                 </Button>

@@ -38,7 +38,9 @@ export default function Completed({ resumeData }: CompletedProps) {
 
   const handleEditResume = () => {
     if (resumeData.id) {
-      router.push(`/resume-builder/editor?resumeId=${resumeData.id}&step=contact`);
+      router.push(
+        `/resume-builder/editor?resumeId=${resumeData.id}&step=contact`,
+      );
     }
   };
 

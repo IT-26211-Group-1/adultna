@@ -4,6 +4,7 @@ import NextLink from "next/link";
 import { Card, CardBody, Button } from "@heroui/react";
 import { ArrowLeft, Files, FileText, Lightbulb } from "lucide-react";
 import { useState, useRef } from "react";
+import { addToast } from "@heroui/toast";
 
 export function Upload() {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -47,7 +48,11 @@ export function Upload() {
       if (isValidFileType(file)) {
         setUploadedFile(file);
       } else {
-        alert("Please upload a PDF or DOCX file only.");
+        addToast({
+          title: "Invalid file type",
+          description: "Please upload a PDF or DOCX file only.",
+          color: "warning",
+        });
       }
     }
   };
@@ -61,7 +66,11 @@ export function Upload() {
       if (isValidFileType(file)) {
         setUploadedFile(file);
       } else {
-        alert("Please upload a PDF or DOCX file only.");
+        addToast({
+          title: "Invalid file type",
+          description: "Please upload a PDF or DOCX file only.",
+          color: "warning",
+        });
       }
     }
   };

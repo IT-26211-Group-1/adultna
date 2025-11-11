@@ -119,7 +119,11 @@ export default function WorkExperienceForm({
   }, [form, debouncedSync]);
 
   useEffect(() => {
-    if (!isSyncingRef.current && resumeData.workExperiences && resumeData.workExperiences.length > 0) {
+    if (
+      !isSyncingRef.current &&
+      resumeData.workExperiences &&
+      resumeData.workExperiences.length > 0
+    ) {
       const currentData = JSON.stringify(resumeData.workExperiences);
 
       if (previousDataRef.current !== currentData) {
@@ -131,7 +135,7 @@ export default function WorkExperienceForm({
                 ? new CalendarDate(
                     exp.startDate.getFullYear(),
                     exp.startDate.getMonth() + 1,
-                    exp.startDate.getDate()
+                    exp.startDate.getDate(),
                   )
                 : exp.startDate,
             endDate:
@@ -139,7 +143,7 @@ export default function WorkExperienceForm({
                 ? new CalendarDate(
                     exp.endDate.getFullYear(),
                     exp.endDate.getMonth() + 1,
-                    exp.endDate.getDate()
+                    exp.endDate.getDate(),
                   )
                 : exp.endDate,
           })) as any,

@@ -124,12 +124,12 @@ export class ApiClient {
           }
         }
 
-        throw new ApiError(
-          errorData?.message ||
-            `HTTP ${response.status}: ${response.statusText}`,
-          response.status,
-          errorData,
-        );
+        const errorMessage =
+          typeof errorData?.message === "string"
+            ? errorData.message
+            : `HTTP ${response.status}: ${response.statusText}`;
+
+        throw new ApiError(errorMessage, response.status, errorData);
       }
 
       const contentType = response.headers.get("content-type");

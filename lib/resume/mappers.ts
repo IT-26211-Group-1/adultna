@@ -17,7 +17,7 @@ function addOrderToArray<T>(items?: T[]): OrderedItem<T>[] | undefined {
 
 export function mapResumeDataToCreatePayload(
   data: ResumeData,
-  templateId: string
+  templateId: string,
 ): CreateResumeInput {
   return {
     title: data.id
@@ -33,14 +33,14 @@ export function mapResumeDataToCreatePayload(
     city: data.city,
     region: data.region,
     birthDate: convertCalendarDateToISO(
-      data.birthDate as Date | undefined
+      data.birthDate as Date | undefined,
     ) as any,
     linkedin: data.linkedin,
     portfolio: data.portfolio,
     workExperiences: data.workExperiences?.map((exp, index) => ({
       ...exp,
       startDate: convertCalendarDateToISO(
-        exp.startDate as Date | undefined
+        exp.startDate as Date | undefined,
       ) as any,
       endDate: convertCalendarDateToISO(exp.endDate as Date | undefined) as any,
       order: index,
@@ -48,7 +48,7 @@ export function mapResumeDataToCreatePayload(
     educationItems: data.educationItems?.map((edu, index) => ({
       ...edu,
       graduationDate: convertCalendarDateToISO(
-        edu.graduationDate as Date | undefined
+        edu.graduationDate as Date | undefined,
       ) as any,
       order: index,
     })),
@@ -64,7 +64,7 @@ export function mapResumeDataToCreatePayload(
 }
 
 export function mapResumeDataToUpdatePayload(
-  data: ResumeData & { status?: "draft" | "completed" }
+  data: ResumeData & { status?: "draft" | "completed" },
 ): UpdateResumeInput {
   const payload: UpdateResumeInput = {};
 
@@ -79,7 +79,7 @@ export function mapResumeDataToUpdatePayload(
   if (data.region !== undefined) payload.region = data.region;
   if (data.birthDate !== undefined) {
     payload.birthDate = convertCalendarDateToISO(
-      data.birthDate as Date | undefined
+      data.birthDate as Date | undefined,
     ) as any;
   }
   if (data.linkedin !== undefined) payload.linkedin = data.linkedin;
@@ -91,7 +91,7 @@ export function mapResumeDataToUpdatePayload(
     payload.workExperiences = data.workExperiences.map((exp, index) => ({
       ...exp,
       startDate: convertCalendarDateToISO(
-        exp.startDate as Date | undefined
+        exp.startDate as Date | undefined,
       ) as any,
       endDate: convertCalendarDateToISO(exp.endDate as Date | undefined) as any,
       order: index,
@@ -102,7 +102,7 @@ export function mapResumeDataToUpdatePayload(
     payload.educationItems = data.educationItems.map((edu, index) => ({
       ...edu,
       graduationDate: convertCalendarDateToISO(
-        edu.graduationDate as Date | undefined
+        edu.graduationDate as Date | undefined,
       ) as any,
       order: index,
     }));

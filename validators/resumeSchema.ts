@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { convertCalendarDateToDate } from "@/lib/utils/date";
 
-const calendarDateToDate = z.any().transform((val) => convertCalendarDateToDate(val));
+const calendarDateToDate = z
+  .any()
+  .transform((val) => convertCalendarDateToDate(val));
 
 export const contactSchema = z.object({
   firstName: z.string().min(1, "First name is required"),

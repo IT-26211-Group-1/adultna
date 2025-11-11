@@ -2,13 +2,17 @@
 
 import { useState, useRef } from "react";
 import { Card, CardBody, Button, Textarea } from "@heroui/react";
-import { Files, FileText, Loader2, ArrowLeft } from "lucide-react";
+import { Files, FileText, ArrowLeft } from "lucide-react";
 import NextLink from "next/link";
+import { addToast } from "@heroui/toast";
 import { ResumeScoreGauge } from "./ResumeScoreGauge";
 import { ResumeVerdict } from "./ResumeVerdict";
 import { GraderAIRecommendations } from "./GraderAIRecommendations";
 import { CategoryScores } from "./CategoryScores";
-import { useGradeResume, ATSGradingResult } from "@/hooks/queries/useResumeQueries";
+import {
+  useGradeResume,
+  ATSGradingResult,
+} from "@/hooks/queries/useResumeQueries";
 import { ApiClient } from "@/lib/apiClient";
 
 export default function ResumeGrader() {
@@ -16,7 +20,9 @@ export default function ResumeGrader() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
-  const [gradingResult, setGradingResult] = useState<ATSGradingResult | null>(null);
+  const [gradingResult, setGradingResult] = useState<ATSGradingResult | null>(
+    null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const gradeResume = useGradeResume();
@@ -57,7 +63,11 @@ export default function ResumeGrader() {
       if (isValidFileType(file)) {
         setUploadedFile(file);
       } else {
-        alert("Please upload a PDF or DOCX file only.");
+        addToast({
+          title: "Invalid file type",
+          description: "Please upload a PDF or DOCX file only.",
+          color: "warning",
+        });
       }
     }
   };
@@ -71,7 +81,11 @@ export default function ResumeGrader() {
       if (isValidFileType(file)) {
         setUploadedFile(file);
       } else {
-        alert("Please upload a PDF or DOCX file only.");
+        addToast({
+          title: "Invalid file type",
+          description: "Please upload a PDF or DOCX file only.",
+          color: "warning",
+        });
       }
     }
   };
@@ -92,8 +106,14 @@ export default function ResumeGrader() {
     if (!uploadedFile) return;
 
     const fileSizeMB = uploadedFile.size / (1024 * 1024);
+
     if (fileSizeMB > 10) {
-      alert("File too large. Please upload a file smaller than 10MB");
+      addToast({
+        title: "File too large",
+        description: "Please upload a file smaller than 10MB",
+        color: "warning",
+      });
+
       return;
     }
 
@@ -125,14 +145,21 @@ export default function ResumeGrader() {
       const result = await gradeResume.mutateAsync({
         fileKey: uploadUrlResponse.data.fileKey,
         fileName: uploadedFile.name,
-        jobDescription: jobDescription.trim() || undefined,
+        jobDescription:
+          typeof jobDescription === "string" && jobDescription.trim()
+            ? jobDescription.trim()
+            : undefined,
       });
 
       setGradingResult(result);
       setIsProcessing(false);
     } catch (error: any) {
       console.error("Grading error:", error);
-      alert(error?.message || "Failed to grade resume. Please try again.");
+      addToast({
+        title: "Grading failed",
+        description: error?.message || "Failed to grade resume. Please try again.",
+        color: "danger",
+      });
       setIsProcessing(false);
     }
   };
@@ -141,6 +168,7 @@ export default function ResumeGrader() {
     if (score >= 90) return "Excellent!";
     if (score >= 75) return "Good!";
     if (score >= 60) return "Fair";
+
     return "Needs Work";
   };
 
@@ -148,6 +176,15 @@ export default function ResumeGrader() {
     if (!gradingResult) return [];
 
     const allStrengths: string[] = [];
+    const metricsCount =
+      gradingResult.categoryScores.contentQuality.quantifiableMetricsCount || 0;
+
+    if (metricsCount >= 5) {
+      allStrengths.push(
+        `Strong quantifiable achievements (${metricsCount} metrics found)`,
+      );
+    }
+
     Object.values(gradingResult.categoryScores).forEach((category) => {
       allStrengths.push(...category.strengths);
     });
@@ -174,25 +211,31 @@ export default function ResumeGrader() {
               ATS Resume Grader
             </h1>
             <p className="text-gray-500">
-              Upload your resume to get an ATS compatibility score and personalized recommendations
+              Upload your resume to get an ATS compatibility score and
+              personalized recommendations
             </p>
           </div>
 
           <Card className="mb-6">
             <CardBody className="p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="job-description-input"
+              >
                 Job Description (Optional)
               </label>
               <Textarea
+                className="mb-4"
+                id="job-description-input"
+                maxRows={8}
+                minRows={4}
                 placeholder="Paste the job description here for targeted ATS analysis and keyword matching..."
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
-                minRows={4}
-                maxRows={8}
-                className="mb-4"
               />
               <p className="text-xs text-gray-500">
-                Adding a job description helps us analyze how well your resume matches specific requirements
+                Adding a job description helps us analyze how well your resume
+                matches specific requirements
               </p>
             </CardBody>
           </Card>
@@ -229,22 +272,17 @@ export default function ResumeGrader() {
                   <div className="flex gap-3 justify-center">
                     <Button
                       color="success"
-                      variant="solid"
-                      isLoading={isProcessing}
                       isDisabled={isProcessing}
-                      startContent={
-                        isProcessing ? (
-                          <Loader2 className="animate-spin" size={16} />
-                        ) : null
-                      }
+                      isLoading={isProcessing}
+                      variant="solid"
                       onPress={handleGradeResume}
                     >
                       {isProcessing ? "Analyzing..." : "Grade My Resume"}
                     </Button>
                     <Button
                       color="default"
-                      variant="bordered"
                       isDisabled={isProcessing}
+                      variant="bordered"
                       onPress={handleRemoveFile}
                     >
                       Remove
@@ -266,9 +304,7 @@ export default function ResumeGrader() {
                     </p>
                     <p className="text-sm text-gray-500">
                       or{" "}
-                      <span className="text-green-700 font-medium">
-                        browse
-                      </span>{" "}
+                      <span className="text-green-700 font-medium">browse</span>{" "}
                       to choose a file
                     </p>
                   </div>
@@ -296,8 +332,8 @@ export default function ResumeGrader() {
     <div className="h-[100dvh] bg-gray-50 p-6 overflow-hidden">
       <div className="mb-4">
         <Button
-          variant="light"
           startContent={<ArrowLeft size={16} />}
+          variant="light"
           onPress={handleRemoveFile}
         >
           Grade Another Resume
