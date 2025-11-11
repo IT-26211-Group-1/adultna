@@ -87,18 +87,12 @@ export default function SummaryForm({
     form.setValue("summary", summary);
   };
 
+  const hasRequiredDataForAI =
+    resumeData.jobPosition &&
+    resumeData.workExperiences &&
+    resumeData.workExperiences.length > 0;
+
   const handleGenerateAISuggestions = async () => {
-    if (!resumeData.jobPosition && (!resumeData.workExperiences || resumeData.workExperiences.length === 0)) {
-      addToast({
-        title: "Missing information",
-        description:
-          "Please add a job position or work experience before generating summary suggestions",
-        color: "warning",
-      });
-
-      return;
-    }
-
     setIsGeneratingAI(true);
 
     try {
@@ -141,25 +135,28 @@ export default function SummaryForm({
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Professional Summary</h2>
         <p className="text-sm text-default-500">
-          Write a short introduction for your resume. Don&apos;t worry! Our AI
-          will help you out and give recommendations.
+          {hasRequiredDataForAI
+            ? "Write a short introduction for your resume. Don't worry! Our AI will help you out and give recommendations."
+            : "Write a short introduction for your resume. Add a job position and work experience to unlock AI-powered suggestions."}
         </p>
       </div>
 
       <form className="space-y-6">
-        <div className="flex justify-center">
-          <Button
-            color="success"
-            isLoading={isGeneratingAI}
-            size="sm"
-            startContent={isGeneratingAI ? null : <Sparkles size={16} />}
-            type="button"
-            variant="flat"
-            onPress={handleGenerateAISuggestions}
-          >
-            {isGeneratingAI ? "Generating..." : "Get AI Suggestions"}
-          </Button>
-        </div>
+        {hasRequiredDataForAI && (
+          <div className="flex justify-center">
+            <Button
+              color="success"
+              isLoading={isGeneratingAI}
+              size="sm"
+              startContent={isGeneratingAI ? null : <Sparkles size={16} />}
+              type="button"
+              variant="flat"
+              onPress={handleGenerateAISuggestions}
+            >
+              {isGeneratingAI ? "Generating..." : "Get AI Suggestions"}
+            </Button>
+          </div>
+        )}
 
         <Textarea
           description={`${summaryText ? `${getWordCount(summaryText)} / 250 words` : "Maximum 250 words"}`}
