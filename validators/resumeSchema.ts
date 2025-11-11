@@ -1,16 +1,7 @@
 import { z } from "zod";
-import { CalendarDate } from "@internationalized/date";
+import { convertCalendarDateToDate } from "@/lib/utils/date";
 
-// Helper function to convert CalendarDate to Date
-const calendarDateToDate = z.any().transform((val) => {
-  if (!val) return undefined;
-  if (val instanceof Date) return val;
-  if (val instanceof CalendarDate) {
-    return new Date(val.year, val.month - 1, val.day);
-  }
-
-  return val;
-});
+const calendarDateToDate = z.any().transform((val) => convertCalendarDateToDate(val));
 
 export const contactSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
