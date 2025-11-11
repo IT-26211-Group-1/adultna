@@ -422,3 +422,116 @@ export function useUpdateSummary(resumeId: string) {
     },
   });
 }
+
+export type ExtractedResumeData = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  linkedIn?: string;
+  portfolio?: string;
+  jobPosition?: string;
+  summary?: string;
+  workExperiences: Array<{
+    jobTitle: string;
+    employer: string;
+    location?: string;
+    startDate?: string;
+    endDate?: string;
+    currentlyWorking: boolean;
+    description?: string;
+  }>;
+  educationItems: Array<{
+    degree: string;
+    fieldOfStudy?: string;
+    institution: string;
+    location?: string;
+    graduationDate?: string;
+  }>;
+  skills: string[];
+  certifications: Array<{
+    name: string;
+    issuingOrganization?: string;
+    dateObtained?: string;
+  }>;
+};
+
+export function useImportResume() {
+  return useMutation({
+    mutationFn: async (data: { fileKey: string; fileName: string }) => {
+      const response = await ApiClient.post<{
+        success: boolean;
+        message: string;
+        statusCode: number;
+        data?: {
+          extractedData: ExtractedResumeData;
+        };
+      }>("/resumes/import", data);
+
+      if (!response.success) {
+        throw new Error(response.message || "Failed to import resume");
+      }
+
+      return response.data!.extractedData;
+    },
+  });
+}
+
+export function useCreateResumeFromImport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      templateId: string;
+      extractedData: ExtractedResumeData;
+    }) => {
+      const payload: CreateResumeInput = {
+        title: data.extractedData.jobPosition || "Imported Resume",
+        templateId: data.templateId as any,
+        status: "draft",
+        firstName: data.extractedData.firstName || "",
+        lastName: data.extractedData.lastName || "",
+        email: data.extractedData.email || "",
+        phone: data.extractedData.phone || "",
+        jobPosition: data.extractedData.jobPosition,
+        city: data.extractedData.location,
+        linkedin: data.extractedData.linkedIn,
+        portfolio: data.extractedData.portfolio,
+        summary: data.extractedData.summary,
+        workExperiences: data.extractedData.workExperiences.map((work) => ({
+          jobTitle: work.jobTitle,
+          employer: work.employer,
+          startDate: work.startDate,
+          endDate: work.endDate,
+          isCurrentlyWorkingHere: work.currentlyWorking,
+          description: work.description,
+        })),
+        educationItems: data.extractedData.educationItems.map((edu) => ({
+          degree: edu.degree,
+          fieldOfStudy: edu.fieldOfStudy,
+          schoolName: edu.institution,
+          schoolLocation: edu.location,
+          graduationDate: edu.graduationDate,
+        })),
+        skills: data.extractedData.skills.map((skill) => ({
+          skill: skill,
+        })),
+        certificates: data.extractedData.certifications.map((cert) => ({
+          certificate: cert.name,
+          issuingOrganization: cert.issuingOrganization,
+        })),
+      };
+
+      const response = await ApiClient.post<ApiResponse<Resume>>(
+        "/resumes",
+        payload
+      );
+
+      return response.resume!;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resumes.list() });
+    },
+  });
+}
