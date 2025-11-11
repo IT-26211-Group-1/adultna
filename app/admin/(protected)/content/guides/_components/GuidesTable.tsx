@@ -294,11 +294,6 @@ const GuidesTable: React.FC = () => {
     }, 1000);
   }, []);
 
-  const handleAddGuide = useCallback(() => {
-    console.log("Add new guide");
-    // TODO: Implement add guide functionality
-  }, []);
-
   const columns: Column<GovGuide>[] = useMemo(
     () => [
       {
@@ -390,37 +385,6 @@ const GuidesTable: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Add Button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Government Guides
-          </h2>
-          <p className="text-gray-600 mt-1">
-            Manage step-by-step guides for government requirements
-          </p>
-        </div>
-        <button
-          className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
-          onClick={handleAddGuide}
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M12 4v16m8-8H4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-          Add Guide
-        </button>
-      </div>
-
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-sm border p-4">
         <div className="flex flex-wrap gap-4 items-center">
