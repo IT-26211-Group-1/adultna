@@ -1,6 +1,6 @@
 "use client";
 
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+// No loading screen needed for quick onboarding checks
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef } from "react";
@@ -48,11 +48,7 @@ export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
       setTimeout(() => router.replace(redirectInfo.redirectTo!), 0);
     }
 
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return null;
   }
 
   return <>{children}</>;
