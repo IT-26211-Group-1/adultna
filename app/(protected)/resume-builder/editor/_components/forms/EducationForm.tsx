@@ -118,7 +118,17 @@ export default function EducationForm({
 
       if (previousDataRef.current !== currentData) {
         form.reset({
-          educationItems: resumeData.educationItems,
+          educationItems: resumeData.educationItems.map((edu) => ({
+            ...edu,
+            graduationDate:
+              edu.graduationDate instanceof Date
+                ? new CalendarDate(
+                    edu.graduationDate.getFullYear(),
+                    edu.graduationDate.getMonth() + 1,
+                    edu.graduationDate.getDate()
+                  )
+                : edu.graduationDate,
+          })) as any,
         });
         previousDataRef.current = currentData;
       }

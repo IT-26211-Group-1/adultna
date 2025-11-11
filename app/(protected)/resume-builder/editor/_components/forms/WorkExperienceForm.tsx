@@ -124,7 +124,25 @@ export default function WorkExperienceForm({
 
       if (previousDataRef.current !== currentData) {
         form.reset({
-          workExperiences: resumeData.workExperiences,
+          workExperiences: resumeData.workExperiences.map((exp) => ({
+            ...exp,
+            startDate:
+              exp.startDate instanceof Date
+                ? new CalendarDate(
+                    exp.startDate.getFullYear(),
+                    exp.startDate.getMonth() + 1,
+                    exp.startDate.getDate()
+                  )
+                : exp.startDate,
+            endDate:
+              exp.endDate instanceof Date
+                ? new CalendarDate(
+                    exp.endDate.getFullYear(),
+                    exp.endDate.getMonth() + 1,
+                    exp.endDate.getDate()
+                  )
+                : exp.endDate,
+          })) as any,
         });
         previousDataRef.current = currentData;
       }
