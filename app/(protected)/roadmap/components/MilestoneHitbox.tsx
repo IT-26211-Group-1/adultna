@@ -10,10 +10,10 @@ interface MilestoneHitboxProps {
   onClick: (milestoneId: string) => void;
 }
 
-export function MilestoneHitbox({ 
-  milestoneId, 
-  position, 
-  onClick 
+export function MilestoneHitbox({
+  milestoneId,
+  position,
+  onClick,
 }: MilestoneHitboxProps) {
   const meshRef = useRef<Mesh>(null);
   const [hovered, setHovered] = useState(false);
@@ -29,24 +29,24 @@ export function MilestoneHitbox({
       ref={meshRef}
       position={position}
       onClick={handleClick}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-        document.body.style.cursor = "pointer";
-      }}
       onPointerOut={(e) => {
         e.stopPropagation();
         setHovered(false);
         document.body.style.cursor = "default";
       }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = "pointer";
+      }}
     >
       {/* Clickable area - flat cylinder */}
       <cylinderGeometry args={[0.4, 0.4, 0.1, 32]} />
       {/* Invisible but shows faint yellow on hover */}
-      <meshBasicMaterial 
-        transparent 
-        opacity={hovered ? 0.3 : 0} 
+      <meshBasicMaterial
+        transparent
         color="yellow"
+        opacity={hovered ? 0.3 : 0}
       />
     </mesh>
   );

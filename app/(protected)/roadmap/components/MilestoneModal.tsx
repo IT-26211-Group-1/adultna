@@ -26,11 +26,13 @@ export function MilestoneModal({
 
   const completedTasksCount = useMemo(() => {
     if (!milestone) return 0;
-    return milestone.tasks.filter(task => task.completed).length;
+
+    return milestone.tasks.filter((task) => task.completed).length;
   }, [milestone]);
 
   const progressPercentage = useMemo(() => {
     if (!milestone || milestone.tasks.length === 0) return 0;
+
     return (completedTasksCount / milestone.tasks.length) * 100;
   }, [milestone, completedTasksCount]);
 
@@ -69,18 +71,18 @@ export function MilestoneModal({
           <div className="flex items-center space-x-2 text-blue-500">
             <div className="animate-pulse">
               <svg
-                width="24"
+                className="animate-bounce"
+                fill="none"
                 height="24"
                 viewBox="0 0 24 24"
-                fill="none"
-                className="animate-bounce"
+                width="24"
               >
                 <path
                   d="M15 18L9 12L15 6"
                   stroke="currentColor"
-                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  strokeWidth="2"
                 />
               </svg>
             </div>
@@ -91,9 +93,7 @@ export function MilestoneModal({
         <div
           ref={modalRef}
           className={`pointer-events-auto backdrop-blur-md border border-white/30 rounded-3xl shadow-2xl w-full max-w-sm h-[calc(100vh-3rem)] my-6 overflow-hidden transition-all duration-500 ease-in-out transform ${
-            isOpen
-              ? "translate-x-0 opacity-100"
-              : "translate-x-full opacity-0"
+            isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
           }`}
           style={{ backgroundColor: "rgba(255,255,255, 0.85)" }}
         >
@@ -104,23 +104,25 @@ export function MilestoneModal({
           >
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <h2 className="text-sm font-bold mb-1 truncate text-gray-900">{milestone.title}</h2>
+                <h2 className="text-sm font-bold mb-1 truncate text-gray-900">
+                  {milestone.title}
+                </h2>
                 <span className="text-gray-700 text-xs font-medium">
                   {milestone.category}
                 </span>
               </div>
               <button
-                onClick={onClose}
                 className="ml-2 p-1.5 hover:bg-white/40 rounded-full transition-colors duration-200 flex-shrink-0"
+                onClick={onClose}
               >
                 <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
+                  className="text-gray-700"
                   fill="none"
+                  height="16"
                   stroke="currentColor"
                   strokeWidth="2"
-                  className="text-gray-700"
+                  viewBox="0 0 24 24"
+                  width="16"
                 >
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
@@ -131,7 +133,9 @@ export function MilestoneModal({
             <div className="mt-2">
               <div className="flex items-center justify-between text-xs mb-1 text-gray-700">
                 <span>Progress</span>
-                <span>{completedTasksCount}/{milestone.tasks.length}</span>
+                <span>
+                  {completedTasksCount}/{milestone.tasks.length}
+                </span>
               </div>
               <div className="w-full bg-white/30 rounded-full h-1.5">
                 <div
@@ -165,15 +169,13 @@ export function MilestoneModal({
                     <div
                       key={task.id}
                       className={`group flex items-center p-3 rounded-xl border border-white/30 backdrop-blur-sm transition-all duration-200 hover:border-white/50 ${
-                        task.completed
-                          ? ""
-                          : "hover:bg-white/30"
+                        task.completed ? "" : "hover:bg-white/30"
                       }`}
                       style={{
                         animationDelay: `${index * 50}ms`,
                         backgroundColor: task.completed
                           ? "rgba(34,197,94, 0.15)"
-                          : "rgba(59,130,246, 0.1)"
+                          : "rgba(59,130,246, 0.1)",
                       }}
                     >
                       <div className="flex items-center flex-1">
@@ -194,9 +196,9 @@ export function MilestoneModal({
                               viewBox="0 0 20 20"
                             >
                               <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                 clipRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                fillRule="evenodd"
                               />
                             </svg>
                           )}
@@ -243,18 +245,18 @@ export function MilestoneModal({
           >
             <div className="flex justify-between items-center gap-2">
               <Button
-                color="default"
-                variant="flat"
-                size="sm"
                 className="text-xs font-medium flex-1 bg-white/30 hover:bg-white/40 border-white/40"
+                color="default"
+                size="sm"
+                variant="flat"
               >
                 Add Task
               </Button>
               <Button
+                className="text-xs font-medium flex-1 bg-emerald-600 hover:bg-emerald-700"
                 color="primary"
                 size="sm"
                 onPress={onClose}
-                className="text-xs font-medium flex-1 bg-emerald-600 hover:bg-emerald-700"
               >
                 Close
               </Button>

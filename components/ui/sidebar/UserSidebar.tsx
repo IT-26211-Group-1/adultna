@@ -34,10 +34,10 @@ function UserSidebar({
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const pathname = usePathname();
 
-  // Apply olive green background specifically for roadmap page
+  // Apply olivine background specifically for roadmap page
   const resolvedBackgroundColor =
     backgroundColor ||
-    (pathname === "/roadmap" ? "rgba(107, 142, 35, 0.1)" : "white");
+    (pathname === "/roadmap" ? "rgba(154,205,50, 0.08)" : "white");
 
   // Use controlled state if provided, otherwise use internal state
   const isOpen =
@@ -129,7 +129,12 @@ function UserSidebar({
             ${isCollapsed ? "lg:w-20" : "lg:w-64"}
             w-64 flex flex-col
           `}
-          style={{ backgroundColor: "rgba(17,85,63, 0.10)" }}
+          style={{
+            backgroundColor:
+              pathname === "/roadmap"
+                ? "rgba(154,205,50, 0.15)"
+                : "rgba(17,85,63, 0.10)",
+          }}
         >
           {/* Header */}
           <SidebarHeader isCollapsed={isCollapsed} />
@@ -171,7 +176,9 @@ function UserSidebar({
       {/* Main Content Wrapper */}
       {children && (
         <div
-          className={`transition-all duration-300 ${isCollapsed ? "lg:ml-24" : "lg:ml-76"} relative z-10`}
+          className={`transition-all duration-300 ${
+            pathname === "/roadmap" ? "" : isCollapsed ? "lg:ml-24" : "lg:ml-76"
+          } relative z-10`}
         >
           {typeof children === "function"
             ? children({ sidebarCollapsed: isCollapsed })

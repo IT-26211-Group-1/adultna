@@ -32,7 +32,8 @@ export function RoadmapClient() {
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
     null,
   );
-  const [milestoneAnimation, setMilestoneAnimation] = useState<CameraAnimation | null>(null);
+  const [milestoneAnimation, setMilestoneAnimation] =
+    useState<CameraAnimation | null>(null);
 
   // Calculate camera position for milestone zoom
   const createMilestoneZoom = (milestone: Milestone): CameraAnimation => {
@@ -59,11 +60,13 @@ export function RoadmapClient() {
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
     console.log("🎯 handleMilestoneClick called with:", interaction);
     const milestone = MilestoneService.getMilestone(interaction.milestoneId);
+
     console.log("📊 Found milestone:", milestone);
 
     if (milestone) {
       setSelectedMilestone(milestone);
       const zoomAnimation = createMilestoneZoom(milestone);
+
       setMilestoneAnimation(zoomAnimation);
       onOpen();
       console.log("✅ Modal should open now with camera zoom");
@@ -86,14 +89,14 @@ export function RoadmapClient() {
     <>
       <div
         className={`w-full h-full relative transition-transform duration-500 ease-in-out ${
-          isOpen ? '-translate-x-48' : 'translate-x-0'
+          isOpen ? "-translate-x-48" : "translate-x-0"
         }`}
       >
         <Canvas
           camera={{ position: [0, 5, 15], fov: 55 }}
           className="w-full h-full"
-          onClick={handleCanvasClick}
           resize={{ scroll: false, debounce: { scroll: 50, resize: 100 } }}
+          onClick={handleCanvasClick}
         >
           <CameraController
             animation={CAMERA_ANIMATION}
