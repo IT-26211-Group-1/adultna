@@ -7,6 +7,7 @@ import DropdownMenu from "@/components/ui/DropdownMenu";
 import type { GovGuide, GuideStatus } from "@/types/govguide";
 import { formatDate } from "@/constants/formatDate";
 import EditGuideModal from "./EditGuideModal";
+import PreviewGuideModal from "./PreviewGuideModal";
 
 // Guide Status Badge Component
 const GuideStatusBadge = React.memo<{ status: GuideStatus }>(({ status }) => {
@@ -167,6 +168,7 @@ GuideActions.displayName = "GuideActions";
 const GuidesTable: React.FC = () => {
   const [deletingGuideId, setDeletingGuideId] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState<GovGuide | null>(null);
 
   // Mock data - replace with actual API call
@@ -259,9 +261,21 @@ const GuidesTable: React.FC = () => {
     setSelectedGuide(null);
   }, []);
 
-  const handlePreviewGuide = useCallback((guideId: string) => {
-    console.log("Preview guide:", guideId);
-    // TODO: Implement preview functionality
+  const handlePreviewGuide = useCallback(
+    (guideId: string) => {
+      const guide = guides.find((g) => g.id === guideId);
+
+      if (guide) {
+        setSelectedGuide(guide);
+        setPreviewModalOpen(true);
+      }
+    },
+    [guides],
+  );
+
+  const handleClosePreviewModal = useCallback(() => {
+    setPreviewModalOpen(false);
+    setSelectedGuide(null);
   }, []);
 
   const handleDeleteGuide = useCallback((guideId: string) => {
@@ -382,6 +396,15 @@ const GuidesTable: React.FC = () => {
           open={editModalOpen}
           onClose={handleCloseEditModal}
           onGuideUpdated={handleGuideUpdated}
+        />
+      )}
+
+      {/* Preview Modal */}
+      {selectedGuide && (
+        <PreviewGuideModal
+          guide={selectedGuide}
+          open={previewModalOpen}
+          onClose={handleClosePreviewModal}
         />
       )}
     </>
