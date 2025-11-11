@@ -120,12 +120,20 @@ export default function SkillsForm({
         description: "Click + to add skills to your resume",
         color: "success",
       });
-    } catch {
-      addToast({
-        title: "Failed to generate suggestions",
-        description: "Please try again",
-        color: "danger",
-      });
+    } catch (error: any) {
+      if (error?.message?.includes("RATE_LIMIT_EXCEEDED")) {
+        addToast({
+          title: "Too many requests",
+          description: "Please try again in a moment.",
+          color: "warning",
+        });
+      } else {
+        addToast({
+          title: "Failed to generate suggestions",
+          description: "Please try again",
+          color: "danger",
+        });
+      }
     } finally {
       setIsGeneratingAI(false);
     }

@@ -155,11 +155,20 @@ export default function ResumeGrader() {
       setIsProcessing(false);
     } catch (error: any) {
       console.error("Grading error:", error);
-      addToast({
-        title: "Grading failed",
-        description: error?.message || "Failed to grade resume. Please try again.",
-        color: "danger",
-      });
+
+      if (error?.message?.includes("RATE_LIMIT_EXCEEDED")) {
+        addToast({
+          title: "Too many requests",
+          description: "Please try again in a moment.",
+          color: "warning",
+        });
+      } else {
+        addToast({
+          title: "Grading failed",
+          description: error?.message || "Failed to grade resume. Please try again.",
+          color: "danger",
+        });
+      }
       setIsProcessing(false);
     }
   };

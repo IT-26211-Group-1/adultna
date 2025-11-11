@@ -157,11 +157,20 @@ export function ImportResume() {
       setShowTemplateSelection(true);
     } catch (error: any) {
       console.error("Import error:", error);
-      addToast({
-        title: "Import failed",
-        description: error?.message || "Failed to import resume. Please try again.",
-        color: "danger",
-      });
+
+      if (error?.message?.includes("RATE_LIMIT_EXCEEDED")) {
+        addToast({
+          title: "Too many requests",
+          description: "Please try again in a moment.",
+          color: "warning",
+        });
+      } else {
+        addToast({
+          title: "Import failed",
+          description: error?.message || "Failed to import resume. Please try again.",
+          color: "danger",
+        });
+      }
       setIsProcessing(false);
     }
   };
