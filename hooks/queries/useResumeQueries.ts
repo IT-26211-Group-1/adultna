@@ -68,11 +68,11 @@ export function useUpdateResume(resumeId: string) {
 
       return response.resume!;
     },
-    onSuccess: (updatedResume) => {
-      queryClient.setQueryData(
-        queryKeys.resumes.detail(resumeId),
-        updatedResume,
-      );
+    onSuccess: () => {
+      // Don't overwrite cache - just mark as stale for background refetch
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
     },
   });
 }

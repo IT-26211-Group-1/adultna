@@ -1,7 +1,7 @@
 "use client";
 
 import { Input, DatePicker } from "@heroui/react";
-import { ContactFormData, contactSchema } from "@/validators/resumeSchema";
+import { contactSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -16,13 +16,13 @@ export default function ContactForm({
   const isSyncingRef = useRef(false);
   const previousDataRef = useRef<string>("");
   const [showJobPosition, setShowJobPosition] = useState(
-    !!resumeData.jobPosition,
+    !!resumeData.jobPosition
   );
   const [showBirthDate, setShowBirthDate] = useState(!!resumeData.birthDate);
   const [showLinkedIn, setShowLinkedIn] = useState(!!resumeData.linkedin);
   const [showPortfolio, setShowPortfolio] = useState(!!resumeData.portfolio);
 
-  const form = useForm<ContactFormData>({
+  const form = useForm<any>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       email: resumeData.email || "",
@@ -32,7 +32,14 @@ export default function ContactForm({
       jobPosition: resumeData.jobPosition || "",
       city: resumeData.city || "",
       region: resumeData.region || "",
-      birthDate: resumeData.birthDate || undefined,
+      birthDate:
+        resumeData.birthDate instanceof Date
+          ? new CalendarDate(
+              resumeData.birthDate.getFullYear(),
+              resumeData.birthDate.getMonth() + 1,
+              resumeData.birthDate.getDate()
+            )
+          : undefined,
       linkedin: resumeData.linkedin || "",
       portfolio: resumeData.portfolio || "",
     },
@@ -55,7 +62,7 @@ export default function ContactForm({
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData],
+    [syncFormData]
   );
 
   useEffect(() => {
@@ -67,7 +74,7 @@ export default function ContactForm({
   }, [form, debouncedSync]);
 
   useEffect(() => {
-    if (!isSyncingRef.current && (resumeData.firstName || resumeData.email)) {
+    if (!isSyncingRef.current) {
       const currentData = JSON.stringify({
         firstName: resumeData.firstName,
         lastName: resumeData.lastName,
@@ -90,26 +97,21 @@ export default function ContactForm({
           jobPosition: resumeData.jobPosition || "",
           city: resumeData.city || "",
           region: resumeData.region || "",
-          birthDate: resumeData.birthDate || undefined,
+          birthDate:
+            resumeData.birthDate instanceof Date
+              ? new CalendarDate(
+                  resumeData.birthDate.getFullYear(),
+                  resumeData.birthDate.getMonth() + 1,
+                  resumeData.birthDate.getDate()
+                )
+              : undefined,
           linkedin: resumeData.linkedin || "",
           portfolio: resumeData.portfolio || "",
         });
         previousDataRef.current = currentData;
       }
     }
-  }, [
-    resumeData.firstName,
-    resumeData.lastName,
-    resumeData.email,
-    resumeData.phone,
-    resumeData.jobPosition,
-    resumeData.city,
-    resumeData.region,
-    resumeData.birthDate,
-    resumeData.linkedin,
-    resumeData.portfolio,
-    form,
-  ]);
+  }, [resumeData, form]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
@@ -125,7 +127,7 @@ export default function ContactForm({
         <div className="grid grid-cols-2 gap-3">
           <Input
             {...form.register("firstName")}
-            errorMessage={form.formState.errors.firstName?.message}
+            errorMessage={form.formState.errors.firstName?.message as string}
             isInvalid={!!form.formState.errors.firstName}
             label="First Name"
             placeholder="Enter your First Name"
@@ -133,7 +135,7 @@ export default function ContactForm({
 
           <Input
             {...form.register("lastName")}
-            errorMessage={form.formState.errors.lastName?.message}
+            errorMessage={form.formState.errors.lastName?.message as string}
             isInvalid={!!form.formState.errors.lastName}
             label="Last Name"
             placeholder="Enter your Last Name"
@@ -143,7 +145,7 @@ export default function ContactForm({
         {showJobPosition && (
           <Input
             {...form.register("jobPosition")}
-            errorMessage={form.formState.errors.jobPosition?.message}
+            errorMessage={form.formState.errors.jobPosition?.message as string}
             isInvalid={!!form.formState.errors.jobPosition}
             label="Job Position"
             placeholder="e.g., Senior Software Engineer"
@@ -153,7 +155,7 @@ export default function ContactForm({
         <div className="grid grid-cols-2 gap-3">
           <Input
             {...form.register("city")}
-            errorMessage={form.formState.errors.city?.message}
+            errorMessage={form.formState.errors.city?.message as string}
             isInvalid={!!form.formState.errors.city}
             label="City"
             placeholder="Enter your City"
@@ -161,7 +163,7 @@ export default function ContactForm({
 
           <Input
             {...form.register("region")}
-            errorMessage={form.formState.errors.region?.message}
+            errorMessage={form.formState.errors.region?.message as string}
             isInvalid={!!form.formState.errors.region}
             label="Region"
             placeholder="Enter your Region"
@@ -170,7 +172,7 @@ export default function ContactForm({
 
         <Input
           {...form.register("email")}
-          errorMessage={form.formState.errors.email?.message}
+          errorMessage={form.formState.errors.email?.message as string}
           isInvalid={!!form.formState.errors.email}
           label="Email"
           placeholder="email@email.com"
@@ -179,7 +181,7 @@ export default function ContactForm({
 
         <Input
           {...form.register("phone")}
-          errorMessage={form.formState.errors.phone?.message}
+          errorMessage={form.formState.errors.phone?.message as string}
           isInvalid={!!form.formState.errors.phone}
           label="Phone"
           placeholder="09XXXXXXXXX"
@@ -204,8 +206,8 @@ export default function ContactForm({
                     new CalendarDate(
                       val.getFullYear(),
                       val.getMonth() + 1,
-                      val.getDate(),
-                    ),
+                      val.getDate()
+                    )
                   );
                 } else {
                   field.onChange(val);
@@ -214,7 +216,7 @@ export default function ContactForm({
 
               return (
                 <DatePicker
-                  errorMessage={fieldState.error?.message}
+                  errorMessage={fieldState.error?.message as string}
                   isInvalid={!!fieldState.error}
                   label="Birth date"
                   value={value}
@@ -229,7 +231,7 @@ export default function ContactForm({
         {showLinkedIn && (
           <Input
             {...form.register("linkedin")}
-            errorMessage={form.formState.errors.linkedin?.message}
+            errorMessage={form.formState.errors.linkedin?.message as string}
             isInvalid={!!form.formState.errors.linkedin}
             label="LinkedIn"
             placeholder="https://linkedin.com/in/yourprofile"
@@ -239,7 +241,7 @@ export default function ContactForm({
         {showPortfolio && (
           <Input
             {...form.register("portfolio")}
-            errorMessage={form.formState.errors.portfolio?.message}
+            errorMessage={form.formState.errors.portfolio?.message as string}
             isInvalid={!!form.formState.errors.portfolio}
             label="Portfolio"
             placeholder="https://yourportfolio.com"

@@ -71,7 +71,7 @@ export default function HybridTemplate({
       {/* Summary Section */}
       {resumeData.summary && (
         <div className="space-y-2">
-          <h2 className="text-sm font-bold">Software Development</h2>
+          <h2 className="text-sm font-bold">Summary</h2>
           <ul className="text-xs leading-relaxed list-disc pl-5 space-y-1">
             {resumeData.summary
               .split(".")
@@ -102,7 +102,7 @@ export default function HybridTemplate({
                   {work.startDate &&
                     formatDate(work.startDate).replace(
                       /^\d{1,2}\/\d{1,2}\//,
-                      "",
+                      ""
                     )}
                   {work.startDate &&
                     (work.isCurrentlyWorkingHere || work.endDate) &&
@@ -112,7 +112,7 @@ export default function HybridTemplate({
                     : work.endDate
                       ? formatDate(work.endDate).replace(
                           /^\d{1,2}\/\d{1,2}\//,
-                          "",
+                          ""
                         )
                       : ""}
                 </div>
@@ -158,7 +158,7 @@ export default function HybridTemplate({
                 {edu.graduationDate &&
                   formatDate(edu.graduationDate).replace(
                     /^\d{1,2}\/\d{1,2}\//,
-                    "",
+                    ""
                   )}
               </div>
               <div>

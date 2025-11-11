@@ -49,19 +49,15 @@ export default function ResumeEditor() {
   const lastSavedDataRef = useRef<ResumeData | null>(null);
   const isInitialMount = useRef(true);
 
-  const [resumeData, setResumeData] = useState<ResumeData>(() =>
-    existingResume
-      ? mapApiResumeToResumeData(existingResume)
-      : ({} as ResumeData)
-  );
+  const [resumeData, setResumeData] = useState<ResumeData>({} as ResumeData);
 
   useEffect(() => {
-    if (existingResume && loadedResumeId !== existingResume.id) {
+    if (existingResume && existingResume.id !== loadedResumeId) {
       setResumeData(mapApiResumeToResumeData(existingResume));
       setLoadedResumeId(existingResume.id);
       setCurrentResumeId(existingResume.id);
     }
-  }, [existingResume?.id]);
+  }, [existingResume, loadedResumeId]);
 
   const createResume = useCreateResume();
   const updateResume = useUpdateResume(currentResumeId || "");
@@ -222,6 +218,16 @@ export default function ResumeEditor() {
     return <LoadingSpinner fullScreen />;
   }
 
+  // Wait for resume data to load before rendering forms in edit mode
+  if (resumeId && !existingResume) {
+    return <LoadingSpinner fullScreen />;
+  }
+
+  // Ensure resumeData is populated from existingResume before rendering
+  if (resumeId && existingResume && loadedResumeId !== existingResume.id) {
+    return <LoadingSpinner fullScreen />;
+  }
+
   function setStep(key: string) {
     const newSearchParams = new URLSearchParams(searchParams);
 
@@ -291,7 +297,7 @@ export default function ResumeEditor() {
 
   // Show completion page if resume is completed
   if (isCompleted) {
-    return <Completed resumeData={resumeData} />;
+    return <Completed resumeData={resumeData} setResumeData={setResumeData} />;
   }
 
   const handleTitleChange = (newTitle: string) => {
@@ -312,7 +318,9 @@ export default function ResumeEditor() {
               {currentResumeId ? (
                 <InlineEditableTitle
                   currentTitle={
-                    resumeData.title || existingResume?.title || "Untitled Resume"
+                    resumeData.title ||
+                    existingResume?.title ||
+                    "Untitled Resume"
                   }
                   resumeId={currentResumeId}
                   onTitleChange={handleTitleChange}
@@ -343,6 +351,7 @@ export default function ResumeEditor() {
               <Breadcrumbs currentStep={currentStep} setCurrentStep={setStep} />
               {FormComponent && (
                 <FormComponent
+                  key={currentResumeId || "new-resume"}
                   resumeData={resumeData}
                   setResumeData={setResumeData}
                 />

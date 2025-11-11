@@ -20,5 +20,5 @@ export const steps: {
     key: "certifications",
   },
   { title: "Skills", component: SkillsForm, key: "skills" },
-  { title: "Summary", component: SummaryForm, key: "summary" },
+  { title: "Professional Summary", component: SummaryForm, key: "summary" },
 ];
