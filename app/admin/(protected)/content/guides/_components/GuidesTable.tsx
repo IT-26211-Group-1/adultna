@@ -31,17 +31,6 @@ const GuideStatusBadge = React.memo<{ status: GuideStatus }>(({ status }) => {
 
 GuideStatusBadge.displayName = "GuideStatusBadge";
 
-// Category Badge Component
-const CategoryBadge = React.memo<{ category: string }>(({ category }) => {
-  return (
-    <Badge size="sm" variant="default">
-      {category}
-    </Badge>
-  );
-});
-
-CategoryBadge.displayName = "CategoryBadge";
-
 type GuideActionsProps = {
   guide: GovGuide;
   onEdit: (guideId: string) => void;
@@ -177,9 +166,6 @@ GuideActions.displayName = "GuideActions";
 
 const GuidesTable: React.FC = () => {
   const [deletingGuideId, setDeletingGuideId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [agencyFilter, setAgencyFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState<GovGuide | null>(null);
 
@@ -250,40 +236,16 @@ const GuidesTable: React.FC = () => {
   const loading = false;
   const isDeleting = deletingGuideId !== null;
 
-  // Get unique agencies for filter
-  const agencies = useMemo(() => {
-    const uniqueAgencies = Array.from(
-      new Set(guides.map((g) => g.issuingAgency)),
-    );
-
-    return ["all", ...uniqueAgencies.sort()];
-  }, [guides]);
-
-  // Filter guides
-  const filteredGuides = useMemo(() => {
-    return guides.filter((guide) => {
-      const matchesSearch = guide.title
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesAgency =
-        agencyFilter === "all" || guide.issuingAgency === agencyFilter;
-      const matchesStatus =
-        statusFilter === "all" || guide.status === statusFilter;
-
-      return matchesSearch && matchesAgency && matchesStatus;
-    });
-  }, [guides, searchQuery, agencyFilter, statusFilter]);
-
   const handleEditGuide = useCallback(
     (guideId: string) => {
-      const guide = filteredGuides.find((g) => g.id === guideId);
+      const guide = guides.find((g) => g.id === guideId);
 
       if (guide) {
         setSelectedGuide(guide);
         setEditModalOpen(true);
       }
     },
-    [filteredGuides],
+    [guides],
   );
 
   const handleGuideUpdated = useCallback(() => {
@@ -320,26 +282,21 @@ const GuidesTable: React.FC = () => {
       {
         header: "Guide Title",
         accessor: (guide) => (
-          <div className="flex flex-col gap-1">
-            <div className="flex items-start gap-2">
-              <svg
-                className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  clipRule="evenodd"
-                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
-                  fillRule="evenodd"
-                />
-              </svg>
-              <span className="font-medium text-gray-900 line-clamp-2">
-                {guide.title}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1 ml-6">
-              <CategoryBadge category={guide.category} />
-            </div>
+          <div className="flex items-start gap-2">
+            <svg
+              className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                clipRule="evenodd"
+                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                fillRule="evenodd"
+              />
+            </svg>
+            <span className="font-medium text-gray-900 line-clamp-2">
+              {guide.title}
+            </span>
           </div>
         ),
         width: "300px",
@@ -405,74 +362,10 @@ const GuidesTable: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border p-4">
-        <div className="flex flex-wrap gap-4 items-center">
-          {/* Search */}
-          <div className="flex-1 min-w-[250px]">
-            <div className="relative">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                />
-              </svg>
-              <input
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-adult-green focus:border-transparent"
-                placeholder="Search guides..."
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Agency Filter */}
-          <div className="w-48">
-            <select
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-adult-green focus:border-transparent appearance-none bg-white"
-              value={agencyFilter}
-              onChange={(e) => setAgencyFilter(e.target.value)}
-            >
-              <option value="all">All Agencies</option>
-              {agencies
-                .filter((a) => a !== "all")
-                .map((agency) => (
-                  <option key={agency} value={agency}>
-                    {agency}
-                  </option>
-                ))}
-            </select>
-          </div>
-
-          {/* Status Filter */}
-          <div className="w-48">
-            <select
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-adult-green focus:border-transparent appearance-none bg-white"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Status</option>
-              <option value="review">Review</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Table */}
+    <>
       <Table
         columns={columns}
-        data={filteredGuides}
+        data={guides}
         emptyMessage="No guides found. Click 'Add Guide' to create your first guide."
         loading={loading}
         pagination={{
@@ -491,7 +384,7 @@ const GuidesTable: React.FC = () => {
           onGuideUpdated={handleGuideUpdated}
         />
       )}
-    </div>
+    </>
   );
 };
 
