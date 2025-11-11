@@ -6,6 +6,7 @@ import Badge from "@/components/ui/Badge";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import type { GovGuide, GuideStatus } from "@/types/govguide";
 import { formatDate } from "@/constants/formatDate";
+import EditGuideModal from "./EditGuideModal";
 
 // Guide Status Badge Component
 const GuideStatusBadge = React.memo<{ status: GuideStatus }>(({ status }) => {
@@ -179,6 +180,8 @@ const GuidesTable: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [agencyFilter, setAgencyFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedGuide, setSelectedGuide] = useState<GovGuide | null>(null);
 
   // Mock data - replace with actual API call
   const guides: GovGuide[] = useMemo(
@@ -271,9 +274,27 @@ const GuidesTable: React.FC = () => {
     });
   }, [guides, searchQuery, agencyFilter, statusFilter]);
 
-  const handleEditGuide = useCallback((guideId: string) => {
-    console.log("Edit guide:", guideId);
-    // TODO: Implement edit functionality
+  const handleEditGuide = useCallback(
+    (guideId: string) => {
+      const guide = filteredGuides.find((g) => g.id === guideId);
+
+      if (guide) {
+        setSelectedGuide(guide);
+        setEditModalOpen(true);
+      }
+    },
+    [filteredGuides],
+  );
+
+  const handleGuideUpdated = useCallback(() => {
+    // TODO: Refetch guides from API
+    setEditModalOpen(false);
+    setSelectedGuide(null);
+  }, []);
+
+  const handleCloseEditModal = useCallback(() => {
+    setEditModalOpen(false);
+    setSelectedGuide(null);
   }, []);
 
   const handlePreviewGuide = useCallback((guideId: string) => {
@@ -460,6 +481,16 @@ const GuidesTable: React.FC = () => {
           pageSizeOptions: [10, 25, 50, 100],
         }}
       />
+
+      {/* Edit Modal */}
+      {selectedGuide && (
+        <EditGuideModal
+          guide={selectedGuide}
+          open={editModalOpen}
+          onClose={handleCloseEditModal}
+          onGuideUpdated={handleGuideUpdated}
+        />
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useState, useCallback } from "react";
+import React, { memo, useState, useCallback, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
@@ -11,16 +11,21 @@ import {
   categoryLabels,
 } from "@/validators/guideSchema";
 import { addToast } from "@heroui/toast";
+import type { GovGuide } from "@/types/govguide";
 
-interface AddGuideModalProps {
+interface EditGuideModalProps {
   open?: boolean;
   onClose?: () => void;
+  guide: GovGuide | null;
+  onGuideUpdated?: () => void;
 }
 
-function AddGuideModal({
+function EditGuideModal({
   open = false,
   onClose = () => {},
-}: AddGuideModalProps) {
+  guide,
+  onGuideUpdated,
+}: EditGuideModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -29,7 +34,7 @@ function AddGuideModal({
     formState: { errors, isDirty },
     reset,
     control,
-    watch,
+    setValue,
   } = useForm({
     resolver: zodResolver(addGuideSchema),
     defaultValues: {
@@ -55,6 +60,7 @@ function AddGuideModal({
     fields: stepFields,
     append: appendStep,
     remove: removeStep,
+    replace: replaceSteps,
   } = useFieldArray({
     control,
     name: "steps",
@@ -64,31 +70,69 @@ function AddGuideModal({
     fields: requirementFields,
     append: appendRequirement,
     remove: removeRequirement,
+    replace: replaceRequirements,
   } = useFieldArray({
     control,
     name: "requirements",
   });
 
+  // Populate form when guide changes
+  useEffect(() => {
+    if (guide && open) {
+      // TODO: Fetch full guide details with steps and requirements from API
+      // For now, using mock data structure
+      setValue("title", guide.title);
+      setValue("issuingAgency", guide.issuingAgency);
+      setValue("category", guide.category);
+      setValue("summary", guide.summary || "");
+      setValue("estimatedProcessingTime", guide.estimatedProcessingTime || "");
+      setValue("feeAmount", guide.feeAmount);
+      setValue("feeCurrency", guide.feeCurrency);
+      setValue("status", guide.status);
+
+      // TODO: Replace with actual steps from API
+      // Mock steps data
+      replaceSteps([
+        { stepNumber: 1, title: "Step 1 placeholder" },
+        { stepNumber: 2, title: "Step 2 placeholder" },
+      ]);
+
+      // TODO: Replace with actual requirements from API
+      // Mock requirements data
+      replaceRequirements([
+        {
+          name: "Requirement 1",
+          description: "Description 1",
+        },
+      ]);
+    }
+  }, [guide, open, setValue, replaceSteps, replaceRequirements]);
+
   const onSubmit = useCallback(
     handleSubmit(async (data: AddGuideForm) => {
+      if (!guide) return;
+
       setIsSubmitting(true);
-      
+
       try {
         // TODO: Replace with actual API call
-        console.log("Guide data:", data);
-        
+        console.log("Update guide:", guide.id, data);
+
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        
+
         handleClose();
+        if (onGuideUpdated) {
+          onGuideUpdated();
+        }
         addToast({
-          title: "Guide created successfully",
+          title: "Guide updated successfully",
           color: "success",
           timeout: 4000,
         });
       } catch (error: any) {
         addToast({
-          title: error?.message || "Failed to create guide",
+          title: error?.message || "Failed to update guide",
           color: "danger",
           timeout: 4000,
         });
@@ -96,7 +140,7 @@ function AddGuideModal({
         setIsSubmitting(false);
       }
     }),
-    [handleSubmit],
+    [handleSubmit, guide, onGuideUpdated],
   );
 
   const handleClose = useCallback(() => {
@@ -115,8 +159,10 @@ function AddGuideModal({
     });
   };
 
+  if (!guide) return null;
+
   return (
-    <Modal open={open} title="Add New Guide" onClose={handleClose}>
+    <Modal open={open} title="Edit Guide" onClose={handleClose}>
       <form className="space-y-6" onSubmit={onSubmit}>
         {/* Basic Information */}
         <div className="space-y-4">
@@ -414,7 +460,7 @@ function AddGuideModal({
             loading={isSubmitting}
             type="submit"
           >
-            Create Guide
+            Update Guide
           </LoadingButton>
         </div>
       </form>
@@ -422,4 +468,4 @@ function AddGuideModal({
   );
 }
 
-export default memo(AddGuideModal);
+export default memo(EditGuideModal);
