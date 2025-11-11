@@ -64,11 +64,12 @@ export function mapResumeDataToCreatePayload(
 }
 
 export function mapResumeDataToUpdatePayload(
-  data: ResumeData
+  data: ResumeData & { status?: "draft" | "completed" }
 ): UpdateResumeInput {
   const payload: UpdateResumeInput = {};
 
   if (data.title !== undefined) payload.title = data.title;
+  if (data.status !== undefined) payload.status = data.status;
   if (data.firstName !== undefined) payload.firstName = data.firstName;
   if (data.lastName !== undefined) payload.lastName = data.lastName;
   if (data.jobPosition !== undefined) payload.jobPosition = data.jobPosition;

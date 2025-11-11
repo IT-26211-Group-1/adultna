@@ -1,9 +1,11 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import NextLink from "next/link";
 import ResumePreview from "./ResumePreview";
 import { ResumeData } from "@/validators/resumeSchema";
+import { useExportResume } from "@/hooks/queries/useResumeQueries";
+import { addToast } from "@heroui/toast";
+import { useRouter } from "next/navigation";
 
 interface CompletedProps {
   resumeData: ResumeData;
@@ -11,7 +13,38 @@ interface CompletedProps {
 }
 
 export default function Completed({ resumeData }: CompletedProps) {
-  const handleExportToPDF = () => {};
+  const router = useRouter();
+  const exportResume = useExportResume();
+
+  const handleExportToPDF = () => {
+    if (resumeData.id) {
+      exportResume.mutate(resumeData.id, {
+        onSuccess: () => {
+          addToast({
+            title: "Resume exported successfully",
+            color: "success",
+          });
+        },
+        onError: (error: any) => {
+          addToast({
+            title: "Failed to export resume",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+        },
+      });
+    }
+  };
+
+  const handleEditResume = () => {
+    if (resumeData.id) {
+      router.push(`/resume-builder/editor?resumeId=${resumeData.id}&step=contact`);
+    }
+  };
+
+  const handleStartNewResume = () => {
+    router.push("/resume-builder");
+  };
 
   return (
     <div className="flex grow pt-16 flex-col">
@@ -36,31 +69,38 @@ export default function Completed({ resumeData }: CompletedProps) {
                 </div>
 
                 <div className="space-y-3">
-                  <NextLink className="block" href="/resume-builder/editor">
-                    <Button className="w-full py-3 text-base" variant="bordered">
-                      Edit Resume
-                    </Button>
-                  </NextLink>
+                  <Button
+                    className="w-full py-3 text-base"
+                    variant="bordered"
+                    onPress={handleEditResume}
+                  >
+                    Edit Resume
+                  </Button>
+
+                  <Button
+                    className="w-full py-3 text-base"
+                    isLoading={exportResume.isPending}
+                    variant="bordered"
+                    onPress={handleExportToPDF}
+                  >
+                    {exportResume.isPending ? "Exporting..." : "Export to PDF"}
+                  </Button>
 
                   <Button
                     className="w-full py-3 text-base"
                     variant="bordered"
-                    onPress={handleExportToPDF}
+                    onPress={() => router.push("/cover-letters")}
                   >
-                    Export to PDF
+                    Create Cover Letter
                   </Button>
 
-                  <NextLink className="block" href="/cover-letters">
-                    <Button className="w-full py-3 text-base" variant="bordered">
-                      Create Cover Letter
-                    </Button>
-                  </NextLink>
-
-                  <NextLink className="block" href="/resume-builder/editor">
-                    <Button className="w-full py-3 text-base" variant="bordered">
-                      Start New Resume
-                    </Button>
-                  </NextLink>
+                  <Button
+                    className="w-full py-3 text-base"
+                    variant="bordered"
+                    onPress={handleStartNewResume}
+                  >
+                    Start New Resume
+                  </Button>
                 </div>
               </div>
             </div>

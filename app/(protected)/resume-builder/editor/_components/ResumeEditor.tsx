@@ -59,6 +59,15 @@ export default function ResumeEditor() {
     }
   }, [existingResume, loadedResumeId]);
 
+  // Reset completion state when step changes (for Edit Resume functionality)
+  const previousStepRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (currentStep !== previousStepRef.current && isCompleted) {
+      setIsCompleted(false);
+    }
+    previousStepRef.current = currentStep;
+  }, [currentStep, isCompleted]);
+
   const createResume = useCreateResume();
   const updateResume = useUpdateResume(currentResumeId || "");
   const exportResume = useExportResume();
@@ -97,9 +106,11 @@ export default function ResumeEditor() {
   }, [resumeData, currentStep]);
 
   const handleSave = useCallback(
-    async (onSuccessCallback?: () => void) => {
+    async (onSuccessCallback?: () => void, dataOverrides?: Partial<ResumeData & { status?: "draft" | "completed" }>) => {
+      const dataToSave = { ...resumeData, ...dataOverrides };
+
       if (!currentResumeId && templateId && isValidTemplateId(templateId)) {
-        const payload = mapResumeDataToCreatePayload(resumeData, templateId);
+        const payload = mapResumeDataToCreatePayload(dataToSave, templateId);
 
         createResume.mutate(payload, {
           onSuccess: (newResume) => {
@@ -125,13 +136,13 @@ export default function ResumeEditor() {
             });
           },
         });
-      } else if (currentResumeId && resumeData.firstName) {
-        const payload = mapResumeDataToUpdatePayload(resumeData);
+      } else if (currentResumeId && dataToSave.firstName) {
+        const payload = mapResumeDataToUpdatePayload(dataToSave);
 
         updateResume.mutate(payload, {
           onSuccess: () => {
             setHasUnsavedChanges(false);
-            lastSavedDataRef.current = { ...resumeData };
+            lastSavedDataRef.current = { ...dataToSave };
             if (onSuccessCallback) {
               onSuccessCallback();
             }
@@ -246,12 +257,14 @@ export default function ResumeEditor() {
 
           setStep(nextStep.key);
         } else {
-          console.log("Resume completed!", resumeData);
+          setResumeData((prev) => ({ ...prev, status: "completed" } as any));
           setIsCompleted(true);
         }
       };
 
-      handleSave(navigateNext);
+      // If completing the last step, mark resume as completed when saving
+      const statusOverride = isLastStep ? { status: "completed" as const } : undefined;
+      handleSave(navigateNext, statusOverride);
     }
   };
 
