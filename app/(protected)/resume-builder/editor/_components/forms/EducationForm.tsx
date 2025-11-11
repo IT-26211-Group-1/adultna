@@ -38,6 +38,7 @@ export default function EducationForm({
   setResumeData,
 }: EditorFormProps) {
   const isSyncingRef = useRef(false);
+  const previousDataRef = useRef<string>("");
 
   const form = useForm<EducationFormData>({
     resolver: zodResolver(educationSchema),
@@ -113,9 +114,14 @@ export default function EducationForm({
 
   useEffect(() => {
     if (!isSyncingRef.current && resumeData.educationItems && resumeData.educationItems.length > 0) {
-      form.reset({
-        educationItems: resumeData.educationItems,
-      });
+      const currentData = JSON.stringify(resumeData.educationItems);
+
+      if (previousDataRef.current !== currentData) {
+        form.reset({
+          educationItems: resumeData.educationItems,
+        });
+        previousDataRef.current = currentData;
+      }
     }
   }, [resumeData.educationItems, form]);
 

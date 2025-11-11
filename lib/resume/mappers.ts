@@ -8,6 +8,17 @@ import type { TemplateId } from "@/constants/templates";
 
 type OrderedItem<T> = T & { order: number };
 
+function formatDateToISO(date: Date | undefined): string | undefined {
+  if (!date) return undefined;
+  if (!(date instanceof Date)) return undefined;
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
 function addOrderToArray<T>(items?: T[]): OrderedItem<T>[] | undefined {
   if (!items || items.length === 0) return undefined;
 
@@ -31,11 +42,20 @@ export function mapResumeDataToCreatePayload(
     phone: data.phone || "",
     city: data.city,
     region: data.region,
-    birthDate: data.birthDate,
+    birthDate: formatDateToISO(data.birthDate as Date | undefined) as any,
     linkedin: data.linkedin,
     portfolio: data.portfolio,
-    workExperiences: addOrderToArray(data.workExperiences),
-    educationItems: addOrderToArray(data.educationItems),
+    workExperiences: data.workExperiences?.map((exp, index) => ({
+      ...exp,
+      startDate: formatDateToISO(exp.startDate as Date | undefined) as any,
+      endDate: formatDateToISO(exp.endDate as Date | undefined) as any,
+      order: index,
+    })),
+    educationItems: data.educationItems?.map((edu, index) => ({
+      ...edu,
+      graduationDate: formatDateToISO(edu.graduationDate as Date | undefined) as any,
+      order: index,
+    })),
     certificates: addOrderToArray(data.certificates),
     skills: data.skills?.map((skillItem, index) => ({
       skill: skillItem.skill,
@@ -60,18 +80,29 @@ export function mapResumeDataToUpdatePayload(
   if (data.phone !== undefined) payload.phone = data.phone;
   if (data.city !== undefined) payload.city = data.city;
   if (data.region !== undefined) payload.region = data.region;
-  if (data.birthDate !== undefined) payload.birthDate = data.birthDate;
+  if (data.birthDate !== undefined) {
+    payload.birthDate = formatDateToISO(data.birthDate as Date | undefined) as any;
+  }
   if (data.linkedin !== undefined) payload.linkedin = data.linkedin;
   if (data.portfolio !== undefined) payload.portfolio = data.portfolio;
   if (data.summary !== undefined) payload.summary = data.summary;
   if (data.colorHex !== undefined) payload.colorHex = data.colorHex;
 
   if (data.workExperiences !== undefined) {
-    payload.workExperiences = addOrderToArray(data.workExperiences);
+    payload.workExperiences = data.workExperiences.map((exp, index) => ({
+      ...exp,
+      startDate: formatDateToISO(exp.startDate as Date | undefined) as any,
+      endDate: formatDateToISO(exp.endDate as Date | undefined) as any,
+      order: index,
+    }));
   }
 
   if (data.educationItems !== undefined) {
-    payload.educationItems = addOrderToArray(data.educationItems);
+    payload.educationItems = data.educationItems.map((edu, index) => ({
+      ...edu,
+      graduationDate: formatDateToISO(edu.graduationDate as Date | undefined) as any,
+      order: index,
+    }));
   }
 
   if (data.certificates !== undefined) {

@@ -43,6 +43,7 @@ export default function WorkExperienceForm({
   setResumeData,
 }: EditorFormProps) {
   const isSyncingRef = useRef(false);
+  const previousDataRef = useRef<string>("");
 
   const form = useForm<WorkExperienceData>({
     resolver: zodResolver(workSchema),
@@ -119,9 +120,14 @@ export default function WorkExperienceForm({
 
   useEffect(() => {
     if (!isSyncingRef.current && resumeData.workExperiences && resumeData.workExperiences.length > 0) {
-      form.reset({
-        workExperiences: resumeData.workExperiences,
-      });
+      const currentData = JSON.stringify(resumeData.workExperiences);
+
+      if (previousDataRef.current !== currentData) {
+        form.reset({
+          workExperiences: resumeData.workExperiences,
+        });
+        previousDataRef.current = currentData;
+      }
     }
   }, [resumeData.workExperiences, form]);
 

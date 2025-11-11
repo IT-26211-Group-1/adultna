@@ -3,7 +3,7 @@
 import { Input, DatePicker } from "@heroui/react";
 import { ContactFormData, contactSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { CalendarDate } from "@internationalized/date";
 import { EditorFormProps } from "@/lib/resume/types";
@@ -13,6 +13,8 @@ export default function ContactForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
+  const isSyncingRef = useRef(false);
+  const previousDataRef = useRef<string>("");
   const [showJobPosition, setShowJobPosition] = useState(
     !!resumeData.jobPosition,
   );
@@ -40,9 +42,14 @@ export default function ContactForm({
     const isValid = await form.trigger();
 
     if (isValid) {
+      isSyncingRef.current = true;
       const values = form.getValues();
 
       setResumeData({ ...resumeData, ...values });
+
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 100);
     }
   }, [form, resumeData, setResumeData]);
 
@@ -60,21 +67,49 @@ export default function ContactForm({
   }, [form, debouncedSync]);
 
   useEffect(() => {
-    if (resumeData.firstName) {
-      form.reset({
-        email: resumeData.email || "",
-        phone: resumeData.phone || "",
-        firstName: resumeData.firstName || "",
-        lastName: resumeData.lastName || "",
-        jobPosition: resumeData.jobPosition || "",
-        city: resumeData.city || "",
-        region: resumeData.region || "",
-        birthDate: resumeData.birthDate || undefined,
-        linkedin: resumeData.linkedin || "",
-        portfolio: resumeData.portfolio || "",
+    if (!isSyncingRef.current && (resumeData.firstName || resumeData.email)) {
+      const currentData = JSON.stringify({
+        firstName: resumeData.firstName,
+        lastName: resumeData.lastName,
+        email: resumeData.email,
+        phone: resumeData.phone,
+        jobPosition: resumeData.jobPosition,
+        city: resumeData.city,
+        region: resumeData.region,
+        birthDate: resumeData.birthDate,
+        linkedin: resumeData.linkedin,
+        portfolio: resumeData.portfolio,
       });
+
+      if (previousDataRef.current !== currentData) {
+        form.reset({
+          email: resumeData.email || "",
+          phone: resumeData.phone || "",
+          firstName: resumeData.firstName || "",
+          lastName: resumeData.lastName || "",
+          jobPosition: resumeData.jobPosition || "",
+          city: resumeData.city || "",
+          region: resumeData.region || "",
+          birthDate: resumeData.birthDate || undefined,
+          linkedin: resumeData.linkedin || "",
+          portfolio: resumeData.portfolio || "",
+        });
+        previousDataRef.current = currentData;
+      }
     }
-  }, [resumeData, form]);
+  }, [
+    resumeData.firstName,
+    resumeData.lastName,
+    resumeData.email,
+    resumeData.phone,
+    resumeData.jobPosition,
+    resumeData.city,
+    resumeData.region,
+    resumeData.birthDate,
+    resumeData.linkedin,
+    resumeData.portfolio,
+    form,
+  ]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">

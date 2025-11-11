@@ -184,7 +184,7 @@ export default function HybridTemplate({
           </div>
           <div className="space-y-2">
             {resumeData.skills.slice(0, 6).map((skillItem, index) => {
-              const proficiency = skillItem.proficiency || 0;
+              const proficiency = skillItem.proficiency ?? 0;
 
               return (
                 <div key={index} className="flex items-center gap-3">
@@ -198,7 +198,7 @@ export default function HybridTemplate({
                         className="w-3 h-3"
                         style={{
                           backgroundColor:
-                            i < proficiency ? accentColor : "white",
+                            i < proficiency ? accentColor : "#e5e7eb",
                           border: `1px solid ${accentColor}`,
                         }}
                       />

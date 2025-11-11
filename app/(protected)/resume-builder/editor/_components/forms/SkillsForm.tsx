@@ -5,7 +5,7 @@ import { SkillFormData, skillSchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import AISuggestions from "../AISuggestions";
 import { debounce } from "@/lib/utils/debounce";
 import ProficiencyRating from "../ProficiencyRating";
@@ -18,6 +18,7 @@ export default function SkillsForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
+  const previousDataRef = useRef<string>("");
   const [skills, setSkills] = useState<Skill[]>(resumeData.skills || []);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
@@ -165,14 +166,19 @@ export default function SkillsForm({
 
   useEffect(() => {
     if (resumeData.skills && resumeData.skills.length > 0) {
-      const skillsData = resumeData.skills;
+      const currentData = JSON.stringify(resumeData.skills);
 
-      setSkills(skillsData);
-      form.reset({
-        skills: skillsData,
-      });
+      if (previousDataRef.current !== currentData) {
+        const skillsData = resumeData.skills;
+
+        setSkills(skillsData);
+        form.reset({
+          skills: skillsData,
+        });
+        previousDataRef.current = currentData;
+      }
     }
-  }, [resumeData, form]);
+  }, [resumeData.skills, form]);
 
   return (
     <div className="mx-auto max-w-xl space-y-6">

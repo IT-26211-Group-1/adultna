@@ -7,14 +7,16 @@ import {
   GenerateWorkDescriptionResponse,
   GenerateSkillsSuggestionsInput,
   GenerateSkillsSuggestionsResponse,
-} from "@/types/ai";
+  GenerateSummarySuggestionsInput,
+  GenerateSummarySuggestionsResponse,
+} from "@/types/resume";
 
 export function useGenerateWorkDescriptionSuggestions(resumeId: string) {
   return useMutation({
     mutationFn: async (data: GenerateWorkDescriptionInput) => {
       const response = await ApiClient.post<GenerateWorkDescriptionResponse>(
         `/resumes/${resumeId}/ai/work-description-suggestions`,
-        data,
+        data
       );
 
       return response.suggestions || [];
@@ -27,7 +29,20 @@ export function useGenerateSkillsSuggestions(resumeId: string) {
     mutationFn: async (data: GenerateSkillsSuggestionsInput) => {
       const response = await ApiClient.post<GenerateSkillsSuggestionsResponse>(
         `/resumes/${resumeId}/ai/skills-suggestions`,
-        data,
+        data
+      );
+
+      return response.suggestions || [];
+    },
+  });
+}
+
+export function useGenerateSummarySuggestions(resumeId: string) {
+  return useMutation({
+    mutationFn: async (data: GenerateSummarySuggestionsInput) => {
+      const response = await ApiClient.post<GenerateSummarySuggestionsResponse>(
+        `/resumes/${resumeId}/ai/summary-suggestions`,
+        data
       );
 
       return response.suggestions || [];

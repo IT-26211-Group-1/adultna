@@ -10,6 +10,7 @@ import { LoadingButton } from "@/components/ui/Button";
 import Completed from "./Completed";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
 import { ExportButton } from "./ExportButton";
+import { BackButton } from "@/components/ui/BackButton";
 import {
   useResume,
   useCreateResume,
@@ -36,13 +37,13 @@ export default function ResumeEditor() {
   const resumeId = searchParams.get("resumeId") || null;
 
   const { data: existingResume, isLoading: isLoadingResume } = useResume(
-    resumeId || undefined,
+    resumeId || undefined
   );
 
   const [loadedResumeId, setLoadedResumeId] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(
-    resumeId,
+    resumeId
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const lastSavedDataRef = useRef<ResumeData | null>(null);
@@ -51,7 +52,7 @@ export default function ResumeEditor() {
   const [resumeData, setResumeData] = useState<ResumeData>(() =>
     existingResume
       ? mapApiResumeToResumeData(existingResume)
-      : ({} as ResumeData),
+      : ({} as ResumeData)
   );
 
   useEffect(() => {
@@ -70,11 +71,11 @@ export default function ResumeEditor() {
   const isExporting = exportResume.isPending;
 
   const FormComponent = steps.find(
-    (step) => step.key === currentStep,
+    (step) => step.key === currentStep
   )?.component;
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
   const currentStepTitle = steps.find(
-    (step) => step.key === currentStep,
+    (step) => step.key === currentStep
   )?.title;
   const isLastStep = currentStepIndex === steps.length - 1;
   const isContactForm = currentStep === "contact";
@@ -161,7 +162,7 @@ export default function ResumeEditor() {
       updateResume,
       searchParams,
       router,
-    ],
+    ]
   );
 
   // Auto-save when resumeData changes
@@ -172,7 +173,7 @@ export default function ResumeEditor() {
           handleSave();
         }
       }, 1000),
-    [handleSave],
+    [handleSave]
   );
 
   useEffect(() => {
@@ -260,6 +261,14 @@ export default function ResumeEditor() {
     }
   };
 
+  const handleBack = () => {
+    if (currentStepIndex > 0) {
+      const previousStep = steps[currentStepIndex - 1];
+
+      setStep(previousStep.key);
+    }
+  };
+
   const handleExport = () => {
     if (currentResumeId) {
       exportResume.mutate(currentResumeId, {
@@ -289,24 +298,31 @@ export default function ResumeEditor() {
     setResumeData((prev) => ({ ...prev, title: newTitle }));
   };
 
+  const handleBackToResumes = () => {
+    router.push("/resume-builder/my-resumes");
+  };
+
   return (
     <div className="flex grow flex-col min-h-screen">
       <header className="border-b px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex-1">
-            {currentResumeId ? (
-              <InlineEditableTitle
-                currentTitle={
-                  resumeData.title || existingResume?.title || "Untitled Resume"
-                }
-                resumeId={currentResumeId}
-                onTitleChange={handleTitleChange}
-              />
-            ) : (
-              <h1 className="text-2xl font-bold">
-                {resumeData.title || "Untitled Resume"}
-              </h1>
-            )}
+          <div className="flex items-center gap-4 flex-1">
+            <BackButton onClick={handleBackToResumes} />
+            <div className="flex-1">
+              {currentResumeId ? (
+                <InlineEditableTitle
+                  currentTitle={
+                    resumeData.title || existingResume?.title || "Untitled Resume"
+                  }
+                  resumeId={currentResumeId}
+                  onTitleChange={handleTitleChange}
+                />
+              ) : (
+                <h1 className="text-2xl font-bold">
+                  {resumeData.title || "Untitled Resume"}
+                </h1>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
             {currentResumeId && (
@@ -334,6 +350,11 @@ export default function ResumeEditor() {
             </div>
             <div className="p-6">
               <div className="max-w-xs mx-auto space-y-3">
+                {!isContactForm && (
+                  <div className="mb-4">
+                    <BackButton onClick={handleBack} />
+                  </div>
+                )}
                 <LoadingButton
                   className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!isFormValid}

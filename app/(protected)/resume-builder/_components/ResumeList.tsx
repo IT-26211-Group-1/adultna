@@ -83,11 +83,13 @@ export function ResumeList() {
     }
   };
 
-  const normalizeSkills = (skills: any): string[] => {
+  const normalizeSkills = (skills: any) => {
     if (!Array.isArray(skills)) return [];
 
     return skills.map((skill) =>
-      typeof skill === "string" ? skill : skill.skill,
+      typeof skill === "string"
+        ? { skill, proficiency: 0 }
+        : skill,
     );
   };
 

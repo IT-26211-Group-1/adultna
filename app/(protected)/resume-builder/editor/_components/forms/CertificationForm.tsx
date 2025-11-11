@@ -8,7 +8,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo, useRef } from "react";
 import { PlusIcon, TrashIcon, GripHorizontal } from "lucide-react";
 import { debounce } from "@/lib/utils/debounce";
 import {
@@ -34,6 +34,8 @@ export default function CertificationForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
+  const previousDataRef = useRef<string>("");
+
   const form = useForm<CertificationFormData>({
     resolver: zodResolver(certificationSchema),
     defaultValues: {
@@ -101,11 +103,16 @@ export default function CertificationForm({
 
   useEffect(() => {
     if (resumeData.certificates && resumeData.certificates.length > 0) {
-      form.reset({
-        certificates: resumeData.certificates,
-      });
+      const currentData = JSON.stringify(resumeData.certificates);
+
+      if (previousDataRef.current !== currentData) {
+        form.reset({
+          certificates: resumeData.certificates,
+        });
+        previousDataRef.current = currentData;
+      }
     }
-  }, [resumeData, form]);
+  }, [resumeData.certificates, form]);
 
   const addCertification = () => {
     append({

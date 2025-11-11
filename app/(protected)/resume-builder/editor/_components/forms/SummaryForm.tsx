@@ -1,21 +1,27 @@
 "use client";
 
-import { Textarea } from "@heroui/react";
+import { Textarea, Button } from "@heroui/react";
 import { SummaryFormData, summarySchema } from "@/validators/resumeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import AISuggestions from "../AISuggestions";
 import { debounce } from "@/lib/utils/debounce";
+import { useGenerateSummarySuggestions } from "@/hooks/queries/useAIQueries";
+import { addToast } from "@heroui/toast";
+import { Sparkles } from "lucide-react";
 
 export default function SummaryForm({
   resumeData,
   setResumeData,
 }: EditorFormProps) {
+  const previousDataRef = useRef<string>("");
   const [summaryText, setSummaryText] = useState<string>(
     resumeData.summary || "",
   );
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
   const form = useForm<SummaryFormData>({
     resolver: zodResolver(summarySchema),
@@ -23,6 +29,10 @@ export default function SummaryForm({
       summary: resumeData.summary || "",
     },
   });
+
+  const generateSummarySuggestions = useGenerateSummarySuggestions(
+    resumeData.id || "",
+  );
 
   // Update form when summaryText changes
   useEffect(() => {
@@ -54,28 +64,76 @@ export default function SummaryForm({
 
   useEffect(() => {
     if (resumeData.summary) {
-      const summary = resumeData.summary;
+      const currentData = resumeData.summary;
 
-      setSummaryText(summary);
-      form.reset({
-        summary,
-      });
+      if (previousDataRef.current !== currentData) {
+        setSummaryText(currentData);
+        form.reset({
+          summary: currentData,
+        });
+        previousDataRef.current = currentData;
+      }
     }
-  }, [resumeData, form]);
+  }, [resumeData.summary, form]);
 
-  // Function to count words in the summary
   const getWordCount = (text: string): number => {
     if (!text || text.trim() === "") return 0;
 
     return text.trim().split(/\s+/).length;
   };
 
-  // Test data lang for the design
-  const aiSummaryOptions: string[] = ["4th Year BSIT student sa fras"];
-
   const handleApplySummary = (summary: string) => {
     setSummaryText(summary);
     form.setValue("summary", summary);
+  };
+
+  const handleGenerateAISuggestions = async () => {
+    if (!resumeData.jobPosition && (!resumeData.workExperiences || resumeData.workExperiences.length === 0)) {
+      addToast({
+        title: "Missing information",
+        description:
+          "Please add a job position or work experience before generating summary suggestions",
+        color: "warning",
+      });
+
+      return;
+    }
+
+    setIsGeneratingAI(true);
+
+    try {
+      const suggestions = await generateSummarySuggestions.mutateAsync({
+        jobPosition: resumeData.jobPosition,
+        workExperiences: resumeData.workExperiences?.map((exp) => ({
+          jobTitle: exp.jobTitle,
+          employer: exp.employer,
+          description: exp.description,
+        })),
+        educationItems: resumeData.educationItems?.map((edu) => ({
+          degree: edu.degree,
+          institution: edu.schoolName,
+          fieldOfStudy: edu.fieldOfStudy,
+        })),
+        skills: resumeData.skills?.map((s) => s.skill).filter(Boolean),
+        existingSummary: summaryText || undefined,
+      });
+
+      setAiSuggestions(suggestions);
+
+      addToast({
+        title: "AI suggestions generated",
+        description: "Click to add a summary to your resume",
+        color: "success",
+      });
+    } catch {
+      addToast({
+        title: "Failed to generate suggestions",
+        description: "Please try again",
+        color: "danger",
+      });
+    } finally {
+      setIsGeneratingAI(false);
+    }
   };
 
   return (
@@ -89,6 +147,20 @@ export default function SummaryForm({
       </div>
 
       <form className="space-y-6">
+        <div className="flex justify-center">
+          <Button
+            color="success"
+            isLoading={isGeneratingAI}
+            size="sm"
+            startContent={isGeneratingAI ? null : <Sparkles size={16} />}
+            type="button"
+            variant="flat"
+            onPress={handleGenerateAISuggestions}
+          >
+            {isGeneratingAI ? "Generating..." : "Get AI Suggestions"}
+          </Button>
+        </div>
+
         <Textarea
           description={`${summaryText ? `${getWordCount(summaryText)} / 250 words` : "Maximum 250 words"}`}
           errorMessage={form.formState.errors.summary?.message}
@@ -99,12 +171,11 @@ export default function SummaryForm({
           onChange={(e) => setSummaryText(e.target.value)}
         />
 
-        {/* Only show AISuggestions when aiSummaryOptions has data */}
-        {aiSummaryOptions.length > 0 && (
+        {aiSuggestions.length > 0 && (
           <AISuggestions
             buttonType="addSummary"
             subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
-            suggestions={aiSummaryOptions}
+            suggestions={aiSuggestions}
             title={
               `AI Recommendations for ${resumeData.firstName || ""} ${resumeData.lastName || ""}`.trim() +
               "'s Professional Summary"
