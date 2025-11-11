@@ -16,7 +16,6 @@ export const addGuideSchema = z.object({
   summary: z.string().optional(),
   estimatedProcessingTime: z.string().optional(),
   feeAmount: z.number().min(0).optional().nullable(),
-  feeCurrency: z.string().default("PHP"),
   status: z.enum(["review", "published", "archived"]).default("review"),
   steps: z.array(guideStepSchema).min(1, "At least one step is required"),
   requirements: z.array(guideRequirementSchema).min(1, "At least one requirement is required"),

@@ -37,7 +37,6 @@ function AddGuideModal({
       summary: "",
       estimatedProcessingTime: "",
       feeAmount: null,
-      feeCurrency: "PHP",
       status: "review" as const,
       steps: [{ stepNumber: 1, title: "" }],
       requirements: [

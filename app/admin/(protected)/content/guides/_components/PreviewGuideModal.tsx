@@ -33,7 +33,7 @@ function PreviewGuideModal({
 
   return (
     <Modal open={open} title="Guide Preview" onClose={onClose}>
-      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+      <div className="space-y-6">
         {/* Header Section */}
         <div className="space-y-4">
           <div className="flex items-start justify-between gap-4">
@@ -85,7 +85,7 @@ function PreviewGuideModal({
               </label>
               <p className="mt-1 text-gray-900">
                 {guide.feeAmount !== null && guide.feeAmount !== undefined
-                  ? `${guide.feeCurrency} ${guide.feeAmount.toFixed(2)}`
+                  ? `PHP ${guide.feeAmount.toFixed(2)}`
                   : "Free"}
               </p>
             </div>

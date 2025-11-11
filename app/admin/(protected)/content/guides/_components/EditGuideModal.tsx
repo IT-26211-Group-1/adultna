@@ -42,7 +42,6 @@ function EditGuideModal({
       summary: "",
       estimatedProcessingTime: "",
       feeAmount: null,
-      feeCurrency: "PHP",
       status: "review" as const,
       steps: [{ stepNumber: 1, title: "" }],
       requirements: [
@@ -84,7 +83,6 @@ function EditGuideModal({
       setValue("summary", guide.summary || "");
       setValue("estimatedProcessingTime", guide.estimatedProcessingTime || "");
       setValue("feeAmount", guide.feeAmount);
-      setValue("feeCurrency", guide.feeCurrency);
       setValue("status", guide.status);
 
       // TODO: Replace with actual steps from API
