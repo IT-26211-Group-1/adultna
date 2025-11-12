@@ -124,12 +124,12 @@ export class ApiClient {
           }
         }
 
-        throw new ApiError(
-          errorData?.message ||
-            `HTTP ${response.status}: ${response.statusText}`,
-          response.status,
-          errorData,
-        );
+        const errorMessage =
+          typeof errorData?.message === "string"
+            ? errorData.message
+            : `HTTP ${response.status}: ${response.statusText}`;
+
+        throw new ApiError(errorMessage, response.status, errorData);
       }
 
       const contentType = response.headers.get("content-type");
@@ -334,5 +334,14 @@ export const queryKeys = {
         : (["filebox", "list"] as const),
     detail: (fileId: string) => ["filebox", "detail", fileId] as const,
     quota: () => ["filebox", "quota"] as const,
+  },
+
+  // Resume queries
+  resumes: {
+    all: ["resumes"] as const,
+    list: () => ["resumes", "list"] as const,
+    detail: (resumeId: string) => ["resumes", "detail", resumeId] as const,
+    contactInfo: (resumeId: string) =>
+      ["resumes", "contactInfo", resumeId] as const,
   },
 } as const;
