@@ -2,7 +2,7 @@ import TextType from "../../../../components/TextType";
 
 export function ProblemText() {
   return (
-    <div className="max-w-4xl mx-auto text-center z-10 px-4 sm:px-6">
+    <div className="max-w-5xl mx-auto text-center z-10 px-4 sm:px-6 w-full">
       <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-playfair italic text-white leading-tight">
         <TextType
           cursorCharacter="|"
