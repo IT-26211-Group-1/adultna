@@ -39,12 +39,19 @@ const nextConfig = {
   },
 
   // Webpack optimizations
-  webpack: (config, { dev }) => {
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // Disable caching in development to prevent chunk loading errors
+      config.cache = false;
+    }
+
     if (!dev) {
       config.optimization = {
         ...config.optimization,
         moduleIds: "deterministic",
-        runtimeChunk: false,
+        runtimeChunk: {
+          name: (entrypoint) => `runtime-${entrypoint.name}`,
+        },
       };
     }
 

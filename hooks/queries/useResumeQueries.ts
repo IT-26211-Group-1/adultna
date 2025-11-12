@@ -543,15 +543,21 @@ export type CategoryScore = {
   strengths: string[];
   quantifiableMetricsCount?: number;
   metricsExamples?: string[];
+  missingKeywords?: string[];
+  synonymsFound?: string[];
+  keywordOverlapPercent?: number;
 };
 
 export type ATSGradingResult = {
   overallScore: number;
+  maxPossibleScore: number;
+  hasJobDescription: boolean;
   categoryScores: {
     keywordOptimization: CategoryScore;
     formatCompatibility: CategoryScore;
     sectionCompleteness: CategoryScore;
     contentQuality: CategoryScore;
+    jobMatchScore?: CategoryScore;
   };
   recommendations: string[];
   summary: string;

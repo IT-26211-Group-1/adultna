@@ -10,6 +10,9 @@ interface CategoryScore {
   strengths: string[];
   quantifiableMetricsCount?: number;
   metricsExamples?: string[];
+  missingKeywords?: string[];
+  synonymsFound?: string[];
+  keywordOverlapPercent?: number;
 }
 
 interface CategoryScoresProps {
@@ -18,6 +21,7 @@ interface CategoryScoresProps {
     formatCompatibility: CategoryScore;
     sectionCompleteness: CategoryScore;
     contentQuality: CategoryScore;
+    jobMatchScore?: CategoryScore;
   };
   className?: string;
 }
@@ -47,6 +51,15 @@ export function CategoryScores({
       label: "Content Quality",
       data: categoryScores.contentQuality,
     },
+    ...(categoryScores.jobMatchScore
+      ? [
+          {
+            key: "jobMatchScore",
+            label: "Job Match Score",
+            data: categoryScores.jobMatchScore,
+          },
+        ]
+      : []),
   ];
 
   const getColorClass = (score: number, maxScore: number) => {
@@ -103,6 +116,24 @@ export function CategoryScores({
                           {category.data.quantifiableMetricsCount} metrics
                         </Chip>
                       )}
+                    {(category.key === "jobMatchScore" ||
+                      category.key === "keywordOptimization") &&
+                      category.data.keywordOverlapPercent !== undefined && (
+                        <Chip
+                          color={
+                            category.data.keywordOverlapPercent >= 80
+                              ? "success"
+                              : category.data.keywordOverlapPercent >= 60
+                                ? "warning"
+                                : "danger"
+                          }
+                          size="sm"
+                          variant="flat"
+                        >
+                          {category.data.keywordOverlapPercent.toFixed(0)}%
+                          match
+                        </Chip>
+                      )}
                   </div>
                   <span className="text-sm font-semibold">
                     {category.data.score}/{category.data.maxScore}
@@ -122,15 +153,17 @@ export function CategoryScores({
                 {/* Strengths */}
                 {category.data.strengths.length > 0 && (
                   <div className="pl-6 space-y-1">
-                    {category.data.strengths.slice(0, 2).map((strength, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-1.5 text-xs text-green-700"
-                      >
-                        <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                        <span>{strength}</span>
-                      </div>
-                    ))}
+                    {category.data.strengths
+                      .slice(0, 2)
+                      .map((strength, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-1.5 text-xs text-green-700"
+                        >
+                          <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                          <span>{strength}</span>
+                        </div>
+                      ))}
                   </div>
                 )}
 
@@ -165,6 +198,50 @@ export function CategoryScores({
                               2,
                               category.data.metricsExamples!.length - 1,
                             )
+                              ? ", "
+                              : ""}
+                          </span>
+                        ))}
+                    </div>
+                  )}
+
+                {/* Missing Keywords (for Job Match Score and Keyword Optimization) */}
+                {(category.key === "jobMatchScore" ||
+                  category.key === "keywordOptimization") &&
+                  category.data.missingKeywords &&
+                  category.data.missingKeywords.length > 0 && (
+                    <div className="text-xs text-amber-700 pl-6 pt-1 space-y-1">
+                      <span className="font-medium">Missing keywords: </span>
+                      <div className="flex flex-wrap gap-1">
+                        {category.data.missingKeywords
+                          .slice(0, 5)
+                          .map((keyword, idx) => (
+                            <Chip
+                              key={idx}
+                              color="warning"
+                              size="sm"
+                              variant="flat"
+                            >
+                              {keyword}
+                            </Chip>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Synonyms Found (for Keyword Optimization) */}
+                {category.key === "keywordOptimization" &&
+                  category.data.synonymsFound &&
+                  category.data.synonymsFound.length > 0 && (
+                    <div className="text-xs text-green-700 pl-6 pt-1">
+                      <span className="font-medium">Synonyms found: </span>
+                      {category.data.synonymsFound
+                        .slice(0, 3)
+                        .map((synonym, idx) => (
+                          <span key={idx}>
+                            {synonym}
+                            {idx <
+                            Math.min(2, category.data.synonymsFound!.length - 1)
                               ? ", "
                               : ""}
                           </span>

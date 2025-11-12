@@ -165,7 +165,8 @@ export default function ResumeGrader() {
       } else {
         addToast({
           title: "Grading failed",
-          description: error?.message || "Failed to grade resume. Please try again.",
+          description:
+            error?.message || "Failed to grade resume. Please try again.",
           color: "danger",
         });
       }
@@ -173,10 +174,10 @@ export default function ResumeGrader() {
     }
   };
 
-  const getScoreVerdict = (score: number): string => {
-    if (score >= 90) return "Excellent!";
-    if (score >= 75) return "Good!";
-    if (score >= 60) return "Fair";
+  const getScoreVerdict = (passRate: string): string => {
+    if (passRate === "excellent") return "Excellent!";
+    if (passRate === "good") return "Good!";
+    if (passRate === "fair") return "Fair";
 
     return "Needs Work";
   };
@@ -354,13 +355,15 @@ export default function ResumeGrader() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-full overflow-y-auto">
             <div className="mb-6">
               <ResumeScoreGauge
+                maxPossibleScore={gradingResult.maxPossibleScore}
                 score={gradingResult.overallScore}
-                verdict={getScoreVerdict(gradingResult.overallScore)}
+                verdict={getScoreVerdict(gradingResult.passRate)}
               />
             </div>
 
             <div className="flex-1">
               <ResumeVerdict
+                hasJobDescription={gradingResult.hasJobDescription}
                 verdict={gradingResult.summary}
                 workingWell={getCategoryStrengths()}
               />

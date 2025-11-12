@@ -1,23 +1,38 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, Chip } from "@heroui/react";
+import { Target } from "lucide-react";
 
 interface ResumeVerdictProps {
   verdict: string;
   workingWell: string[];
+  hasJobDescription?: boolean;
   className?: string;
 }
 
 export function ResumeVerdict({
   verdict,
   workingWell,
+  hasJobDescription = false,
   className = "",
 }: ResumeVerdictProps) {
   return (
     <div className={`space-y-4 flex flex-col h-full ${className}`}>
       {/* Verdict Section */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Verdict:</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">Verdict:</h3>
+          {hasJobDescription && (
+            <Chip
+              color="secondary"
+              size="sm"
+              startContent={<Target className="w-3 h-3" />}
+              variant="flat"
+            >
+              Job-Targeted Analysis
+            </Chip>
+          )}
+        </div>
         <p className="text-sm text-gray-700 leading-relaxed">{verdict}</p>
       </div>
 

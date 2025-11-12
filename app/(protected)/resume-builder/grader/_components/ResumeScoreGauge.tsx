@@ -2,14 +2,22 @@
 
 interface ResumeScoreGaugeProps {
   score: number;
+  maxPossibleScore: number;
   verdict: string;
 }
 
-export function ResumeScoreGauge({ score, verdict }: ResumeScoreGaugeProps) {
-  // Determine color based on score
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "#10b981";
-    if (score >= 60) return "#f59e0b";
+export function ResumeScoreGauge({
+  score,
+  maxPossibleScore,
+  verdict,
+}: ResumeScoreGaugeProps) {
+  // Calculate percentage
+  const percentage = (score / maxPossibleScore) * 100;
+
+  // Determine color based on percentage
+  const getScoreColor = (percentage: number) => {
+    if (percentage >= 80) return "#10b981";
+    if (percentage >= 60) return "#f59e0b";
 
     return "#ef4444";
   };
@@ -32,15 +40,18 @@ export function ResumeScoreGauge({ score, verdict }: ResumeScoreGaugeProps) {
             className="transition-all duration-1000"
             d="M 20 100 A 80 80 0 0 1 180 100"
             fill="none"
-            stroke={getScoreColor(score)}
-            strokeDasharray={`${(score / 100) * 251.2} 251.2`}
+            stroke={getScoreColor(percentage)}
+            strokeDasharray={`${(percentage / 100) * 251.2} 251.2`}
             strokeLinecap="round"
             strokeWidth="20"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center pt-8">
-          <span className="text-5xl font-bold">{score}%</span>
-          <span className="text-lg text-gray-600 mt-2">{verdict}</span>
+          <span className="text-5xl font-bold">{Math.round(percentage)}%</span>
+          <span className="text-sm text-gray-500">
+            {score}/{maxPossibleScore}
+          </span>
+          <span className="text-lg text-gray-600 mt-1">{verdict}</span>
         </div>
       </div>
     </div>

@@ -167,7 +167,8 @@ export function ImportResume() {
       } else {
         addToast({
           title: "Import failed",
-          description: error?.message || "Failed to import resume. Please try again.",
+          description:
+            error?.message || "Failed to import resume. Please try again.",
           color: "danger",
         });
       }
@@ -191,7 +192,8 @@ export function ImportResume() {
       console.error("Resume creation error:", error);
       addToast({
         title: "Creation failed",
-        description: error?.message || "Failed to create resume. Please try again.",
+        description:
+          error?.message || "Failed to create resume. Please try again.",
         color: "danger",
       });
       setIsCreatingResume(false);
