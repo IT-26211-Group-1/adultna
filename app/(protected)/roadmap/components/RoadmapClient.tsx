@@ -76,7 +76,8 @@ export function RoadmapClient() {
   };
 
   const handleModalClose = () => {
-    setMilestoneAnimation(null); // Reset camera animation
+    setMilestoneAnimation(null);
+    setSelectedMilestone(null);
     onClose();
   };
 

@@ -19,47 +19,35 @@ export function CameraController({
 }: CameraControllerProps) {
   const { camera, size } = useThree();
   const [startAnimation, setStartAnimation] = useState(false);
-  const [animationComplete, setAnimationComplete] = useState(false);
   const [currentAnimation, setCurrentAnimation] = useState(animation);
 
-  // Update current animation when milestone animation changes
+  // Update animation when milestone changes
   useEffect(() => {
     if (milestoneAnimation) {
       setCurrentAnimation(milestoneAnimation);
-      setStartAnimation(false);
-      setAnimationComplete(false);
-      // Start milestone animation immediately
-      setTimeout(() => setStartAnimation(true), 100);
-    } else if (!animationComplete || currentAnimation === animation) {
-      // Only reset to original animation if we haven't completed any animation yet
-      // or if we're already using the original animation
+      setStartAnimation(true);
+    } else {
       setCurrentAnimation(animation);
+      setStartAnimation(true);
     }
-  }, [milestoneAnimation, animation, animationComplete, currentAnimation]);
+  }, [milestoneAnimation, animation]);
 
-  // Set initial camera position immediately (only for the very first load)
+  // Set initial camera position on mount
   useEffect(() => {
-    // Only set initial position if we haven't started any animation yet
-    // and we're using the original animation (not returning from milestone)
-    if (!startAnimation && !animationComplete && currentAnimation === animation && !milestoneAnimation) {
-      const { position, fov } = currentAnimation.from;
-
+    if (!milestoneAnimation) {
+      const { position, fov } = animation.from;
       camera.position.set(position[0], position[1], position[2]);
       if (camera instanceof PerspectiveCamera) {
         camera.fov = fov;
         camera.updateProjectionMatrix();
       }
 
-      // Start animation after delay
-      const timer = setTimeout(() => {
-        setStartAnimation(true);
-      }, currentAnimation.delay || 1000);
-
+      const timer = setTimeout(() => setStartAnimation(true), animation.delay || 1000);
       return () => clearTimeout(timer);
     }
-  }, [camera, currentAnimation, animation, milestoneAnimation, startAnimation, animationComplete]);
+  }, [camera, animation, milestoneAnimation]);
 
-  // Handle viewport resize to prevent canvas glitches when sidebar toggles
+  // Handle viewport resize
   useEffect(() => {
     if (camera instanceof PerspectiveCamera) {
       camera.aspect = size.width / size.height;
@@ -67,31 +55,24 @@ export function CameraController({
     }
   }, [camera, size.width, size.height]);
 
-  // Animation spring for smooth camera movement
+  // Animation spring
   const { position, fov } = useSpring({
     position: startAnimation ? currentAnimation.to.position : currentAnimation.from.position,
     fov: startAnimation ? currentAnimation.to.fov : currentAnimation.from.fov,
-    config: milestoneAnimation
-      ? { mass: 1, tension: 60, friction: 50 } // Faster for milestone zoom
-      : { mass: 1, tension: 30, friction: 40 }, // Slower for initial animation
-    onRest: () => {
-      setAnimationComplete(true);
-      onAnimationComplete?.();
-    },
+    config: { mass: 1, tension: 40, friction: 50 },
+    onRest: onAnimationComplete,
   });
 
-  // Update camera position and FOV every frame during animation
+  // Update camera every frame
   useFrame(() => {
-    if (startAnimation && !animationComplete) {
-      camera.position.set(
-        position.get()[0],
-        position.get()[1],
-        position.get()[2],
-      );
-      if (camera instanceof PerspectiveCamera) {
-        camera.fov = fov.get();
-        camera.updateProjectionMatrix();
-      }
+    camera.position.set(
+      position.get()[0],
+      position.get()[1],
+      position.get()[2],
+    );
+    if (camera instanceof PerspectiveCamera) {
+      camera.fov = fov.get();
+      camera.updateProjectionMatrix();
     }
   });
 
