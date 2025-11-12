@@ -30,30 +30,34 @@ export function CameraController({
       setAnimationComplete(false);
       // Start milestone animation immediately
       setTimeout(() => setStartAnimation(true), 100);
-    } else {
+    } else if (!animationComplete || currentAnimation === animation) {
+      // Only reset to original animation if we haven't completed any animation yet
+      // or if we're already using the original animation
       setCurrentAnimation(animation);
     }
-  }, [milestoneAnimation, animation]);
+  }, [milestoneAnimation, animation, animationComplete, currentAnimation]);
 
-  // Set initial camera position immediately
+  // Set initial camera position immediately (only for the very first load)
   useEffect(() => {
-    const { position, fov } = currentAnimation.from;
+    // Only set initial position if we haven't started any animation yet
+    // and we're using the original animation (not returning from milestone)
+    if (!startAnimation && !animationComplete && currentAnimation === animation && !milestoneAnimation) {
+      const { position, fov } = currentAnimation.from;
 
-    camera.position.set(position[0], position[1], position[2]);
-    if (camera instanceof PerspectiveCamera) {
-      camera.fov = fov;
-      camera.updateProjectionMatrix();
-    }
+      camera.position.set(position[0], position[1], position[2]);
+      if (camera instanceof PerspectiveCamera) {
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+      }
 
-    // Start animation after delay (only for initial animation)
-    if (!milestoneAnimation) {
+      // Start animation after delay
       const timer = setTimeout(() => {
         setStartAnimation(true);
       }, currentAnimation.delay || 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [camera, currentAnimation, milestoneAnimation]);
+  }, [camera, currentAnimation, animation, milestoneAnimation, startAnimation, animationComplete]);
 
   // Handle viewport resize to prevent canvas glitches when sidebar toggles
   useEffect(() => {
