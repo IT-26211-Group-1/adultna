@@ -94,8 +94,10 @@ export function Problem() {
           />
         </svg>
       </div>
-      <main className="relative z-10 px-2 sm:px-4 lg:px-8 w-full">
-        <ProblemText />
+      <main className="relative z-10 px-2 sm:px-4 lg:px-8 w-full flex flex-col justify-start pt-8 sm:pt-12 md:pt-16">
+        <div className="mb-12 sm:mb-16 md:mb-20">
+          <ProblemText />
+        </div>
         <ProblemSubject />
       </main>
 
