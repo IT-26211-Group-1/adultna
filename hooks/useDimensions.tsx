@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 export default function useDimensions(
-  containerRef: React.RefObject<HTMLElement>,
+  containerRef: React.RefObject<HTMLElement>
 ) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -17,6 +17,7 @@ export default function useDimensions(
 
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0];
+
       if (entry) {
         setDimensions(getDimensions());
       }

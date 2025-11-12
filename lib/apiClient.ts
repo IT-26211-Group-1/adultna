@@ -1,19 +1,20 @@
 "use client";
 
 import { API_CONFIG } from "@/config/api";
+import { PUBLIC_ROUTES } from "@/config/site";
 
 export const API_BASE_URL = API_CONFIG.API_URL;
 export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
 
-let tokenProvider: (() => string | null) | null = null;
+export function isPublicRoute(pathname: string): boolean {
+  return PUBLIC_ROUTES.some((path) => {
+    if (path === "/") {
+      return pathname === "/";
+    }
 
-export function setTokenProvider(provider: () => string | null) {
-  tokenProvider = provider;
+    return pathname === path || pathname.startsWith(path + "/");
+  });
 }
-
-export function setRefreshTokenCallback(
-  _callback: () => Promise<string | null>,
-) {}
 
 export class ApiClient {
   private static buildHeaders(
@@ -30,12 +31,6 @@ export class ApiClient {
           headers[key] = value;
         }
       });
-    }
-
-    const token = tokenProvider?.();
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
     }
 
     return headers;
@@ -71,59 +66,70 @@ export class ApiClient {
           ? await response.json()
           : await response.text();
 
-        // If 401 and not already retrying, try to refresh token via verify-token endpoint
+        // If 401 and not already retrying, try to refresh token
         if (
           response.status === 401 &&
           !isRetry &&
-          !endpoint.includes("/verify-token") &&
+          !endpoint.includes("/refresh-token") &&
           !endpoint.includes("/login")
         ) {
-          console.log("[ApiClient] 401 detected, attempting token refresh...", {
-            endpoint,
-            baseUrl,
-          });
-
           try {
-            // Call verify-token which will automatically refresh if needed
-            const verifyUrl = baseUrl.includes("/admin")
-              ? "/admin/verify-token"
-              : "/auth/me";
+            const refreshUrl = baseUrl.includes("/admin")
+              ? "/admin/refresh-token"
+              : "/auth/refresh-token";
 
-            console.log("[ApiClient] Calling", verifyUrl, "for token refresh");
-
-            const refreshResponse = await fetch(`${baseUrl}${verifyUrl}`, {
+            const refreshResponse = await fetch(`${baseUrl}${refreshUrl}`, {
+              method: "POST",
               credentials: "include",
             });
 
-            console.log("[ApiClient] Refresh response status:", refreshResponse.status);
-
             if (!refreshResponse.ok) {
-              console.log("[ApiClient] ❌ Refresh failed with status:", refreshResponse.status);
-              throw new Error("Token refresh failed");
-            }
+              console.log(
+                "[ApiClient] ❌ Refresh failed - refresh token expired, logging out",
+              );
 
-            console.log("[ApiClient] ✅ Token refreshed, retrying original request");
+              // Refresh token expired, logout user
+              if (typeof window !== "undefined") {
+                const currentPath = window.location.pathname;
+
+                // Only redirect if not already on a public route
+                if (!isPublicRoute(currentPath)) {
+                  window.location.href = "/auth/login";
+                }
+              }
+
+              throw new Error("Refresh token expired");
+            }
 
             // Retry the original request once
             return this.request<T>(endpoint, options, baseUrl, true);
           } catch (error) {
             console.log("[ApiClient] ❌ Token refresh error:", error);
-            // If refresh fails, throw the original 401 error
+
+            // If refresh fails, logout user
+            if (typeof window !== "undefined") {
+              const currentPath = window.location.pathname;
+
+              // Only redirect if not already on a public route
+              if (!isPublicRoute(currentPath)) {
+                window.location.href = "/auth/login";
+              }
+            }
+
             throw new ApiError(
-              errorData?.message ||
-                `HTTP ${response.status}: ${response.statusText}`,
-              response.status,
+              "Session expired. Please login again.",
+              401,
               errorData,
             );
           }
         }
 
-        throw new ApiError(
-          errorData?.message ||
-            `HTTP ${response.status}: ${response.statusText}`,
-          response.status,
-          errorData,
-        );
+        const errorMessage =
+          typeof errorData?.message === "string"
+            ? errorData.message
+            : `HTTP ${response.status}: ${response.statusText}`;
+
+        throw new ApiError(errorMessage, response.status, errorData);
       }
 
       const contentType = response.headers.get("content-type");
@@ -328,5 +334,14 @@ export const queryKeys = {
         : (["filebox", "list"] as const),
     detail: (fileId: string) => ["filebox", "detail", fileId] as const,
     quota: () => ["filebox", "quota"] as const,
+  },
+
+  // Resume queries
+  resumes: {
+    all: ["resumes"] as const,
+    list: () => ["resumes", "list"] as const,
+    detail: (resumeId: string) => ["resumes", "detail", resumeId] as const,
+    contactInfo: (resumeId: string) =>
+      ["resumes", "contactInfo", resumeId] as const,
   },
 } as const;

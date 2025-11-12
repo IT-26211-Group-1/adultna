@@ -3,56 +3,36 @@
 import { useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
 import { gabayApi } from "@/lib/api/gabay";
-import type {
-  ChatRequest,
-  ChatResponse,
-  ConversationMessage,
-} from "@/types/gabay";
+import type { ChatRequest, ChatResponse } from "@/types/gabay";
 
 interface UseChatMutationOptions {
-  onSuccess?: (
-    response: ChatResponse,
-    message: string,
-    conversationHistory: ConversationMessage[],
-  ) => void;
+  onSuccess?: (response: ChatResponse, message: string) => void;
   onError?: (error: Error) => void;
 }
 
 interface ChatMutationVariables {
   message: string;
-  conversationHistory: ConversationMessage[];
+  sessionId?: string;
 }
 
 /**
  * Hook for sending chat messages to the Gabay AI agent
+ * Backend loads conversation history from S3 using sessionId
  */
 export function useGabayChat(options?: UseChatMutationOptions) {
   const chatMutation = useMutation({
     mutationKey: queryKeys.gabay.chat(),
-    mutationFn: async ({
-      message,
-      conversationHistory,
-    }: ChatMutationVariables) => {
-      // Transform ConversationMessage to ChatMessage format for API
-      const historyForApi = conversationHistory.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
-
+    mutationFn: async ({ message, sessionId }: ChatMutationVariables) => {
       const request: ChatRequest = {
         message,
-        conversationHistory: historyForApi,
+        sessionId,
       };
 
       return gabayApi.chat(request);
     },
     onSuccess: (data, variables) => {
       if (options?.onSuccess) {
-        options.onSuccess(
-          data,
-          variables.message,
-          variables.conversationHistory,
-        );
+        options.onSuccess(data, variables.message);
       }
     },
     onError: (error: Error) => {

@@ -217,17 +217,10 @@ export function SecureDocument({
     setErrorMessage("");
     setSuccessMessage("");
 
-    console.log(`[SecureDocument] Verifying OTP for action: ${action}`);
-
     verifyOTPMutation.mutate(
       { fileId: file.id, otp: data.otp, action },
       {
         onSuccess: async (response) => {
-          console.log(
-            `[SecureDocument] OTP verified successfully for action: ${action}`,
-            response,
-          );
-
           // Clear cooldown on successful verification
           removeSecureItem(cooldownKey);
 

@@ -1,82 +1,86 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Static export for S3 hosting
   output: "export",
   trailingSlash: true,
 
-  // Performance optimizations
+  // Images must be unoptimized for static export (no Image Optimization API)
   images: {
     unoptimized: true,
   },
 
-  // Compression
-  compress: true,
-
   // Bundle optimization
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ["@heroui/react", "lucide-react"],
+    optimizePackageImports: [
+      "@heroui/react",
+      "@heroui/modal",
+      "@heroui/button",
+      "@heroui/input",
+      "@heroui/dropdown",
+      "@heroui/navbar",
+      "@heroui/toast",
+      "lucide-react",
+      "@tanstack/react-query",
+    ],
   },
 
-  // Security headers
-  // async headers() {
-  //   return [
-  //     {
-  //       source: '/(.*)',
-  //       headers: [
-  //         {
-  //           key: 'X-Content-Type-Options',
-  //           value: 'nosniff',
-  //         },
-  //         {
-  //           key: 'X-Frame-Options',
-  //           value: 'DENY',
-  //         },
-  //         {
-  //           key: 'X-XSS-Protection',
-  //           value: '1; mode=block',
-  //         },
-  //         {
-  //           key: 'Referrer-Policy',
-  //           value: 'strict-origin-when-cross-origin',
-  //         },
-  //         {
-  //           key: 'Content-Security-Policy',
-  //           value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.awswaf.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://*.awswaf.com " + process.env.NEXT_PUBLIC_AUTH_SERVICE_URL + ";",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       source: '/static/(.*)',
-  //       headers: [
-  //         {
-  //           key: 'Cache-Control',
-  //           value: 'public, max-age=31536000, immutable',
-  //         },
-  //       ],
-  //     },
-  //   ];
-  // },
+  // Production optimizations
+  productionBrowserSourceMaps: false,
+
+  // Compiler optimizations
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? {
+            exclude: ["error", "warn"],
+          }
+        : false,
+  },
+
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // Disable caching in development to prevent chunk loading errors
+      config.cache = false;
+    }
+
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: "deterministic",
+        runtimeChunk: {
+          name: (entrypoint) => `runtime-${entrypoint.name}`,
+        },
+      };
+    }
+
+    return config;
+  },
 
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  ...(process.env.NODE_ENV === "development" && {
-    async rewrites() {
-      const apiUrl = process.env.NEXT_PUBLIC_API;
-
-      if (apiUrl && apiUrl !== "undefined") {
-        return [
-          {
-            source: "/api/:path*",
-            destination: `${apiUrl}/auth/:path*`,
-          },
-        ];
-      }
-
+  // Development-only rewrites for API proxying
+  async rewrites() {
+    if (process.env.NODE_ENV !== "development") {
       return [];
-    },
-  }),
+    }
+
+    const apiUrl = process.env.NEXT_PUBLIC_API;
+
+    if (apiUrl && apiUrl !== "undefined") {
+      return [
+        {
+          source: "/api/:path*",
+          destination: `${apiUrl}/auth/:path*`,
+        },
+      ];
+    }
+
+    return [];
+  },
 };
 
 export default nextConfig;

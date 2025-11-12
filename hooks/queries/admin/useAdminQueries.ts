@@ -148,7 +148,7 @@ const adminApi = {
     }),
 
   updateUserStatus: (
-    data: UpdateUserStatusRequest
+    data: UpdateUserStatusRequest,
   ): Promise<UpdateUserStatusResponse> =>
     ApiClient.patch(`/admin/update-status/${data.userId}`, {
       status: data.status,
@@ -264,7 +264,7 @@ export function useAdminAuth() {
         if (!oldUser) return null;
 
         return { ...oldUser, ...updatedUser };
-      }
+      },
     );
   };
 

@@ -50,6 +50,7 @@ function GenerateAIQuestionModal({
       { value: "communication", label: "Communication" },
       { value: "education", label: "Education" },
       { value: "tourism_and_hospitality", label: "Tourism and Hospitality" },
+      { value: "general", label: "General" },
       { value: "other", label: "Other" },
     ],
     [],
@@ -327,12 +328,6 @@ function GenerateAIQuestionModal({
             disabled={isGeneratingAI}
             loading={isGeneratingAI}
             type="submit"
-            onClick={() => {
-              console.log("Button clicked! Current watch values:", {
-                category: selectedCategory,
-                industry: selectedIndustry,
-              });
-            }}
           >
             Generate AI Question
           </LoadingButton>

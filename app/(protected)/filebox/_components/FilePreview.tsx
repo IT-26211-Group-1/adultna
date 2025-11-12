@@ -10,31 +10,24 @@ import {
   Button,
   Spinner,
 } from "@heroui/react";
-import { Document, Page, pdfjs } from "react-pdf";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  X,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-} from "lucide-react";
+import { Download, X, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import Image from "next/image";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { FileItem } from "./FileItem";
 import { FileMetadata } from "@/types/filebox";
-import "react-pdf/dist/Page/AnnotationLayer.css";
-import "react-pdf/dist/Page/TextLayer.css";
+import dynamic from "next/dynamic";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
-// Define PDF options outside component to prevent unnecessary re-renders
-const PDF_OPTIONS = {
-  cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
-  cMapPacked: true,
-  standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
-} as const;
+const PDFViewer = dynamic(
+  () => import("./PDFViewer").then((mod) => mod.PDFViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <Spinner color="success" size="lg" />
+      </div>
+    ),
+  },
+);
 
 interface FilePreviewProps {
   file: FileItem;
@@ -53,16 +46,8 @@ export function FilePreview({
   onClose,
   onDownload,
 }: FilePreviewProps) {
-  const [numPages, setNumPages] = useState<number>(0);
-  const [pageNumber, setPageNumber] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-    setLoading(false);
-    setError(null);
-  };
 
   const onDocumentLoadError = (error: Error) => {
     console.error("PDF load error:", error);
@@ -71,14 +56,6 @@ export function FilePreview({
     console.error("File info:", file);
     setLoading(false);
     setError("Failed to load PDF. Please try downloading the file.");
-  };
-
-  const goToPrevPage = () => {
-    setPageNumber((prev) => Math.max(prev - 1, 1));
-  };
-
-  const goToNextPage = () => {
-    setPageNumber((prev) => Math.min(prev + 1, numPages));
   };
 
   const isPDF =
@@ -133,7 +110,7 @@ export function FilePreview({
                       <div className="flex flex-col items-center justify-center py-12">
                         <p className="text-red-600 mb-4">{error}</p>
                         <Button
-                          className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                          className="bg-[#11553F] hover:bg-[#11553F]/90 text-white font-medium"
                           onPress={onDownload}
                         >
                           <Download className="w-4 h-4 mr-2" />
@@ -143,58 +120,10 @@ export function FilePreview({
                     )}
 
                     {!error && (
-                      <div className="flex flex-col items-center w-full">
-                        <Document
-                          file={previewUrl}
-                          loading={
-                            <div className="flex items-center justify-center py-12">
-                              <Spinner color="success" size="lg" />
-                            </div>
-                          }
-                          options={PDF_OPTIONS}
-                          onLoadError={onDocumentLoadError}
-                          onLoadSuccess={onDocumentLoadSuccess}
-                        >
-                          <Page
-                            className="shadow-lg rounded-lg mx-auto"
-                            pageNumber={pageNumber}
-                            renderAnnotationLayer={true}
-                            renderTextLayer={true}
-                            width={Math.min(
-                              typeof window !== "undefined"
-                                ? window.innerWidth * 0.7
-                                : 700,
-                              700,
-                            )}
-                          />
-                        </Document>
-
-                        {!loading && numPages > 0 && (
-                          <div className="flex items-center justify-center gap-4 mt-6 pb-4">
-                            <Button
-                              isIconOnly
-                              className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                              isDisabled={pageNumber <= 1}
-                              size="sm"
-                              onPress={goToPrevPage}
-                            >
-                              <ChevronLeft className="w-4 h-4" />
-                            </Button>
-                            <span className="text-sm text-gray-700 font-medium">
-                              Page {pageNumber} of {numPages}
-                            </span>
-                            <Button
-                              isIconOnly
-                              className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                              isDisabled={pageNumber >= numPages}
-                              size="sm"
-                              onPress={goToNextPage}
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
+                      <PDFViewer
+                        previewUrl={previewUrl}
+                        onLoadError={onDocumentLoadError}
+                      />
                     )}
                   </div>
                 ) : isImage ? (
@@ -283,7 +212,7 @@ export function FilePreview({
                       <div className="text-center">
                         <p className="text-red-600 mb-4">{error}</p>
                         <Button
-                          className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                          className="bg-[#11553F] hover:bg-[#11553F]/90 text-white font-medium"
                           onPress={onDownload}
                         >
                           <Download className="w-4 h-4 mr-2" />
@@ -309,7 +238,7 @@ export function FilePreview({
                         </p>
                       </div>
                       <Button
-                        className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                        className="bg-[#11553F] hover:bg-[#11553F]/90 text-white font-medium"
                         size="lg"
                         onPress={onDownload}
                       >
@@ -325,7 +254,7 @@ export function FilePreview({
                         Preview not available for this file type.
                       </p>
                       <Button
-                        className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                        className="bg-[#11553F] hover:bg-[#11553F]/90 text-white font-medium"
                         onPress={onDownload}
                       >
                         <Download className="w-4 h-4 mr-2" />
@@ -348,7 +277,7 @@ export function FilePreview({
               </Button>
               {onDownload && (
                 <Button
-                  className="bg-adult-green hover:bg-adult-green/90 text-white font-medium"
+                  className="bg-[#11553F] hover:bg-[#11553F]/90 text-white font-medium"
                   onPress={onDownload}
                 >
                   <Download className="w-4 h-4 mr-2" />

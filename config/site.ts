@@ -1,5 +1,15 @@
 export type SiteConfig = typeof siteConfig;
 
+export const PUBLIC_ROUTES = [
+  "/auth",
+  "/admin/login",
+  "/admin/register",
+  "/",
+  "/about",
+  "/features",
+  "/faq",
+] as const;
+
 export const siteConfig = {
   name: "AdultNa",
   description: "Make beautiful websites regardless of your design experience.",
