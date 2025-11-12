@@ -344,4 +344,12 @@ export const queryKeys = {
     contactInfo: (resumeId: string) =>
       ["resumes", "contactInfo", resumeId] as const,
   },
+
+  // Cover Letter queries
+  coverLetters: {
+    all: ["coverLetters"] as const,
+    list: () => ["coverLetters", "list"] as const,
+    detail: (coverLetterId: string) =>
+      ["coverLetters", "detail", coverLetterId] as const,
+  },
 } as const;
