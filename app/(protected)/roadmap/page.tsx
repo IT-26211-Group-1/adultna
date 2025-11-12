@@ -1,6 +1,14 @@
+"use client";
+
 import { RoadmapClient } from "./components/RoadmapClient";
+import { RoadmapNavigation } from "./components/RoadmapNavigation";
 
 export default function RoadmapPage() {
+  const handleAddMilestone = () => {
+    console.log("🎯 Add Milestone clicked from page");
+    // TODO: Implement add milestone modal or form
+  };
+
   return (
     <>
       {/* Full viewport olivine background */}
@@ -10,15 +18,14 @@ export default function RoadmapPage() {
       />
 
       <div className="relative z-10 flex h-screen flex-col">
-        {/* Static Header - Server Component - Hidden for now */}
-        {/* <RoadmapHeader /> */}
+        {/* Navigation Bar */}
+        <RoadmapNavigation onAddMilestone={handleAddMilestone} />
 
-        {/* Main Content - Full viewport height for 3D roadmap */}
-        <main className="flex-1 overflow-hidden">
+        {/* Main Content - Account for navigation bar height */}
+        <main className="flex-1 overflow-hidden mt-16">
           {/* 3D Model Container - Client Component */}
           <RoadmapClient />
         </main>
-
       </div>
     </>
   );

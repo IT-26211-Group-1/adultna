@@ -56,43 +56,19 @@ export function MilestoneModal({
 
   return (
     <>
-      {/* Modal Container */}
+      {/* Modal Container - Fully Transparent */}
       <div
         className={`fixed top-0 right-0 h-full z-50 flex items-center justify-end pr-4 pointer-events-none transition-all duration-500 ${
           isOpen ? "" : ""
         }`}
+        style={{ backgroundColor: "transparent" }}
       >
-        {/* Animated Arrow */}
-        <div
-          className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-500 ${
-            isOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
-          }`}
-        >
-          <div className="flex items-center space-x-2 text-blue-500">
-            <div className="animate-pulse">
-              <svg
-                className="animate-bounce"
-                fill="none"
-                height="24"
-                viewBox="0 0 24 24"
-                width="24"
-              >
-                <path
-                  d="M15 18L9 12L15 6"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
+
 
         {/* Modal Content */}
         <div
           ref={modalRef}
-          className={`pointer-events-auto backdrop-blur-md border border-white/30 rounded-3xl shadow-2xl w-full max-w-sm h-[calc(100vh-3rem)] my-6 overflow-hidden transition-all duration-500 ease-in-out transform ${
+          className={`pointer-events-auto backdrop-blur-md border border-white/30 rounded-3xl shadow-2xl w-full max-w-sm h-[calc(100vh-8rem)] my-6 overflow-hidden transition-all duration-500 ease-in-out transform ${
             isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
           }`}
           style={{ backgroundColor: "rgba(255,255,255, 0.85)" }}

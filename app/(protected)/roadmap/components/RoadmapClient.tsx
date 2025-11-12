@@ -87,11 +87,7 @@ export function RoadmapClient() {
 
   return (
     <>
-      <div
-        className={`w-full h-full relative transition-transform duration-500 ease-in-out ${
-          isOpen ? "-translate-x-48" : "translate-x-0"
-        }`}
-      >
+      <div className="w-full h-full relative">
         <Canvas
           camera={{ position: [0, 5, 15], fov: 55 }}
           className="w-full h-full"

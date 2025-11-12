@@ -83,6 +83,26 @@ function UserSidebar({
     [isCollapsed, handleCollapse],
   );
 
+  // Don't render sidebar on roadmap page
+  if (pathname.includes("/roadmap")) {
+    return (
+      <div
+        className="min-h-screen relative"
+        style={{
+          backgroundColor: resolvedBackgroundColor,
+        }}
+      >
+        {children && (
+          <div className="relative z-10">
+            {typeof children === "function"
+              ? children({ sidebarCollapsed: false })
+              : children}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       className="min-h-screen relative"
