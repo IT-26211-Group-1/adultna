@@ -28,7 +28,7 @@ export function TemplateCard({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day,
+          dateValue.day
         ).toLocaleDateString("en-US", { year: "numeric" });
       }
       const date = new Date(dateValue);
@@ -66,10 +66,11 @@ export function TemplateCard({
   return (
     <Card
       isHoverable
+      disableAnimation
       isPressable
       className={cn(
         "cursor-pointer transition-all border",
-        isSelected && "ring-2 ring-adult-green shadow-lg border-adult-green",
+        isSelected && "ring-2 ring-adult-green shadow-lg border-adult-green"
       )}
       onPress={onSelect}
     >

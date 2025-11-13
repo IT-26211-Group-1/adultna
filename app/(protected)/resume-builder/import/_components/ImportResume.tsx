@@ -203,7 +203,7 @@ export function ImportResume() {
   const convertToResumeData = (
     data: ExtractedResumeData,
     templateId: string,
-    colorHex?: string,
+    colorHex?: string
   ): ResumeData & { colorHex?: string } => {
     return {
       templateId: templateId as any,
@@ -387,6 +387,7 @@ export function ImportResume() {
                 {TEMPLATE_LIST.map((template) => (
                   <Card
                     key={template.id}
+                    disableAnimation
                     isPressable
                     className="border-2 border-gray-200 hover:border-green-500 hover:shadow-lg transition-all"
                     isDisabled={isCreatingResume}
@@ -399,7 +400,7 @@ export function ImportResume() {
                             resumeData={convertToResumeData(
                               extractedData,
                               template.id,
-                              template.colorScheme,
+                              template.colorScheme
                             )}
                           />
                         )}
