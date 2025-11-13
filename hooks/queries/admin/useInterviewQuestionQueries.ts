@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { addToast } from "@heroui/toast";
 import { ApiClient } from "@/lib/apiClient";
 import type {
   ListQuestionsParams,
@@ -494,9 +495,12 @@ export function useSpeechToText(userId: string) {
             event.error === "not-allowed" ||
             event.error === "permission-denied"
           ) {
-            alert(
-              "Microphone access denied. Please allow microphone access in your browser settings.",
-            );
+            addToast({
+              title: "Microphone access denied",
+              description:
+                "Please allow microphone access in your browser settings.",
+              color: "danger",
+            });
           } else if (event.error === "no-speech") {
             console.warn("No speech detected. Please try speaking again.");
           } else if (event.error === "network") {
