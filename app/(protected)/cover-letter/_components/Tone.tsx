@@ -7,9 +7,10 @@ import { useState } from "react";
 type ToneProps = {
   currentStyle?: CoverLetterStyle;
   onChangeTone: (newStyle: CoverLetterStyle) => Promise<void>;
+  isInitialGeneration?: boolean;
 };
 
-export function Tone({ currentStyle, onChangeTone }: ToneProps) {
+export function Tone({ currentStyle, onChangeTone, isInitialGeneration = false }: ToneProps) {
   const [isChanging, setIsChanging] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<CoverLetterStyle>(
     currentStyle || "formal"
@@ -60,12 +61,15 @@ export function Tone({ currentStyle, onChangeTone }: ToneProps) {
 
           <Button
             className="bg-adult-green hover:bg-[#0e4634] text-white w-full font-semibold"
-            isDisabled={!currentStyle || selectedStyle === currentStyle}
+            isDisabled={isInitialGeneration ? false : (!currentStyle || selectedStyle === currentStyle)}
             isLoading={isChanging}
             size="sm"
             onPress={handleChangeTone}
           >
-            {isChanging ? "Regenerating..." : "Regenerate with New Tone"}
+            {isChanging
+              ? (isInitialGeneration ? "Generating..." : "Regenerating...")
+              : (isInitialGeneration ? "Generate AI Cover Letter" : "Regenerate with New Tone")
+            }
           </Button>
 
           <p className="text-[10px] text-center text-gray-500 italic">

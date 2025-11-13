@@ -35,8 +35,10 @@ export function useCoverLetterEditor() {
     setUploadedFile(file);
   };
 
-  const handleGenerateCoverLetter = async () => {
+  const handleGenerateCoverLetter = async (styleOverride?: CoverLetterStyle) => {
     if (!uploadedFile) return;
+
+    const styleToUse = styleOverride || selectedStyle;
 
     try {
       const { uploadUrl, fileKey } = await generateUploadUrl.mutateAsync({
@@ -51,7 +53,7 @@ export function useCoverLetterEditor() {
         fileKey,
         fileName: uploadedFile.name,
         title: `Cover Letter - ${new Date().toLocaleDateString()}`,
-        style: selectedStyle,
+        style: styleToUse,
       });
 
       if (!coverLetter || !coverLetter.id) {

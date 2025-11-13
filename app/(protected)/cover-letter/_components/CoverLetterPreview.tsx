@@ -2,21 +2,35 @@
 
 import { Card, CardBody } from "@heroui/react";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
+import { useRef, useState, useCallback } from "react";
 import useDimensions from "@/hooks/useDimensions";
 import { Mail } from "lucide-react";
+import type { CoverLetterSection } from "@/types/cover-letter";
 
 interface CoverLetterPreviewProps {
-  content: string[];
+  sections: CoverLetterSection[];
   className?: string;
+  onSectionUpdate?: (sectionId: string, content: string) => void;
 }
 
 export function CoverLetterPreview({
-  content,
+  sections,
   className,
+  onSectionUpdate,
 }: CoverLetterPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width } = useDimensions(containerRef);
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+
+  const handleBlur = useCallback(
+    (sectionId: string, newContent: string) => {
+      if (onSectionUpdate) {
+        onSectionUpdate(sectionId, newContent);
+      }
+      setEditingSection(null);
+    },
+    [onSectionUpdate]
+  );
 
   return (
     <div
@@ -33,11 +47,28 @@ export function CoverLetterPreview({
           <div className="w-[794px] h-[1123px] bg-white p-16 space-y-6 text-gray-900">
             {/* Cover Letter Content */}
             <div className="space-y-4 text-sm leading-relaxed">
-              {content.length > 0 ? (
-                content.map((paragraph, index) => (
-                  <p key={index} className="text-justify">
-                    {paragraph}
-                  </p>
+              {sections.length > 0 ? (
+                sections.map((section) => (
+                  <div
+                    key={section.id}
+                    className={cn(
+                      "text-justify outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 rounded px-2 py-1 -mx-2 -my-1 transition-all",
+                      editingSection === section.id && "bg-blue-50"
+                    )}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onFocus={() => setEditingSection(section.id || null)}
+                    onBlur={(e) => {
+                      if (section.id) {
+                        handleBlur(
+                          section.id,
+                          e.currentTarget.textContent || ""
+                        );
+                      }
+                    }}
+                  >
+                    {section.content}
+                  </div>
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center py-32 text-gray-300">

@@ -1,38 +1,31 @@
 "use client";
 
-import { Button, Card, CardBody, Select, SelectItem } from "@heroui/react";
-import { FileText, Upload, Files } from "lucide-react";
+import { Button, Card, CardBody } from "@heroui/react";
+import { FileText, Files } from "lucide-react";
 import { useRef, useState } from "react";
 import { addToast } from "@heroui/toast";
 import type { CoverLetterStyle } from "@/types/cover-letter";
+import { Tone } from "./Tone";
 
 type CoverLetterLandingProps = {
   onFileUpload: (file: File) => void;
-  onGenerateCoverLetter: () => void;
   uploadedFile: File | null;
   onRemoveFile: () => void;
   isProcessing: boolean;
   selectedStyle: CoverLetterStyle;
-  onStyleChange: (style: CoverLetterStyle) => void;
+  onChangeTone: (newStyle: CoverLetterStyle) => Promise<void>;
 };
 
 export function CoverLetterLanding({
   onFileUpload,
-  onGenerateCoverLetter,
   uploadedFile,
   onRemoveFile,
   isProcessing,
   selectedStyle,
-  onStyleChange,
+  onChangeTone,
 }: CoverLetterLandingProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const styleOptions = [
-    { key: "formal", label: "Professional", description: "Traditional professional tone" },
-    { key: "conversational", label: "Conversational", description: "Friendly yet professional" },
-    { key: "modern", label: "Modern", description: "Contemporary and engaging" },
-  ];
 
   const isValidFileType = (file: File): boolean => {
     const validTypes = [
@@ -138,11 +131,11 @@ export function CoverLetterLanding({
                 onDrop={handleDrop}
               >
                 {uploadedFile ? (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="flex items-center justify-center">
                       <FileText className="w-12 h-12 text-green-600" />
                     </div>
-                    <div>
+                    <div className="text-center">
                       <p className="text-lg font-medium text-gray-900">
                         {uploadedFile.name}
                       </p>
@@ -151,61 +144,19 @@ export function CoverLetterLanding({
                       </p>
                     </div>
 
-                    {/* Style Selector */}
+                    {/* Remove Button */}
                     <div
-                      className="max-w-xs mx-auto"
+                      className="flex justify-center"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Select
-                        label="Choose Tone Style"
-                        selectedKeys={[selectedStyle]}
-                        size="sm"
-                        variant="bordered"
-                        classNames={{
-                          label: "text-gray-700 font-medium",
-                        }}
-                        onSelectionChange={(keys) => {
-                          const selected = Array.from(keys)[0] as CoverLetterStyle;
-                          onStyleChange(selected);
-                        }}
-                      >
-                        {styleOptions.map((option) => (
-                          <SelectItem
-                            key={option.key}
-                            textValue={option.label}
-                            description={option.description}
-                          >
-                            <div>
-                              <div className="font-medium">{option.label}</div>
-                              <div className="text-xs text-gray-500">{option.description}</div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </Select>
-                    </div>
-
-                    <div
-                      className="flex gap-3 justify-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Button
-                        color="success"
-                        isDisabled={isProcessing}
-                        isLoading={isProcessing}
-                        variant="solid"
-                        onPress={onGenerateCoverLetter}
-                      >
-                        {isProcessing
-                          ? "Generating..."
-                          : "Generate Cover Letter"}
-                      </Button>
                       <Button
                         color="default"
                         isDisabled={isProcessing}
                         variant="bordered"
+                        size="sm"
                         onPress={onRemoveFile}
                       >
-                        Remove
+                        Remove File
                       </Button>
                     </div>
                   </div>
@@ -240,7 +191,7 @@ export function CoverLetterLanding({
           </div>
 
           {/* Right: How it Works */}
-          <div className="flex items-start">
+          <div className="flex flex-col gap-4">
             <Card className="w-full">
               <CardBody className="p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -254,11 +205,10 @@ export function CoverLetterLanding({
                       Step 1: Upload a Resume
                     </h3>
                     <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                      <li>Upload your current resume in PDF or Word format</li>
                       <li>
-                        Upload your current resume in PDF or Word format
-                      </li>
-                      <li>
-                        Choose your preferred tone style (Professional, Conversational, or Modern)
+                        Choose your preferred tone style (Professional,
+                        Conversational, or Modern)
                       </li>
                     </ul>
                   </div>
@@ -291,6 +241,15 @@ export function CoverLetterLanding({
                 </div>
               </CardBody>
             </Card>
+
+            {/* Tone & Style Card - Only show when file is uploaded */}
+            {uploadedFile && (
+              <Tone
+                currentStyle={selectedStyle}
+                onChangeTone={onChangeTone}
+                isInitialGeneration={true}
+              />
+            )}
           </div>
         </div>
 
