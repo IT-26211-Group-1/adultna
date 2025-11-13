@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/Skeletons";
-import { getJobCardSkeletonColor } from "../../../../constants/job-card-color";
+import { getJobCardSkeletonColor } from "../../../../constants/jobCardColors";
 
 export default function JobCardSkeleton({ index = 0 }: { index?: number }) {
   const cardColor = getJobCardSkeletonColor(index);

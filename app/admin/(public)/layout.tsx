@@ -1,7 +1,7 @@
 "use client";
 
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
@@ -12,7 +12,9 @@ interface AdminPublicLayoutProps {
 export default function AdminPublicLayout({
   children,
 }: AdminPublicLayoutProps) {
+  const router = useRouter();
   const pathname = usePathname();
+
   const { user, isAuthenticated, isLoading } = useAdminAuth();
 
   const hasRedirected = useRef(false);
@@ -33,10 +35,9 @@ export default function AdminPublicLayout({
   useEffect(() => {
     if (shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      // Use window.location for hard navigation to prevent chunk loading errors
-      window.location.href = shouldRedirect.to;
+      router.replace(shouldRedirect.to);
     }
-  }, [shouldRedirect]);
+  }, [shouldRedirect, router]);
 
   // Show loading for auth check or redirect
   if (isLoading || shouldRedirect) {

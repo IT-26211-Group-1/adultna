@@ -14,7 +14,7 @@ import {
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditOnboardingQuestionModal from "./EditOnboardingQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
-import { formatDate } from "@/constants/format-date";
+import { formatDate } from "@/constants/formatDate";
 
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
   ({ status }) => {
