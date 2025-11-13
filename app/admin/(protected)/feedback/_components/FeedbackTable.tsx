@@ -12,7 +12,7 @@ import {
   FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
-import { formatDate } from "@/constants/format-date";
+import { formatDate } from "@/constants/formatDate";
 
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
   const getTypeColor = (type: FeedbackType) => {

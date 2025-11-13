@@ -3,7 +3,7 @@
 import { JobCardProps } from "@/types/job";
 import { memo, useCallback, lazy, Suspense } from "react";
 import { useDisclosure } from "@heroui/modal";
-import { getJobCardColor } from "../../../../constants/job-card-color";
+import { getJobCardColor } from "../../../../constants/jobCardColors";
 
 const ExternalRedirectModal = lazy(() => import("./ExternalRedirectModal"));
 
