@@ -25,6 +25,7 @@ export function ResumeDashboard() {
           {RESUME_LINKS.map((link, idx) => (
             <NextLink key={idx} passHref href={link.href}>
               <Card
+                disableAnimation
                 isPressable
                 className="h-full border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200"
                 shadow="none"
