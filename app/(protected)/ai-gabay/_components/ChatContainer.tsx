@@ -292,7 +292,7 @@ export function ChatContainerOptimized() {
 
         {/* Messages */}
         <div
-          className="flex-1 overflow-y-auto px-4 py-6 bg-gradient-to-b from-purple-50 to-white"
+          className="flex-1 overflow-y-auto px-4 py-6 bg-gradient-to-b from-adult-green/10 to-white"
           onScroll={handleScroll}
         >
           <div className="mx-auto max-w-3xl space-y-6">
