@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { SearchIcon } from "@/components/ui/Icons";
+import { SearchIcon, ArrowRightIcon } from "lucide-react";
 
 interface ChatInputProps {
   onSubmit: (message: string) => void;
@@ -14,7 +14,7 @@ interface ChatInputProps {
 export function ChatInput({
   onSubmit,
   disabled = false,
-  placeholder = "Ask me anything",
+  placeholder = "Ask whatever you want",
   className,
 }: ChatInputProps) {
   const [input, setInput] = useState("");
@@ -33,7 +33,7 @@ export function ChatInput({
         <SearchIcon className="absolute left-4 h-5 w-5 text-gray-400" />
         <input
           className={cn(
-            "w-full rounded-full border border-gray-300 bg-white py-3 pl-12 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:border-adultGreen focus:outline-none focus:ring-2 focus:ring-adultGreen/20 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500",
+            "w-full rounded-full border border-gray-200 bg-white py-4 pl-12 pr-14 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-300 focus:outline-none focus:ring-0 shadow-sm disabled:cursor-not-allowed disabled:opacity-50",
           )}
           disabled={disabled}
           placeholder={placeholder}
@@ -41,6 +41,16 @@ export function ChatInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
+        <button
+          type="submit"
+          disabled={!input.trim() || disabled}
+          className={cn(
+            "absolute right-2 rounded-full bg-gray-100 p-2 transition-colors hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed",
+            input.trim() && !disabled && "bg-purple-500 hover:bg-purple-600 text-white"
+          )}
+        >
+          <ArrowRightIcon className="h-4 w-4" />
+        </button>
       </div>
     </form>
   );

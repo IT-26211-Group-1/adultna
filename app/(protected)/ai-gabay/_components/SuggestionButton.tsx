@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { FileText, Search, Briefcase, CreditCard } from "lucide-react";
 
 interface SuggestionButtonProps {
   text: string;
@@ -8,20 +9,32 @@ interface SuggestionButtonProps {
   className?: string;
 }
 
+const getIconForText = (text: string) => {
+  if (text.includes("Postal ID") || text.includes("NBI")) return FileText;
+  if (text.includes("job")) return Briefcase;
+  if (text.includes("SSS")) return CreditCard;
+  return Search;
+};
+
 export function SuggestionButton({
   text,
   onClick,
   className,
 }: SuggestionButtonProps) {
+  const Icon = getIconForText(text);
+
   return (
     <button
       className={cn(
-        "rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700",
+        "flex flex-col items-start gap-3 rounded-2xl border border-gray-200 bg-white p-6 text-left text-sm text-gray-700 transition-all hover:shadow-md hover:border-gray-300",
         className,
       )}
       onClick={onClick}
     >
-      {text}
+      <div className="rounded-lg bg-gray-100 p-3">
+        <Icon className="h-5 w-5 text-gray-600" />
+      </div>
+      <span className="font-medium leading-snug">{text}</span>
     </button>
   );
 }

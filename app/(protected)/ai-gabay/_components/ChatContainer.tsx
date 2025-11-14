@@ -292,7 +292,7 @@ export function ChatContainerOptimized() {
 
         {/* Messages */}
         <div
-          className="flex-1 overflow-y-auto px-4 py-6"
+          className="flex-1 overflow-y-auto px-4 py-6 bg-gradient-to-b from-purple-50 to-white"
           onScroll={handleScroll}
         >
           <div className="mx-auto max-w-3xl space-y-6">
@@ -337,10 +337,10 @@ export function ChatContainerOptimized() {
         )}
 
         {/* Input */}
-        <div className="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900">
-          <div className="mx-auto max-w-3xl space-y-4">
+        <div className="bg-white px-4 py-6">
+          <div className="mx-auto max-w-4xl space-y-4">
             {messages.length === 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4">
                 {INITIAL_SUGGESTIONS.map((suggestion) => (
                   <SuggestionButton
                     key={suggestion}
