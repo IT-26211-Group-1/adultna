@@ -16,6 +16,7 @@ import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditQuestionModal from "./EditQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
 import { formatDate } from "@/constants/formatDate";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 // Question Status Badge Component
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
@@ -690,15 +691,10 @@ const QuestionsTable: React.FC = () => {
   if (questionsError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">
+        <p className="text-red-600 mb-4">
           Failed to load questions. Please try again.
         </p>
-        <button
-          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-          onClick={() => refetchQuestions()}
-        >
-          Retry
-        </button>
+        <RetryButton onRetry={refetchQuestions} />
       </div>
     );
   }

@@ -13,6 +13,7 @@ import {
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
 import { formatDate } from "@/constants/formatDate";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
   const getTypeColor = (type: FeedbackType) => {
@@ -370,15 +371,10 @@ const FeedbackTable: React.FC = () => {
   if (feedbackError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">
+        <p className="text-red-600 mb-4">
           Failed to load feedback. Please try again.
         </p>
-        <button
-          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-          onClick={() => refetchFeedback()}
-        >
-          Retry
-        </button>
+        <RetryButton onRetry={refetchFeedback} />
       </div>
     );
   }

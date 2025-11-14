@@ -9,6 +9,7 @@ import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
 import { getUsersTableColumns } from "@/constants/adminTables";
 import { formatDate } from "@/constants/formatDate";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 // Memoized actions dropdown
 const UserActions = React.memo<{
@@ -264,13 +265,8 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
   if (usersError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Failed to load users. Please try again.</p>
-        <button
-          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-          onClick={() => refetchUsers()}
-        >
-          Retry
-        </button>
+        <p className="text-red-600 mb-4">Failed to load users. Please try again.</p>
+        <RetryButton onRetry={refetchUsers} />
       </div>
     );
   }
