@@ -180,7 +180,7 @@ function UserSidebar({
       {/* Main Content Wrapper */}
       {children && (
         <div
-          className={`transition-all duration-300 ${isCollapsed ? "lg:ml-24" : "lg:ml-76"} relative z-10`}
+          className={`transition-all duration-300 ${isCollapsed ? "lg:ml-24" : "lg:ml-76"} relative z-10 pt-16 lg:pt-0`}
         >
           {typeof children === "function"
             ? children({ sidebarCollapsed: isCollapsed })
