@@ -168,10 +168,10 @@ export const ConversationSidebar = memo(function ConversationSidebar({
               <div key={conversation.id}>
                 <div className="group relative" data-conversation-id={conversation.id}>
                   <button
-                    className={`flex w-full items-center gap-3 p-3 text-left transition-all ${
+                    className={`flex w-full items-center gap-3 p-3 text-left transition-all rounded-lg ${
                       currentConversationId === conversation.id
-                        ? "text-adult-green"
-                        : "text-gray-700 hover:text-adult-green"
+                        ? "bg-adult-green/10 text-adult-green border-l-4 border-adult-green shadow-sm"
+                        : "text-gray-700 hover:text-adult-green hover:bg-gray-50/50"
                     }`}
                     onClick={() => onSelectConversation(conversation.id)}
                     title={conversation.title}
