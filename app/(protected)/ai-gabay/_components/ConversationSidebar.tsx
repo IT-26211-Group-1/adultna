@@ -4,6 +4,13 @@ import { memo, useState, useRef, useEffect } from "react";
 import { PlusIcon, MessageSquareIcon, Home, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
 import type { Conversation } from "@/types/gabay";
 
 interface ConversationSidebarProps {
@@ -25,20 +32,32 @@ export const ConversationSidebar = memo(function ConversationSidebar({
   isOpen,
   onToggleSidebar,
 }: ConversationSidebarProps) {
+  const [showDeleteDropdown, setShowDeleteDropdown] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
 
   const handleDeleteClick = (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowDeleteDropdown(conversationId);
+  };
+
+  const handleDeleteOptionClick = (conversationId: string) => {
+    setShowDeleteDropdown(null);
     setShowDeleteModal(conversationId);
   };
 
-  const handleDeleteConfirm = (conversationId: string) => {
-    onDeleteConversation(conversationId);
-    setShowDeleteModal(null);
+  const handleDeleteConfirm = () => {
+    if (showDeleteModal) {
+      onDeleteConversation(showDeleteModal);
+      setShowDeleteModal(null);
+    }
   };
 
   const handleDeleteCancel = () => {
     setShowDeleteModal(null);
+  };
+
+  const handleDropdownCancel = () => {
+    setShowDeleteDropdown(null);
   };
 
   return (
@@ -191,12 +210,12 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                   )}
 
                   {/* Dropdown Menu - positioned below the three dots */}
-                  {showDeleteModal === conversation.id && (
+                  {showDeleteDropdown === conversation.id && (
                     <>
-                      <div className="fixed inset-0 z-40" onClick={handleDeleteCancel}></div>
+                      <div className="fixed inset-0 z-40" onClick={handleDropdownCancel}></div>
                       <div className="absolute top-full right-3 z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[120px] mt-1">
                         <button
-                          onClick={() => handleDeleteConfirm(showDeleteModal)}
+                          onClick={() => handleDeleteOptionClick(conversation.id)}
                           className="flex w-full items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -214,6 +233,57 @@ export const ConversationSidebar = memo(function ConversationSidebar({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        backdrop="blur"
+        classNames={{
+          backdrop: "backdrop-blur-md bg-black/30 z-[9999] fixed inset-0",
+          wrapper: "z-[10000]",
+          base: "z-[10001]",
+        }}
+        isOpen={!!showDeleteModal}
+        placement="center"
+        portalContainer={
+          typeof window !== "undefined" ? document.body : undefined
+        }
+        size="sm"
+        onClose={handleDeleteCancel}
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1 px-6 pt-6 pb-2">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Delete Conversation
+            </h3>
+          </ModalHeader>
+          <ModalBody className="px-6 py-2">
+            <div className="text-center">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <p className="text-sm text-gray-600">
+                Are you sure you want to delete this conversation? This action cannot be undone.
+              </p>
+            </div>
+          </ModalBody>
+          <ModalFooter className="px-6 py-6 flex justify-end">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleDeleteCancel}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </aside>
   );
 });
