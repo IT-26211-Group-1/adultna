@@ -52,7 +52,7 @@ export function ChatContainerOptimized() {
   // Initialize from localStorage synchronously
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [conversations, setConversations] = useState<StoredConversation[]>(() =>
-    loadFromStorage()
+    loadFromStorage(),
   );
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     () => {
@@ -62,14 +62,14 @@ export function ChatContainerOptimized() {
         const mostRecent = stored.sort(
           (a, b) =>
             new Date(b.lastActivityAt).getTime() -
-            new Date(a.lastActivityAt).getTime()
+            new Date(a.lastActivityAt).getTime(),
         )[0];
 
         return mostRecent.id;
       }
 
       return undefined;
-    }
+    },
   );
   const [messages, setMessages] = useState<ConversationMessage[]>(() => {
     const stored = loadFromStorage();
@@ -133,7 +133,7 @@ export function ChatContainerOptimized() {
         return newConversations;
       });
     },
-    []
+    [],
   );
 
   const { sendMessage, isPending } = useGabayChat({
@@ -212,7 +212,7 @@ export function ChatContainerOptimized() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       });
     },
-    [currentSessionId, sendMessage]
+    [currentSessionId, sendMessage],
   );
 
   const handleNewConversation = useCallback(() => {
@@ -230,11 +230,11 @@ export function ChatContainerOptimized() {
           conversation.messages.map((m) => ({
             ...m,
             timestamp: new Date(m.timestamp),
-          }))
+          })),
         );
       }
     },
-    [conversations]
+    [conversations],
   );
 
   const handleDeleteConversation = useCallback(
@@ -250,7 +250,7 @@ export function ChatContainerOptimized() {
         handleNewConversation();
       }
     },
-    [currentSessionId, handleNewConversation]
+    [currentSessionId, handleNewConversation],
   );
 
   const conversationList: Conversation[] = conversations.map((c) => ({

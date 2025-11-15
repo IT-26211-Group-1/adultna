@@ -56,7 +56,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
     if (quota.isQuotaExceeded) {
       setStorageError(
-        "Storage quota exceeded. Please delete some files to free up space."
+        "Storage quota exceeded. Please delete some files to free up space.",
       );
 
       return false;
@@ -64,7 +64,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
     if (file.size > quota.remainingStorageBytes) {
       setStorageError(
-        `File size (${formatFileSize(file.size)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`
+        `File size (${formatFileSize(file.size)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`,
       );
 
       return false;

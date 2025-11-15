@@ -27,7 +27,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
         const indent = "  ".repeat(depth);
 
         logger.log(
-          `${indent}${obj.type}: "${obj.name}" (${obj.children.length} children)`
+          `${indent}${obj.type}: "${obj.name}" (${obj.children.length} children)`,
         );
 
         if (obj.children && obj.children.length > 0) {
@@ -55,7 +55,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(
       meshRef.current.children,
-      true
+      true,
     );
 
     logger.log("=== Click Debug ===");
@@ -120,7 +120,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(
       meshRef.current.children,
-      true
+      true,
     );
 
     if (intersects.length > 0) {

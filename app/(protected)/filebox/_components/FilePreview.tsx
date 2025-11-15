@@ -26,7 +26,7 @@ const PDFViewer = dynamic(
         <Spinner color="success" size="lg" />
       </div>
     ),
-  }
+  },
 );
 
 interface FilePreviewProps {
@@ -49,7 +49,7 @@ export function FilePreview({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const onDocumentLoadError = (error: Error) => {
+  const onDocumentLoadError = (_error: Error) => {
     setLoading(false);
     setError("Failed to load PDF. Please try downloading the file.");
   };

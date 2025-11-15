@@ -42,7 +42,7 @@ export function FileBox() {
     isLoading: filesLoading,
     error: filesError,
   } = useFileboxFiles(
-    selectedCategory === "all" ? undefined : selectedCategory
+    selectedCategory === "all" ? undefined : selectedCategory,
   );
 
   const { files, fileMetadataMap } = useMemo(() => {
@@ -105,7 +105,7 @@ export function FileBox() {
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL
+        API_CONFIG.API_URL,
       );
 
       if (response.success && response.data?.downloadUrl) {

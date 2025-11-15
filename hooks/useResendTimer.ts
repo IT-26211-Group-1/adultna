@@ -21,7 +21,7 @@ export function useResendTimer() {
       const now = Date.now();
       const remaining = Math.max(
         0,
-        Math.ceil((timerData.expiresAt - now) / 1000)
+        Math.ceil((timerData.expiresAt - now) / 1000),
       );
 
       if (remaining > 0) {

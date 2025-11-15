@@ -23,7 +23,9 @@ export default function ReviewContainer() {
   const sortedSections =
     coverLetter?.sections
       ?.filter((s: CoverLetterSection | null): s is CoverLetterSection => !!s)
-      .sort((a: CoverLetterSection, b: CoverLetterSection) => a.order - b.order) || [];
+      .sort(
+        (a: CoverLetterSection, b: CoverLetterSection) => a.order - b.order,
+      ) || [];
 
   return (
     <div className="min-h-screen bg-gray-50">

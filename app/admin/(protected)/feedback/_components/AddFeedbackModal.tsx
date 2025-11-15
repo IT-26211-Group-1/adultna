@@ -86,7 +86,7 @@ export default function AddFeedbackModal({
         });
       }
     },
-    [createFeedback, reset, onFeedbackCreated, onClose]
+    [createFeedback, reset, onFeedbackCreated, onClose],
   );
 
   const handleClose = useCallback(() => {

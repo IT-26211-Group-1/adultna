@@ -102,7 +102,7 @@ export default function EditFeedbackModal({
                   timeout: 4000,
                 });
               },
-            }
+            },
           );
         } else {
           addToast({
@@ -127,7 +127,7 @@ export default function EditFeedbackModal({
       updateFeedbackStatus,
       onFeedbackUpdated,
       onClose,
-    ]
+    ],
   );
 
   const handleClose = useCallback(() => {
