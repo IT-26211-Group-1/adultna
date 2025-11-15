@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import React from "react";
 
 interface AdminErrorBoundaryState {
@@ -83,7 +84,7 @@ export class AdminErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Admin Error Boundary caught an error:", error, errorInfo);
+    logger.error("Admin Error Boundary caught an error:", error, errorInfo);
 
     if (process.env.NODE_ENV === "production") {
     }

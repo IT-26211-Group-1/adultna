@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState, useEffect, useRef } from "react";
+import { logger } from "@/lib/logger";
 
 export function useSecureStorage() {
   const encrypt = useCallback((data: string): string => {
@@ -33,7 +34,7 @@ export function useSecureStorage() {
           new CustomEvent(`secureStorage:${key}`, { detail: value }),
         );
       } catch (error) {
-        console.warn("Failed to store secure data:", error);
+        logger.warn("Failed to store secure data:", error);
       }
     },
     [encrypt],
@@ -63,7 +64,7 @@ export function useSecureStorage() {
         ).slice(0, 8);
 
         if (expectedChecksum !== secureData.checksum) {
-          console.warn("Data integrity check failed");
+          logger.warn("Data integrity check failed");
           sessionStorage.removeItem(`secure_${key}`);
 
           return null;
@@ -71,7 +72,7 @@ export function useSecureStorage() {
 
         return decryptedValue;
       } catch (error) {
-        console.warn("Failed to retrieve secure data:", error);
+        logger.warn("Failed to retrieve secure data:", error);
 
         return null;
       }

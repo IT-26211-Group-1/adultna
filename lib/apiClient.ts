@@ -2,6 +2,7 @@
 
 import { API_CONFIG } from "@/config/api";
 import { PUBLIC_ROUTES } from "@/config/site";
+import { logger } from "@/lib/logger";
 
 export const API_BASE_URL = API_CONFIG.API_URL;
 export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
@@ -84,7 +85,7 @@ export class ApiClient {
             });
 
             if (!refreshResponse.ok) {
-              console.log(
+              logger.log(
                 "[ApiClient] ❌ Refresh failed - refresh token expired, logging out",
               );
 
@@ -104,7 +105,7 @@ export class ApiClient {
             // Retry the original request once
             return this.request<T>(endpoint, options, baseUrl, true);
           } catch (error) {
-            console.log("[ApiClient] ❌ Token refresh error:", error);
+            logger.log("[ApiClient] ❌ Token refresh error:", error);
 
             // If refresh fails, logout user
             if (typeof window !== "undefined") {
@@ -343,5 +344,13 @@ export const queryKeys = {
     detail: (resumeId: string) => ["resumes", "detail", resumeId] as const,
     contactInfo: (resumeId: string) =>
       ["resumes", "contactInfo", resumeId] as const,
+  },
+
+  // Cover Letter queries
+  coverLetters: {
+    all: ["coverLetters"] as const,
+    list: () => ["coverLetters", "list"] as const,
+    detail: (coverLetterId: string) =>
+      ["coverLetters", "detail", coverLetterId] as const,
   },
 } as const;

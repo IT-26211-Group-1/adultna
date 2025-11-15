@@ -13,6 +13,7 @@ import {
 import { OTPAction } from "@/types/filebox";
 import { ResendTimer } from "@/components/ui/ResendTimer";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { logger } from "@/lib/logger";
 
 type OtpFormType = { otp: string };
 
@@ -283,7 +284,7 @@ export function SecureDocument({
           }
         },
         onError: (error: any) => {
-          console.error(
+          logger.error(
             `[SecureDocument] OTP verification failed for action: ${action}`,
             error,
           );

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { API_CONFIG } from "@/config/api";
+import { logger } from "@/lib/logger";
 
 const REFRESH_URL = `${API_CONFIG.API_URL}/auth/refresh-token`;
 const REFRESH_BEFORE_EXPIRY = 2 * 60 * 1000; // Refresh 2 minutes before token expires
@@ -40,7 +41,7 @@ export function useTokenRefresh() {
             }
           }
         } catch (error) {
-          console.error("Proactive token refresh failed:", error);
+          logger.error("Proactive token refresh failed:", error);
         }
       }, refreshIn);
     }

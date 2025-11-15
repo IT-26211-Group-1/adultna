@@ -12,6 +12,7 @@ import { ResultsLoadingSkeleton } from "./ResultsLoadingSkeleton";
 import { StarMetricCards } from "./StarMetricCards";
 import { QuestionBreakdown } from "./QuestionBreakdown";
 import { useMockInterviewState } from "@/hooks/useMockInterviewState";
+import { logger } from "@/lib/logger";
 
 type SessionResults = {
   jobRole: string;
@@ -59,7 +60,7 @@ export function InterviewResults() {
         timestamp: parsed.timestamp,
       });
     } catch (error) {
-      console.error("Failed to parse results:", error);
+      logger.error("Failed to parse results:", error);
       router.push("/mock-interview");
 
       return;

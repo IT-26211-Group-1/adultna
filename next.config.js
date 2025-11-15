@@ -4,6 +4,11 @@ const nextConfig = {
   output: "export",
   trailingSlash: true,
 
+  // Generate consistent build ID for cache busting
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
+
   // Images must be unoptimized for static export (no Image Optimization API)
   images: {
     unoptimized: true,
@@ -39,12 +44,7 @@ const nextConfig = {
   },
 
   // Webpack optimizations
-  webpack: (config, { dev, isServer }) => {
-    if (dev && !isServer) {
-      // Disable caching in development to prevent chunk loading errors
-      config.cache = false;
-    }
-
+  webpack: (config, { dev }) => {
     if (!dev) {
       config.optimization = {
         ...config.optimization,

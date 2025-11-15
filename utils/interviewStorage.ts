@@ -1,3 +1,5 @@
+import { logger } from "@/lib/logger";
+
 const PREFIX = "interview_answers_";
 
 export const interviewStorage = {
@@ -8,7 +10,7 @@ export const interviewStorage = {
         JSON.stringify(Array.from(answers.entries())),
       );
     } catch (e) {
-      console.error("Failed to save answers:", e);
+      logger.error("Failed to save answers:", e);
     }
   },
 
@@ -18,7 +20,7 @@ export const interviewStorage = {
 
       return saved ? new Map(JSON.parse(saved)) : new Map();
     } catch (e) {
-      console.error("Failed to load answers:", e);
+      logger.error("Failed to load answers:", e);
 
       return new Map();
     }
@@ -28,7 +30,7 @@ export const interviewStorage = {
     try {
       localStorage.removeItem(`${PREFIX}${sessionId}`);
     } catch (e) {
-      console.error("Failed to clear answers:", e);
+      logger.error("Failed to clear answers:", e);
     }
   },
 };

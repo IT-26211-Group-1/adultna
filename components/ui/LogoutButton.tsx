@@ -3,6 +3,7 @@
 import { Button } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 import { useAuth } from "@/hooks/useAuth";
+import { logger } from "@/lib/logger";
 
 interface LogoutButtonProps {
   variant?:
@@ -48,7 +49,7 @@ export function LogoutButton({
     try {
       logout();
     } catch (error) {
-      console.error("Logout error:", error);
+      logger.error("Logout error:", error);
       addToast({
         title: "Sign out failed",
         description: "Please try again",
