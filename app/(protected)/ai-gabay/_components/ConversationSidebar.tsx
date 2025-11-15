@@ -61,11 +61,22 @@ export const ConversationSidebar = memo(function ConversationSidebar({
   };
 
   return (
-    <aside
-      className={`flex h-full flex-col bg-gradient-to-b from-purple-50/80 to-white/90 backdrop-blur-sm border-r border-white/30 transition-all duration-500 ease-in-out ${
-        isOpen ? "w-80" : "w-20"
-      }`}
-    >
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          onClick={onToggleSidebar}
+        />
+      )}
+
+      <aside
+        className={`flex h-full flex-col bg-gradient-to-b from-purple-50/80 to-white/90 backdrop-blur-sm border-r border-white/30 transition-all duration-500 ease-in-out
+          ${isOpen
+            ? "w-80 fixed md:relative left-0 top-0 z-50 md:z-auto md:translate-x-0"
+            : "w-80 md:w-20 fixed md:relative -translate-x-full md:translate-x-0"
+          }`}
+      >
       {/* Logo Section */}
       <div className="flex flex-col items-center pt-6 pb-3">
         {isOpen ? (
@@ -285,5 +296,6 @@ export const ConversationSidebar = memo(function ConversationSidebar({
         </ModalContent>
       </Modal>
     </aside>
+    </>
   );
 });

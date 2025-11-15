@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { ArrowDownIcon } from "lucide-react";
+import { ArrowDownIcon, MenuIcon } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
 import { AgentWelcome } from "./AgentWelcome";
 import { SuggestionButton } from "./SuggestionButton";
@@ -277,7 +277,16 @@ export function ChatContainerOptimized() {
       <div className="flex flex-1 flex-col bg-gradient-to-b from-adult-green/10 to-white">
         {/* Header */}
         <div className="bg-transparent px-6 py-2">
-          {/* Empty header for spacing */}
+          {/* Hamburger menu for mobile */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 rounded-lg text-gray-600 hover:text-gray-800 hover:bg-white/50 transition-colors"
+              title="Toggle menu"
+            >
+              <MenuIcon className="h-6 w-6" />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
