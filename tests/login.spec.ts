@@ -147,7 +147,15 @@ test.describe("Login Form", () => {
     await page.fill('input[name="email"]', "  user@example.com  ");
     await page.fill('input[name="password"]', "  QWEasd123.  ");
     await page.getByRole("button", { name: "Login" }).click();
-    await expect(page.getByText("Login failed")).toBeVisible();
+
+    await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
+  });
+
+  test("login page loads within acceptable time", async ({ page }) => {
+    const start = Date.now();
+    await page.goto("http://localhost:3000/auth/login");
+    const loadTime = Date.now() - start;
+    expect(loadTime).toBeLessThan(2000); // 2 seconds
   });
 
 });
