@@ -1,7 +1,7 @@
 "use client";
 
 import { Textarea } from "@heroui/react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { debounce } from "@/lib/utils/debounce";
 import type { CoverLetterSection } from "@/types/cover-letter";
 
@@ -11,14 +11,20 @@ interface BodyFormProps {
 }
 
 export default function BodyForm({ section, onSectionChange }: BodyFormProps) {
+  const previousDataRef = useRef<string>("");
   const [content, setContent] = useState<string>(section?.content || "");
 
   // Update local state when section content changes from parent
   useEffect(() => {
-    if (section?.content !== undefined && section?.content !== content) {
-      setContent(section.content);
+    if (section?.content) {
+      const currentData = section.content;
+
+      if (previousDataRef.current !== currentData) {
+        setContent(currentData);
+        previousDataRef.current = currentData;
+      }
     }
-  }, [section?.content, content]);
+  }, [section?.content]);
 
   const debouncedSync = useMemo(
     () =>
