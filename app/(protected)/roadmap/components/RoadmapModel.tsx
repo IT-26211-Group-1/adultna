@@ -25,7 +25,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
   };
 
   const handleHitboxClick = (milestoneId: string) => {
-    console.log(`✅ Milestone ${milestoneId} clicked!`);
+    logger.log(`✅ Milestone ${milestoneId} clicked!`);
 
     const interaction: RoadmapInteraction = {
       objectName: `milestone_${milestoneId}`,
