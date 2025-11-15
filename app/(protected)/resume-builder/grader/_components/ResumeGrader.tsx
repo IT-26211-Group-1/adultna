@@ -14,6 +14,7 @@ import {
   ATSGradingResult,
 } from "@/hooks/queries/useResumeQueries";
 import { ApiClient } from "@/lib/apiClient";
+import { logger } from "@/lib/logger";
 
 export default function ResumeGrader() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -154,7 +155,7 @@ export default function ResumeGrader() {
       setGradingResult(result);
       setIsProcessing(false);
     } catch (error: any) {
-      console.error("Grading error:", error);
+      logger.error("Grading error:", error);
 
       if (error?.message?.includes("RATE_LIMIT_EXCEEDED")) {
         addToast({

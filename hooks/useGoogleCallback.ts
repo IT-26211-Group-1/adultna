@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { addToast } from "@heroui/toast";
+import { logger } from "@/lib/logger";
 
 export const useGoogleCallback = () => {
   const router = useRouter();
@@ -19,7 +20,7 @@ export const useGoogleCallback = () => {
       const error = searchParams.get("error");
 
       if (error) {
-        console.error("❌ OAuth error parameter:", error);
+        logger.error("❌ OAuth error parameter:", error);
         addToast({
           title: "Authentication Error",
           description: "Google authentication was cancelled or failed",
@@ -31,7 +32,7 @@ export const useGoogleCallback = () => {
       }
 
       if (!code) {
-        console.error("❌ No authorization code received");
+        logger.error("❌ No authorization code received");
         addToast({
           title: "Authentication Error",
           description: "No authorization code received",
@@ -49,7 +50,7 @@ export const useGoogleCallback = () => {
       sessionStorage.removeItem("pkce_code_verifier");
 
       if (!state || state !== storedState) {
-        console.error("❌ State validation failed:", { state, storedState });
+        logger.error("❌ State validation failed:", { state, storedState });
         addToast({
           title: "Security Error",
           description: "Invalid state parameter",
@@ -67,7 +68,7 @@ export const useGoogleCallback = () => {
 
         mode = stateData.mode || "login";
       } catch (error) {
-        console.error("Failed to parse state:", error);
+        logger.error("Failed to parse state:", error);
       }
 
       if (!codeVerifier) {
@@ -138,7 +139,7 @@ export const useGoogleCallback = () => {
           router.replace("/auth/login");
         }
       } catch (error) {
-        console.error("Google auth error:", error);
+        logger.error("Google auth error:", error);
         addToast({
           title: "Authentication Error",
           description: "Failed to authenticate with Google",

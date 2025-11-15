@@ -9,6 +9,7 @@ import ModernTemplate from "../../templates/_components/ModernTemplate";
 import SkillBasedTemplate from "../../templates/_components/SkillBasedTemplate";
 import HybridTemplate from "../../templates/_components/HybridTemplate";
 import { TemplateId } from "@/constants/templates";
+import { logger } from "@/lib/logger";
 
 type ResumePreviewProps = {
   resumeData: ResumeData & { colorHex?: string };
@@ -46,7 +47,7 @@ export default function ResumePreview({
 
       return date.toLocaleDateString("en-US", { year: "numeric" });
     } catch (error) {
-      console.error("Error formatting date:", error, dateValue);
+      logger.error("Error formatting date:", error, dateValue);
 
       return "Invalid Date";
     }

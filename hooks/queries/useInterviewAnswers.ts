@@ -7,6 +7,7 @@ import type {
   SubmitAnswerResponse,
   InterviewAnswer,
 } from "@/types/interview-answer";
+import { logger } from "@/lib/logger";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -45,7 +46,7 @@ export function useSubmitAnswerToQueue() {
       queryClient.invalidateQueries({ queryKey: ["interview-answers"] });
     },
     onError: (error) => {
-      console.error("[useSubmitAnswerToQueue] Failed:", error);
+      logger.error("[useSubmitAnswerToQueue] Failed:", error);
     },
   });
 }
@@ -75,7 +76,7 @@ export async function pollMultipleAnswersUntilComplete(
       }
     });
 
-    console.log(
+    logger.log(
       `[pollMultipleAnswersUntilComplete] Completed: ${completedAnswers.length}/${answerIds.length}, Failed: ${failedAnswers.length}`,
     );
 
@@ -85,7 +86,7 @@ export async function pollMultipleAnswersUntilComplete(
 
     // All answers completed or failed
     if (completedAnswers.length + failedAnswers.length === answerIds.length) {
-      console.log("[pollMultipleAnswersUntilComplete] All answers processed!");
+      logger.log("[pollMultipleAnswersUntilComplete] All answers processed!");
 
       // Fetch with full content using batch endpoint (1 API call instead of N)
       const results = await answerApi.getAnswersByIds(answerIds);

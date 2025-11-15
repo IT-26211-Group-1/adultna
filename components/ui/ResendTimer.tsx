@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import React, {
   useCallback,
   useEffect,
@@ -100,7 +101,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
       sessionStorage.setItem(storageKey, String(expiresAtMs));
       setTime(cooldown);
     } catch (error) {
-      console.error("Failed to resend OTP:", error);
+      logger.error("Failed to resend OTP:", error);
       setDisabled(false);
     }
   }, [handleResendOtp, isDisabled, storageKey, verificationToken]);
