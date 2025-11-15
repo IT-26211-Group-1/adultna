@@ -450,6 +450,14 @@ export function ChatContainerOptimized() {
                 <div>
                   <ChatInput disabled={isPending} onSubmit={handleSendMessage} />
                 </div>
+
+                {/* AI Disclaimer for new chat */}
+                <div className="px-4 -mt-4">
+                  <p className="text-xs text-gray-500 text-center mb-6">
+                    AI Gabay can make mistakes. Please verify important information and consider checking with official sources for critical decisions.
+                  </p>
+                </div>
+
                 <div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {INITIAL_SUGGESTIONS.map((suggestion) => (
@@ -492,15 +500,6 @@ export function ChatContainerOptimized() {
           </div>
         </div>
 
-        {/* Scroll Button */}
-        {showScrollButton && (
-          <button
-            className="absolute bottom-32 right-8 rounded-full bg-gray-200 p-2 shadow-lg hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
-            onClick={scrollToBottom}
-          >
-            <ArrowDownIcon className="h-5 w-5" />
-          </button>
-        )}
 
         {/* Input - Only shown when there are messages */}
         {messages.length > 0 && (
@@ -511,14 +510,17 @@ export function ChatContainerOptimized() {
           </div>
         )}
 
-        {/* AI Disclaimer */}
-        <div className="bg-transparent px-6 py-4 border-t border-gray-100/50">
-          <div className="mx-auto max-w-4xl">
-            <p className="text-xs text-gray-500 text-center">
-              AI Gabay can make mistakes. Please verify important information and consider checking with official sources for critical decisions.
-            </p>
+        {/* AI Disclaimer - Only show when there are messages */}
+        {messages.length > 0 && (
+          <div className="bg-transparent px-6 py-4 border-t border-gray-100/50">
+            <div className="mx-auto max-w-4xl">
+              <p className="text-xs text-gray-500 text-center">
+                AI Gabay can make mistakes. Please verify important information and consider checking with official sources for critical decisions.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
+
       </div>
 
       {/* Delete Confirmation Modal */}
