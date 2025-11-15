@@ -1,7 +1,7 @@
 "use client";
 
 import { Textarea } from "@heroui/react";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { debounce } from "@/lib/utils/debounce";
 import type { CoverLetterSection } from "@/types/cover-letter";
 
@@ -10,7 +10,10 @@ interface SignatureFormProps {
   onSectionChange: (content: string) => void;
 }
 
-export default function SignatureForm({ section, onSectionChange }: SignatureFormProps) {
+export default function SignatureForm({
+  section,
+  onSectionChange,
+}: SignatureFormProps) {
   const [content, setContent] = useState<string>(section?.content || "");
 
   // Update local state when section content changes from parent
@@ -21,10 +24,11 @@ export default function SignatureForm({ section, onSectionChange }: SignatureFor
   }, [section?.content, content]);
 
   const debouncedSync = useMemo(
-    () => debounce((newContent: string) => {
-      onSectionChange(newContent);
-    }, 300),
-    [onSectionChange]
+    () =>
+      debounce((newContent: string) => {
+        onSectionChange(newContent);
+      }, 300),
+    [onSectionChange],
   );
 
   useEffect(() => {
@@ -42,14 +46,15 @@ export default function SignatureForm({ section, onSectionChange }: SignatureFor
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Signature</h2>
         <p className="text-sm text-default-500">
-          Add your professional sign-off and name. You can sign the PDF manually later.
+          Add your professional sign-off and name. You can sign the PDF manually
+          later.
         </p>
       </div>
 
       <form className="space-y-6">
         <Textarea
-          description={`${content ? `${getCharacterCount(content)} characters` : "Write your signature"}`}
           disableAnimation
+          description={`${content ? `${getCharacterCount(content)} characters` : "Write your signature"}`}
           label="Signature"
           minRows={3}
           placeholder="Sincerely,&#10;[Your Name]"

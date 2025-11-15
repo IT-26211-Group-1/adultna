@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import {
   useGenerateUploadUrl,
@@ -13,7 +12,6 @@ import {
 import type { CoverLetterStyle } from "@/types/cover-letter";
 
 export function useCoverLetterEditor() {
-  const router = useRouter();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [currentCoverLetterId, setCurrentCoverLetterId] = useState<
     string | null
@@ -37,7 +35,7 @@ export function useCoverLetterEditor() {
   };
 
   const handleGenerateCoverLetter = async (
-    styleOverride?: CoverLetterStyle
+    styleOverride?: CoverLetterStyle,
   ) => {
     if (!uploadedFile) return;
 
@@ -116,10 +114,12 @@ export function useCoverLetterEditor() {
         currentContent,
         targetTone,
       });
+
       addToast({
         title: "Tone changed successfully!",
         color: "success",
       });
+
       return result;
     } catch (error) {
       addToast({

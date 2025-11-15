@@ -15,8 +15,7 @@ import IntroForm from "./forms/IntroForm";
 import BodyForm from "./forms/BodyForm";
 import ConclusionForm from "./forms/ConclusionForm";
 import SignatureForm from "./forms/SignatureForm";
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { debounce } from "@/lib/utils/debounce";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@heroui/react";
 
 type SectionData = {
@@ -36,12 +35,15 @@ export function CoverLetterEditorContainer() {
   const exportCoverLetter = useExportCoverLetter();
   const updateSections = useUpdateSections(coverLetterId);
 
-  const [currentSectionType, setCurrentSectionType] = useState<SectionType>("intro");
+  const [currentSectionType, setCurrentSectionType] =
+    useState<SectionType>("intro");
   const [sectionData, setSectionData] = useState<SectionData>({});
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [title, setTitle] = useState(coverLetter?.title || "");
-  const [loadedCoverLetterId, setLoadedCoverLetterId] = useState<string | null>(null);
+  const [loadedCoverLetterId, setLoadedCoverLetterId] = useState<string | null>(
+    null,
+  );
 
   const lastSavedDataRef = useRef<SectionData>({});
   const lastApiDataRef = useRef<string>("");
@@ -51,13 +53,15 @@ export function CoverLetterEditorContainer() {
     if (!coverLetter) return;
 
     const newSections: SectionData = {};
+
     coverLetter.sections?.forEach((section: CoverLetterSection) => {
       newSections[section.sectionType as keyof SectionData] = section;
     });
 
     const newDataString = JSON.stringify(newSections);
     const isNewCoverLetter = coverLetter.id !== loadedCoverLetterId;
-    const isContentChanged = newDataString !== lastApiDataRef.current && lastApiDataRef.current !== "";
+    const isContentChanged =
+      newDataString !== lastApiDataRef.current && lastApiDataRef.current !== "";
 
     // Update if it's a new cover letter OR if the API content has changed (generation)
     if (isNewCoverLetter) {
@@ -142,6 +146,7 @@ export function CoverLetterEditorContainer() {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
+
         return "";
       }
     };
@@ -153,37 +158,53 @@ export function CoverLetterEditorContainer() {
     };
   }, [hasUnsavedChanges]);
 
-  const handleSectionChange = useCallback((sectionType: SectionType, content: string) => {
-    setSectionData((prev) => {
-      const section = prev[sectionType];
-      if (!section) return prev;
+  const handleSectionChange = useCallback(
+    (sectionType: SectionType, content: string) => {
+      setSectionData((prev) => {
+        const section = prev[sectionType];
 
-      return {
-        ...prev,
-        [sectionType]: {
-          ...section,
-          content,
-        },
-      };
-    });
-  }, []);
+        if (!section) return prev;
+
+        return {
+          ...prev,
+          [sectionType]: {
+            ...section,
+            content,
+          },
+        };
+      });
+    },
+    [],
+  );
 
   // Create stable callbacks for each section
-  const handleIntroChange = useCallback((content: string) => {
-    handleSectionChange("intro", content);
-  }, [handleSectionChange]);
+  const handleIntroChange = useCallback(
+    (content: string) => {
+      handleSectionChange("intro", content);
+    },
+    [handleSectionChange],
+  );
 
-  const handleBodyChange = useCallback((content: string) => {
-    handleSectionChange("body", content);
-  }, [handleSectionChange]);
+  const handleBodyChange = useCallback(
+    (content: string) => {
+      handleSectionChange("body", content);
+    },
+    [handleSectionChange],
+  );
 
-  const handleConclusionChange = useCallback((content: string) => {
-    handleSectionChange("conclusion", content);
-  }, [handleSectionChange]);
+  const handleConclusionChange = useCallback(
+    (content: string) => {
+      handleSectionChange("conclusion", content);
+    },
+    [handleSectionChange],
+  );
 
-  const handleSignatureChange = useCallback((content: string) => {
-    handleSectionChange("signature", content);
-  }, [handleSectionChange]);
+  const handleSignatureChange = useCallback(
+    (content: string) => {
+      handleSectionChange("signature", content);
+    },
+    [handleSectionChange],
+  );
 
   const handleDownloadPDF = async () => {
     try {
@@ -210,7 +231,12 @@ export function CoverLetterEditorContainer() {
       .sort((a, b) => a.order - b.order) || [];
 
   // Section navigation
-  const sectionOrder: SectionType[] = ["intro", "body", "conclusion", "signature"];
+  const sectionOrder: SectionType[] = [
+    "intro",
+    "body",
+    "conclusion",
+    "signature",
+  ];
   const currentSectionIndex = sectionOrder.indexOf(currentSectionType);
   const isFirstSection = currentSectionIndex === 0;
   const isLastSection = currentSectionIndex === sectionOrder.length - 1;
@@ -364,8 +390,8 @@ export function CoverLetterEditorContainer() {
               </Button>
               {isLastSection ? (
                 <Button
-                  className="bg-adult-green hover:bg-[#0e4634] text-white"
                   disableAnimation
+                  className="bg-adult-green hover:bg-[#0e4634] text-white"
                   isDisabled={isSaving}
                   isLoading={isSaving}
                   size="lg"
@@ -375,8 +401,8 @@ export function CoverLetterEditorContainer() {
                 </Button>
               ) : (
                 <Button
-                  className="bg-adult-green hover:bg-[#0e4634] text-white"
                   disableAnimation
+                  className="bg-adult-green hover:bg-[#0e4634] text-white"
                   isDisabled={isSaving}
                   isLoading={isSaving}
                   size="lg"

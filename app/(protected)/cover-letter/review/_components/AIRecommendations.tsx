@@ -8,8 +8,11 @@ type AIRecommendationsProps = {
   coverLetterId: string;
 };
 
-export default function AIRecommendations({ coverLetterId }: AIRecommendationsProps) {
-  const { data: recommendations, isLoading } = useGetRecommendations(coverLetterId);
+export default function AIRecommendations({
+  coverLetterId,
+}: AIRecommendationsProps) {
+  const { data: recommendations, isLoading } =
+    useGetRecommendations(coverLetterId);
 
   return (
     <Card>
@@ -36,7 +39,10 @@ export default function AIRecommendations({ coverLetterId }: AIRecommendationsPr
             {recommendations?.map((rec, index) => (
               <div key={index} className="border-l-2 border-green-500 pl-3">
                 <div className="flex items-start gap-2">
-                  <CheckCircle2 className="text-green-500 mt-0.5 flex-shrink-0" size={16} />
+                  <CheckCircle2
+                    className="text-green-500 mt-0.5 flex-shrink-0"
+                    size={16}
+                  />
                   <div>
                     <p className="font-medium text-sm">{rec.title}</p>
                     <p className="text-xs text-gray-600">{rec.description}</p>

@@ -203,7 +203,7 @@ export function ImportResume() {
   const convertToResumeData = (
     data: ExtractedResumeData,
     templateId: string,
-    colorHex?: string
+    colorHex?: string,
   ): ResumeData & { colorHex?: string } => {
     return {
       templateId: templateId as any,
@@ -400,7 +400,7 @@ export function ImportResume() {
                             resumeData={convertToResumeData(
                               extractedData,
                               template.id,
-                              template.colorScheme
+                              template.colorScheme,
                             )}
                           />
                         )}

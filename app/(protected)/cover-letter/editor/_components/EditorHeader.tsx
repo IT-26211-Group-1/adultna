@@ -44,8 +44,8 @@ export default function EditorHeader({
 
         <div className="flex items-center gap-3">
           <Button
-            className="bg-adult-green hover:bg-[#0e4634] text-white"
             disableAnimation
+            className="bg-adult-green hover:bg-[#0e4634] text-white"
             isLoading={isExporting}
             size="sm"
             startContent={isExporting ? null : <Download size={16} />}

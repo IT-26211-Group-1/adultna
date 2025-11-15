@@ -89,12 +89,12 @@ export default function InlineEditableTitle({
       <div className="flex flex-col max-w-md">
         <Input
           ref={inputRef}
+          disableAnimation
           aria-label="Cover letter title"
           classNames={{
             input: "text-lg font-semibold",
             inputWrapper: "border-2 border-[#11553F]",
           }}
-          disableAnimation
           errorMessage={error}
           isInvalid={!!error}
           placeholder="Untitled Cover Letter"

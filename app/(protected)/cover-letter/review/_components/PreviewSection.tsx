@@ -15,7 +15,10 @@ type PreviewSectionProps = {
   sections: CoverLetterSection[];
 };
 
-export default function PreviewSection({ coverLetterId, sections }: PreviewSectionProps) {
+export default function PreviewSection({
+  coverLetterId,
+  sections,
+}: PreviewSectionProps) {
   const exportCoverLetter = useExportCoverLetter();
   const saveToFilebox = useSaveToFilebox(coverLetterId);
 

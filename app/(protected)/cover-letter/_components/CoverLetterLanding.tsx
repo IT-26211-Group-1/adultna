@@ -152,8 +152,8 @@ export function CoverLetterLanding({
                       <Button
                         color="default"
                         isDisabled={isProcessing}
-                        variant="bordered"
                         size="sm"
+                        variant="bordered"
                         onPress={onRemoveFile}
                       >
                         Remove File
@@ -246,8 +246,8 @@ export function CoverLetterLanding({
             {uploadedFile && (
               <Tone
                 currentStyle={selectedStyle}
-                onChangeTone={onChangeTone}
                 isInitialGeneration={true}
+                onChangeTone={onChangeTone}
               />
             )}
           </div>

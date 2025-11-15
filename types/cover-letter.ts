@@ -1,6 +1,10 @@
 export type CoverLetterStatus = "draft" | "completed" | "archived";
 
-export type CoverLetterTone = "professional" | "formal" | "conversational" | "modern";
+export type CoverLetterTone =
+  | "professional"
+  | "formal"
+  | "conversational"
+  | "modern";
 
 export type SectionType = "intro" | "body" | "conclusion" | "signature";
 

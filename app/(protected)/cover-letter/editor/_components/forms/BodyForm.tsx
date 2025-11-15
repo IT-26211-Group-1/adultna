@@ -1,7 +1,7 @@
 "use client";
 
 import { Textarea } from "@heroui/react";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { debounce } from "@/lib/utils/debounce";
 import type { CoverLetterSection } from "@/types/cover-letter";
 
@@ -21,10 +21,11 @@ export default function BodyForm({ section, onSectionChange }: BodyFormProps) {
   }, [section?.content, content]);
 
   const debouncedSync = useMemo(
-    () => debounce((newContent: string) => {
-      onSectionChange(newContent);
-    }, 300),
-    [onSectionChange]
+    () =>
+      debounce((newContent: string) => {
+        onSectionChange(newContent);
+      }, 300),
+    [onSectionChange],
   );
 
   useEffect(() => {
@@ -42,14 +43,15 @@ export default function BodyForm({ section, onSectionChange }: BodyFormProps) {
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Body</h2>
         <p className="text-sm text-default-500">
-          Highlight your relevant experience, skills, and accomplishments. Show why you're a great fit for this position.
+          Highlight your relevant experience, skills, and accomplishments. Show
+          why you're a great fit for this position.
         </p>
       </div>
 
       <form className="space-y-6">
         <Textarea
-          description={`${content ? `${getCharacterCount(content)} characters` : "Write the main body"}`}
           disableAnimation
+          description={`${content ? `${getCharacterCount(content)} characters` : "Write the main body"}`}
           label="Body"
           minRows={10}
           placeholder="Write your main body content here. Include relevant experience, skills, and why you're interested in the role..."

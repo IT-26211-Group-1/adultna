@@ -10,10 +10,14 @@ type ToneProps = {
   isInitialGeneration?: boolean;
 };
 
-export function Tone({ currentStyle, onChangeTone, isInitialGeneration = false }: ToneProps) {
+export function Tone({
+  currentStyle,
+  onChangeTone,
+  isInitialGeneration = false,
+}: ToneProps) {
   const [isChanging, setIsChanging] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<CoverLetterStyle>(
-    currentStyle || "formal"
+    currentStyle || "formal",
   );
 
   const handleChangeTone = async () => {
@@ -49,6 +53,7 @@ export function Tone({ currentStyle, onChangeTone, isInitialGeneration = false }
             size="sm"
             onSelectionChange={(keys) => {
               const selected = Array.from(keys)[0] as CoverLetterStyle;
+
               setSelectedStyle(selected);
             }}
           >
@@ -61,15 +66,22 @@ export function Tone({ currentStyle, onChangeTone, isInitialGeneration = false }
 
           <Button
             className="bg-adult-green hover:bg-[#0e4634] text-white w-full font-semibold"
-            isDisabled={isInitialGeneration ? false : (!currentStyle || selectedStyle === currentStyle)}
+            isDisabled={
+              isInitialGeneration
+                ? false
+                : !currentStyle || selectedStyle === currentStyle
+            }
             isLoading={isChanging}
             size="sm"
             onPress={handleChangeTone}
           >
             {isChanging
-              ? (isInitialGeneration ? "Generating..." : "Regenerating...")
-              : (isInitialGeneration ? "Generate AI Cover Letter" : "Regenerate with New Tone")
-            }
+              ? isInitialGeneration
+                ? "Generating..."
+                : "Regenerating..."
+              : isInitialGeneration
+                ? "Generate AI Cover Letter"
+                : "Regenerate with New Tone"}
           </Button>
 
           <p className="text-[10px] text-center text-gray-500 italic">

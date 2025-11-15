@@ -1,7 +1,7 @@
 "use client";
 
 import { Textarea } from "@heroui/react";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { debounce } from "@/lib/utils/debounce";
 import type { CoverLetterSection } from "@/types/cover-letter";
 
@@ -10,7 +10,10 @@ interface ConclusionFormProps {
   onSectionChange: (content: string) => void;
 }
 
-export default function ConclusionForm({ section, onSectionChange }: ConclusionFormProps) {
+export default function ConclusionForm({
+  section,
+  onSectionChange,
+}: ConclusionFormProps) {
   const [content, setContent] = useState<string>(section?.content || "");
 
   // Update local state when section content changes from parent
@@ -21,10 +24,11 @@ export default function ConclusionForm({ section, onSectionChange }: ConclusionF
   }, [section?.content, content]);
 
   const debouncedSync = useMemo(
-    () => debounce((newContent: string) => {
-      onSectionChange(newContent);
-    }, 300),
-    [onSectionChange]
+    () =>
+      debounce((newContent: string) => {
+        onSectionChange(newContent);
+      }, 300),
+    [onSectionChange],
   );
 
   useEffect(() => {
@@ -42,14 +46,15 @@ export default function ConclusionForm({ section, onSectionChange }: ConclusionF
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold">Conclusion</h2>
         <p className="text-sm text-default-500">
-          End with a strong closing statement and call to action. Express your enthusiasm and next steps.
+          End with a strong closing statement and call to action. Express your
+          enthusiasm and next steps.
         </p>
       </div>
 
       <form className="space-y-6">
         <Textarea
-          description={`${content ? `${getCharacterCount(content)} characters` : "Write your conclusion"}`}
           disableAnimation
+          description={`${content ? `${getCharacterCount(content)} characters` : "Write your conclusion"}`}
           label="Conclusion"
           minRows={5}
           placeholder="Thank you for considering my application. I look forward to discussing..."

@@ -27,7 +27,7 @@ export function useCoverLetter(coverLetterId?: string) {
       }
 
       const response = await ApiClient.get<ApiResponse<CoverLetter>>(
-        `/cover-letters/${coverLetterId}`
+        `/cover-letters/${coverLetterId}`,
       );
 
       if (!response.data) {
@@ -51,7 +51,7 @@ export function useUpdateTitle(coverLetterId: string) {
     mutationFn: async (title: string) => {
       const response = await ApiClient.put<ApiResponse<CoverLetter>>(
         `/cover-letters/${coverLetterId}/title`,
-        { title }
+        { title },
       );
 
       if (!response.data) {
@@ -76,7 +76,7 @@ export function useExportCoverLetter() {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -86,9 +86,7 @@ export function useExportCoverLetter() {
       const blob = await response.blob();
       const contentDisposition = response.headers.get("Content-Disposition");
       const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const filename = filenameMatch
-        ? filenameMatch[1]
-        : "cover-letter.pdf";
+      const filename = filenameMatch ? filenameMatch[1] : "cover-letter.pdf";
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -159,7 +157,7 @@ export function useImportResume() {
     mutationFn: async (data: ImportResumeInput) => {
       const response = await ApiClient.post<ApiResponse<CoverLetter>>(
         "/cover-letters/import",
-        data
+        data,
       );
 
       if (!response.success) {
@@ -207,7 +205,7 @@ export function useUpdateSection(coverLetterId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coverLetters.detail(coverLetterId),
-        refetchType: 'none',
+        refetchType: "none",
       });
     },
   });
@@ -222,7 +220,7 @@ export function useUpdateSections(coverLetterId: string) {
       sections: Array<{
         sectionType: SectionType;
         content: string;
-      }>
+      }>,
     ) => {
       if (!sections || sections.length === 0) {
         throw new Error("At least one section is required");
@@ -244,7 +242,7 @@ export function useUpdateSections(coverLetterId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coverLetters.detail(coverLetterId),
-        refetchType: 'none',
+        refetchType: "none",
       });
     },
   });

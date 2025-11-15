@@ -20,7 +20,9 @@ export default function ReviewContainer() {
   }
 
   const sortedSections =
-    coverLetter?.sections?.filter((s) => !!s).sort((a, b) => a.order - b.order) || [];
+    coverLetter?.sections
+      ?.filter((s) => !!s)
+      .sort((a, b) => a.order - b.order) || [];
 
   return (
     <div className="min-h-screen bg-gray-50">

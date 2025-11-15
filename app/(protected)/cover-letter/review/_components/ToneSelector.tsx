@@ -17,7 +17,10 @@ const TONE_OPTIONS = [
   { value: "friendly", label: "Friendly" },
 ];
 
-export default function ToneSelector({ coverLetterId, currentTone }: ToneSelectorProps) {
+export default function ToneSelector({
+  coverLetterId,
+  currentTone,
+}: ToneSelectorProps) {
   const [selectedTone, setSelectedTone] = useState(currentTone);
   const regenerateWithTone = useRegenerateWithTone(coverLetterId);
 
@@ -28,6 +31,7 @@ export default function ToneSelector({ coverLetterId, currentTone }: ToneSelecto
         description: "Please select a different tone to regenerate",
         color: "warning",
       });
+
       return;
     }
 
@@ -72,7 +76,9 @@ export default function ToneSelector({ coverLetterId, currentTone }: ToneSelecto
           isLoading={regenerateWithTone.isPending}
           onPress={handleRegenerateTone}
         >
-          {regenerateWithTone.isPending ? "Regenerating..." : "Regenerate with Tone"}
+          {regenerateWithTone.isPending
+            ? "Regenerating..."
+            : "Regenerate with Tone"}
         </Button>
       </CardBody>
     </Card>
