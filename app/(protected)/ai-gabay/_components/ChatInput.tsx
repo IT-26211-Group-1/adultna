@@ -30,10 +30,10 @@ export function ChatInput({
   return (
     <form className={cn("relative", className)} onSubmit={handleSubmit}>
       <div className="relative flex items-center">
-        <SearchIcon className="absolute left-4 h-5 w-5 text-gray-400" />
+        <SearchIcon className="absolute left-4 h-5 w-5 text-gray-600" />
         <input
           className={cn(
-            "w-full rounded-full border border-gray-200 bg-white py-4 pl-12 pr-14 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-300 focus:outline-none focus:ring-0 shadow-sm disabled:cursor-not-allowed disabled:opacity-50",
+            "w-full rounded-full border-2 border-gray-300/60 bg-white/90 backdrop-blur-md py-4 pl-12 pr-14 text-sm text-gray-900 placeholder-gray-500 focus:border-adult-green focus:outline-none focus:ring-0 focus:bg-white disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200",
           )}
           disabled={disabled}
           placeholder={placeholder}
