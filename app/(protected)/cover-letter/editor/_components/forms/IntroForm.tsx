@@ -53,7 +53,7 @@ export default function IntroForm({
         <h2 className="text-2xl font-semibold">Introduction</h2>
         <p className="text-sm text-default-500">
           Start with a strong opening that includes a greeting and introduces
-          yourself and the position you're applying for.
+          yourself and the position you&apos;re applying for.
         </p>
       </div>
 

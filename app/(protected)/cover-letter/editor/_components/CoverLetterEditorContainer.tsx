@@ -248,7 +248,7 @@ export function CoverLetterEditorContainer() {
     if (hasDataChanged()) {
       try {
         await handleSaveAllSections();
-      } catch (error) {
+      } catch {
         // Don't navigate if save failed
         return;
       }
@@ -264,7 +264,7 @@ export function CoverLetterEditorContainer() {
     if (hasDataChanged()) {
       try {
         await handleSaveAllSections();
-      } catch (error) {
+      } catch {
         // Don't navigate if save failed
         return;
       }
@@ -278,7 +278,7 @@ export function CoverLetterEditorContainer() {
     if (hasDataChanged()) {
       try {
         await handleSaveAllSections();
-      } catch (error) {
+      } catch {
         // Don't navigate if save failed
         return;
       }
@@ -295,7 +295,7 @@ export function CoverLetterEditorContainer() {
     if (hasDataChanged()) {
       try {
         await handleSaveAllSections();
-      } catch (error) {
+      } catch {
         // Don't navigate if save failed
         return;
       }

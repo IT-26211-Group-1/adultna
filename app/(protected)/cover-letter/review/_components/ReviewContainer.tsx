@@ -5,6 +5,7 @@ import { useCoverLetter } from "@/hooks/queries/useCoverLetterQueries";
 import ReviewHeader from "./ReviewHeader";
 import PreviewSection from "./PreviewSection";
 import AIPanel from "./AIPanel";
+import type { CoverLetterSection } from "@/types/cover-letter";
 
 export default function ReviewContainer() {
   const searchParams = useSearchParams();
@@ -21,8 +22,8 @@ export default function ReviewContainer() {
 
   const sortedSections =
     coverLetter?.sections
-      ?.filter((s) => !!s)
-      .sort((a, b) => a.order - b.order) || [];
+      ?.filter((s: CoverLetterSection | null): s is CoverLetterSection => !!s)
+      .sort((a: CoverLetterSection, b: CoverLetterSection) => a.order - b.order) || [];
 
   return (
     <div className="min-h-screen bg-gray-50">

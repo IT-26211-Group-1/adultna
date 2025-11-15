@@ -147,7 +147,14 @@ export function CoverLetterLanding({
                     {/* Remove Button */}
                     <div
                       className="flex justify-center"
+                      role="button"
+                      tabIndex={0}
                       onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.stopPropagation();
+                        }
+                      }}
                     >
                       <Button
                         color="default"
@@ -175,7 +182,16 @@ export function CoverLetterLanding({
                         PDF, Word Document (.DOCX)
                       </p>
                     </div>
-                    <div onClick={(e) => e.stopPropagation()}>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.stopPropagation();
+                        }
+                      }}
+                    >
                       <Button
                         className="bg-adult-green hover:bg-[#0e4634] text-white"
                         size="lg"

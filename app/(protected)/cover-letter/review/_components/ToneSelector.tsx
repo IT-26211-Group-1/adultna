@@ -64,7 +64,7 @@ export default function ToneSelector({
           onChange={(e) => setSelectedTone(e.target.value)}
         >
           {TONE_OPTIONS.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem key={option.value}>
               {option.label}
             </SelectItem>
           ))}

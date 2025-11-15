@@ -44,7 +44,7 @@ export default function BodyForm({ section, onSectionChange }: BodyFormProps) {
         <h2 className="text-2xl font-semibold">Body</h2>
         <p className="text-sm text-default-500">
           Highlight your relevant experience, skills, and accomplishments. Show
-          why you're a great fit for this position.
+          why you&apos;re a great fit for this position.
         </p>
       </div>
 
