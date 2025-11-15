@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { CoverLetterPreview } from "../../_components/CoverLetterPreview";
 import {
   useCoverLetter,
@@ -28,6 +28,7 @@ type SectionData = {
 
 export function CoverLetterEditorContainer() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const coverLetterId = searchParams.get("id") || "";
 
   const { data: coverLetter, isLoading: isCoverLetterLoading } =
@@ -246,6 +247,21 @@ export function CoverLetterEditorContainer() {
     setCurrentSectionType(sectionOrder[currentSectionIndex - 1]);
   };
 
+  const handleFinish = async () => {
+    // Save before redirecting to review page
+    if (hasDataChanged()) {
+      try {
+        await handleSaveAllSections();
+      } catch (error) {
+        // Don't navigate if save failed
+        return;
+      }
+    }
+
+    // Navigate to review page
+    router.push(`/cover-letter/review?id=${coverLetterId}`);
+  };
+
   const handleSectionTabClick = async (sectionType: SectionType) => {
     if (sectionType === currentSectionType) return;
 
@@ -346,16 +362,29 @@ export function CoverLetterEditorContainer() {
               >
                 {isSaving ? "Saving..." : "Previous"}
               </Button>
-              <Button
-                className="bg-adult-green hover:bg-[#0e4634] text-white"
-                disableAnimation
-                isDisabled={isLastSection || isSaving}
-                isLoading={isSaving}
-                size="lg"
-                onPress={handleNext}
-              >
-                {isSaving ? "Saving..." : "Next"}
-              </Button>
+              {isLastSection ? (
+                <Button
+                  className="bg-adult-green hover:bg-[#0e4634] text-white"
+                  disableAnimation
+                  isDisabled={isSaving}
+                  isLoading={isSaving}
+                  size="lg"
+                  onPress={handleFinish}
+                >
+                  {isSaving ? "Saving..." : "Finish"}
+                </Button>
+              ) : (
+                <Button
+                  className="bg-adult-green hover:bg-[#0e4634] text-white"
+                  disableAnimation
+                  isDisabled={isSaving}
+                  isLoading={isSaving}
+                  size="lg"
+                  onPress={handleNext}
+                >
+                  {isSaving ? "Saving..." : "Next"}
+                </Button>
+              )}
             </div>
           </div>
         </div>

@@ -305,3 +305,50 @@ export function useChangeTone(coverLetterId: string) {
     },
   });
 }
+
+export function useGetRecommendations(coverLetterId: string) {
+  return useQuery({
+    queryKey: ["recommendations", coverLetterId],
+    queryFn: async () => {
+      const response = await ApiClient.get<{
+        success: boolean;
+        data: Array<{ title: string; description: string }>;
+      }>(`/cover-letters/${coverLetterId}/recommendations`);
+
+      if (!response.data) {
+        throw new Error("No recommendations data returned from server");
+      }
+
+      return response.data;
+    },
+    enabled: !!coverLetterId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useRegenerateWithTone(coverLetterId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["regenerateWithTone", coverLetterId],
+    mutationFn: async ({ tone }: { tone: string }) => {
+      const response = await ApiClient.post<{
+        success: boolean;
+        data: CoverLetter;
+      }>(`/cover-letters/${coverLetterId}/ai/regenerate-with-tone`, {
+        tone,
+      });
+
+      if (!response.data) {
+        throw new Error("No cover letter data returned from server");
+      }
+
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.coverLetters.detail(coverLetterId),
+      });
+    },
+  });
+}
