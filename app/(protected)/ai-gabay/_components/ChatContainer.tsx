@@ -260,6 +260,10 @@ export function ChatContainerOptimized() {
     messageCount: c.messages.length,
   }));
 
+  // Get current conversation title
+  const currentConversation = conversationList.find(c => c.id === currentSessionId);
+  const conversationTitle = currentConversation?.title || (messages.length > 0 ? "AI Gabay Chat" : "");
+
   return (
     <div className="flex h-full">
       {/* Sidebar */}
@@ -276,32 +280,42 @@ export function ChatContainerOptimized() {
       {/* Main Chat Area */}
       <div className="flex flex-1 flex-col bg-gradient-to-b from-adult-green/10 to-white">
         {/* Header */}
-        <div className="bg-transparent px-6 py-2">
-          {/* Hamburger menu for mobile */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg text-gray-600 hover:text-gray-800 hover:bg-white/50 transition-colors"
-              title="Toggle menu"
-            >
-              <MenuIcon className="h-6 w-6" />
-            </button>
+        <div className="bg-transparent px-6 py-4 border-b border-gray-100/60 shadow-sm">
+          <div className="flex items-center justify-between">
+            {/* Left side - Hamburger and Title */}
+            <div className="flex items-center gap-4">
+              {/* Hamburger menu for mobile */}
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-800 hover:bg-white/50 transition-colors"
+                title="Toggle menu"
+              >
+                <MenuIcon className="h-6 w-6" />
+              </button>
+
+              {/* Conversation Title */}
+              {conversationTitle && (
+                <h1 className="text-lg font-semibold text-gray-800 truncate max-w-md">
+                  {conversationTitle}
+                </h1>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Messages */}
         <div
-          className="flex-1 overflow-y-auto px-4 py-6"
+          className="flex-1 overflow-y-auto px-6 py-6"
           onScroll={handleScroll}
         >
-          <div className="mx-auto max-w-6xl space-y-6">
+          <div className="mx-auto max-w-4xl space-y-6">
             {messages.length === 0 && (
               <div className="space-y-8">
                 <AgentWelcome />
-                <div className="mx-auto max-w-4xl px-4">
+                <div>
                   <ChatInput disabled={isPending} onSubmit={handleSendMessage} />
                 </div>
-                <div className="mx-auto max-w-4xl px-4">
+                <div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {INITIAL_SUGGESTIONS.map((suggestion) => (
                       <SuggestionButton
@@ -355,7 +369,7 @@ export function ChatContainerOptimized() {
 
         {/* Input - Only shown when there are messages */}
         {messages.length > 0 && (
-          <div className="bg-transparent px-4 py-6">
+          <div className="bg-transparent px-6 py-6">
             <div className="mx-auto max-w-4xl">
               <ChatInput disabled={isPending} onSubmit={handleSendMessage} />
             </div>
