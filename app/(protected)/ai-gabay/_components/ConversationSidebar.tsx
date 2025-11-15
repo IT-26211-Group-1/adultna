@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useRef, useEffect } from "react";
+import { memo, useState } from "react";
 import { PlusIcon, MessageSquareIcon, Home, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -170,7 +170,7 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                   <button
                     className={`flex w-full items-center gap-3 p-3 text-left transition-all rounded-lg ${
                       currentConversationId === conversation.id
-                        ? "bg-adult-green/10 text-adult-green border-l-4 border-adult-green shadow-sm"
+                        ? "bg-adult-green/10 text-adult-green shadow-sm"
                         : "text-gray-700 hover:text-adult-green hover:bg-gray-50/50"
                     }`}
                     onClick={() => onSelectConversation(conversation.id)}
