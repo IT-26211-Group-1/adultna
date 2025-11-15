@@ -3,11 +3,11 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Suspense, useState } from "react";
-import { useDisclosure } from "@heroui/react";
+import { useDisclosure, Spinner } from "@heroui/react";
 import { CameraController } from "./CameraController";
 import { RoadmapModel } from "./RoadmapModel";
 import { MilestoneModal } from "./MilestoneModal";
-import { MilestoneService } from "../infrastructure/milestoneService";
+import { useUserMilestones } from "@/hooks/queries/useRoadmapQueries";
 import {
   CameraAnimation,
   Milestone,
@@ -30,10 +30,12 @@ const CAMERA_ANIMATION: CameraAnimation = {
 export function RoadmapClient() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
-    null,
+    null
   );
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
+
+  const { data: milestones = [], isLoading } = useUserMilestones();
 
   // Calculate camera position for milestone zoom
   const createMilestoneZoom = (milestone: Milestone): CameraAnimation => {
@@ -59,7 +61,7 @@ export function RoadmapClient() {
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
     console.log("🎯 handleMilestoneClick called with:", interaction);
-    const milestone = MilestoneService.getMilestone(interaction.milestoneId);
+    const milestone = milestones.find((m) => m.id === interaction.milestoneId);
 
     console.log("📊 Found milestone:", milestone);
 
@@ -86,6 +88,16 @@ export function RoadmapClient() {
     console.log("🖱️  Canvas clicked at:", event.clientX, event.clientY);
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex flex-col items-center gap-4">
+          <Spinner size="lg" color="primary" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="w-full h-full relative">
@@ -106,7 +118,10 @@ export function RoadmapClient() {
           {/* eslint-disable-next-line react/no-unknown-property */}
           <pointLight intensity={1.5} position={[0, 20, 0]} />
           <Suspense fallback={null}>
-            <RoadmapModel onMilestoneClick={handleMilestoneClick} />
+            <RoadmapModel
+              onMilestoneClick={handleMilestoneClick}
+              milestones={milestones}
+            />
           </Suspense>
           {/* OrbitControls with full freedom - no restrictions on movement */}
           <OrbitControls

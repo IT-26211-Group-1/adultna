@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Button } from "@heroui/react";
 import { Milestone } from "../../../../types/roadmap";
-import { MilestoneService } from "../infrastructure/milestoneService";
+import { useUpdateTask } from "@/hooks/queries/useRoadmapQueries";
 
 interface MilestoneModalProps {
   isOpen: boolean;
@@ -17,10 +17,14 @@ export function MilestoneModal({
   milestone,
 }: MilestoneModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const updateTaskMutation = useUpdateTask(milestone?.id || "");
 
   const handleTaskToggle = (taskId: string, completed: boolean) => {
     if (milestone) {
-      MilestoneService.updateTaskCompletion(milestone.id, taskId, completed);
+      updateTaskMutation.mutate({
+        taskId,
+        isCompleted: completed,
+      });
     }
   };
 
