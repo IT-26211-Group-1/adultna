@@ -51,7 +51,7 @@ export const GoogleAuthorizePage = () => {
             code,
             codeVerifier,
           }),
-        },
+        }
       );
 
       const data = await response.json();
@@ -60,16 +60,12 @@ export const GoogleAuthorizePage = () => {
       sessionStorage.removeItem("oauth_mode");
 
       if (data.success) {
-        addToast({
-          title: "Account Created",
-          description: "Welcome to AdultNa!",
-          color: "success",
-        });
-
         setTimeout(() => {
+          logger.log("🔄 Navigating to /auth/onboarding");
           router.replace("/auth/onboarding");
         }, 300);
       } else {
+        logger.error("❌ Google registration failed:", data.message);
         addToast({
           title: "Registration Failed",
           description: data.message || "Something went wrong",

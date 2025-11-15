@@ -6,9 +6,13 @@ export interface MilestoneTask {
 
 export interface Milestone {
   id: string;
+  userId?: string;
   title: string;
-  description: string;
+  description: string | null;
   category: string;
+  status: "pending" | "in_progress" | "done" | "cancelled";
+  priority: string | null;
+  positionNumber?: number;
   tasks: MilestoneTask[];
   position: {
     x: number;
@@ -16,7 +20,28 @@ export interface Milestone {
     z: number;
   };
   isActive: boolean;
+  deadline: string | null;
+  completedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+export type CreateMilestonePayload = {
+  title: string;
+  description?: string;
+  category: string;
+  priority?: string;
+  deadline?: string;
+};
+
+export type UpdateMilestonePayload = {
+  title?: string;
+  description?: string;
+  category?: string;
+  priority?: string;
+  deadline?: string;
+  status?: "pending" | "in_progress" | "done" | "cancelled";
+};
 
 export interface CameraPosition {
   position: [number, number, number];
