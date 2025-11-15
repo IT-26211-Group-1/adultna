@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { logger } from "@/lib/logger";
 
 type VoiceGender = "female";
 
@@ -167,7 +168,7 @@ export const useTextToSpeech = (
       utterance.onerror = (event) => {
         // Browsers often block autoplay, which triggers this error silently
         // This is expected behavior and not a real error
-        console.warn("Speech synthesis event:", event.error || "canceled");
+        logger.warn("Speech synthesis event:", event.error || "canceled");
 
         // Only log detailed errors for actual problems
         if (
@@ -175,7 +176,7 @@ export const useTextToSpeech = (
           event.error !== "canceled" &&
           event.error !== "interrupted"
         ) {
-          console.error("Speech synthesis error details:", {
+          logger.error("Speech synthesis error details:", {
             error: event.error,
             type: event.type,
           });

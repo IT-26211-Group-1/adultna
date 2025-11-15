@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
@@ -10,9 +10,7 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
-  const router = useRouter();
   const pathname = usePathname();
-
   const { isAuthenticated, isLoading } = useAuth();
 
   const hasRedirected = useRef(false);
@@ -31,9 +29,10 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   useEffect(() => {
     if (shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      router.replace("/dashboard");
+      // Use window.location for hard navigation to prevent chunk loading errors
+      window.location.href = "/dashboard";
     }
-  }, [shouldRedirect, router]);
+  }, [shouldRedirect]);
 
   // Show loading for auth check or redirect
   if (isLoading || shouldRedirect) {

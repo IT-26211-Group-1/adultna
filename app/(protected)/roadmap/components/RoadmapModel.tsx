@@ -3,6 +3,7 @@
 import { useGLTF } from "@react-three/drei";
 import { MilestoneHitbox } from "./MilestoneHitbox";
 import { RoadmapInteraction } from "../../../../types/roadmap";
+import { logger } from "@/lib/logger";
 
 interface RoadmapModelProps {
   onMilestoneClick: (interaction: RoadmapInteraction) => void;

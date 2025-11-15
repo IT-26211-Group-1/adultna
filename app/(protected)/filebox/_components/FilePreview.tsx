@@ -49,11 +49,7 @@ export function FilePreview({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const onDocumentLoadError = (error: Error) => {
-    console.error("PDF load error:", error);
-    console.error("Preview URL:", previewUrl);
-    console.error("File metadata:", fileMetadata);
-    console.error("File info:", file);
+  const onDocumentLoadError = (_error: Error) => {
     setLoading(false);
     setError("Failed to load PDF. Please try downloading the file.");
   };

@@ -6,6 +6,7 @@ import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { useAuth } from "./useAuthQueries";
 import { API_CONFIG } from "@/config/api";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { logger } from "@/lib/logger";
 
 // Types
 export type OnboardingData = {
@@ -160,7 +161,7 @@ export function useOnboardingSubmit() {
       }
     },
     onError: (error) => {
-      console.error("Onboarding submission failed:", error);
+      logger.error("Onboarding submission failed:", error);
 
       if (error instanceof ApiError) {
         if (error.isUnauthorized) {
