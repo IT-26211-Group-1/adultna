@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CoverLetterLanding } from "./CoverLetterLanding";
+import { logger } from "@/lib/logger";
 import {
   useGenerateUploadUrl,
   useUploadFile,
@@ -65,7 +66,7 @@ export default function CoverLetterContainer() {
         title: "Failed to generate cover letter",
         color: "danger",
       });
-      console.error(error);
+      logger.error(error);
     }
   };
 

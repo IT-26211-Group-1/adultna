@@ -15,6 +15,7 @@ import { TEMPLATE_LIST } from "@/constants/templates";
 import ResumePreview from "../../editor/_components/ResumePreview";
 import { ResumeData } from "@/validators/resumeSchema";
 import { ApiClient } from "@/lib/apiClient";
+import { logger } from "@/lib/logger";
 
 export function ImportResume() {
   const router = useRouter();
@@ -156,7 +157,7 @@ export function ImportResume() {
       setIsProcessing(false);
       setShowTemplateSelection(true);
     } catch (error: any) {
-      console.error("Import error:", error);
+      logger.error("Import error:", error);
 
       if (error?.message?.includes("RATE_LIMIT_EXCEEDED")) {
         addToast({
@@ -189,7 +190,7 @@ export function ImportResume() {
 
       router.push(`/resume-builder/editor?resumeId=${resume.id}&step=contact`);
     } catch (error: any) {
-      console.error("Resume creation error:", error);
+      logger.error("Resume creation error:", error);
       addToast({
         title: "Creation failed",
         description:

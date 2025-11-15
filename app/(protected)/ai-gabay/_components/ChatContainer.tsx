@@ -9,6 +9,7 @@ import { ChatInput } from "./ChatInput";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { useGabayChat } from "@/hooks/queries/useGabayQueries";
 import type { ConversationMessage, Conversation } from "@/types/gabay";
+import { logger } from "@/lib/logger";
 
 const INITIAL_SUGGESTIONS = [
   "Requirements for Postal ID",
@@ -31,7 +32,7 @@ const saveToStorage = (conversations: StoredConversation[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
   } catch (e) {
-    console.error("Failed to save conversations", e);
+    logger.error("Failed to save conversations", e);
   }
 };
 
@@ -41,7 +42,7 @@ const loadFromStorage = (): StoredConversation[] => {
 
     return stored ? JSON.parse(stored) : [];
   } catch (e) {
-    console.error("Failed to load conversations", e);
+    logger.error("Failed to load conversations", e);
 
     return [];
   }
@@ -51,7 +52,7 @@ export function ChatContainerOptimized() {
   // Initialize from localStorage synchronously
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [conversations, setConversations] = useState<StoredConversation[]>(() =>
-    loadFromStorage(),
+    loadFromStorage()
   );
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     () => {
@@ -61,14 +62,14 @@ export function ChatContainerOptimized() {
         const mostRecent = stored.sort(
           (a, b) =>
             new Date(b.lastActivityAt).getTime() -
-            new Date(a.lastActivityAt).getTime(),
+            new Date(a.lastActivityAt).getTime()
         )[0];
 
         return mostRecent.id;
       }
 
       return undefined;
-    },
+    }
   );
   const [messages, setMessages] = useState<ConversationMessage[]>(() => {
     const stored = loadFromStorage();
@@ -132,7 +133,7 @@ export function ChatContainerOptimized() {
         return newConversations;
       });
     },
-    [],
+    []
   );
 
   const { sendMessage, isPending } = useGabayChat({
@@ -211,7 +212,7 @@ export function ChatContainerOptimized() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       });
     },
-    [currentSessionId, sendMessage],
+    [currentSessionId, sendMessage]
   );
 
   const handleNewConversation = useCallback(() => {
@@ -229,11 +230,11 @@ export function ChatContainerOptimized() {
           conversation.messages.map((m) => ({
             ...m,
             timestamp: new Date(m.timestamp),
-          })),
+          }))
         );
       }
     },
-    [conversations],
+    [conversations]
   );
 
   const handleDeleteConversation = useCallback(
@@ -249,7 +250,7 @@ export function ChatContainerOptimized() {
         handleNewConversation();
       }
     },
-    [currentSessionId, handleNewConversation],
+    [currentSessionId, handleNewConversation]
   );
 
   const conversationList: Conversation[] = conversations.map((c) => ({

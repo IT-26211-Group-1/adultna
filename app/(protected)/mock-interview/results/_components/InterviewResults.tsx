@@ -12,6 +12,7 @@ import { ResultsLoadingSkeleton } from "./ResultsLoadingSkeleton";
 import { StarMetricCards } from "./StarMetricCards";
 import { QuestionBreakdown } from "./QuestionBreakdown";
 import { useMockInterviewState } from "@/hooks/useMockInterviewState";
+import { logger } from "@/lib/logger";
 
 type SessionResults = {
   jobRole: string;
@@ -59,7 +60,7 @@ export function InterviewResults() {
         timestamp: parsed.timestamp,
       });
     } catch (error) {
-      console.error("Failed to parse results:", error);
+      logger.error("Failed to parse results:", error);
       router.push("/mock-interview");
 
       return;
@@ -115,7 +116,7 @@ export function InterviewResults() {
   const averagePercentage =
     gradedAnswers.reduce(
       (sum, result) => sum + (result?.percentageScore || 0),
-      0,
+      0
     ) / gradedAnswers.length;
   const scorePercentage = Math.round(averagePercentage);
 
@@ -123,27 +124,27 @@ export function InterviewResults() {
     starCompleteness:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.starCompleteness || 0),
-        0,
+        0
       ) / gradedAnswers.length,
     actionSpecificity:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.actionSpecificity || 0),
-        0,
+        0
       ) / gradedAnswers.length,
     resultQuantification:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.resultQuantification || 0),
-        0,
+        0
       ) / gradedAnswers.length,
     relevanceToRole:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.relevanceToRole || 0),
-        0,
+        0
       ) / gradedAnswers.length,
     deliveryFluency:
       gradedAnswers.reduce(
         (sum, result) => sum + (result.scores?.deliveryFluency || 0),
-        0,
+        0
       ) / gradedAnswers.length,
   };
   const scoreLabel =
@@ -154,14 +155,14 @@ export function InterviewResults() {
         : "Needs Improvement";
 
   const allStrengths = gradedAnswers.flatMap(
-    (result) => result.evaluation?.strengths || [],
+    (result) => result.evaluation?.strengths || []
   );
   const uniqueStrengths = Array.from(new Set(allStrengths)).slice(0, 4);
 
   const allFeedback = gradedAnswers
     .map(
       (result, index) =>
-        `**Question ${index + 1}:**\n${result.evaluation?.starFeedback.overall || "No feedback available"}`,
+        `**Question ${index + 1}:**\n${result.evaluation?.starFeedback.overall || "No feedback available"}`
     )
     .join("\n\n");
   const verdict = allFeedback;

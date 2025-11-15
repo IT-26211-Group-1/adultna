@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { CoverLetterPreview } from "../../_components/CoverLetterPreview";
+import { logger } from "@/lib/logger";
 import {
   useCoverLetter,
   useUpdateSections,
@@ -120,7 +121,7 @@ export function CoverLetterEditorContainer() {
           resolve();
         },
         onError: (error) => {
-          console.error("Failed to save sections:", error);
+          logger.error("Failed to save sections:", error);
           setIsSaving(false);
           addToast({
             title: "Failed to save changes",

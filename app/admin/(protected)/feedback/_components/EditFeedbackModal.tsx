@@ -11,6 +11,7 @@ import {
   FeedbackStatus,
   useFeedback,
 } from "@/hooks/queries/admin/useFeedbackQueries";
+import { logger } from "@/lib/logger";
 
 interface EditFeedbackModalProps {
   open: boolean;
@@ -101,7 +102,7 @@ export default function EditFeedbackModal({
                   timeout: 4000,
                 });
               },
-            },
+            }
           );
         } else {
           addToast({
@@ -112,7 +113,7 @@ export default function EditFeedbackModal({
           onClose();
         }
       } catch (error) {
-        console.error("Failed to update feedback:", error);
+        logger.error("Failed to update feedback:", error);
         addToast({
           title: "Failed to update feedback",
           color: "danger",
@@ -126,7 +127,7 @@ export default function EditFeedbackModal({
       updateFeedbackStatus,
       onFeedbackUpdated,
       onClose,
-    ],
+    ]
   );
 
   const handleClose = useCallback(() => {

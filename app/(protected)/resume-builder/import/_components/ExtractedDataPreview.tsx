@@ -9,6 +9,7 @@ import HybridTemplate from "../../templates/_components/HybridTemplate";
 import { TemplateId } from "@/constants/templates";
 import { ExtractedResumeData } from "@/hooks/queries/useResumeQueries";
 import { ResumeData } from "@/validators/resumeSchema";
+import { logger } from "@/lib/logger";
 
 type ExtractedDataPreviewProps = {
   extractedData: ExtractedResumeData;
@@ -91,7 +92,7 @@ export default function ExtractedDataPreview({
 
       return date.toLocaleDateString("en-US", { year: "numeric" });
     } catch (error) {
-      console.error("Error formatting date:", error, dateValue);
+      logger.error("Error formatting date:", error, dateValue);
 
       return "Invalid Date";
     }

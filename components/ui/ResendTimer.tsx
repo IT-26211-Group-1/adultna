@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import React, {
   useCallback,
   useEffect,
@@ -25,7 +26,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
 
   const storageKey = useMemo(
     () => (verificationToken ? `otpTimer:${verificationToken}` : "otpTimer"),
-    [verificationToken],
+    [verificationToken]
   );
 
   // Initialize timer on mount and sync with cooldown
@@ -42,7 +43,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
       if (!isNaN(savedMs)) {
         const secondsLeft = Math.max(
           0,
-          Math.ceil((savedMs - Date.now()) / 1000),
+          Math.ceil((savedMs - Date.now()) / 1000)
         );
 
         setTime(secondsLeft || 0);
@@ -100,7 +101,7 @@ export const ResendTimer: React.FC<ResendTimerProps> = ({
       sessionStorage.setItem(storageKey, String(expiresAtMs));
       setTime(cooldown);
     } catch (error) {
-      console.error("Failed to resend OTP:", error);
+      logger.error("Failed to resend OTP:", error);
       setDisabled(false);
     }
   }, [handleResendOtp, isDisabled, storageKey, verificationToken]);

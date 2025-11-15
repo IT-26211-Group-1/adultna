@@ -7,6 +7,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { UserAuthTitle } from "../../../register/_components/UserAuthTitle";
 import { AuthButton } from "../../../register/_components/AuthButton";
 import { ImageContainer } from "../../../register/_components/ImageContainer";
+import { logger } from "@/lib/logger";
 
 export const GoogleAuthorizePage = () => {
   const router = useRouter();
@@ -77,7 +78,7 @@ export const GoogleAuthorizePage = () => {
         router.replace("/auth/register");
       }
     } catch (error) {
-      console.error("Authorization error:", error);
+      logger.error("Authorization error:", error);
       addToast({
         title: "Error",
         description: "Failed to create account",

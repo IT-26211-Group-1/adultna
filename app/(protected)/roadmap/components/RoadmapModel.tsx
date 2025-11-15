@@ -6,6 +6,7 @@ import React, { useRef, useEffect } from "react";
 import { Group, Vector2 } from "three";
 import { MilestoneService } from "../infrastructure/milestoneService";
 import { RoadmapInteraction } from "../../../../types/roadmap";
+import { logger } from "@/lib/logger";
 
 interface RoadmapModelProps {
   onMilestoneClick: (interaction: RoadmapInteraction) => void;
@@ -19,14 +20,14 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
   // Log the 3D model structure for debugging
   useEffect(() => {
     if (scene) {
-      console.log("=== 3D Model Structure ===");
-      console.log("Scene:", scene);
+      logger.log("=== 3D Model Structure ===");
+      logger.log("Scene:", scene);
 
       const logObject = (obj: any, depth = 0) => {
         const indent = "  ".repeat(depth);
 
-        console.log(
-          `${indent}${obj.type}: "${obj.name}" (${obj.children.length} children)`,
+        logger.log(
+          `${indent}${obj.type}: "${obj.name}" (${obj.children.length} children)`
         );
 
         if (obj.children && obj.children.length > 0) {
@@ -35,7 +36,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
       };
 
       logObject(scene);
-      console.log("========================");
+      logger.log("========================");
     }
   }, [scene]);
 
@@ -54,31 +55,31 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(
       meshRef.current.children,
-      true,
+      true
     );
 
-    console.log("=== Click Debug ===");
-    console.log("Intersects found:", intersects.length);
+    logger.log("=== Click Debug ===");
+    logger.log("Intersects found:", intersects.length);
 
     if (intersects.length > 0) {
       const clickedObject = intersects[0].object;
       const objectName = clickedObject.name || clickedObject.parent?.name || "";
 
-      console.log("Clicked object:", clickedObject);
-      console.log("Object name:", objectName);
-      console.log("Object type:", clickedObject.type);
-      console.log("Parent name:", clickedObject.parent?.name);
+      logger.log("Clicked object:", clickedObject);
+      logger.log("Object name:", objectName);
+      logger.log("Object type:", clickedObject.type);
+      logger.log("Parent name:", clickedObject.parent?.name);
 
       const isMS = MilestoneService.isMilestone(objectName);
 
-      console.log("Is milestone?", isMS);
+      logger.log("Is milestone?", isMS);
 
       // Debug logging to help understand the 3D model structure
       let parent = clickedObject.parent;
       let level = 1;
 
       while (parent && level <= 3) {
-        console.log(`Parent level ${level}:`, parent.name, parent.type);
+        logger.log(`Parent level ${level}:`, parent.name, parent.type);
         parent = parent.parent;
         level++;
       }
@@ -88,7 +89,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
           MilestoneService.getMilestoneIdFromObjectName(objectName);
 
         if (milestoneId) {
-          console.log("Milestone clicked - opening modal");
+          logger.log("Milestone clicked - opening modal");
           const interaction: RoadmapInteraction = {
             objectName,
             milestoneId,
@@ -98,12 +99,12 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
           onMilestoneClick(interaction);
         }
       } else {
-        console.log("Non-milestone object clicked - no action taken");
+        logger.log("Non-milestone object clicked - no action taken");
       }
     } else {
-      console.log("No intersects found");
+      logger.log("No intersects found");
     }
-    console.log("=================");
+    logger.log("=================");
   };
 
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
@@ -119,7 +120,7 @@ export function RoadmapModel({ onMilestoneClick }: RoadmapModelProps) {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(
       meshRef.current.children,
-      true,
+      true
     );
 
     if (intersects.length > 0) {

@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, queryKeys } from "@/lib/apiClient";
+import { logger } from "@/lib/logger";
 
 // Types
 export type FeedbackStatus = "pending" | "resolved";
@@ -77,13 +78,13 @@ const feedbackApi = {
 
   // Create feedback
   createFeedback: (
-    data: CreateFeedbackRequest,
+    data: CreateFeedbackRequest
   ): Promise<CreateFeedbackResponse> =>
     ApiClient.post("/feedback/create", data),
 
   // Update feedback status (admin only)
   updateFeedbackStatus: (
-    data: UpdateFeedbackStatusRequest,
+    data: UpdateFeedbackStatusRequest
   ): Promise<UpdateFeedbackStatusResponse> =>
     ApiClient.put(`/feedback/update/${data.feedbackId}`, {
       status: data.status,
@@ -91,7 +92,7 @@ const feedbackApi = {
 
   // Delete feedback (admin only)
   deleteFeedback: (
-    data: DeleteFeedbackRequest,
+    data: DeleteFeedbackRequest
   ): Promise<DeleteFeedbackResponse> =>
     ApiClient.delete(`/feedback/delete/${data.feedbackId}`),
 };
@@ -175,7 +176,7 @@ export function useFeedback() {
             .split("_")
             .map(
               (word: string) =>
-                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
             )
             .join(" ");
         }
@@ -238,12 +239,12 @@ export function useFeedback() {
           typeof item.id === "string" &&
           typeof item.title === "string" &&
           typeof item.status === "string" &&
-          typeof item.type === "string",
+          typeof item.type === "string"
       );
 
       return validItems;
     } catch (error) {
-      console.error("Error processing feedback data:", error);
+      logger.error("Error processing feedback data:", error);
 
       return [];
     }

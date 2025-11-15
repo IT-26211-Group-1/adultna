@@ -21,6 +21,7 @@ import { addToast } from "@heroui/toast";
 import { useFileboxDownload } from "@/hooks/queries/useFileboxQueries";
 
 import { OTPAction } from "@/types/filebox";
+import { logger } from "@/lib/logger";
 
 export function FileBox() {
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
@@ -41,7 +42,7 @@ export function FileBox() {
     isLoading: filesLoading,
     error: filesError,
   } = useFileboxFiles(
-    selectedCategory === "all" ? undefined : selectedCategory,
+    selectedCategory === "all" ? undefined : selectedCategory
   );
 
   const { files, fileMetadataMap } = useMemo(() => {
@@ -104,7 +105,7 @@ export function FileBox() {
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL,
+        API_CONFIG.API_URL
       );
 
       if (response.success && response.data?.downloadUrl) {
@@ -114,7 +115,7 @@ export function FileBox() {
         throw new Error("Failed to generate preview URL");
       }
     } catch (error) {
-      console.error("Preview error:", error);
+      logger.error("Preview error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -283,7 +284,7 @@ export function FileBox() {
                   color: "success",
                 });
               } catch (error) {
-                console.error("Download error:", error);
+                logger.error("Download error:", error);
                 if (error instanceof ApiError) {
                   addToast({
                     title: error.message || "Failed to download file",

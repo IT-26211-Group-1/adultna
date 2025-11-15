@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useEffect } from "react";
 
 export function PerformanceMonitor() {
@@ -16,33 +17,33 @@ export function PerformanceMonitor() {
         if (entry.entryType === "largest-contentful-paint") {
           name = "LCP";
           value = Math.round(
-            (entry as PerformanceEntry & { startTime: number }).startTime,
+            (entry as PerformanceEntry & { startTime: number }).startTime
           );
         } else if (entry.entryType === "first-input") {
           name = "FID";
           value = Math.round(
             (entry as PerformanceEventTiming).processingStart -
-              (entry as PerformanceEventTiming).startTime,
+              (entry as PerformanceEventTiming).startTime
           );
         } else if (entry.entryType === "layout-shift") {
           name = "CLS";
           value = Number((entry as PerformanceEntry & { value: number }).value);
         }
 
-        console.group(`🚀 Performance: ${name}`);
-        console.log(`Value: ${value}${name === "CLS" ? "" : "ms"}`);
+        logger.group(`🚀 Performance: ${name}`);
+        logger.log(`Value: ${value}${name === "CLS" ? "" : "ms"}`);
 
         // Warn if metrics are poor
         if (name === "LCP" && value !== undefined && value > 2500) {
-          console.warn("❌ LCP is poor (>2.5s)");
+          logger.warn("❌ LCP is poor (>2.5s)");
         } else if (name === "FID" && value !== undefined && value > 100) {
-          console.warn("❌ FID is poor (>100ms)");
+          logger.warn("❌ FID is poor (>100ms)");
         } else if (name === "CLS" && value !== undefined && value > 0.1) {
-          console.warn("❌ CLS is poor (>0.1)");
+          logger.warn("❌ CLS is poor (>0.1)");
         } else {
-          console.log("✅ Good performance");
+          logger.log("✅ Good performance");
         }
-        console.groupEnd();
+        logger.groupEnd();
       }
     });
 
@@ -53,7 +54,7 @@ export function PerformanceMonitor() {
       });
     } catch {
       // Fallback for older browsers
-      console.log("Performance monitoring not supported");
+      logger.log("Performance monitoring not supported");
     }
 
     return () => observer.disconnect();

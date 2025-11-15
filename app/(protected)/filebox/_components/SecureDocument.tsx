@@ -13,6 +13,7 @@ import {
 import { OTPAction } from "@/types/filebox";
 import { ResendTimer } from "@/components/ui/ResendTimer";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { logger } from "@/lib/logger";
 
 type OtpFormType = { otp: string };
 
@@ -37,7 +38,7 @@ export function SecureDocument({
   // Memoize the storage key for this file+action combination
   const cooldownKey = useMemo(
     () => `otp_cooldown_${file.id}_${action}`,
-    [file.id, action],
+    [file.id, action]
   );
 
   // Initialize state with lazy function (like OnboardingModal)
@@ -175,19 +176,19 @@ export function SecureDocument({
             setSecureItem(
               cooldownKey,
               expiryTime.toString(),
-              COOLDOWN_SECONDS / 60,
+              COOLDOWN_SECONDS / 60
             );
 
             resolve(COOLDOWN_SECONDS);
           },
           onError: (error: any) => {
             setErrorMessage(
-              error.message || "Failed to send OTP. Please try again.",
+              error.message || "Failed to send OTP. Please try again."
             );
             setSuccessMessage("");
             reject(error);
           },
-        },
+        }
       );
     });
   };
@@ -283,15 +284,15 @@ export function SecureDocument({
           }
         },
         onError: (error: any) => {
-          console.error(
+          logger.error(
             `[SecureDocument] OTP verification failed for action: ${action}`,
-            error,
+            error
           );
           setErrorMessage(
-            error.message || "Invalid or expired OTP. Please try again.",
+            error.message || "Invalid or expired OTP. Please try again."
           );
         },
-      },
+      }
     );
   };
 

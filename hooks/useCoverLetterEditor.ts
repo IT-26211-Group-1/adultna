@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { addToast } from "@heroui/toast";
+import { logger } from "@/lib/logger";
 import {
   useGenerateUploadUrl,
   useUploadFile,
@@ -71,7 +72,7 @@ export function useCoverLetterEditor() {
         title: "Failed to generate cover letter",
         color: "danger",
       });
-      console.error(error);
+      logger.error(error);
     }
   };
 
@@ -126,7 +127,7 @@ export function useCoverLetterEditor() {
         title: "Failed to change tone",
         color: "danger",
       });
-      console.error(error);
+      logger.error(error);
       throw error;
     }
   };
