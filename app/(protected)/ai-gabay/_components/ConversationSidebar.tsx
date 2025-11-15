@@ -24,11 +24,11 @@ export const ConversationSidebar = memo(function ConversationSidebar({
   if (!isOpen) return null;
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+    <aside className="flex h-full w-80 flex-col bg-gradient-to-b from-purple-50/80 to-white/90 backdrop-blur-sm border-r border-white/30">
       {/* New Chat Button */}
-      <div className="border-b border-gray-200 p-3 dark:border-gray-700">
+      <div className="p-4">
         <button
-          className="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+          className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-adult-green to-adult-green/80 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:shadow-md hover:scale-[1.02]"
           onClick={onNewConversation}
         >
           <PlusIcon className="h-4 w-4" />
@@ -37,35 +37,51 @@ export const ConversationSidebar = memo(function ConversationSidebar({
       </div>
 
       {/* Conversations List */}
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
         {conversations.length === 0 ? (
-          <div className="px-3 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-            No conversations yet.
-            <br />
-            Start a new chat!
+          <div className="px-4 py-12 text-center">
+            <div className="rounded-2xl bg-white/60 p-6 backdrop-blur-sm">
+              <MessageSquareIcon className="mx-auto mb-3 h-8 w-8 text-gray-400" />
+              <p className="text-sm font-medium text-gray-600">No conversations yet</p>
+              <p className="text-xs text-gray-500 mt-1">Start a new chat to begin!</p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {conversations.map((conversation) => (
               <div
                 key={conversation.id}
-                className={`group relative flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                className={`group relative rounded-2xl backdrop-blur-sm transition-all ${
                   currentConversationId === conversation.id
-                    ? "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100"
-                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                    ? "bg-white/80 shadow-md"
+                    : "bg-white/40 hover:bg-white/60 hover:shadow-sm"
                 }`}
               >
                 <button
-                  className="flex flex-1 items-start gap-2 overflow-hidden text-left"
+                  className="flex w-full items-start gap-3 p-4 text-left"
                   onClick={() => onSelectConversation(conversation.id)}
                 >
-                  <MessageSquareIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                  <div className={`mt-1 rounded-lg p-2 ${
+                    currentConversationId === conversation.id
+                      ? "bg-gradient-to-r from-adult-green/10 to-purple-100"
+                      : "bg-gray-100"
+                  }`}>
+                    <MessageSquareIcon className={`h-4 w-4 ${
+                      currentConversationId === conversation.id
+                        ? "text-adult-green"
+                        : "text-gray-600"
+                    }`} />
+                  </div>
                   <div className="flex-1 overflow-hidden">
-                    <div className="truncate font-medium">
+                    <div className={`truncate font-semibold text-sm ${
+                      currentConversationId === conversation.id
+                        ? "text-gray-800"
+                        : "text-gray-700"
+                    }`}>
                       {conversation.title}
                     </div>
                     {conversation.lastMessage && (
-                      <div className="truncate text-xs opacity-60">
+                      <div className="truncate text-xs text-gray-500 mt-1">
                         {conversation.lastMessage}
                       </div>
                     )}
@@ -73,10 +89,8 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                 </button>
 
                 {/* Delete Button */}
-
-                {/* TODO: Change confirm */}
                 <button
-                  className="shrink-0 rounded p-1 opacity-0 transition-opacity hover:bg-red-100 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-red-900 dark:hover:text-red-400"
+                  className="absolute top-3 right-3 rounded-lg p-2 opacity-0 transition-all hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
                   title="Delete conversation"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -89,7 +103,7 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                     }
                   }}
                 >
-                  <TrashIcon className="h-3.5 w-3.5" />
+                  <TrashIcon className="h-4 w-4" />
                 </button>
               </div>
             ))}

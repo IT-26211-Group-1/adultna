@@ -273,30 +273,44 @@ export function ChatContainerOptimized() {
       />
 
       {/* Main Chat Area */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col bg-gradient-to-b from-adult-green/10 to-white">
         {/* Header */}
-        <div className="flex items-center gap-2 border-b border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900">
+        <div className="flex items-center justify-start bg-transparent px-6 py-4 relative z-10">
+          {/* Conversations Toggle */}
           <button
-            className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="rounded-xl p-2.5 hover:bg-white/50 transition-colors backdrop-blur-sm"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            title={isSidebarOpen ? "Hide conversations" : "Show conversations"}
           >
-            <MenuIcon className="h-5 w-5" />
+            <MenuIcon className="h-5 w-5 text-gray-600" />
           </button>
-          <h2 className="text-lg font-semibold">
-            {messages.length > 0
-              ? conversations.find((c) => c.id === currentSessionId)?.title ||
-                "New Chat"
-              : "AI Gabay"}
-          </h2>
         </div>
 
         {/* Messages */}
         <div
-          className="flex-1 overflow-y-auto px-4 py-6 bg-gradient-to-b from-adult-green/10 to-white"
+          className="flex-1 overflow-y-auto px-4 py-6"
           onScroll={handleScroll}
         >
-          <div className="mx-auto max-w-3xl space-y-6">
-            {messages.length === 0 && <AgentWelcome />}
+          <div className="mx-auto max-w-6xl space-y-6">
+            {messages.length === 0 && (
+              <div className="space-y-8">
+                <AgentWelcome />
+                <div className="mx-auto max-w-4xl px-4">
+                  <ChatInput disabled={isPending} onSubmit={handleSendMessage} />
+                </div>
+                <div className="mx-auto max-w-4xl px-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {INITIAL_SUGGESTIONS.map((suggestion) => (
+                      <SuggestionButton
+                        key={suggestion}
+                        text={suggestion}
+                        onClick={() => handleSendMessage(suggestion)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {messages.map((message) => (
               <ChatMessage
@@ -336,24 +350,14 @@ export function ChatContainerOptimized() {
           </button>
         )}
 
-        {/* Input */}
-        <div className="bg-white px-4 py-6">
-          <div className="mx-auto max-w-4xl space-y-4">
-            {messages.length === 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4">
-                {INITIAL_SUGGESTIONS.map((suggestion) => (
-                  <SuggestionButton
-                    key={suggestion}
-                    text={suggestion}
-                    onClick={() => handleSendMessage(suggestion)}
-                  />
-                ))}
-              </div>
-            )}
-
-            <ChatInput disabled={isPending} onSubmit={handleSendMessage} />
+        {/* Input - Only shown when there are messages */}
+        {messages.length > 0 && (
+          <div className="bg-transparent px-4 py-6">
+            <div className="mx-auto max-w-4xl">
+              <ChatInput disabled={isPending} onSubmit={handleSendMessage} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
