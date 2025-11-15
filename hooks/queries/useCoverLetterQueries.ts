@@ -4,15 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, queryKeys } from "@/lib/apiClient";
 import type {
   CoverLetter,
-  CreateCoverLetterInput,
-  UpdateCoverLetterInput,
-  GenerateUploadUrlResponse,
   ImportResumeInput,
-  ImproveCoverLetterInput,
-  ChangeToneInput,
-  AIImprovement,
   CoverLetterSection,
-  CoverLetterStyle,
+  SectionType,
 } from "@/types/cover-letter";
 
 interface ApiResponse<T> {
@@ -22,19 +16,6 @@ interface ApiResponse<T> {
   coverLetter?: T;
   coverLetters?: T[];
   data?: any;
-}
-
-export function useCoverLetters() {
-  return useQuery({
-    queryKey: queryKeys.coverLetters.list(),
-    queryFn: async () => {
-      const response = await ApiClient.get<ApiResponse<CoverLetter[]>>(
-        "/cover-letters"
-      );
-
-      return response.data || [];
-    },
-  });
 }
 
 export function useCoverLetter(coverLetterId?: string) {
@@ -56,42 +37,21 @@ export function useCoverLetter(coverLetterId?: string) {
       return response.data;
     },
     enabled: !!coverLetterId,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 }
 
-export function useCreateCoverLetter() {
+export function useUpdateTitle(coverLetterId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CreateCoverLetterInput) => {
-      const response = await ApiClient.post<ApiResponse<CoverLetter>>(
-        "/cover-letters",
-        data
-      );
-
-      if (!response.data) {
-        throw new Error("No cover letter data returned from server");
-      }
-
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.coverLetters.list(),
-      });
-    },
-  });
-}
-
-export function useUpdateCoverLetter(coverLetterId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationKey: ["updateCoverLetter", coverLetterId],
-    mutationFn: async (data: UpdateCoverLetterInput) => {
-      const response = await ApiClient.patch<ApiResponse<CoverLetter>>(
-        `/cover-letters/${coverLetterId}`,
-        data
+    mutationKey: ["updateTitle", coverLetterId],
+    mutationFn: async (title: string) => {
+      const response = await ApiClient.put<ApiResponse<CoverLetter>>(
+        `/cover-letters/${coverLetterId}/title`,
+        { title }
       );
 
       if (!response.data) {
@@ -103,23 +63,6 @@ export function useUpdateCoverLetter(coverLetterId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coverLetters.detail(coverLetterId),
-      });
-    },
-  });
-}
-
-export function useDeleteCoverLetter() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (coverLetterId: string) => {
-      await ApiClient.delete<ApiResponse<never>>(
-        `/cover-letters/${coverLetterId}`
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.coverLetters.list(),
       });
     },
   });
@@ -167,9 +110,14 @@ export function useGenerateUploadUrl() {
       contentType: string;
       fileSize: number;
     }) => {
-      const response = await ApiClient.post<
-        ApiResponse<GenerateUploadUrlResponse>
-      >("/cover-letters/generate-upload-url", data);
+      const response = await ApiClient.post<{
+        success: boolean;
+        data: {
+          uploadUrl: string;
+          fileKey: string;
+          expiresIn: number;
+        };
+      }>("/cover-letters/generate-upload-url", data);
 
       if (!response.data) {
         throw new Error("No upload URL data returned from server");
@@ -207,8 +155,6 @@ export function useUploadFile() {
 }
 
 export function useImportResume() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (data: ImportResumeInput) => {
       const response = await ApiClient.post<ApiResponse<CoverLetter>>(
@@ -226,39 +172,6 @@ export function useImportResume() {
 
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.coverLetters.list(),
-      });
-    },
-  });
-}
-
-export function useAddSection(coverLetterId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: {
-      sectionType: string;
-      content: string;
-      order: number;
-    }) => {
-      const response = await ApiClient.post<{
-        success: boolean;
-        data: CoverLetterSection;
-      }>(`/cover-letters/${coverLetterId}/sections`, data);
-
-      if (!response.data) {
-        throw new Error("No section data returned from server");
-      }
-
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.coverLetters.detail(coverLetterId),
-      });
-    },
   });
 }
 
@@ -266,21 +179,63 @@ export function useUpdateSection(coverLetterId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: ["updateSection", coverLetterId],
     mutationFn: async ({
-      sectionId,
       content,
+      sectionType,
     }: {
-      sectionId: string;
       content: string;
+      sectionType: SectionType;
     }) => {
-      const response = await ApiClient.put<{
+      if (!sectionType) {
+        throw new Error("Section type is required");
+      }
+
+      const response = await ApiClient.patch<{
         success: boolean;
-        data: CoverLetterSection;
-      }>(`/cover-letters/${coverLetterId}/sections/${sectionId}`, {
-        content,
+        data: CoverLetterSection[];
+      }>(`/cover-letters/${coverLetterId}/sections`, {
+        sections: [{ sectionType, content }],
       });
 
-      if (!response.data) {
+      if (!response.data || !Array.isArray(response.data)) {
+        throw new Error("No section data returned from server");
+      }
+
+      return response.data[0];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.coverLetters.detail(coverLetterId),
+        refetchType: 'none',
+      });
+    },
+  });
+}
+
+export function useUpdateSections(coverLetterId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["updateSections", coverLetterId],
+    mutationFn: async (
+      sections: Array<{
+        sectionType: SectionType;
+        content: string;
+      }>
+    ) => {
+      if (!sections || sections.length === 0) {
+        throw new Error("At least one section is required");
+      }
+
+      const response = await ApiClient.patch<{
+        success: boolean;
+        data: CoverLetterSection[];
+      }>(`/cover-letters/${coverLetterId}/sections`, {
+        sections,
+      });
+
+      if (!response.data || !Array.isArray(response.data)) {
         throw new Error("No section data returned from server");
       }
 
@@ -289,38 +244,24 @@ export function useUpdateSection(coverLetterId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coverLetters.detail(coverLetterId),
+        refetchType: 'none',
       });
     },
   });
 }
 
-export function useDeleteSection(coverLetterId: string) {
-  const queryClient = useQueryClient();
-
+export function useSaveToFilebox(coverLetterId: string) {
   return useMutation({
-    mutationFn: async (sectionId: string) => {
-      await ApiClient.delete(
-        `/cover-letters/${coverLetterId}/sections/${sectionId}`
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.coverLetters.detail(coverLetterId),
-      });
-    },
-  });
-}
-
-export function useImproveCoverLetter(coverLetterId: string) {
-  return useMutation({
-    mutationFn: async (data: ImproveCoverLetterInput) => {
+    mutationKey: ["saveToFilebox", coverLetterId],
+    mutationFn: async () => {
       const response = await ApiClient.post<{
         success: boolean;
-        data: AIImprovement;
-      }>(`/cover-letters/${coverLetterId}/ai/improve`, data);
+        message: string;
+        data: { fileKey: string };
+      }>(`/cover-letters/${coverLetterId}/save-to-filebox`, {});
 
       if (!response.data) {
-        throw new Error("No improvement data returned from server");
+        throw new Error("No filebox data returned from server");
       }
 
       return response.data;
@@ -329,18 +270,38 @@ export function useImproveCoverLetter(coverLetterId: string) {
 }
 
 export function useChangeTone(coverLetterId: string) {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (data: ChangeToneInput) => {
+    mutationKey: ["changeTone", coverLetterId],
+    mutationFn: async ({
+      sectionId,
+      currentContent,
+      targetTone,
+    }: {
+      sectionId: string;
+      currentContent: string;
+      targetTone: string;
+    }) => {
       const response = await ApiClient.post<{
         success: boolean;
-        data: AIImprovement;
-      }>(`/cover-letters/${coverLetterId}/ai/change-tone`, data);
+        data: { newContent: string };
+      }>(`/cover-letters/${coverLetterId}/ai/change-tone`, {
+        sectionId,
+        currentContent,
+        targetTone,
+      });
 
       if (!response.data) {
         throw new Error("No tone change data returned from server");
       }
 
       return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.coverLetters.detail(coverLetterId),
+      });
     },
   });
 }

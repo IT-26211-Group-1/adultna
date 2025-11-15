@@ -177,7 +177,7 @@ export function CoverLetterLanding({
                     </div>
                     <div onClick={(e) => e.stopPropagation()}>
                       <Button
-                        className="bg-[#d4e4d8] hover:bg-[#c0d6c9] text-gray-800"
+                        className="bg-adult-green hover:bg-[#0e4634] text-white"
                         size="lg"
                         onPress={handleBrowseClick}
                       >

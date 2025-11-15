@@ -18,7 +18,8 @@ export function useCoverLetterEditor() {
   const [currentCoverLetterId, setCurrentCoverLetterId] = useState<
     string | null
   >(null);
-  const [selectedStyle, setSelectedStyle] = useState<CoverLetterStyle>("formal");
+  const [selectedStyle, setSelectedStyle] =
+    useState<CoverLetterStyle>("formal");
 
   const generateUploadUrl = useGenerateUploadUrl();
   const uploadFile = useUploadFile();
@@ -35,7 +36,9 @@ export function useCoverLetterEditor() {
     setUploadedFile(file);
   };
 
-  const handleGenerateCoverLetter = async (styleOverride?: CoverLetterStyle) => {
+  const handleGenerateCoverLetter = async (
+    styleOverride?: CoverLetterStyle
+  ) => {
     if (!uploadedFile) return;
 
     const styleToUse = styleOverride || selectedStyle;
@@ -96,24 +99,35 @@ export function useCoverLetterEditor() {
     }
   };
 
-  const handleChangeTone = async (newStyle: CoverLetterStyle) => {
+  const handleChangeTone = async ({
+    sectionId,
+    currentContent,
+    targetTone,
+  }: {
+    sectionId: string;
+    currentContent: string;
+    targetTone: string;
+  }) => {
     if (!currentCoverLetterId) return;
 
     try {
-      await changeTone.mutateAsync({
-        currentContent: "",
-        newStyle,
+      const result = await changeTone.mutateAsync({
+        sectionId,
+        currentContent,
+        targetTone,
       });
       addToast({
         title: "Tone changed successfully!",
         color: "success",
       });
+      return result;
     } catch (error) {
       addToast({
         title: "Failed to change tone",
         color: "danger",
       });
       console.error(error);
+      throw error;
     }
   };
 
