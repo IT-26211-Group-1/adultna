@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { MenuIcon, ArrowDownIcon } from "lucide-react";
+import { ArrowDownIcon } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
 import { AgentWelcome } from "./AgentWelcome";
 import { SuggestionButton } from "./SuggestionButton";
@@ -49,7 +49,7 @@ const loadFromStorage = (): StoredConversation[] => {
 
 export function ChatContainerOptimized() {
   // Initialize from localStorage synchronously
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [conversations, setConversations] = useState<StoredConversation[]>(() =>
     loadFromStorage(),
   );
@@ -270,20 +270,14 @@ export function ChatContainerOptimized() {
         onDeleteConversation={handleDeleteConversation}
         onNewConversation={handleNewConversation}
         onSelectConversation={handleSelectConversation}
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
 
       {/* Main Chat Area */}
       <div className="flex flex-1 flex-col bg-gradient-to-b from-adult-green/10 to-white">
         {/* Header */}
-        <div className="flex items-center justify-start bg-transparent px-6 py-4 relative z-10">
-          {/* Conversations Toggle */}
-          <button
-            className="rounded-xl p-2.5 hover:bg-white/50 transition-colors backdrop-blur-sm"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            title={isSidebarOpen ? "Hide conversations" : "Show conversations"}
-          >
-            <MenuIcon className="h-5 w-5 text-gray-600" />
-          </button>
+        <div className="bg-transparent px-6 py-2">
+          {/* Empty header for spacing */}
         </div>
 
         {/* Messages */}

@@ -40,7 +40,7 @@ export const ChatMessage = memo(function ChatMessageOptimized({
         {/* Assistant Avatar */}
         {!isUser && (
           <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300">
               <svg
                 className="h-5 w-5"
                 fill="none"

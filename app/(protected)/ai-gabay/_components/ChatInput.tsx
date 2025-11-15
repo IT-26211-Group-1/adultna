@@ -46,7 +46,7 @@ export function ChatInput({
           disabled={!input.trim() || disabled}
           className={cn(
             "absolute right-2 rounded-full bg-gray-100 p-2 transition-colors hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed",
-            input.trim() && !disabled && "bg-purple-500 hover:bg-purple-600 text-white"
+            input.trim() && !disabled && "bg-adult-green/80 hover:bg-adult-green/100 text-white"
           )}
         >
           <ArrowRightIcon className="h-4 w-4" />

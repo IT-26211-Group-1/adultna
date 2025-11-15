@@ -11,8 +11,8 @@ export function AgentWelcome({ className }: AgentWelcomeProps) {
         Hi! I&apos;m your AI Gabay Agent!
       </div>
 
-      <h1 className="text-4xl font-bold mb-6 text-gray-800">
-        What would you like to <span className="text-adult-green">know</span>?
+      <h1 className="text-4xl font-bold mb-6 text-adult-green">
+        What would you like to know?
       </h1>
 
       <p className="text-gray-500 max-w-md">
