@@ -14,7 +14,8 @@ import type { CoverLetterStyle } from "@/types/cover-letter";
 export default function CoverLetterPage() {
   const router = useRouter();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<CoverLetterStyle>("formal");
+  const [selectedStyle, setSelectedStyle] =
+    useState<CoverLetterStyle>("professional");
 
   const generateUploadUrl = useGenerateUploadUrl();
   const uploadFile = useUploadFile();
@@ -57,11 +58,6 @@ export default function CoverLetterPage() {
       if (!coverLetter || !coverLetter.id) {
         throw new Error("Invalid cover letter response from server");
       }
-
-      addToast({
-        title: "Cover letter generated successfully!",
-        color: "success",
-      });
 
       // Navigate to editor page with query param (same pattern as resume)
       router.push(`/cover-letter/editor?id=${coverLetter.id}`);

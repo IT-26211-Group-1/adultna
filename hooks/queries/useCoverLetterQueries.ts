@@ -251,13 +251,15 @@ export function useUpdateSections(coverLetterId: string) {
 }
 
 export function useSaveToFilebox(coverLetterId: string) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["saveToFilebox", coverLetterId],
     mutationFn: async () => {
       const response = await ApiClient.post<{
         success: boolean;
         message: string;
-        data: { fileKey: string };
+        data: { fileId: string; fileKey: string };
       }>(`/cover-letters/${coverLetterId}/save-to-filebox`, {});
 
       if (!response.data) {
@@ -265,6 +267,11 @@ export function useSaveToFilebox(coverLetterId: string) {
       }
 
       return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.quota(),
+      });
     },
   });
 }
