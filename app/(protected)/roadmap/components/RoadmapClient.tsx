@@ -13,6 +13,7 @@ import {
   Milestone,
   RoadmapInteraction,
 } from "../../../../types/roadmap";
+import { logger } from "@/lib/logger";
 
 const CAMERA_ANIMATION: CameraAnimation = {
   from: {
@@ -30,7 +31,7 @@ const CAMERA_ANIMATION: CameraAnimation = {
 export function RoadmapClient() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
-    null,
+    null
   );
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
@@ -67,17 +68,14 @@ export function RoadmapClient() {
     console.log("🎯 handleMilestoneClick called with:", interaction);
     const milestone = milestones.find((m) => m.id === interaction.milestoneId);
 
-    console.log("📊 Found milestone:", milestone);
-
     if (milestone) {
       setSelectedMilestone(milestone);
       const zoomAnimation = createMilestoneZoom(milestone);
 
       setMilestoneAnimation(zoomAnimation);
       onOpen();
-      console.log("✅ Modal should open now with camera zoom");
     } else {
-      console.log("❌ No milestone found for ID:", interaction.milestoneId);
+      logger.log("❌ No milestone found for ID:", interaction.milestoneId);
     }
   };
 
