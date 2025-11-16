@@ -76,18 +76,12 @@ export async function pollMultipleAnswersUntilComplete(
       }
     });
 
-    logger.log(
-      `[pollMultipleAnswersUntilComplete] Completed: ${completedAnswers.length}/${answerIds.length}, Failed: ${failedAnswers.length}`,
-    );
-
     if (onProgress) {
       onProgress(completedAnswers.length, answerIds.length);
     }
 
     // All answers completed or failed
     if (completedAnswers.length + failedAnswers.length === answerIds.length) {
-      logger.log("[pollMultipleAnswersUntilComplete] All answers processed!");
-
       // Fetch with full content using batch endpoint (1 API call instead of N)
       const results = await answerApi.getAnswersByIds(answerIds);
 
