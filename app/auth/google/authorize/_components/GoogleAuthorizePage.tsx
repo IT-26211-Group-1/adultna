@@ -60,9 +60,16 @@ export const GoogleAuthorizePage = () => {
       sessionStorage.removeItem("oauth_mode");
 
       if (data.success) {
+        const shouldGoToOnboarding = data.user?.onboardingStatus !== "completed";
+
         setTimeout(() => {
-          logger.log("🔄 Navigating to /auth/onboarding");
-          router.replace("/auth/onboarding");
+          if (shouldGoToOnboarding) {
+            logger.log("🔄 Navigating to /auth/onboarding");
+            router.replace("/auth/onboarding");
+          } else {
+            logger.log("🔄 Navigating to /dashboard");
+            router.replace("/dashboard");
+          }
         }, 300);
       } else {
         logger.error("❌ Google registration failed:", data.message);
