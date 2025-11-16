@@ -72,11 +72,12 @@ const fileboxApi = {
   renameFile: (
     fileId: string,
     fileName: string,
-    replaceDuplicate?: boolean
+    replaceDuplicate?: boolean,
+    keepBoth?: boolean
   ): Promise<any> =>
     ApiClient.patch(
       `/filebox/files/${fileId}`,
-      { fileName, replaceDuplicate },
+      { fileName, replaceDuplicate, keepBoth },
       {},
       API_CONFIG.API_URL
     ),
@@ -186,11 +187,13 @@ export function useFileboxUpload() {
       category,
       isSecure,
       replaceDuplicate,
+      keepBoth,
     }: {
       file: File;
       category: string;
       isSecure?: boolean;
       replaceDuplicate?: boolean;
+      keepBoth?: boolean;
     }) => {
       const backendCategory = (Object.entries({
         "Government Documents": "government-id",
@@ -215,6 +218,7 @@ export function useFileboxUpload() {
         fileSize: file.size,
         isSecure: isSecure || false,
         replaceDuplicate: replaceDuplicate || false,
+        keepBoth: keepBoth || false,
       });
 
       if (!uploadUrlResponse.success) {
@@ -389,15 +393,18 @@ export function useFileboxRename() {
       fileId,
       fileName,
       replaceDuplicate,
+      keepBoth,
     }: {
       fileId: string;
       fileName: string;
       replaceDuplicate?: boolean;
+      keepBoth?: boolean;
     }) => {
       const response = await fileboxApi.renameFile(
         fileId,
         fileName,
-        replaceDuplicate
+        replaceDuplicate,
+        keepBoth
       );
 
       if (!response.success) {

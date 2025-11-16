@@ -61,7 +61,7 @@ export function RenameFileModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={handleClose} size="md">
+    <Modal isOpen={isOpen} size="md" onOpenChange={handleClose}>
       <ModalContent>
         {(onClose) => (
           <>
@@ -72,6 +72,13 @@ export function RenameFileModal({
             <ModalBody>
               <Input
                 autoFocus
+                classNames={{
+                  input: "text-base",
+                  label: "text-sm",
+                }}
+                errorMessage={error}
+                isDisabled={isLoading}
+                isInvalid={!!error}
                 label="File name"
                 placeholder="Enter new file name"
                 value={newFileName}
@@ -84,13 +91,6 @@ export function RenameFileModal({
                     handleRename();
                   }
                 }}
-                errorMessage={error}
-                isInvalid={!!error}
-                isDisabled={isLoading}
-                classNames={{
-                  input: "text-base",
-                  label: "text-sm",
-                }}
               />
               <p className="text-xs text-gray-500 mt-1">
                 Current name: {currentFileName}
@@ -99,16 +99,16 @@ export function RenameFileModal({
             <ModalFooter>
               <Button
                 color="default"
+                isDisabled={isLoading}
                 variant="light"
                 onPress={handleClose}
-                isDisabled={isLoading}
               >
                 Cancel
               </Button>
               <Button
                 color="success"
-                onPress={handleRename}
                 isLoading={isLoading}
+                onPress={handleRename}
               >
                 Rename
               </Button>

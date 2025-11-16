@@ -60,7 +60,8 @@ export const GoogleAuthorizePage = () => {
       sessionStorage.removeItem("oauth_mode");
 
       if (data.success) {
-        const shouldGoToOnboarding = data.user?.onboardingStatus !== "completed";
+        const shouldGoToOnboarding =
+          data.user?.onboardingStatus !== "completed";
 
         setTimeout(() => {
           if (shouldGoToOnboarding) {

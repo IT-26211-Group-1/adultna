@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -7,13 +8,15 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  Radio,
+  RadioGroup,
 } from "@heroui/react";
-import { AlertTriangle } from "lucide-react";
 
 type ReplaceFileConfirmationProps = {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onReplace: () => void;
+  onKeepBoth: () => void;
   fileName: string;
   isLoading?: boolean;
 };
@@ -21,44 +24,91 @@ type ReplaceFileConfirmationProps = {
 export function ReplaceFileConfirmation({
   isOpen,
   onClose,
-  onConfirm,
+  onReplace,
+  onKeepBoth,
   fileName,
   isLoading = false,
 }: ReplaceFileConfirmationProps) {
+  const [selectedOption, setSelectedOption] = useState("replace");
+
+  const handleConfirm = () => {
+    if (selectedOption === "replace") {
+      onReplace();
+    } else {
+      onKeepBoth();
+    }
+  };
+
   return (
-    <Modal isOpen={isOpen} onOpenChange={onClose} size="md">
+    <Modal
+      classNames={{
+        base: "bg-gray-900",
+        header: "border-b border-gray-700",
+        body: "py-6",
+        footer: "border-t border-gray-700",
+      }}
+      isOpen={isOpen}
+      size="md"
+      onOpenChange={onClose}
+    >
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex gap-3 items-center text-warning">
-              <AlertTriangle className="w-6 h-6" />
-              <span>Replace Existing File?</span>
+            <ModalHeader className="text-white text-lg font-normal">
+              Upload options
             </ModalHeader>
             <ModalBody>
-              <p className="text-gray-700">
-                A file named <strong>{fileName}</strong> already exists. Do you
-                want to replace it?
+              <p className="text-gray-300 text-sm mb-4">
+                {fileName} already exists in this location. Do you want to
+                replace the existing file with a new version or keep both files?
+                Replacing the file won't change sharing settings.
               </p>
-              <p className="text-sm text-gray-500 mt-2">
-                This action cannot be undone. The existing file will be
-                permanently deleted.
-              </p>
+              <RadioGroup
+                classNames={{
+                  base: "space-y-3",
+                }}
+                value={selectedOption}
+                onValueChange={setSelectedOption}
+              >
+                <Radio
+                  classNames={{
+                    base: "m-0 p-0",
+                    wrapper: "border-gray-600",
+                    control: "bg-adult-green",
+                    label: "text-white text-sm",
+                  }}
+                  value="replace"
+                >
+                  Replace existing file
+                </Radio>
+                <Radio
+                  classNames={{
+                    base: "m-0 p-0",
+                    wrapper: "border-gray-600",
+                    control: "bg-adult-green",
+                    label: "text-white text-sm",
+                  }}
+                  value="keepBoth"
+                >
+                  Keep both files
+                </Radio>
+              </RadioGroup>
             </ModalBody>
-            <ModalFooter>
+            <ModalFooter className="flex gap-3 justify-end">
               <Button
-                color="default"
+                className="text-blue-400 hover:bg-gray-800"
+                isDisabled={isLoading}
                 variant="light"
                 onPress={onClose}
-                isDisabled={isLoading}
               >
                 Cancel
               </Button>
               <Button
-                color="warning"
-                onPress={onConfirm}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6"
                 isLoading={isLoading}
+                onPress={handleConfirm}
               >
-                Replace
+                Upload
               </Button>
             </ModalFooter>
           </>

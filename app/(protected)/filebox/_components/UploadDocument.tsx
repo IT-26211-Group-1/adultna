@@ -27,7 +27,9 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
-  const [pendingUpload, setPendingUpload] = useState<UploadDocumentForm | null>(null);
+  const [pendingUpload, setPendingUpload] = useState<UploadDocumentForm | null>(
+    null,
+  );
   const {
     isOpen: isReplaceOpen,
     onOpen: onReplaceOpen,
@@ -171,6 +173,14 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     } catch (error) {
       logger.error("Upload error:", error);
 
+      if (error instanceof ApiError && error.status === 409) {
+        // Duplicate file detected - show modal
+        setPendingUpload(data);
+        onReplaceOpen();
+
+        return;
+      }
+
       if (error instanceof ApiError) {
         addToast({
           title: error.message || "Failed to upload document",
@@ -196,11 +206,12 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         category: pendingUpload.category,
         isSecure: pendingUpload.isSecure || false,
         replaceDuplicate: true,
+        keepBoth: false,
       });
 
       if (result.success) {
         addToast({
-          title: "Document uploaded and duplicate replaced",
+          title: "File uploaded successfuly",
           color: "success",
         });
 
@@ -210,6 +221,42 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       }
     } catch (error) {
       logger.error("Replace upload error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to upload document",
+          color: "danger",
+        });
+      }
+    }
+  };
+
+  const handleKeepBothConfirm = async () => {
+    if (!pendingUpload) {
+      return;
+    }
+
+    try {
+      const result = await uploadMutation.mutateAsync({
+        file: pendingUpload.file,
+        category: pendingUpload.category,
+        isSecure: pendingUpload.isSecure || false,
+        replaceDuplicate: false,
+        keepBoth: true,
+      });
+
+      if (result.success) {
+        addToast({
+          title: "Document uploaded successfully",
+          color: "success",
+        });
+
+        onReplaceClose();
+        setPendingUpload(null);
+        onClose?.();
+      }
+    } catch (error) {
+      logger.error("Keep both upload error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -393,14 +440,15 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
       {/* Replace Confirmation Modal */}
       <ReplaceFileConfirmation
+        fileName={pendingUpload?.file.name || ""}
+        isLoading={uploadMutation.isPending}
         isOpen={isReplaceOpen}
         onClose={() => {
           onReplaceClose();
           setPendingUpload(null);
         }}
-        onConfirm={handleReplaceConfirm}
-        fileName={pendingUpload?.file.name || ""}
-        isLoading={uploadMutation.isPending}
+        onKeepBoth={handleKeepBothConfirm}
+        onReplace={handleReplaceConfirm}
       />
     </div>
   );

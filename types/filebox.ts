@@ -115,6 +115,7 @@ export interface GenerateUploadUrlRequest {
   fileSize: number;
   isSecure?: boolean;
   replaceDuplicate?: boolean;
+  keepBoth?: boolean;
 }
 
 export interface ListFilesRequest {

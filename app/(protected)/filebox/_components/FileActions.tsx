@@ -233,6 +233,15 @@ export function FileActions({
     } catch (error) {
       logger.error("Rename error:", error);
 
+      if (error instanceof ApiError && error.status === 409) {
+        // Duplicate file detected - show modal instead of error toast
+        setPendingRename(newFileName);
+        onRenameClose();
+        onReplaceOpen();
+
+        return;
+      }
+
       if (error instanceof ApiError) {
         addToast({
           title: error.message || "Failed to rename file",
@@ -252,18 +261,48 @@ export function FileActions({
         fileId: fileMetadata.id,
         fileName: pendingRename,
         replaceDuplicate: true,
+        keepBoth: false,
+      });
+
+      if (response.success) {
+        onReplaceClose();
+        setPendingRename(null);
+      }
+    } catch (error) {
+      logger.error("Replace error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to rename file",
+          color: "danger",
+        });
+      }
+    }
+  };
+
+  const handleKeepBothConfirm = async () => {
+    if (!fileMetadata || !pendingRename) {
+      return;
+    }
+
+    try {
+      const response = await renameMutation.mutateAsync({
+        fileId: fileMetadata.id,
+        fileName: pendingRename,
+        replaceDuplicate: false,
+        keepBoth: true,
       });
 
       if (response.success) {
         addToast({
-          title: "File renamed and duplicate replaced",
+          title: response.message || "File renamed successfully",
           color: "success",
         });
         onReplaceClose();
         setPendingRename(null);
       }
     } catch (error) {
-      logger.error("Replace error:", error);
+      logger.error("Keep both error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -387,20 +426,21 @@ export function FileActions({
 
         {/* Rename Modal */}
         <RenameFileModal
+          currentFileName={file.name}
+          isLoading={renameMutation.isPending}
           isOpen={isRenameOpen}
           onClose={onRenameClose}
           onRename={handleRename}
-          currentFileName={file.name}
-          isLoading={renameMutation.isPending}
         />
 
         {/* Replace Confirmation Modal */}
         <ReplaceFileConfirmation
-          isOpen={isReplaceOpen}
-          onClose={onReplaceClose}
-          onConfirm={handleReplaceConfirm}
           fileName={pendingRename || ""}
           isLoading={renameMutation.isPending}
+          isOpen={isReplaceOpen}
+          onClose={onReplaceClose}
+          onKeepBoth={handleKeepBothConfirm}
+          onReplace={handleReplaceConfirm}
         />
       </>
     );
@@ -514,20 +554,21 @@ export function FileActions({
 
       {/* Rename Modal */}
       <RenameFileModal
+        currentFileName={file.name}
+        isLoading={renameMutation.isPending}
         isOpen={isRenameOpen}
         onClose={onRenameClose}
         onRename={handleRename}
-        currentFileName={file.name}
-        isLoading={renameMutation.isPending}
       />
 
       {/* Replace Confirmation Modal */}
       <ReplaceFileConfirmation
-        isOpen={isReplaceOpen}
-        onClose={onReplaceClose}
-        onConfirm={handleReplaceConfirm}
         fileName={pendingRename || ""}
         isLoading={renameMutation.isPending}
+        isOpen={isReplaceOpen}
+        onClose={onReplaceClose}
+        onKeepBoth={handleKeepBothConfirm}
+        onReplace={handleReplaceConfirm}
       />
     </>
   );

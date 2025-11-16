@@ -31,7 +31,7 @@ const CAMERA_ANIMATION: CameraAnimation = {
 export function RoadmapClient() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
-    null
+    null,
   );
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
