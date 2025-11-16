@@ -6,12 +6,12 @@ interface AgentWelcomeProps {
 
 export function AgentWelcome({ className }: AgentWelcomeProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center text-center py-6 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8", className)}>
+    <div className={cn("flex flex-col items-center justify-center text-center py-2 sm:py-4 lg:py-8 px-4 sm:px-6 lg:px-8", className)}>
       <div className="mb-4 sm:mb-6 mt-8 sm:mt-12 lg:mt-15 text-gray-600 text-sm sm:text-base lg:text-md">
         Great to see you here! I'm <span className={cn("font-bold")}>AI Gabay</span>, your personal guide to navigating adulthood.
       </div>
 
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-adult-green">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-adult-green">
         What can I help you with today?
       </h1>
 

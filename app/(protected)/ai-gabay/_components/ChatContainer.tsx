@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowDownIcon, MenuIcon, Trash2Icon, MoreVerticalIcon } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
 import { AgentWelcome } from "./AgentWelcome";
@@ -55,6 +56,9 @@ const loadFromStorage = (): StoredConversation[] => {
 };
 
 export function ChatContainerOptimized() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   // Initialize from localStorage synchronously
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [conversations, setConversations] = useState<StoredConversation[]>(() =>
@@ -62,8 +66,14 @@ export function ChatContainerOptimized() {
   );
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     () => {
-      const stored = loadFromStorage();
+      // First check URL parameter
+      const urlConversationId = searchParams.get('c');
+      if (urlConversationId) {
+        return urlConversationId;
+      }
 
+      // Only default to most recent if no URL parameter is present
+      const stored = loadFromStorage();
       if (stored.length > 0) {
         const mostRecent = stored.sort(
           (a, b) =>
@@ -165,6 +175,11 @@ export function ChatContainerOptimized() {
         if (sessionId) {
           updateConversation(sessionId, newMessages);
           setCurrentSessionId(sessionId);
+
+          // Update URL if this is a new conversation
+          if (!currentSessionId && sessionId) {
+            router.push(`/ai-gabay?c=${sessionId}`);
+          }
         }
 
         // Auto-scroll after message
@@ -227,7 +242,9 @@ export function ChatContainerOptimized() {
   const handleNewConversation = useCallback(() => {
     setCurrentSessionId(undefined);
     setMessages([]);
-  }, []);
+    // Remove conversation parameter from URL
+    router.push('/ai-gabay');
+  }, [router]);
 
   const handleSelectConversation = useCallback(
     (id: string) => {
@@ -241,9 +258,11 @@ export function ChatContainerOptimized() {
             timestamp: new Date(m.timestamp),
           })),
         );
+        // Update URL to include conversation parameter
+        router.push(`/ai-gabay?c=${id}`);
       }
     },
-    [conversations],
+    [conversations, router],
   );
 
   const handleDeleteConversation = useCallback(
@@ -286,6 +305,30 @@ export function ChatContainerOptimized() {
     setShowOptionsMenu(false);
     setShowDeleteModal(true);
   }, []);
+
+  // Handle URL changes (browser back/forward)
+  useEffect(() => {
+    const urlConversationId = searchParams.get('c');
+
+    if (urlConversationId !== currentSessionId) {
+      if (urlConversationId) {
+        const conversation = conversations.find((c) => c.id === urlConversationId);
+        if (conversation) {
+          setCurrentSessionId(urlConversationId);
+          setMessages(
+            conversation.messages.map((m) => ({
+              ...m,
+              timestamp: new Date(m.timestamp),
+            })),
+          );
+        }
+      } else {
+        // No conversation in URL, go to start page
+        setCurrentSessionId(undefined);
+        setMessages([]);
+      }
+    }
+  }, [searchParams, conversations, currentSessionId]);
 
   // Handle click outside options menu
   useEffect(() => {
