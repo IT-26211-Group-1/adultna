@@ -12,9 +12,6 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const pathname = usePathname();
   const isAIGabayPage = pathname.startsWith("/ai-gabay");
 
-  // Debug: Log the pathname to confirm
-  console.log("Current pathname:", pathname, "isAIGabayPage:", isAIGabayPage);
-
   return (
     <ProtectedRoute roles={["user"]}>
       {isAIGabayPage ? (

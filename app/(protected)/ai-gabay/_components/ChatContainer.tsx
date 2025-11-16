@@ -114,11 +114,7 @@ export function ChatContainerOptimized() {
   }, []);
 
   // Scroll handler
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    const isNearBottom =
-      target.scrollHeight - target.scrollTop - target.clientHeight < 100;
-
+  const handleScroll = useCallback((_e: React.UIEvent<HTMLDivElement>) => {
   }, []);
 
   // Update conversation in state AND localStorage
@@ -604,8 +600,8 @@ export function ChatContainerOptimized() {
                 <Trash2Icon className="w-6 h-6 text-red-600" />
               </div>
               <p className="text-sm text-gray-600">
-                Are you sure you want to delete &quot;{conversationTitle}&quot;? This
-                action cannot be undone.
+                Are you sure you want to delete &quot;{conversationTitle}&quot;?
+                This action cannot be undone.
               </p>
             </div>
           </ModalBody>
