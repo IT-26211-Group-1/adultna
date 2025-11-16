@@ -353,4 +353,15 @@ export const queryKeys = {
     detail: (coverLetterId: string) =>
       ["coverLetters", "detail", coverLetterId] as const,
   },
+
+  // Roadmap queries
+  roadmap: {
+    all: ["roadmap"] as const,
+    milestones: () => ["roadmap", "milestones"] as const,
+    milestone: (milestoneId: string) =>
+      ["roadmap", "milestone", milestoneId] as const,
+    byStatus: (status: string) => ["roadmap", "byStatus", status] as const,
+    byCategory: (category: string) =>
+      ["roadmap", "byCategory", category] as const,
+  },
 } as const;
