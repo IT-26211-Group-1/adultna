@@ -211,9 +211,6 @@ export const QuestionsList = memo(function QuestionsList({
           const progress = Math.round((completed / total) * 100);
 
           setGradingProgress(progress);
-          logger.log(
-            `[QuestionsList] Grading progress: ${completed}/${total} (${progress}%)`,
-          );
         },
       );
 
