@@ -107,8 +107,37 @@ export function useDeleteMilestone() {
     mutationFn: async (milestoneId: string) => {
       await ApiClient.delete<ServiceResponse>(`/roadmap/milestones/${milestoneId}`);
     },
-    onSuccess: () => {
+    onMutate: async (milestoneId) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.roadmap.milestones(),
+      });
+
+      const previousMilestones = queryClient.getQueryData<Milestone[]>(
+        queryKeys.roadmap.milestones()
+      );
+
+      if (previousMilestones) {
+        queryClient.setQueryData<Milestone[]>(
+          queryKeys.roadmap.milestones(),
+          previousMilestones.filter((milestone) => milestone.id !== milestoneId)
+        );
+      }
+
+      return { previousMilestones };
+    },
+    onError: (_error, _milestoneId, context) => {
+      if (context?.previousMilestones) {
+        queryClient.setQueryData(
+          queryKeys.roadmap.milestones(),
+          context.previousMilestones
+        );
+      }
+    },
+    onSuccess: (_data, milestoneId) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.roadmap.milestones() });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.roadmap.milestone(milestoneId),
+      });
     },
   });
 }
@@ -155,6 +184,138 @@ export function useUpdateTask(milestoneId: string) {
       >(`/roadmap/milestone/${milestoneId}/task/${taskId}`, { isCompleted });
 
       return response;
+    },
+    onMutate: async ({ taskId, isCompleted }) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.roadmap.milestone(milestoneId),
+      });
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.roadmap.milestones(),
+      });
+
+      const previousMilestone = queryClient.getQueryData<Milestone>(
+        queryKeys.roadmap.milestone(milestoneId)
+      );
+      const previousMilestones = queryClient.getQueryData<Milestone[]>(
+        queryKeys.roadmap.milestones()
+      );
+
+      if (previousMilestone) {
+        queryClient.setQueryData<Milestone>(
+          queryKeys.roadmap.milestone(milestoneId),
+          {
+            ...previousMilestone,
+            tasks: previousMilestone.tasks.map((task) =>
+              task.id === taskId ? { ...task, completed: isCompleted } : task
+            ),
+          }
+        );
+      }
+
+      if (previousMilestones) {
+        queryClient.setQueryData<Milestone[]>(
+          queryKeys.roadmap.milestones(),
+          previousMilestones.map((m) =>
+            m.id === milestoneId
+              ? {
+                  ...m,
+                  tasks: m.tasks.map((task) =>
+                    task.id === taskId ? { ...task, completed: isCompleted } : task
+                  ),
+                }
+              : m
+          )
+        );
+      }
+
+      return { previousMilestone, previousMilestones };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousMilestone) {
+        queryClient.setQueryData(
+          queryKeys.roadmap.milestone(milestoneId),
+          context.previousMilestone
+        );
+      }
+      if (context?.previousMilestones) {
+        queryClient.setQueryData(
+          queryKeys.roadmap.milestones(),
+          context.previousMilestones
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.roadmap.milestone(milestoneId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.roadmap.milestones() });
+    },
+  });
+}
+
+export function useDeleteTask(milestoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (taskId: string) => {
+      await ApiClient.delete<ServiceResponse>(
+        `/roadmap/milestone/${milestoneId}/task/${taskId}`
+      );
+    },
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.roadmap.milestone(milestoneId),
+      });
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.roadmap.milestones(),
+      });
+
+      const previousMilestone = queryClient.getQueryData<Milestone>(
+        queryKeys.roadmap.milestone(milestoneId)
+      );
+      const previousMilestones = queryClient.getQueryData<Milestone[]>(
+        queryKeys.roadmap.milestones()
+      );
+
+      if (previousMilestone) {
+        queryClient.setQueryData<Milestone>(
+          queryKeys.roadmap.milestone(milestoneId),
+          {
+            ...previousMilestone,
+            tasks: previousMilestone.tasks.filter((task) => task.id !== taskId),
+          }
+        );
+      }
+
+      if (previousMilestones) {
+        queryClient.setQueryData<Milestone[]>(
+          queryKeys.roadmap.milestones(),
+          previousMilestones.map((m) =>
+            m.id === milestoneId
+              ? {
+                  ...m,
+                  tasks: m.tasks.filter((task) => task.id !== taskId),
+                }
+              : m
+          )
+        );
+      }
+
+      return { previousMilestone, previousMilestones };
+    },
+    onError: (_error, _taskId, context) => {
+      if (context?.previousMilestone) {
+        queryClient.setQueryData(
+          queryKeys.roadmap.milestone(milestoneId),
+          context.previousMilestone
+        );
+      }
+      if (context?.previousMilestones) {
+        queryClient.setQueryData(
+          queryKeys.roadmap.milestones(),
+          context.previousMilestones
+        );
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

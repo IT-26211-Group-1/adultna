@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useCallback } from "react";
 import { useDisclosure, Spinner } from "@heroui/react";
 import { CameraController } from "./CameraController";
 import { RoadmapModel } from "./RoadmapModel";
@@ -35,7 +35,7 @@ export function RoadmapClient() {
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
 
-  const { data: milestones = [], isLoading } = useUserMilestones();
+  const { data: milestones = [], isLoading, refetch: refetchMilestones } = useUserMilestones();
 
   // Calculate camera position for milestone zoom
   const createMilestoneZoom = (milestone: Milestone): CameraAnimation => {
@@ -76,6 +76,10 @@ export function RoadmapClient() {
       console.log("❌ No milestone found for ID:", interaction.milestoneId);
     }
   };
+
+  const handleMilestoneUpdated = useCallback(() => {
+    refetchMilestones();
+  }, [refetchMilestones]);
 
   const handleModalClose = () => {
     setMilestoneAnimation(null);
@@ -141,6 +145,7 @@ export function RoadmapClient() {
         isOpen={isOpen}
         milestone={selectedMilestone}
         onClose={handleModalClose}
+        onMilestoneUpdated={handleMilestoneUpdated}
       />
     </>
   );

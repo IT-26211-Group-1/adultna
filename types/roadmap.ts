@@ -32,6 +32,7 @@ export type CreateMilestonePayload = {
   category: string;
   priority?: string;
   deadline?: string;
+  tasks?: Array<{ title: string }>;
 };
 
 export type UpdateMilestonePayload = {

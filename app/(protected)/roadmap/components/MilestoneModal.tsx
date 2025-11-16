@@ -1,30 +1,75 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@heroui/react";
+import { Trash2, X } from "lucide-react";
 import { Milestone } from "../../../../types/roadmap";
-import { useUpdateTask } from "@/hooks/queries/useRoadmapQueries";
+import {
+  useUpdateTask,
+  useDeleteMilestone,
+  useDeleteTask,
+  useMilestone,
+} from "@/hooks/queries/useRoadmapQueries";
 
 interface MilestoneModalProps {
   isOpen: boolean;
   onClose: () => void;
   milestone: Milestone | null;
+  onMilestoneUpdated?: () => void;
 }
 
 export function MilestoneModal({
   isOpen,
   onClose,
-  milestone,
+  milestone: initialMilestone,
+  onMilestoneUpdated,
 }: MilestoneModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const { data: fetchedMilestone } = useMilestone(initialMilestone?.id);
+  const milestone = fetchedMilestone || initialMilestone;
+
   const updateTaskMutation = useUpdateTask(milestone?.id || "");
+  const deleteMilestone = useDeleteMilestone();
+  const deleteTask = useDeleteTask(milestone?.id || "");
 
   const handleTaskToggle = (taskId: string, completed: boolean) => {
     if (milestone) {
-      updateTaskMutation.mutate({
-        taskId,
-        isCompleted: completed,
-      });
+      updateTaskMutation.mutate(
+        {
+          taskId,
+          isCompleted: completed,
+        },
+        {
+          onSuccess: () => {
+            onMilestoneUpdated?.();
+          },
+        }
+      );
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!milestone) return;
+
+    try {
+      await deleteTask.mutateAsync(taskId);
+      onMilestoneUpdated?.();
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!milestone) return;
+
+    try {
+      await deleteMilestone.mutateAsync(milestone.id);
+      onClose();
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error("Failed to delete milestone:", error);
     }
   };
 
@@ -49,6 +94,8 @@ export function MilestoneModal({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
+    } else {
+      setShowDeleteConfirm(false);
     }
 
     return () => {
@@ -148,7 +195,7 @@ export function MilestoneModal({
                   {milestone.tasks.map((task, index) => (
                     <div
                       key={task.id}
-                      className={`group flex items-center p-3 rounded-xl border border-white/30 backdrop-blur-sm transition-all duration-200 hover:border-white/50 ${
+                      className={`group flex items-center justify-between p-3 rounded-xl border border-white/30 backdrop-blur-sm transition-all duration-200 hover:border-white/50 ${
                         task.completed ? "" : "hover:bg-white/30"
                       }`}
                       style={{
@@ -194,6 +241,13 @@ export function MilestoneModal({
                           {task.title}
                         </label>
                       </div>
+                      <button
+                        className="ml-2 p-1 hover:bg-red-100 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                        onClick={() => handleDeleteTask(task.id)}
+                        title="Delete task"
+                      >
+                        <X className="w-3 h-3 text-red-600" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -223,24 +277,54 @@ export function MilestoneModal({
             className="px-4 py-2 border-t border-white/20 backdrop-blur-sm rounded-b-3xl"
             style={{ backgroundColor: "rgba(156,163,175, 0.15)" }}
           >
-            <div className="flex justify-between items-center gap-2">
-              <Button
-                className="text-xs font-medium flex-1 bg-white/30 hover:bg-white/40 border-white/40"
-                color="default"
-                size="sm"
-                variant="flat"
-              >
-                Add Task
-              </Button>
-              <Button
-                className="text-xs font-medium flex-1 bg-emerald-600 hover:bg-emerald-700"
-                color="primary"
-                size="sm"
-                onPress={onClose}
-              >
-                Close
-              </Button>
-            </div>
+            {showDeleteConfirm ? (
+              <div className="space-y-2">
+                <p className="text-xs text-gray-700 text-center">
+                  Delete this milestone? This cannot be undone.
+                </p>
+                <div className="flex justify-between items-center gap-2">
+                  <Button
+                    className="text-xs font-medium flex-1"
+                    color="default"
+                    size="sm"
+                    variant="flat"
+                    onPress={() => setShowDeleteConfirm(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="text-xs font-medium flex-1"
+                    color="danger"
+                    size="sm"
+                    onPress={handleDelete}
+                    isLoading={deleteMilestone.isPending}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-between items-center gap-2">
+                <Button
+                  className="text-xs font-medium bg-white/30 hover:bg-white/40 border-white/40"
+                  color="default"
+                  size="sm"
+                  variant="flat"
+                  startContent={<Trash2 className="w-3 h-3" />}
+                  onPress={() => setShowDeleteConfirm(true)}
+                >
+                  Delete
+                </Button>
+                <Button
+                  className="text-xs font-medium flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  color="primary"
+                  size="sm"
+                  onPress={onClose}
+                >
+                  Close
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
