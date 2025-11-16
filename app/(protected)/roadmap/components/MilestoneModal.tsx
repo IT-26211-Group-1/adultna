@@ -13,6 +13,7 @@ import {
   useCreateTask,
   useUpdateMilestone,
 } from "@/hooks/queries/useRoadmapQueries";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface MilestoneModalProps {
   isOpen: boolean;
@@ -488,15 +489,25 @@ export function MilestoneModal({
                         }}
                       />
                       <Button
-                        className="text-xs font-medium bg-blue-600 hover:bg-blue-700"
-                        color="primary"
-                        isDisabled={!newTaskTitle.trim()}
-                        isLoading={createTask.isPending}
+                        className="text-xs font-medium bg-[#11553F] hover:bg-[#0d4230] text-white"
+                        isDisabled={
+                          !newTaskTitle.trim() || createTask.isPending
+                        }
                         size="sm"
-                        startContent={<Plus className="w-3 h-3" />}
+                        startContent={
+                          createTask.isPending ? (
+                            <LoadingSpinner
+                              fullScreen={false}
+                              size="sm"
+                              variant="default"
+                            />
+                          ) : (
+                            <Plus className="w-3 h-3" />
+                          )
+                        }
                         onPress={handleAddTask}
                       >
-                        Add
+                        {createTask.isPending ? "" : "Add"}
                       </Button>
                     </div>
                     <p className="text-xs text-gray-600 mt-1">
@@ -557,11 +568,20 @@ export function MilestoneModal({
                       <Button
                         className="text-xs font-medium flex-1"
                         color="danger"
-                        isLoading={deleteMilestone.isPending}
+                        isDisabled={deleteMilestone.isPending}
                         size="sm"
+                        startContent={
+                          deleteMilestone.isPending ? (
+                            <LoadingSpinner
+                              fullScreen={false}
+                              size="sm"
+                              variant="default"
+                            />
+                          ) : undefined
+                        }
                         onPress={handleDelete}
                       >
-                        Delete
+                        {deleteMilestone.isPending ? "" : "Delete"}
                       </Button>
                     </div>
                   </div>

@@ -83,6 +83,7 @@ export function useUpdateMilestone() {
     },
     onSuccess: (_data, variables) => {
       const { milestoneId } = variables;
+
       if (milestoneId && milestoneId.trim() !== "") {
         queryClient.invalidateQueries({
           queryKey: queryKeys.roadmap.milestone(milestoneId),

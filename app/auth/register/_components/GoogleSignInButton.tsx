@@ -7,8 +7,8 @@ interface GoogleSignInButtonProps {
 export const GoogleSignInButton = ({ onPress }: GoogleSignInButtonProps) => {
   return (
     <Button
-      className="w-full border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 font-medium text-sm h-12"
       disableRipple
+      className="w-full border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 font-medium text-sm h-12"
       radius="lg"
       size="md"
       startContent={
