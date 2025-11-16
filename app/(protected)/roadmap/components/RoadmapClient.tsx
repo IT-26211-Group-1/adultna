@@ -30,12 +30,16 @@ const CAMERA_ANIMATION: CameraAnimation = {
 export function RoadmapClient() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
-    null
+    null,
   );
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
 
-  const { data: milestones = [], isLoading, refetch: refetchMilestones } = useUserMilestones();
+  const {
+    data: milestones = [],
+    isLoading,
+    refetch: refetchMilestones,
+  } = useUserMilestones();
 
   // Calculate camera position for milestone zoom
   const createMilestoneZoom = (milestone: Milestone): CameraAnimation => {
@@ -96,7 +100,7 @@ export function RoadmapClient() {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="flex flex-col items-center gap-4">
-          <Spinner size="lg" color="primary" />
+          <Spinner color="primary" size="lg" />
         </div>
       </div>
     );
@@ -123,8 +127,8 @@ export function RoadmapClient() {
           <pointLight intensity={1.5} position={[0, 20, 0]} />
           <Suspense fallback={null}>
             <RoadmapModel
-              onMilestoneClick={handleMilestoneClick}
               milestones={milestones}
+              onMilestoneClick={handleMilestoneClick}
             />
           </Suspense>
           {/* OrbitControls with full freedom - no restrictions on movement */}

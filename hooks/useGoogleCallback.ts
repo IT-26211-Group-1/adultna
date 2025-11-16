@@ -47,7 +47,7 @@ export const useGoogleCallback = () => {
 
       logger.log("🔍 Retrieved from sessionStorage:", {
         storedState: storedState ? "exists" : "missing",
-        codeVerifier: codeVerifier ? "exists" : "missing"
+        codeVerifier: codeVerifier ? "exists" : "missing",
       });
 
       if (!state || state !== storedState) {
@@ -95,7 +95,9 @@ export const useGoogleCallback = () => {
 
       // For registration, redirect to authorization page
       if (mode === "register") {
-        logger.log("✅ Registration mode detected - redirecting to authorize page");
+        logger.log(
+          "✅ Registration mode detected - redirecting to authorize page",
+        );
         // Store OAuth data for authorization page
         sessionStorage.setItem("google_oauth_code", code);
         // Keep codeVerifier in sessionStorage for authorize page to use
@@ -129,7 +131,7 @@ export const useGoogleCallback = () => {
               code,
               codeVerifier,
             }),
-          }
+          },
         );
 
         const data = await response.json();

@@ -36,13 +36,18 @@ export function CameraController({
   useEffect(() => {
     if (!milestoneAnimation) {
       const { position, fov } = animation.from;
+
       camera.position.set(position[0], position[1], position[2]);
       if (camera instanceof PerspectiveCamera) {
         camera.fov = fov;
         camera.updateProjectionMatrix();
       }
 
-      const timer = setTimeout(() => setStartAnimation(true), animation.delay || 1000);
+      const timer = setTimeout(
+        () => setStartAnimation(true),
+        animation.delay || 1000,
+      );
+
       return () => clearTimeout(timer);
     }
   }, [camera, animation, milestoneAnimation]);
@@ -57,7 +62,9 @@ export function CameraController({
 
   // Animation spring
   const { position, fov } = useSpring({
-    position: startAnimation ? currentAnimation.to.position : currentAnimation.from.position,
+    position: startAnimation
+      ? currentAnimation.to.position
+      : currentAnimation.from.position,
     fov: startAnimation ? currentAnimation.to.fov : currentAnimation.from.fov,
     config: { mass: 1, tension: 40, friction: 50 },
     onRest: onAnimationComplete,

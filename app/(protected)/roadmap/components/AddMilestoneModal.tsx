@@ -58,6 +58,7 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
 
     // Add any pending task in the input field
     const finalTasks = [...(formData.tasks || [])];
+
     if (taskInput.trim()) {
       finalTasks.push({ title: taskInput.trim() });
     }
@@ -104,14 +105,14 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
 
   return (
     <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      size="2xl"
-      placement="center"
       backdrop="blur"
+      isOpen={isOpen}
+      placement="center"
+      size="2xl"
+      onClose={handleClose}
     >
       <ModalContent>
-        {(onClose) => (
+        {() => (
           <form onSubmit={handleSubmit}>
             <ModalHeader className="flex flex-col gap-1">
               Add New Milestone
@@ -119,41 +120,39 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
             <ModalBody>
               <div className="flex flex-col gap-4">
                 <Input
+                  isRequired
                   label="Title"
                   placeholder="Enter milestone title"
                   value={formData.title}
+                  variant="bordered"
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  isRequired
-                  variant="bordered"
                 />
 
                 <Textarea
                   label="Description"
+                  minRows={3}
                   placeholder="Enter milestone description"
                   value={formData.description}
+                  variant="bordered"
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  variant="bordered"
-                  minRows={3}
                 />
 
                 <Select
+                  isRequired
                   label="Category"
                   placeholder="Select a category"
                   selectedKeys={formData.category ? [formData.category] : []}
+                  variant="bordered"
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  isRequired
-                  variant="bordered"
                 >
                   {categories.map((cat) => (
-                    <SelectItem key={cat.value}>
-                      {cat.label}
-                    </SelectItem>
+                    <SelectItem key={cat.value}>{cat.label}</SelectItem>
                   ))}
                 </Select>
 
@@ -161,10 +160,10 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
                   label="Priority"
                   placeholder="Select priority"
                   selectedKeys={formData.priority ? [formData.priority] : []}
+                  variant="bordered"
                   onChange={(e) =>
                     setFormData({ ...formData, priority: e.target.value })
                   }
-                  variant="bordered"
                 >
                   {priorities.map((priority) => (
                     <SelectItem key={priority.value}>
@@ -177,18 +176,20 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
                   label="Deadline (Optional)"
                   type="date"
                   value={formData.deadline || ""}
+                  variant="bordered"
                   onChange={(e) =>
                     setFormData({ ...formData, deadline: e.target.value })
                   }
-                  variant="bordered"
                 />
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Tasks (Optional)</label>
+                  <div className="text-sm font-medium">Tasks (Optional)</div>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Add a task"
+                      size="sm"
                       value={taskInput}
+                      variant="bordered"
                       onChange={(e) => setTaskInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -196,16 +197,14 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
                           handleAddTask();
                         }
                       }}
-                      variant="bordered"
-                      size="sm"
                     />
                     <Button
                       isIconOnly
                       color="primary"
-                      variant="flat"
-                      size="sm"
-                      onPress={handleAddTask}
                       isDisabled={!taskInput.trim()}
+                      size="sm"
+                      variant="flat"
+                      onPress={handleAddTask}
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
@@ -222,8 +221,8 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
                           <Button
                             isIconOnly
                             color="danger"
-                            variant="light"
                             size="sm"
+                            variant="light"
                             onPress={() => handleRemoveTask(index)}
                           >
                             <X className="w-4 h-4" />
@@ -241,9 +240,9 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
               </Button>
               <Button
                 color="primary"
-                type="submit"
-                isLoading={createMilestone.isPending}
                 isDisabled={!formData.title || !formData.category}
+                isLoading={createMilestone.isPending}
+                type="submit"
               >
                 Add Milestone
               </Button>

@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable react/no-unknown-property */
 import { useGLTF } from "@react-three/drei";
 import { MilestoneHitbox } from "./MilestoneHitbox";
 import { RoadmapInteraction, Milestone } from "../../../../types/roadmap";
@@ -10,7 +11,10 @@ interface RoadmapModelProps {
   milestones: Milestone[];
 }
 
-export function RoadmapModel({ onMilestoneClick, milestones }: RoadmapModelProps) {
+export function RoadmapModel({
+  onMilestoneClick,
+  milestones,
+}: RoadmapModelProps) {
   const { scene } = useGLTF("/models/roadmap.glb");
 
   // Final milestone positions (measured and confirmed) - indexed by positionNumber
@@ -26,7 +30,9 @@ export function RoadmapModel({ onMilestoneClick, milestones }: RoadmapModelProps
   };
 
   const handleHitboxClick = (milestoneId: string, positionNumber: number) => {
-    logger.log(`✅ Milestone ${milestoneId} (position ${positionNumber}) clicked!`);
+    logger.log(
+      `✅ Milestone ${milestoneId} (position ${positionNumber}) clicked!`,
+    );
 
     const interaction: RoadmapInteraction = {
       objectName: `milestone_${positionNumber}`,
@@ -45,6 +51,7 @@ export function RoadmapModel({ onMilestoneClick, milestones }: RoadmapModelProps
       {/* Invisible clickable hitboxes for each milestone */}
       {milestones.map((milestone) => {
         const position = positionCoordinates[milestone.positionNumber || 1];
+
         if (!position) return null;
 
         return (
@@ -52,7 +59,9 @@ export function RoadmapModel({ onMilestoneClick, milestones }: RoadmapModelProps
             key={milestone.id}
             milestoneId={milestone.id}
             position={position}
-            onClick={() => handleHitboxClick(milestone.id, milestone.positionNumber || 1)}
+            onClick={() =>
+              handleHitboxClick(milestone.id, milestone.positionNumber || 1)
+            }
           />
         );
       })}

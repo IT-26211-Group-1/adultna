@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable react/no-unknown-property */
 import { ThreeEvent } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Mesh } from "three";
