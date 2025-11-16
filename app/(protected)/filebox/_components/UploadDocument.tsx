@@ -16,6 +16,7 @@ import {
 import { addToast } from "@heroui/toast";
 import { ApiError } from "@/lib/apiClient";
 import { formatFileSize } from "@/types/filebox";
+import { logger } from "@/lib/logger";
 
 interface UploadDocumentProps {
   onClose?: () => void;
@@ -151,7 +152,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
       onClose?.();
     } catch (error) {
-      console.error("Upload error:", error);
+      logger.error("Upload error:", error);
 
       if (error instanceof ApiError) {
         addToast({

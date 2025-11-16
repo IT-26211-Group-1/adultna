@@ -11,6 +11,8 @@ import ReactMarkdown from "react-markdown";
 import { ResultsLoadingSkeleton } from "./ResultsLoadingSkeleton";
 import { StarMetricCards } from "./StarMetricCards";
 import { QuestionBreakdown } from "./QuestionBreakdown";
+import { useMockInterviewState } from "@/hooks/useMockInterviewState";
+import { logger } from "@/lib/logger";
 
 type SessionResults = {
   jobRole: string;
@@ -30,7 +32,8 @@ type StoredResultsData = {
 
 export function InterviewResults() {
   const router = useRouter();
-  const { getSecureItem } = useSecureStorage();
+  const { getSecureItem, removeSecureItem } = useSecureStorage();
+  const { actions } = useMockInterviewState();
   const [answerIds, setAnswerIds] = useState<string[]>([]);
   const [sessionMetadata, setSessionMetadata] = useState<Omit<
     SessionResults,
@@ -57,7 +60,7 @@ export function InterviewResults() {
         timestamp: parsed.timestamp,
       });
     } catch (error) {
-      console.error("Failed to parse results:", error);
+      logger.error("Failed to parse results:", error);
       router.push("/mock-interview");
 
       return;
@@ -164,6 +167,13 @@ export function InterviewResults() {
     .join("\n\n");
   const verdict = allFeedback;
 
+  const handleRetake = () => {
+    // Resets the states so it does not skip to the last part
+    removeSecureItem("interview_results");
+    actions.reset();
+    router.push("/mock-interview");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -178,8 +188,8 @@ export function InterviewResults() {
               <span className="font-medium">{sessionMetadata.jobRole}</span>
             </button>
           </div>
-          <div className="text-2xl font-bold text-[#11553F]">AdultNa.</div>
-          <div className="w-10 h-10 rounded-full bg-[#11553F] flex items-center justify-center">
+          <div className="text-2xl font-bold text-adult-green">AdultNa.</div>
+          <div className="w-10 h-10 rounded-full bg-adult-green flex items-center justify-center">
             <span className="text-white text-sm font-semibold">U</span>
           </div>
         </div>
@@ -213,9 +223,9 @@ export function InterviewResults() {
                   Go to Dashboard
                 </Button>
                 <Button
-                  className="flex-1 bg-[#11553F] text-white hover:bg-[#11553F]/90 font-medium"
+                  className="flex-1 bg-adult-green text-white hover:bg-adult-green/90 font-medium"
                   size="lg"
-                  onPress={() => router.push("/mock-interview")}
+                  onPress={handleRetake}
                 >
                   Retake
                 </Button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/logger";
 import { useCallback, useState, useEffect, useRef } from "react";
 
 const TIMER_KEY = "resend_timer";
@@ -30,7 +31,7 @@ export function useResendTimer() {
         sessionStorage.removeItem(TIMER_KEY);
       }
     } catch (error) {
-      console.warn("Failed to parse timer data:", error);
+      logger.warn("Failed to parse timer data:", error);
       sessionStorage.removeItem(TIMER_KEY);
     }
   }, []);
@@ -44,7 +45,7 @@ export function useResendTimer() {
     try {
       sessionStorage.setItem(TIMER_KEY, JSON.stringify({ expiresAt }));
     } catch (error) {
-      console.warn("Failed to store timer data:", error);
+      logger.warn("Failed to store timer data:", error);
     }
   }, []);
 
@@ -89,7 +90,7 @@ export function useResendTimer() {
           try {
             sessionStorage.setItem(TIMER_KEY, JSON.stringify({ expiresAt }));
           } catch (error) {
-            console.warn("Failed to update timer data:", error);
+            logger.warn("Failed to update timer data:", error);
           }
 
           return newTime;

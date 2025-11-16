@@ -7,8 +7,8 @@ import { User, UsersTableProps } from "@/types/admin";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
-import { getUsersTableColumns } from "@/constants/adminTables";
-import { formatDate } from "@/constants/formatDate";
+import { getUsersTableColumns } from "@/constants/admin-tables";
+import { formatDate } from "@/constants/format-date";
 import { RetryButton } from "@/components/ui/RetryButton";
 
 // Memoized actions dropdown

@@ -9,7 +9,7 @@ export function MemberCard({
   bg = "bg-white",
 }: MemberCardProps) {
   return (
-    <div className={`${bg} border p-4 rounded-lg shadow-md`}>
+    <div className={`${bg} border p-4 pb-6 rounded-lg shadow-md`}>
       <div className="flex justify-center mb-3">
         <div className="w-50 h-50 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
           <Image

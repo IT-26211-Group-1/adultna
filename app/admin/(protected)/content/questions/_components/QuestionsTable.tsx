@@ -15,7 +15,7 @@ import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestio
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditQuestionModal from "./EditQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
-import { formatDate } from "@/constants/formatDate";
+import { formatDate } from "@/constants/format-date";
 import { RetryButton } from "@/components/ui/RetryButton";
 
 // Question Status Badge Component

@@ -16,6 +16,7 @@ import {
 } from "@heroui/modal";
 import { Button } from "@heroui/button";
 import Image from "next/image";
+import { logger } from "@/lib/logger";
 
 interface ProfileSidebarProps {
   onModalStateChange?: (isOpen: boolean) => void;
@@ -56,7 +57,7 @@ function ProfileSidebar({ onModalStateChange }: ProfileSidebarProps) {
       onModalStateChange?.(false);
       await logout();
     } catch (error) {
-      console.error("Logout error:", error);
+      logger.error("Logout error:", error);
     }
   }, [onClose, onModalStateChange, logout]);
 

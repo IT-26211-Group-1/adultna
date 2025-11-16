@@ -1,9 +1,21 @@
 "use client";
 
 import { API_CONFIG } from "@/config/api";
+import { PUBLIC_ROUTES } from "@/config/site";
+import { logger } from "@/lib/logger";
 
 export const API_BASE_URL = API_CONFIG.API_URL;
 export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
+
+export function isPublicRoute(pathname: string): boolean {
+  return PUBLIC_ROUTES.some((path) => {
+    if (path === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === path || pathname.startsWith(path + "/");
+  });
+}
 
 export class ApiClient {
   private static buildHeaders(
@@ -73,19 +85,16 @@ export class ApiClient {
             });
 
             if (!refreshResponse.ok) {
-              console.log(
+              logger.log(
                 "[ApiClient] ❌ Refresh failed - refresh token expired, logging out",
               );
 
               // Refresh token expired, logout user
               if (typeof window !== "undefined") {
                 const currentPath = window.location.pathname;
-                const isPublicRoute =
-                  currentPath.startsWith("/auth/") ||
-                  currentPath.startsWith("/admin/login");
 
                 // Only redirect if not already on a public route
-                if (!isPublicRoute) {
+                if (!isPublicRoute(currentPath)) {
                   window.location.href = "/auth/login";
                 }
               }
@@ -96,17 +105,14 @@ export class ApiClient {
             // Retry the original request once
             return this.request<T>(endpoint, options, baseUrl, true);
           } catch (error) {
-            console.log("[ApiClient] ❌ Token refresh error:", error);
+            logger.log("[ApiClient] ❌ Token refresh error:", error);
 
             // If refresh fails, logout user
             if (typeof window !== "undefined") {
               const currentPath = window.location.pathname;
-              const isPublicRoute =
-                currentPath.startsWith("/auth/") ||
-                currentPath.startsWith("/admin/login");
 
               // Only redirect if not already on a public route
-              if (!isPublicRoute) {
+              if (!isPublicRoute(currentPath)) {
                 window.location.href = "/auth/login";
               }
             }
@@ -119,12 +125,12 @@ export class ApiClient {
           }
         }
 
-        throw new ApiError(
-          errorData?.message ||
-            `HTTP ${response.status}: ${response.statusText}`,
-          response.status,
-          errorData,
-        );
+        const errorMessage =
+          typeof errorData?.message === "string"
+            ? errorData.message
+            : `HTTP ${response.status}: ${response.statusText}`;
+
+        throw new ApiError(errorMessage, response.status, errorData);
       }
 
       const contentType = response.headers.get("content-type");
@@ -329,5 +335,22 @@ export const queryKeys = {
         : (["filebox", "list"] as const),
     detail: (fileId: string) => ["filebox", "detail", fileId] as const,
     quota: () => ["filebox", "quota"] as const,
+  },
+
+  // Resume queries
+  resumes: {
+    all: ["resumes"] as const,
+    list: () => ["resumes", "list"] as const,
+    detail: (resumeId: string) => ["resumes", "detail", resumeId] as const,
+    contactInfo: (resumeId: string) =>
+      ["resumes", "contactInfo", resumeId] as const,
+  },
+
+  // Cover Letter queries
+  coverLetters: {
+    all: ["coverLetters"] as const,
+    list: () => ["coverLetters", "list"] as const,
+    detail: (coverLetterId: string) =>
+      ["coverLetters", "detail", coverLetterId] as const,
   },
 } as const;

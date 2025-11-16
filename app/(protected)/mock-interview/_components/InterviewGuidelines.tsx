@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import type { SessionQuestion } from "@/types/interview-question";
 import { AutoPlayToggle } from "./AutoPlayToggle";
+import { logger } from "@/lib/logger";
 
 type InterviewGuidelinesProps = {
   selectedIndustry: string;
@@ -61,7 +62,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
     const userId = (user as any)?.userId;
 
     if (!userId) {
-      console.error("User not authenticated");
+      logger.error("User not authenticated");
 
       return;
     }
@@ -79,7 +80,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
         onNext(response.data.sessionId, response.data.questions);
       }
     } catch (error) {
-      console.error("Failed to create interview session:", error);
+      logger.error("Failed to create interview session:", error);
     }
   };
 

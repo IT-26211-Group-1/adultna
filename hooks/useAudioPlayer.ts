@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { logger } from "@/lib/logger";
 
 type UseAudioPlayerReturn = {
   play: (url: string) => Promise<void>;
@@ -37,14 +38,14 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
           .then(() => resolve())
           .catch((err) => {
             if (err.name === "NotAllowedError") {
-              console.warn(
+              logger.warn(
                 "Auto-play blocked by browser. User can click the toggle to play.",
               );
               setIsLoading(false);
               setIsPlaying(false);
               resolve();
             } else {
-              console.error("❌ Audio play error:", err);
+              logger.error("❌ Audio play error:", err);
               setError("Failed to play audio");
               setIsLoading(false);
               reject(err);
@@ -67,7 +68,7 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
       });
 
       audio.addEventListener("error", (e) => {
-        console.error("Audio error:", e);
+        logger.error("Audio error:", e);
         setError("Failed to load audio");
         setIsLoading(false);
         setIsPlaying(false);

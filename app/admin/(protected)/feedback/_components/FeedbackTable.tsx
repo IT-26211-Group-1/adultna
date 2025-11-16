@@ -12,7 +12,8 @@ import {
   FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
-import { formatDate } from "@/constants/formatDate";
+import { formatDate } from "@/constants/format-date";
+import { logger } from "@/lib/logger";
 import { RetryButton } from "@/components/ui/RetryButton";
 
 const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
@@ -228,7 +229,7 @@ const FeedbackTable: React.FC = () => {
                 }
               },
               onError: (error: any) => {
-                console.error("Feedback update error:", error);
+                logger.error("Feedback update error:", error);
                 const isServerError = error?.response?.status >= 500;
 
                 addToast({
@@ -280,7 +281,7 @@ const FeedbackTable: React.FC = () => {
               }
             },
             onError: (error: any) => {
-              console.error("Feedback delete error:", error);
+              logger.error("Feedback delete error:", error);
               const isServerError = error?.response?.status >= 500;
 
               addToast({

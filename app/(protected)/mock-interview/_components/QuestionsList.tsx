@@ -12,6 +12,7 @@ import { AutoPlayToggle } from "./AutoPlayToggle";
 import { Spinner } from "@heroui/react";
 import { GradingProgressModal } from "@/components/ui/GradingProgressModal";
 import { addToast } from "@heroui/toast";
+import { logger } from "@/lib/logger";
 
 type QuestionsListProps = {
   selectedIndustry: string;
@@ -63,7 +64,7 @@ export const QuestionsList = memo(function QuestionsList({
 
       if (currentAnswer.trim() && !submittedAnswerIds.has(question.id)) {
         submitForGrading(question.id, question.question).catch((error) => {
-          console.error(
+          logger.error(
             `[QuestionsList] ❌ Failed to grade answer ${question.id}:`,
             error,
           );
@@ -151,7 +152,7 @@ export const QuestionsList = memo(function QuestionsList({
           }
           audio.stt.clearRecording();
         } catch (error) {
-          console.error("❌ AWS transcription failed:", error);
+          logger.error("❌ AWS transcription failed:", error);
         }
       };
 
@@ -210,9 +211,6 @@ export const QuestionsList = memo(function QuestionsList({
           const progress = Math.round((completed / total) * 100);
 
           setGradingProgress(progress);
-          console.log(
-            `[QuestionsList] Grading progress: ${completed}/${total} (${progress}%)`,
-          );
         },
       );
 
@@ -230,7 +228,7 @@ export const QuestionsList = memo(function QuestionsList({
         sessionId,
       );
     } catch (error) {
-      console.error("[QuestionsList] Grading failed:", error);
+      logger.error("[QuestionsList] Grading failed:", error);
       setIsGrading(false);
 
       addToast({

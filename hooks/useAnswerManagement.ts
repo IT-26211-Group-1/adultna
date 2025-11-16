@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { interviewStorage } from "@/utils/interviewStorage";
 import { useSubmitAnswerToQueue } from "@/hooks/queries/useInterviewAnswers";
+import { logger } from "@/lib/logger";
 
 export function useAnswerManagement(sessionId: string) {
   const { mutateAsync: submitAnswerToQueue } = useSubmitAnswerToQueue();
@@ -55,7 +56,7 @@ export function useAnswerManagement(sessionId: string) {
 
         return pendingAnswer.id;
       } catch (error) {
-        console.error("Background grading submission failed:", error);
+        logger.error("Background grading submission failed:", error);
 
         return null;
       }

@@ -6,41 +6,30 @@ interface AgentWelcomeProps {
 
 export function AgentWelcome({ className }: AgentWelcomeProps) {
   return (
-    <div className={cn("flex items-start gap-3", className)}>
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-adultGreen text-white shadow-sm">
-        <svg
-          className="h-6 w-6"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center text-center py-2 sm:py-4 lg:py-8 px-4 sm:px-6 lg:px-8",
+        className,
+      )}
+    >
+      <div className="mb-4 sm:mb-6 mt-8 sm:mt-12 lg:mt-15 text-gray-600 text-sm sm:text-base lg:text-md">
+        Great to see you here! I&apos;m{" "}
+        <span className={cn("font-bold")}>AI Gabay</span>, your personal guide
+        to navigating adulthood.
       </div>
-      <div className="flex-1 space-y-4">
-        <div className="rounded-2xl bg-gray-100 px-4 py-3 text-sm text-black shadow-sm dark:bg-gray-800 dark:text-black">
-          <p className="font-medium">Hi! I&apos;m your AI Gabay Agent!</p>
-          <p className="mt-2">
-            I&apos;m here to help you with all your adulting questions,
-            especially about Filipino government documents and processes. What
-            would you like to know?
-          </p>
-        </div>
-        <div className="rounded-2xl bg-gray-100 px-4 py-3 text-sm text-black shadow-sm dark:bg-gray-800 dark:text-black">
-          <p className="font-medium">Heads up!</p>
-          <p className="mt-2">
-            Our AI Gabay Agent is here to support you with tips and suggestions
-            — but it&apos;s not a substitute for professional, legal, or medical
-            advice. When in doubt, always check with a real expert!
-          </p>
-        </div>
-      </div>
+
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-adult-green">
+        What can I help you with today?
+      </h1>
+
+      {/* <p className="text-gray-600 max-w-lg leading-relaxed mb-4">
+        Navigating adulthood doesn&apos;t come with a manual, but that&apos;s what I&apos;m here for.
+        Let&apos;s figure this out together.
+      </p> */}
+
+      {/* <p className="text-gray-500 max-w-xs sm:max-w-sm lg:max-w-md leading-relaxed text-sm sm:text-base">
+        Choose from the suggestions below or ask me anything you need help with.
+      </p> */}
     </div>
   );
 }

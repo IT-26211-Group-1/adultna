@@ -2,11 +2,11 @@ import TextType from "../../../../components/TextType";
 
 export function PreviewText() {
   return (
-    <div className="flex-1 flex flex-col items-start justify-center top-10 gap-2 z-10 max-w-2xl text-left">
-      <h2 className="text-2xl md:text-3xl lg:text-4xl text-black leading-tight font-playfair">
+    <div className="w-full flex flex-col items-start justify-center gap-3 sm:gap-4 md:gap-5 text-left px-4 sm:px-0">
+      <h2 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl text-black leading-tight font-playfair">
         That&apos;s where we come in,
       </h2>
-      <h2 className="text-3xl md:text-4xl lg:text-4xl leading-tight font-playfair">
+      <h2 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight font-playfair">
         <TextType
           cursorCharacter="|"
           cursorColor="#333"
@@ -20,7 +20,7 @@ export function PreviewText() {
           typingSpeed={75}
         />
       </h2>
-      <p className="text-lg md:text-xl text-ultraViolet max-w-xl leading-relaxed font-inter">
+      <p className="text-base sm:text-lg md:text-lg lg:text-xl text-ultraViolet leading-relaxed font-inter max-w-sm sm:max-w-md md:max-w-lg">
         We aim to equip you with AI-guided roadmaps, centralized government
         guides, and tools for your personal growth. Bridging the gap between the
         person you are and the adult you aspire to be; because adulthood is a
