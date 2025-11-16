@@ -59,15 +59,15 @@ export default function JobSearchHeader({
   }, [onSearch]);
 
   return (
-    <div className="mb-8">
+    <div className="mb-8 px-4 md:px-0">
       {/* Search Bar Container */}
       <div className="max-w-6xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-sm p-2">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
           {/* Search Input */}
           <div className="flex-1 relative">
             <div className="flex items-center gap-3 px-4 py-3">
               <svg
-                className="w-5 h-5 text-gray-400"
+                className="w-5 h-5 text-gray-400 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -93,80 +93,83 @@ export default function JobSearchHeader({
           </div>
 
           {/* Divider */}
-          <div className="h-8 w-px bg-gray-200" />
+          <div className="hidden md:block h-8 w-px bg-gray-200" />
 
-          {/* Location Filter */}
-          <div className="flex items-center px-4">
-            <svg
-              className="w-4 h-4 text-gray-400 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-              <path
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-            <select
-              className="border-none bg-transparent text-sm focus:outline-none text-gray-600 min-w-0"
-              value={filters.jobType}
-              onChange={(e) =>
-                onFilterChange({ ...filters, jobType: e.target.value })
-              }
-            >
-              <option value="all">All Remote Options</option>
-              <option value="remote">Remote</option>
-              <option value="onsite">On-site</option>
-              <option value="hybrid">Hybrid</option>
-            </select>
-          </div>
+          {/* Filters Container - Stacks on mobile */}
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-0">
+            {/* Location Filter */}
+            <div className="flex items-center px-4 py-2 md:py-0 border-t md:border-t-0 border-gray-200 md:border-0">
+              <svg
+                className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+                <path
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+              <select
+                className="border-none bg-transparent text-sm focus:outline-none text-gray-600 w-full md:min-w-0"
+                value={filters.jobType}
+                onChange={(e) =>
+                  onFilterChange({ ...filters, jobType: e.target.value })
+                }
+              >
+                <option value="all">All Remote Options</option>
+                <option value="remote">Remote</option>
+                <option value="onsite">On-site</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
+            </div>
 
-          {/* Divider */}
-          <div className="h-8 w-px bg-gray-200" />
+            {/* Divider */}
+            <div className="hidden md:block h-8 w-px bg-gray-200" />
 
-          {/* Experience Filter */}
-          <div className="flex items-center px-4">
-            <svg
-              className="w-4 h-4 text-gray-400 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-            <select
-              className="border-none bg-transparent text-sm focus:outline-none text-gray-600 min-w-0"
-              value={filters.employmentType}
-              onChange={(e) =>
-                onFilterChange({ ...filters, employmentType: e.target.value })
-              }
-            >
-              <option value="all">All Work Types</option>
-              <option value="full-time">Full-time</option>
-              <option value="part-time">Part-time</option>
-              <option value="contract">Contract</option>
-              <option value="internship">Internship</option>
-            </select>
+            {/* Experience Filter */}
+            <div className="flex items-center px-4 py-2 md:py-0 border-t sm:border-t-0 border-gray-200 md:border-0">
+              <svg
+                className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+              <select
+                className="border-none bg-transparent text-sm focus:outline-none text-gray-600 w-full md:min-w-0"
+                value={filters.employmentType}
+                onChange={(e) =>
+                  onFilterChange({ ...filters, employmentType: e.target.value })
+                }
+              >
+                <option value="all">All Work Types</option>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
+              </select>
+            </div>
           </div>
 
           {/* Search Button */}
           <button
             aria-label="Search jobs"
-            className="px-8 py-3 bg-[#ACBD6F] hover:bg-[#A3B65D] text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="w-full md:w-auto px-8 py-3 bg-[#ACBD6F] hover:bg-[#A3B65D] text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 md:mt-0"
             disabled={isLoading}
             onClick={handleSearch}
           >

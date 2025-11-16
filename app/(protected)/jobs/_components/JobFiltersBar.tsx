@@ -14,8 +14,8 @@ export default function JobFiltersBar({
   onFilterChange,
 }: JobFiltersBarProps) {
   return (
-    <div className="max-w-6xl mx-auto mb-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-6xl mx-auto mb-6 px-4 md:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-lg font-semibold text-gray-900">
           {searchQuery
             ? `Search results for "${searchQuery}"`
@@ -23,9 +23,9 @@ export default function JobFiltersBar({
         </h2>
 
         {/* Date Posted Filter */}
-        <div className="bg-white border border-gray-300 rounded-full px-4 py-2">
+        <div className="bg-white border border-gray-300 rounded-full px-4 py-2 w-full sm:w-auto">
           <select
-            className="border-none bg-transparent text-sm focus:outline-none"
+            className="border-none bg-transparent text-sm focus:outline-none w-full"
             value={filters.datePosted}
             onChange={(e) =>
               onFilterChange({ ...filters, datePosted: e.target.value })
