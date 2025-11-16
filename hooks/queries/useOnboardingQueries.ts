@@ -146,11 +146,6 @@ export function useOnboardingSubmit() {
           queryKey: queryKeys.onboarding.all,
         });
 
-        // Remove roadmap queries from cache to force fresh fetch on dashboard
-        queryClient.removeQueries({
-          queryKey: queryKeys.roadmap.all,
-        });
-
         // await refetch to get updated onboarding status
         await queryClient.refetchQueries({
           queryKey: queryKeys.auth.me(),

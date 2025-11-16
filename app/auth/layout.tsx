@@ -11,31 +11,39 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   const pathname = usePathname();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   const hasRedirected = useRef(false);
 
-  const shouldRedirect = useMemo(() => {
-    if (isLoading || !isAuthenticated) return false;
+  const redirectInfo = useMemo(() => {
+    if (isLoading || !isAuthenticated) {
+      return { shouldRedirect: false, redirectTo: null };
+    }
 
     // Allow onboarding for authenticated users
     if (pathname?.startsWith("/auth/onboarding")) {
-      return false;
+      return { shouldRedirect: false, redirectTo: null };
     }
 
-    return true;
-  }, [isLoading, isAuthenticated, pathname]);
+    // Redirect to onboarding if not completed
+    if (user?.onboardingStatus !== "completed") {
+      return { shouldRedirect: true, redirectTo: "/auth/onboarding" };
+    }
+
+    // Redirect to dashboard if onboarding is completed
+    return { shouldRedirect: true, redirectTo: "/dashboard" };
+  }, [isLoading, isAuthenticated, pathname, user?.onboardingStatus]);
 
   useEffect(() => {
-    if (shouldRedirect && !hasRedirected.current) {
+    if (redirectInfo.shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
       // Use window.location for hard navigation to prevent chunk loading errors
-      window.location.href = "/dashboard";
+      window.location.href = redirectInfo.redirectTo!;
     }
-  }, [shouldRedirect]);
+  }, [redirectInfo]);
 
   // Show loading for auth check or redirect
-  if (isLoading || shouldRedirect) {
+  if (isLoading || redirectInfo.shouldRedirect) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <LoadingSpinner />
