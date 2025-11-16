@@ -115,8 +115,10 @@ export function ChatContainerOptimized() {
   }, []);
 
   // Scroll handler
-  const handleScroll = useCallback((_e: React.UIEvent<HTMLDivElement>) => {
-  }, []);
+  const handleScroll = useCallback(
+    (_e: React.UIEvent<HTMLDivElement>) => {},
+    [],
+  );
 
   // Update conversation in state AND localStorage
   const updateConversation = useCallback(

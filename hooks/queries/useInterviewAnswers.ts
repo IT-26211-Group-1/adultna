@@ -20,10 +20,10 @@ const answerApi = {
     ApiClient.post("/interview-answer", data),
   getAnswerById: async (
     answerId: string,
-    loadContent = false
+    loadContent = false,
   ): Promise<InterviewAnswer> => {
     const response = await ApiClient.get<ApiResponse<InterviewAnswer>>(
-      `/interview-answer/${answerId}?loadContent=${loadContent}`
+      `/interview-answer/${answerId}?loadContent=${loadContent}`,
     );
 
     return response.data;
@@ -53,7 +53,7 @@ export function useSubmitAnswerToQueue() {
 
 export async function pollMultipleAnswersUntilComplete(
   answerIds: string[],
-  onProgress?: (completedCount: number, totalCount: number) => void
+  onProgress?: (completedCount: number, totalCount: number) => void,
 ): Promise<InterviewAnswer[]> {
   const MAX_ATTEMPTS = 300; // 5 minutes max for all answers (increased for 1s polling)
   const POLL_INTERVAL = 1000; // Poll every 1 second for faster UI updates
@@ -62,7 +62,7 @@ export async function pollMultipleAnswersUntilComplete(
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     // Fetch all answers at once
     const answers = await Promise.all(
-      answerIds.map((id) => answerApi.getAnswerById(id, false))
+      answerIds.map((id) => answerApi.getAnswerById(id, false)),
     );
 
     // Count completed and failed answers

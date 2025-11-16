@@ -66,7 +66,7 @@ export const QuestionsList = memo(function QuestionsList({
         submitForGrading(question.id, question.question).catch((error) => {
           logger.error(
             `[QuestionsList] ❌ Failed to grade answer ${question.id}:`,
-            error
+            error,
           );
         });
       }
@@ -78,7 +78,7 @@ export const QuestionsList = memo(function QuestionsList({
   const navigation = useQuestionNavigation(
     sessionQuestions,
     handleBeforeNavigate,
-    state.currentQuestionIndex
+    state.currentQuestionIndex,
   );
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export const QuestionsList = memo(function QuestionsList({
   const audio = useInterviewAudio(
     navigation.currentQuestion?.question || "",
     userId,
-    true
+    true,
   );
 
   const { isSubmitting, submitInterview } = useInterviewSubmission();
@@ -144,7 +144,7 @@ export const QuestionsList = memo(function QuestionsList({
         try {
           const awsTranscript = await audio.stt.transcribeAndPoll(
             audio.stt.audioBlob!,
-            selectedJobRole
+            selectedJobRole,
           );
 
           if (awsTranscript) {
@@ -173,7 +173,7 @@ export const QuestionsList = memo(function QuestionsList({
       ) {
         lastAnswerId = await submitForGrading(
           navigation.currentQuestion.id,
-          navigation.currentQuestion.question
+          navigation.currentQuestion.question,
         );
       }
     }
@@ -211,7 +211,7 @@ export const QuestionsList = memo(function QuestionsList({
           const progress = Math.round((completed / total) * 100);
 
           setGradingProgress(progress);
-        }
+        },
       );
 
       clearSession(sessionId);
@@ -225,7 +225,7 @@ export const QuestionsList = memo(function QuestionsList({
           totalQuestions: navigation.progress.total,
           answeredQuestions: gradedAnswerIds.length,
         },
-        sessionId
+        sessionId,
       );
     } catch (error) {
       logger.error("[QuestionsList] Grading failed:", error);
