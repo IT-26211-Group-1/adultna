@@ -161,6 +161,11 @@ test.describe("Login Form", () => {
     await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
   });
 
+  test("dashboard is inaccessible without login", async ({ page }) => {
+    await page.goto("http://localhost:3000/dashboard");
+    await expect(page).toHaveURL(/\/auth\/login\/?$/, { timeout: 15000 });
+  });
+
   // make this a standard, per page must check its load time
   test("login page loads within acceptable time", async ({ page }) => {
     const start = Date.now();
