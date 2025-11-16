@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ChatContainerOptimized } from "@/app/(protected)/ai-gabay/_components/ChatContainer";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 function AIGabayContent() {
   return (
@@ -12,12 +13,8 @@ function AIGabayContent() {
 export default function AIGabayPage() {
   return (
     <Suspense fallback={
-      <div className="fixed inset-0 bg-white flex items-center justify-center">
-        <div className="flex gap-1">
-          <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]" />
-          <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
-          <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400" />
-        </div>
+      <div className="fixed inset-0 bg-white">
+        <LoadingSpinner fullScreen={true} variant="dots" />
       </div>
     }>
       <AIGabayContent />
