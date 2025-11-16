@@ -45,7 +45,7 @@ export function MilestoneModal({
   const deleteMilestone = useDeleteMilestone();
   const deleteTask = useDeleteTask(milestone?.id || "");
   const createTask = useCreateTask(milestone?.id || "");
-  const updateMilestone = useUpdateMilestone(milestone?.id || "");
+  const updateMilestone = useUpdateMilestone();
 
   // Initialize edit form when milestone changes
   useEffect(() => {
@@ -159,6 +159,7 @@ export function MilestoneModal({
 
     try {
       await updateMilestone.mutateAsync({
+        milestoneId: milestone.id,
         title: editForm.title.trim(),
         description: editForm.description.trim(),
       });

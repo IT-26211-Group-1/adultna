@@ -61,23 +61,28 @@ export function useCreateMilestone() {
   });
 }
 
-export function useUpdateMilestone(milestoneId: string) {
+export function useUpdateMilestone() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: UpdateMilestonePayload) => {
+    mutationFn: async (
+      data: UpdateMilestonePayload & { milestoneId: string },
+    ) => {
+      const { milestoneId, ...payload } = data;
+
       if (!milestoneId || milestoneId.trim() === "") {
         throw new Error("Milestone ID is required");
       }
 
       const response = await ApiClient.patch<ServiceResponse>(
         `/roadmap/milestones/${milestoneId}`,
-        data,
+        payload,
       );
 
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      const { milestoneId } = variables;
       if (milestoneId && milestoneId.trim() !== "") {
         queryClient.invalidateQueries({
           queryKey: queryKeys.roadmap.milestone(milestoneId),
