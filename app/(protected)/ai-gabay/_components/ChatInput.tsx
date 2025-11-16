@@ -42,12 +42,14 @@ export function ChatInput({
           onChange={(e) => setInput(e.target.value)}
         />
         <button
-          type="submit"
-          disabled={!input.trim() || disabled}
           className={cn(
             "absolute right-1.5 sm:right-2 rounded-full bg-gray-100 p-1.5 sm:p-2 transition-colors hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed",
-            input.trim() && !disabled && "bg-adult-green/80 hover:bg-adult-green/100 text-white"
+            input.trim() &&
+              !disabled &&
+              "bg-adult-green/80 hover:bg-adult-green/100 text-white",
           )}
+          disabled={!input.trim() || disabled}
+          type="submit"
         >
           <ArrowRightIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </button>

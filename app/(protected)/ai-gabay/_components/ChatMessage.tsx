@@ -1,7 +1,13 @@
 "use client";
 
 import { memo, useState } from "react";
-import { CheckIcon, ClipboardIcon, RefreshCwIcon, ThumbsUpIcon, ThumbsDownIcon } from "lucide-react";
+import {
+  CheckIcon,
+  ClipboardIcon,
+  RefreshCwIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -23,7 +29,7 @@ export const ChatMessage = memo(function ChatMessageOptimized({
   onRegenerate,
 }: ChatMessageOptimizedProps) {
   const [copied, setCopied] = useState(false);
-  const [feedback, setFeedback] = useState<'like' | 'dislike' | null>(null);
+  const [feedback, setFeedback] = useState<"like" | "dislike" | null>(null);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message);
@@ -32,11 +38,11 @@ export const ChatMessage = memo(function ChatMessageOptimized({
   };
 
   const handleLike = () => {
-    setFeedback(feedback === 'like' ? null : 'like');
+    setFeedback(feedback === "like" ? null : "like");
   };
 
   const handleDislike = () => {
-    setFeedback(feedback === 'dislike' ? null : 'dislike');
+    setFeedback(feedback === "dislike" ? null : "dislike");
   };
 
   return (
@@ -119,9 +125,9 @@ export const ChatMessage = memo(function ChatMessageOptimized({
 
                 <button
                   className={`rounded p-1 transition-colors ${
-                    feedback === 'like'
-                      ? 'text-green-600 bg-green-50 hover:bg-green-100'
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300'
+                    feedback === "like"
+                      ? "text-green-600 bg-green-50 hover:bg-green-100"
+                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                   title="Like this response"
                   onClick={handleLike}
@@ -131,9 +137,9 @@ export const ChatMessage = memo(function ChatMessageOptimized({
 
                 <button
                   className={`rounded p-1 transition-colors ${
-                    feedback === 'dislike'
-                      ? 'text-red-600 bg-red-50 hover:bg-red-100'
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300'
+                    feedback === "dislike"
+                      ? "text-red-600 bg-red-50 hover:bg-red-100"
+                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                   title="Dislike this response"
                   onClick={handleDislike}

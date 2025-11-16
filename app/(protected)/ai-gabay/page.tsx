@@ -12,11 +12,13 @@ function AIGabayContent() {
 
 export default function AIGabayPage() {
   return (
-    <Suspense fallback={
-      <div className="fixed inset-0 bg-white">
-        <LoadingSpinner fullScreen={true} variant="dots" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 bg-white">
+          <LoadingSpinner fullScreen={true} variant="dots" />
+        </div>
+      }
+    >
       <AIGabayContent />
     </Suspense>
   );

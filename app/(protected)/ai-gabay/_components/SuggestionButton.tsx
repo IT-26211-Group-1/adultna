@@ -13,6 +13,7 @@ const getIconForText = (text: string) => {
   if (text.includes("Postal ID") || text.includes("NBI")) return FileText;
   if (text.includes("job")) return Briefcase;
   if (text.includes("SSS")) return CreditCard;
+
   return Search;
 };
 
@@ -33,15 +34,15 @@ export function SuggestionButton({
     >
       {/* Animated border overlay */}
       <div className="absolute inset-0 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-adult-green animate-pulse"></div>
-        <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-adult-green/50 animate-ping"></div>
+        <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-adult-green animate-pulse" />
+        <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-adult-green/50 animate-ping" />
       </div>
 
       {/* Animated corner accents */}
-      <div className="absolute top-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-l-2 border-t-2 border-adult-green rounded-tl-xl sm:rounded-tl-2xl opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-500 delay-100"></div>
-      <div className="absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-r-2 border-t-2 border-adult-green rounded-tr-xl sm:rounded-tr-2xl opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-500 delay-200"></div>
-      <div className="absolute bottom-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-l-2 border-b-2 border-adult-green rounded-bl-xl sm:rounded-bl-2xl opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-500 delay-300"></div>
-      <div className="absolute bottom-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-r-2 border-b-2 border-adult-green rounded-br-xl sm:rounded-br-2xl opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-500 delay-400"></div>
+      <div className="absolute top-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-l-2 border-t-2 border-adult-green rounded-tl-xl sm:rounded-tl-2xl opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-500 delay-100" />
+      <div className="absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-r-2 border-t-2 border-adult-green rounded-tr-xl sm:rounded-tr-2xl opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-500 delay-200" />
+      <div className="absolute bottom-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-l-2 border-b-2 border-adult-green rounded-bl-xl sm:rounded-bl-2xl opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-500 delay-300" />
+      <div className="absolute bottom-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-r-2 border-b-2 border-adult-green rounded-br-xl sm:rounded-br-2xl opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-500 delay-400" />
 
       {/* Content with relative positioning */}
       <span className="relative font-medium leading-snug z-10">{text}</span>
