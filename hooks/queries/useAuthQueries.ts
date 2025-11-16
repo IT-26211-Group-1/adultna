@@ -8,6 +8,7 @@ import { API_CONFIG } from "@/config/api";
 import { useAuthSync } from "@/hooks/useAuthSync";
 import { useTokenRefresh } from "@/hooks/useTokenRefresh";
 import { useIdleTimeout } from "@/hooks/useIdleTimeout";
+import { logger } from "@/lib/logger";
 import { useCallback } from "react";
 
 // Types
@@ -82,7 +83,7 @@ export function useAuth() {
     try {
       await authApi.logout();
     } catch (error) {
-      console.error("Idle timeout logout failed:", error);
+      logger.error("Idle timeout logout failed:", error);
     } finally {
       import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
         broadcastLogout();
@@ -236,7 +237,7 @@ export function useAuth() {
       window.location.href = "/auth/login";
     },
     onError: (error) => {
-      console.error("Logout failed:", error);
+      logger.error("Logout failed:", error);
 
       // Broadcast logout to other tabs even on error
       import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {

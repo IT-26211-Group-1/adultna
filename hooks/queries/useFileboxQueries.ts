@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { API_CONFIG } from "@/config/api";
+import { logger } from "@/lib/logger";
 import {
   UploadUrlResponse,
   DownloadUrlResponse,
@@ -39,7 +40,7 @@ const fileboxApi = {
     if (!response.ok) {
       const errorText = await response.text();
 
-      console.error("S3 upload error:", errorText);
+      logger.error("S3 upload error:", errorText);
       throw new ApiError(
         "Failed to upload file to storage",
         response.status,

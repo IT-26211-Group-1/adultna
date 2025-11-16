@@ -7,6 +7,7 @@ import type {
   SubmitAnswerResponse,
   InterviewAnswer,
 } from "@/types/interview-answer";
+import { logger } from "@/lib/logger";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -45,7 +46,7 @@ export function useSubmitAnswerToQueue() {
       queryClient.invalidateQueries({ queryKey: ["interview-answers"] });
     },
     onError: (error) => {
-      console.error("[useSubmitAnswerToQueue] Failed:", error);
+      logger.error("[useSubmitAnswerToQueue] Failed:", error);
     },
   });
 }

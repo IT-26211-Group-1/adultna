@@ -3,6 +3,7 @@
 import Lottie from "lottie-react";
 import { useEffect, useState } from "react";
 import { Progress } from "@heroui/react";
+import { logger } from "@/lib/logger";
 
 type LoadingScreenProps = {
   isVisible: boolean;
@@ -28,7 +29,7 @@ export function LoadingScreen({
     fetch("/roadmap-loading.json")
       .then((response) => response.json())
       .then((data) => setAnimationData(data))
-      .catch((error) => console.error("Error loading animation:", error));
+      .catch((error) => logger.error("Error loading animation:", error));
   }, []);
 
   useEffect(() => {

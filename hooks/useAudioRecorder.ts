@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { logger } from "@/lib/logger";
 
 type UseAudioRecorderReturn = {
   isRecording: boolean;
@@ -68,7 +69,7 @@ export const useAudioRecorder = (): UseAudioRecorderReturn => {
       mediaRecorder.start();
       setIsRecording(true);
     } catch (err) {
-      console.error("Error starting recording:", err);
+      logger.error("Error starting recording:", err);
       setError(
         err instanceof Error
           ? err.message

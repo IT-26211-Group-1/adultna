@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
 import { gabayApi } from "@/lib/api/gabay";
 import type { ChatRequest, ChatResponse } from "@/types/gabay";
+import { logger } from "@/lib/logger";
 
 interface UseChatMutationOptions {
   onSuccess?: (response: ChatResponse, message: string) => void;
@@ -36,7 +37,7 @@ export function useGabayChat(options?: UseChatMutationOptions) {
       }
     },
     onError: (error: Error) => {
-      console.error("[GABAY] Chat error:", error);
+      logger.error("[GABAY] Chat error:", error);
       if (options?.onError) {
         options.onError(error);
       }

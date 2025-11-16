@@ -17,6 +17,7 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import type { ConversationMessage, Conversation } from "@/types/gabay";
+import { logger } from "@/lib/logger";
 
 const INITIAL_SUGGESTIONS = [
   "Requirements for Postal ID",
@@ -39,7 +40,7 @@ const saveToStorage = (conversations: StoredConversation[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
   } catch (e) {
-    console.error("Failed to save conversations", e);
+    logger.error("Failed to save conversations", e);
   }
 };
 
@@ -49,7 +50,7 @@ const loadFromStorage = (): StoredConversation[] => {
 
     return stored ? JSON.parse(stored) : [];
   } catch (e) {
-    console.error("Failed to load conversations", e);
+    logger.error("Failed to load conversations", e);
 
     return [];
   }

@@ -26,6 +26,7 @@ import { FileMetadata, OTPAction } from "@/types/filebox";
 import { API_CONFIG } from "@/config/api";
 import { FilePreview } from "./FilePreview";
 import { SecureDocument } from "./SecureDocument";
+import { logger } from "@/lib/logger";
 
 interface FileActionsProps {
   file: FileItem;
@@ -88,7 +89,7 @@ export function FileActions({
         throw new Error("Failed to generate preview URL");
       }
     } catch (error) {
-      console.error("View error:", error);
+      logger.error("View error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -131,7 +132,7 @@ export function FileActions({
         color: "success",
       });
     } catch (error) {
-      console.error("Download error:", error);
+      logger.error("Download error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -159,7 +160,7 @@ export function FileActions({
         color: "success",
       });
     } catch (error) {
-      console.error("Delete error:", error);
+      logger.error("Delete error:", error);
 
       if (error instanceof ApiError) {
         addToast({

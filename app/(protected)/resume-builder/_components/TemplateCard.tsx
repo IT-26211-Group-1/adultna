@@ -65,6 +65,7 @@ export function TemplateCard({
 
   return (
     <Card
+      disableAnimation
       isHoverable
       isPressable
       className={cn(
