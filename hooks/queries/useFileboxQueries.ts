@@ -22,7 +22,7 @@ import {
 
 const fileboxApi = {
   generateUploadUrl: (
-    request: GenerateUploadUrlRequest,
+    request: GenerateUploadUrlRequest
   ): Promise<UploadUrlResponse> =>
     ApiClient.post("/filebox/upload", request, {}, API_CONFIG.API_URL),
 
@@ -44,7 +44,7 @@ const fileboxApi = {
       throw new ApiError(
         "Failed to upload file to storage",
         response.status,
-        null,
+        null
       );
     }
   },
@@ -60,13 +60,26 @@ const fileboxApi = {
     return ApiClient.get(
       `/filebox/files${queryParams}`,
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     );
   },
 
   // Delete file
   deleteFile: (fileId: string): Promise<DeleteFileResponse> =>
     ApiClient.delete(`/filebox/files/${fileId}`, {}, API_CONFIG.API_URL),
+
+  // Rename file
+  renameFile: (
+    fileId: string,
+    fileName: string,
+    replaceDuplicate?: boolean
+  ): Promise<any> =>
+    ApiClient.patch(
+      `/filebox/files/${fileId}`,
+      { fileName, replaceDuplicate },
+      {},
+      API_CONFIG.API_URL
+    ),
 
   // Get user storage limit
   getUserQuota: (): Promise<QuotaResponse> =>
@@ -75,25 +88,25 @@ const fileboxApi = {
   // Request document OTP
   requestDocumentOTP: (
     fileId: string,
-    request?: RequestDocumentOTPRequest,
+    request?: RequestDocumentOTPRequest
   ): Promise<RequestDocumentOTPResponse> =>
     ApiClient.post(
       `/filebox/documents/${fileId}/request-otp`,
       request || {},
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     ),
 
   // Verify document OTP
   verifyDocumentOTP: (
     fileId: string,
-    request: VerifyDocumentOTPRequest,
+    request: VerifyDocumentOTPRequest
   ): Promise<VerifyDocumentOTPResponse> =>
     ApiClient.post(
       `/filebox/documents/${fileId}/verify-otp`,
       request,
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     ),
 };
 
@@ -126,7 +139,7 @@ export function useFileboxFiles(category?: string) {
     queryKey: queryKeys.filebox.list(backendCategory),
     queryFn: () =>
       fileboxApi.listFiles(
-        backendCategory ? { category: backendCategory } : undefined,
+        backendCategory ? { category: backendCategory } : undefined
       ),
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -172,10 +185,12 @@ export function useFileboxUpload() {
       file,
       category,
       isSecure,
+      replaceDuplicate,
     }: {
       file: File;
       category: string;
       isSecure?: boolean;
+      replaceDuplicate?: boolean;
     }) => {
       const backendCategory = (Object.entries({
         "Government Documents": "government-id",
@@ -199,18 +214,24 @@ export function useFileboxUpload() {
         contentType: file.type,
         fileSize: file.size,
         isSecure: isSecure || false,
+        replaceDuplicate: replaceDuplicate || false,
       });
 
       if (!uploadUrlResponse.success) {
+        if (uploadUrlResponse.statusCode === 409) {
+          return uploadUrlResponse;
+        }
         throw new ApiError(
           uploadUrlResponse.message || "Failed to generate upload URL",
-          400,
-          null,
+          uploadUrlResponse.statusCode || 400,
+          null
         );
       }
 
       // Upload file to S3
-      await fileboxApi.uploadToS3(uploadUrlResponse.data.uploadUrl, file);
+      if (uploadUrlResponse.data?.uploadUrl) {
+        await fileboxApi.uploadToS3(uploadUrlResponse.data.uploadUrl, file);
+      }
 
       return uploadUrlResponse;
     },
@@ -251,7 +272,7 @@ export function useFileboxDownload() {
         throw new ApiError(
           downloadUrlResponse.message || "Failed to generate download URL",
           400,
-          null,
+          null
         );
       }
 
@@ -262,7 +283,7 @@ export function useFileboxDownload() {
         throw new ApiError(
           "Failed to fetch file from storage",
           response.status,
-          null,
+          null
         );
       }
 
@@ -300,7 +321,7 @@ export function useFileboxView() {
         throw new ApiError(
           downloadUrlResponse.message || "Failed to generate preview URL",
           400,
-          null,
+          null
         );
       }
 
@@ -327,7 +348,7 @@ export function useFileboxDelete() {
         throw new ApiError(
           response.message || "Failed to delete file",
           400,
-          null,
+          null
         );
       }
 
@@ -358,6 +379,62 @@ export function useFileboxDelete() {
 }
 
 /**
+ * Hook to rename a file
+ */
+export function useFileboxRename() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      fileId,
+      fileName,
+      replaceDuplicate,
+    }: {
+      fileId: string;
+      fileName: string;
+      replaceDuplicate?: boolean;
+    }) => {
+      const response = await fileboxApi.renameFile(
+        fileId,
+        fileName,
+        replaceDuplicate
+      );
+
+      if (!response.success) {
+        if (response.statusCode === 409) {
+          return response;
+        }
+        throw new ApiError(
+          response.message || "Failed to rename file",
+          response.statusCode || 400,
+          null
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (
+          error.status === 404 ||
+          error.status === 400 ||
+          error.status === 409
+        ) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
  * Hook to request OTP for secure document access
  * Sends OTP to user's email with 5-minute expiration
  */
@@ -372,14 +449,14 @@ export function useRequestDocumentOTP() {
     }) => {
       const response = await fileboxApi.requestDocumentOTP(
         fileId,
-        action ? { action } : undefined,
+        action ? { action } : undefined
       );
 
       if (!response.success) {
         throw new ApiError(
           response.message || "Failed to request OTP",
           400,
-          null,
+          null
         );
       }
 
@@ -422,7 +499,7 @@ export function useVerifyDocumentOTP() {
         throw new ApiError(
           response.message || "Failed to verify OTP",
           400,
-          null,
+          null
         );
       }
 

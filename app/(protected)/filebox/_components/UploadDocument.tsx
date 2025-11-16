@@ -1,7 +1,7 @@
 "use client";
 import { Categories } from "./Categories";
 import { Upload } from "lucide-react";
-import { Card, CardBody, Button, Checkbox } from "@heroui/react";
+import { Card, CardBody, Button, Checkbox, useDisclosure } from "@heroui/react";
 import { useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,7 @@ import { addToast } from "@heroui/toast";
 import { ApiError } from "@/lib/apiClient";
 import { formatFileSize } from "@/types/filebox";
 import { logger } from "@/lib/logger";
+import { ReplaceFileConfirmation } from "./ReplaceFileConfirmation";
 
 interface UploadDocumentProps {
   onClose?: () => void;
@@ -26,6 +27,12 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
+  const [pendingUpload, setPendingUpload] = useState<UploadDocumentForm | null>(null);
+  const {
+    isOpen: isReplaceOpen,
+    onOpen: onReplaceOpen,
+    onClose: onReplaceClose,
+  } = useDisclosure();
 
   const { data: quotaResponse } = useFileboxQuota();
   const quota = quotaResponse?.data;
@@ -139,18 +146,28 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     }
 
     try {
-      await uploadMutation.mutateAsync({
+      const result = await uploadMutation.mutateAsync({
         file: data.file,
         category: data.category,
         isSecure: data.isSecure || false,
+        replaceDuplicate: false,
       });
 
-      addToast({
-        title: "Document uploaded successfully",
-        color: "success",
-      });
+      if (result.statusCode === 409) {
+        setPendingUpload(data);
+        onReplaceOpen();
 
-      onClose?.();
+        return;
+      }
+
+      if (result.success) {
+        addToast({
+          title: "Document uploaded successfully",
+          color: "success",
+        });
+
+        onClose?.();
+      }
     } catch (error) {
       logger.error("Upload error:", error);
 
@@ -162,6 +179,41 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       } else {
         addToast({
           title: "An unexpected error occurred",
+          color: "danger",
+        });
+      }
+    }
+  };
+
+  const handleReplaceConfirm = async () => {
+    if (!pendingUpload) {
+      return;
+    }
+
+    try {
+      const result = await uploadMutation.mutateAsync({
+        file: pendingUpload.file,
+        category: pendingUpload.category,
+        isSecure: pendingUpload.isSecure || false,
+        replaceDuplicate: true,
+      });
+
+      if (result.success) {
+        addToast({
+          title: "Document uploaded and duplicate replaced",
+          color: "success",
+        });
+
+        onReplaceClose();
+        setPendingUpload(null);
+        onClose?.();
+      }
+    } catch (error) {
+      logger.error("Replace upload error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to upload document",
           color: "danger",
         });
       }
@@ -338,6 +390,18 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
           </div>
         </form>
       </div>
+
+      {/* Replace Confirmation Modal */}
+      <ReplaceFileConfirmation
+        isOpen={isReplaceOpen}
+        onClose={() => {
+          onReplaceClose();
+          setPendingUpload(null);
+        }}
+        onConfirm={handleReplaceConfirm}
+        fileName={pendingUpload?.file.name || ""}
+        isLoading={uploadMutation.isPending}
+      />
     </div>
   );
 }

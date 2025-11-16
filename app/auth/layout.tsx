@@ -11,7 +11,7 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   const pathname = usePathname();
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   const hasRedirected = useRef(false);
 
@@ -25,14 +25,14 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       return { shouldRedirect: false, redirectTo: null };
     }
 
-    // Redirect to onboarding if not completed
-    if (user?.onboardingStatus !== "completed") {
-      return { shouldRedirect: true, redirectTo: "/auth/onboarding" };
+    // Allow verify-email page to handle its own redirect
+    if (pathname?.startsWith("/auth/verify-email")) {
+      return { shouldRedirect: false, redirectTo: null };
     }
 
-    // Redirect to dashboard if onboarding is completed
+    // Redirect to dashboard for other auth pages (including login)
     return { shouldRedirect: true, redirectTo: "/dashboard" };
-  }, [isLoading, isAuthenticated, pathname, user?.onboardingStatus]);
+  }, [isLoading, isAuthenticated, pathname]);
 
   useEffect(() => {
     if (redirectInfo.shouldRedirect && !hasRedirected.current) {
