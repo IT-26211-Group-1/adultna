@@ -146,8 +146,8 @@ export function useOnboardingSubmit() {
           queryKey: queryKeys.onboarding.all,
         });
 
-        // Invalidate roadmap queries to fetch newly generated milestones
-        await queryClient.invalidateQueries({
+        // Remove roadmap queries from cache to force fresh fetch on dashboard
+        queryClient.removeQueries({
           queryKey: queryKeys.roadmap.all,
         });
 
