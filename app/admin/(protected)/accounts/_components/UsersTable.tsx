@@ -265,7 +265,9 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
   if (usersError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600 mb-4">Failed to load users. Please try again.</p>
+        <p className="text-red-600 mb-4">
+          Failed to load users. Please try again.
+        </p>
         <RetryButton onRetry={refetchUsers} />
       </div>
     );
