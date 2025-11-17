@@ -1,7 +1,13 @@
 "use client";
 
 import { memo, useState } from "react";
-import { CheckIcon, ClipboardIcon, RefreshCwIcon } from "lucide-react";
+import {
+  CheckIcon,
+  ClipboardIcon,
+  RefreshCwIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -23,11 +29,20 @@ export const ChatMessage = memo(function ChatMessageOptimized({
   onRegenerate,
 }: ChatMessageOptimizedProps) {
   const [copied, setCopied] = useState(false);
+  const [feedback, setFeedback] = useState<"like" | "dislike" | null>(null);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleLike = () => {
+    setFeedback(feedback === "like" ? null : "like");
+  };
+
+  const handleDislike = () => {
+    setFeedback(feedback === "dislike" ? null : "dislike");
   };
 
   return (
@@ -40,7 +55,7 @@ export const ChatMessage = memo(function ChatMessageOptimized({
         {/* Assistant Avatar */}
         {!isUser && (
           <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -106,6 +121,30 @@ export const ChatMessage = memo(function ChatMessageOptimized({
                   ) : (
                     <ClipboardIcon className="h-4 w-4" />
                   )}
+                </button>
+
+                <button
+                  className={`rounded p-1 transition-colors ${
+                    feedback === "like"
+                      ? "text-green-600 bg-green-50 hover:bg-green-100"
+                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  }`}
+                  title="Like this response"
+                  onClick={handleLike}
+                >
+                  <ThumbsUpIcon className="h-4 w-4" />
+                </button>
+
+                <button
+                  className={`rounded p-1 transition-colors ${
+                    feedback === "dislike"
+                      ? "text-red-600 bg-red-50 hover:bg-red-100"
+                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  }`}
+                  title="Dislike this response"
+                  onClick={handleDislike}
+                >
+                  <ThumbsDownIcon className="h-4 w-4" />
                 </button>
 
                 {onRegenerate && !isLoading && (

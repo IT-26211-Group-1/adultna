@@ -14,7 +14,8 @@ import {
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditOnboardingQuestionModal from "./EditOnboardingQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
-import { formatDate } from "@/constants/formatDate";
+import { formatDate } from "@/constants/format-date";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
   ({ status }) => {
@@ -645,13 +646,8 @@ const OnboardingQuestionsTable: React.FC = () => {
   if (questionsError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Error loading questions</p>
-        <button
-          className="mt-4 px-4 py-2 bg-adult-green text-white rounded-md hover:bg-adult-green/90"
-          onClick={() => refetchQuestions()}
-        >
-          Retry
-        </button>
+        <p className="text-red-600 mb-4">Error loading questions</p>
+        <RetryButton onRetry={refetchQuestions} />
       </div>
     );
   }

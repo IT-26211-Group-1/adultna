@@ -7,6 +7,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { UserAuthTitle } from "../../../register/_components/UserAuthTitle";
 import { AuthButton } from "../../../register/_components/AuthButton";
 import { ImageContainer } from "../../../register/_components/ImageContainer";
+import { logger } from "@/lib/logger";
 
 export const GoogleAuthorizePage = () => {
   const router = useRouter();
@@ -59,16 +60,20 @@ export const GoogleAuthorizePage = () => {
       sessionStorage.removeItem("oauth_mode");
 
       if (data.success) {
-        addToast({
-          title: "Account Created",
-          description: "Welcome to AdultNa!",
-          color: "success",
-        });
+        const shouldGoToOnboarding =
+          data.user?.onboardingStatus !== "completed";
 
         setTimeout(() => {
-          router.replace("/auth/onboarding");
+          if (shouldGoToOnboarding) {
+            logger.log("🔄 Navigating to /auth/onboarding");
+            router.replace("/auth/onboarding");
+          } else {
+            logger.log("🔄 Navigating to /dashboard");
+            router.replace("/dashboard");
+          }
         }, 300);
       } else {
+        logger.error("❌ Google registration failed:", data.message);
         addToast({
           title: "Registration Failed",
           description: data.message || "Something went wrong",
@@ -77,7 +82,7 @@ export const GoogleAuthorizePage = () => {
         router.replace("/auth/register");
       }
     } catch (error) {
-      console.error("Authorization error:", error);
+      logger.error("Authorization error:", error);
       addToast({
         title: "Error",
         description: "Failed to create account",

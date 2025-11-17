@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
@@ -10,33 +10,40 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
-  const router = useRouter();
   const pathname = usePathname();
-
   const { isAuthenticated, isLoading } = useAuth();
 
   const hasRedirected = useRef(false);
 
-  const shouldRedirect = useMemo(() => {
-    if (isLoading || !isAuthenticated) return false;
+  const redirectInfo = useMemo(() => {
+    if (isLoading || !isAuthenticated) {
+      return { shouldRedirect: false, redirectTo: null };
+    }
 
     // Allow onboarding for authenticated users
     if (pathname?.startsWith("/auth/onboarding")) {
-      return false;
+      return { shouldRedirect: false, redirectTo: null };
     }
 
-    return true;
+    // Allow verify-email page to handle its own redirect
+    if (pathname?.startsWith("/auth/verify-email")) {
+      return { shouldRedirect: false, redirectTo: null };
+    }
+
+    // Redirect to dashboard for other auth pages (including login)
+    return { shouldRedirect: true, redirectTo: "/dashboard" };
   }, [isLoading, isAuthenticated, pathname]);
 
   useEffect(() => {
-    if (shouldRedirect && !hasRedirected.current) {
+    if (redirectInfo.shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      router.replace("/dashboard");
+      // Use window.location for hard navigation to prevent chunk loading errors
+      window.location.href = redirectInfo.redirectTo!;
     }
-  }, [shouldRedirect, router]);
+  }, [redirectInfo]);
 
   // Show loading for auth check or redirect
-  if (isLoading || shouldRedirect) {
+  if (isLoading || redirectInfo.shouldRedirect) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <LoadingSpinner />

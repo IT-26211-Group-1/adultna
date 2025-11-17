@@ -3,6 +3,7 @@
 import React, { memo, useMemo } from "react";
 import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestionQueries";
 import { Skeleton } from "@/components/ui/Skeletons";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 type JobRoleSelectorProps = {
   selectedIndustry: string;
@@ -73,12 +74,7 @@ export const JobRoleSelector = memo(function JobRoleSelector({
           <p className="text-red-600 mb-4">
             Failed to load job roles. Please try again.
           </p>
-          <button
-            className="px-4 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors"
-            onClick={() => refetchQuestions()}
-          >
-            Retry
-          </button>
+          <RetryButton onRetry={refetchQuestions} />
         </div>
       </div>
     );

@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { API_CONFIG } from "@/config/api";
+import { logger } from "@/lib/logger";
 import {
   UploadUrlResponse,
   DownloadUrlResponse,
@@ -39,7 +40,7 @@ const fileboxApi = {
     if (!response.ok) {
       const errorText = await response.text();
 
-      console.error("S3 upload error:", errorText);
+      logger.error("S3 upload error:", errorText);
       throw new ApiError(
         "Failed to upload file to storage",
         response.status,
@@ -66,6 +67,20 @@ const fileboxApi = {
   // Delete file
   deleteFile: (fileId: string): Promise<DeleteFileResponse> =>
     ApiClient.delete(`/filebox/files/${fileId}`, {}, API_CONFIG.API_URL),
+
+  // Rename file
+  renameFile: (
+    fileId: string,
+    fileName: string,
+    replaceDuplicate?: boolean,
+    keepBoth?: boolean,
+  ): Promise<any> =>
+    ApiClient.patch(
+      `/filebox/files/${fileId}`,
+      { fileName, replaceDuplicate, keepBoth },
+      {},
+      API_CONFIG.API_URL,
+    ),
 
   // Get user storage limit
   getUserQuota: (): Promise<QuotaResponse> =>
@@ -171,10 +186,14 @@ export function useFileboxUpload() {
       file,
       category,
       isSecure,
+      replaceDuplicate,
+      keepBoth,
     }: {
       file: File;
       category: string;
       isSecure?: boolean;
+      replaceDuplicate?: boolean;
+      keepBoth?: boolean;
     }) => {
       const backendCategory = (Object.entries({
         "Government Documents": "government-id",
@@ -198,18 +217,25 @@ export function useFileboxUpload() {
         contentType: file.type,
         fileSize: file.size,
         isSecure: isSecure || false,
+        replaceDuplicate: replaceDuplicate || false,
+        keepBoth: keepBoth || false,
       });
 
       if (!uploadUrlResponse.success) {
+        if (uploadUrlResponse.statusCode === 409) {
+          return uploadUrlResponse;
+        }
         throw new ApiError(
           uploadUrlResponse.message || "Failed to generate upload URL",
-          400,
+          uploadUrlResponse.statusCode || 400,
           null,
         );
       }
 
       // Upload file to S3
-      await fileboxApi.uploadToS3(uploadUrlResponse.data.uploadUrl, file);
+      if (uploadUrlResponse.data?.uploadUrl) {
+        await fileboxApi.uploadToS3(uploadUrlResponse.data.uploadUrl, file);
+      }
 
       return uploadUrlResponse;
     },
@@ -347,6 +373,65 @@ export function useFileboxDelete() {
       if (error instanceof ApiError) {
         // Don't retry not found or validation errors
         if (error.status === 404 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to rename a file
+ */
+export function useFileboxRename() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      fileId,
+      fileName,
+      replaceDuplicate,
+      keepBoth,
+    }: {
+      fileId: string;
+      fileName: string;
+      replaceDuplicate?: boolean;
+      keepBoth?: boolean;
+    }) => {
+      const response = await fileboxApi.renameFile(
+        fileId,
+        fileName,
+        replaceDuplicate,
+        keepBoth,
+      );
+
+      if (!response.success) {
+        if (response.statusCode === 409) {
+          return response;
+        }
+        throw new ApiError(
+          response.message || "Failed to rename file",
+          response.statusCode || 400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (
+          error.status === 404 ||
+          error.status === 400 ||
+          error.status === 409
+        ) {
           return false;
         }
       }
