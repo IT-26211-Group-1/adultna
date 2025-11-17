@@ -61,7 +61,7 @@ export function ReplaceFileConfirmation({
               <p className="text-gray-700 text-sm mb-4">
                 {fileName} already exists in this location. Do you want to
                 replace the existing file with a new version or keep both files?
-                Replacing the file won't change sharing settings.
+                Replacing the file won&apos;t change sharing settings.
               </p>
               <RadioGroup
                 classNames={{

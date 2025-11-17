@@ -4,6 +4,7 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Mesh } from "three";
+import { logger } from "@/lib/logger";
 
 interface MilestoneHitboxProps {
   milestoneId: string;
@@ -21,7 +22,7 @@ export function MilestoneHitbox({
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
-    console.log(`🎯 Hitbox clicked for milestone ${milestoneId}`);
+    logger.log(`🎯 Hitbox clicked for milestone ${milestoneId}`);
     onClick(milestoneId);
   };
 

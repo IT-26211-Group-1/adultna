@@ -3,17 +3,18 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Suspense, useState, useCallback } from "react";
-import { useDisclosure, Spinner } from "@heroui/react";
+import { useDisclosure } from "@heroui/react";
 import { CameraController } from "./CameraController";
 import { RoadmapModel } from "./RoadmapModel";
 import { MilestoneModal } from "./MilestoneModal";
-import { useUserMilestones } from "@/hooks/queries/useRoadmapQueries";
+import { useUserMilestonesWithPolling } from "@/hooks/queries/useRoadmapQueries";
 import {
   CameraAnimation,
   Milestone,
   RoadmapInteraction,
 } from "../../../../types/roadmap";
 import { logger } from "@/lib/logger";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const CAMERA_ANIMATION: CameraAnimation = {
   from: {
@@ -40,7 +41,7 @@ export function RoadmapClient() {
     data: milestones = [],
     isLoading,
     refetch: refetchMilestones,
-  } = useUserMilestones();
+  } = useUserMilestonesWithPolling(true);
 
   // Calculate camera position for milestone zoom
   const createMilestoneZoom = (milestone: Milestone): CameraAnimation => {
@@ -65,7 +66,6 @@ export function RoadmapClient() {
   };
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
-    console.log("🎯 handleMilestoneClick called with:", interaction);
     const milestone = milestones.find((m) => m.id === interaction.milestoneId);
 
     if (milestone) {
@@ -91,14 +91,20 @@ export function RoadmapClient() {
 
   // Fallback click handler for the Canvas element
   const handleCanvasClick = (event: React.MouseEvent) => {
-    console.log("🖱️  Canvas clicked at:", event.clientX, event.clientY);
+    logger.log("🖱️  Canvas clicked at:", event.clientX, event.clientY);
   };
 
-  if (isLoading) {
+  if (isLoading || milestones.length === 0) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="flex flex-col items-center gap-4">
-          <Spinner color="primary" size="lg" />
+          <LoadingSpinner fullScreen={false} size="xl" variant="default" />
+          <p className="text-gray-600 text-lg font-medium">
+            {isLoading
+              ? "Loading your roadmap..."
+              : "Generating your personalized roadmap..."}
+          </p>
+          <p className="text-gray-500 text-sm">This may take a few moments</p>
         </div>
       </div>
     );

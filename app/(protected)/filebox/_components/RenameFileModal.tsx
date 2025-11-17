@@ -63,7 +63,7 @@ export function RenameFileModal({
   return (
     <Modal isOpen={isOpen} size="md" onOpenChange={handleClose}>
       <ModalContent>
-        {(onClose) => (
+        {(_onClose) => (
           <>
             <ModalHeader className="flex gap-3 items-center">
               <Edit3 className="w-5 h-5 text-success" />
@@ -71,7 +71,6 @@ export function RenameFileModal({
             </ModalHeader>
             <ModalBody>
               <Input
-                autoFocus
                 classNames={{
                   input: "text-base",
                   label: "text-sm",
