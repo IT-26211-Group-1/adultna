@@ -3,6 +3,7 @@
 import React, { useMemo, memo } from "react";
 import { useQuestionIndustries } from "@/hooks/queries/admin/useInterviewQuestionQueries";
 import { Skeleton } from "@/components/ui/Skeletons";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 type Field = {
   id: string;
@@ -63,12 +64,7 @@ export const FieldSelector = memo(function FieldSelector({
           <p className="text-red-600 mb-4">
             Failed to load fields. Please try again.
           </p>
-          <button
-            className="px-4 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors"
-            onClick={() => refetchIndustries()}
-          >
-            Retry
-          </button>
+          <RetryButton onRetry={refetchIndustries} />
         </div>
       </div>
     );

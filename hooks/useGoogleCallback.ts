@@ -34,8 +34,7 @@ export const useGoogleCallback = () => {
       if (!code) {
         logger.error("❌ No authorization code received");
         addToast({
-          title: "Authentication Error",
-          description: "No authorization code received",
+          title: "Registration Failed",
           color: "danger",
         });
         router.replace("/auth/login");
@@ -46,8 +45,10 @@ export const useGoogleCallback = () => {
       const storedState = sessionStorage.getItem("oauth_state");
       const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
 
-      sessionStorage.removeItem("oauth_state");
-      sessionStorage.removeItem("pkce_code_verifier");
+      logger.log("🔍 Retrieved from sessionStorage:", {
+        storedState: storedState ? "exists" : "missing",
+        codeVerifier: codeVerifier ? "exists" : "missing",
+      });
 
       if (!state || state !== storedState) {
         logger.error("❌ State validation failed:", { state, storedState });
@@ -56,10 +57,17 @@ export const useGoogleCallback = () => {
           description: "Invalid state parameter",
           color: "danger",
         });
+
+        // Clean up before redirect
+        sessionStorage.removeItem("oauth_state");
+        sessionStorage.removeItem("pkce_code_verifier");
         router.replace("/auth/login");
 
         return;
       }
+
+      // Clear state after validation
+      sessionStorage.removeItem("oauth_state");
 
       let mode: "login" | "register" = "login";
 
@@ -67,16 +75,19 @@ export const useGoogleCallback = () => {
         const stateData = JSON.parse(atob(state));
 
         mode = stateData.mode || "login";
+        logger.log("🔍 OAuth mode extracted from state:", mode);
       } catch (error) {
         logger.error("Failed to parse state:", error);
       }
 
       if (!codeVerifier) {
+        logger.error("❌ PKCE verifier not found in sessionStorage");
         addToast({
           title: "Authentication Error",
           description: "PKCE verifier not found",
           color: "danger",
         });
+        sessionStorage.removeItem("pkce_code_verifier");
         router.replace("/auth/login");
 
         return;
@@ -84,8 +95,12 @@ export const useGoogleCallback = () => {
 
       // For registration, redirect to authorization page
       if (mode === "register") {
+        logger.log(
+          "✅ Registration mode detected - redirecting to authorize page",
+        );
         // Store OAuth data for authorization page
         sessionStorage.setItem("google_oauth_code", code);
+        // Keep codeVerifier in sessionStorage for authorize page to use
         sessionStorage.setItem("pkce_code_verifier", codeVerifier);
 
         // Store mode for authorization page
@@ -96,6 +111,11 @@ export const useGoogleCallback = () => {
 
         return;
       }
+
+      // For login mode, clear the codeVerifier after we're done with it
+      sessionStorage.removeItem("pkce_code_verifier");
+
+      logger.log("ℹ️ Login mode - proceeding with login flow");
 
       // For login, proceed with authentication
       try {
