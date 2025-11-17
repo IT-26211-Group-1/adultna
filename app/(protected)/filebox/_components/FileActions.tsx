@@ -231,8 +231,6 @@ export function FileActions({
         onRenameClose();
       }
     } catch (error) {
-      logger.error("Rename error:", error);
-
       if (error instanceof ApiError && error.status === 409) {
         // Duplicate file detected - show modal instead of error toast
         setPendingRename(newFileName);
@@ -241,6 +239,8 @@ export function FileActions({
 
         return;
       }
+
+      logger.error("Rename error:", error);
 
       if (error instanceof ApiError) {
         addToast({

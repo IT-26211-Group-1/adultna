@@ -42,10 +42,10 @@ export function ReplaceFileConfirmation({
   return (
     <Modal
       classNames={{
-        base: "bg-gray-900",
-        header: "border-b border-gray-700",
+        base: "bg-white",
+        header: "border-b border-gray-200",
         body: "py-6",
-        footer: "border-t border-gray-700",
+        footer: "border-t border-gray-200",
       }}
       isOpen={isOpen}
       size="md"
@@ -54,11 +54,11 @@ export function ReplaceFileConfirmation({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="text-white text-lg font-normal">
+            <ModalHeader className="text-gray-900 text-lg font-normal">
               Upload options
             </ModalHeader>
             <ModalBody>
-              <p className="text-gray-300 text-sm mb-4">
+              <p className="text-gray-700 text-sm mb-4">
                 {fileName} already exists in this location. Do you want to
                 replace the existing file with a new version or keep both files?
                 Replacing the file won't change sharing settings.
@@ -73,9 +73,9 @@ export function ReplaceFileConfirmation({
                 <Radio
                   classNames={{
                     base: "m-0 p-0",
-                    wrapper: "border-gray-600",
+                    wrapper: "border-gray-300",
                     control: "bg-adult-green",
-                    label: "text-white text-sm",
+                    label: "text-gray-900 text-sm",
                   }}
                   value="replace"
                 >
@@ -84,9 +84,9 @@ export function ReplaceFileConfirmation({
                 <Radio
                   classNames={{
                     base: "m-0 p-0",
-                    wrapper: "border-gray-600",
+                    wrapper: "border-gray-300",
                     control: "bg-adult-green",
-                    label: "text-white text-sm",
+                    label: "text-gray-900 text-sm",
                   }}
                   value="keepBoth"
                 >
@@ -96,7 +96,7 @@ export function ReplaceFileConfirmation({
             </ModalBody>
             <ModalFooter className="flex gap-3 justify-end">
               <Button
-                className="text-blue-400 hover:bg-gray-800"
+                className="text-gray-700 hover:bg-gray-100"
                 isDisabled={isLoading}
                 variant="light"
                 onPress={onClose}
@@ -104,7 +104,7 @@ export function ReplaceFileConfirmation({
                 Cancel
               </Button>
               <Button
-                className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6"
+                className="bg-adult-green hover:bg-adult-green/90 text-white font-medium px-6"
                 isLoading={isLoading}
                 onPress={handleConfirm}
               >

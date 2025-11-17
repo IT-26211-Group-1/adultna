@@ -171,8 +171,6 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         onClose?.();
       }
     } catch (error) {
-      logger.error("Upload error:", error);
-
       if (error instanceof ApiError && error.status === 409) {
         // Duplicate file detected - show modal
         setPendingUpload(data);
@@ -180,6 +178,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
         return;
       }
+
+      logger.error("Upload error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -269,8 +269,9 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
-        <form onSubmit={handleSubmit(onSubmit)}>
+      {!isReplaceOpen && (
+        <div className="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+          <form onSubmit={handleSubmit(onSubmit)}>
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -437,6 +438,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
           </div>
         </form>
       </div>
+      )}
 
       {/* Replace Confirmation Modal */}
       <ReplaceFileConfirmation
