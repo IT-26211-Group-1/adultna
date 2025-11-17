@@ -326,7 +326,7 @@ export default function ResumeEditor() {
           title: "Saved to Filebox!",
           color: "success",
         });
-      } catch (error) {
+      } catch {
         addToast({
           title: "Failed to save to Filebox",
           color: "danger",
@@ -404,7 +404,10 @@ export default function ResumeEditor() {
                     </>
                   )}
                 </button>
-                <ExportButton isExporting={isExporting} onExport={handleExport} />
+                <ExportButton
+                  isExporting={isExporting}
+                  onExport={handleExport}
+                />
               </>
             )}
             <SaveStatusIndicator
