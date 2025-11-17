@@ -62,11 +62,14 @@ export interface UserQuota {
 export interface UploadUrlResponse {
   success: boolean;
   message: string;
-  data: {
+  statusCode?: number;
+  data?: {
     uploadUrl: string;
     fileId: string;
     fileKey: string;
     expiresIn: number;
+    duplicateFileId?: string;
+    duplicateFileName?: string;
   };
 }
 
@@ -111,6 +114,8 @@ export interface GenerateUploadUrlRequest {
   contentType: string;
   fileSize: number;
   isSecure?: boolean;
+  replaceDuplicate?: boolean;
+  keepBoth?: boolean;
 }
 
 export interface ListFilesRequest {

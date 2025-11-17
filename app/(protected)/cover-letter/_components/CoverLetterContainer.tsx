@@ -52,7 +52,7 @@ export default function CoverLetterContainer() {
       const coverLetter = await importResume.mutateAsync({
         fileKey,
         fileName: uploadedFile.name,
-        title: `Cover Letter - ${new Date().toLocaleDateString()}`,
+        title: "Untitled Cover Letter",
         style: newStyle,
       });
 

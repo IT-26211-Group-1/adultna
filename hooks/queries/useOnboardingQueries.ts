@@ -146,6 +146,10 @@ export function useOnboardingSubmit() {
           queryKey: queryKeys.onboarding.all,
         });
 
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.roadmap.milestones(),
+        });
+
         // await refetch to get updated onboarding status
         await queryClient.refetchQueries({
           queryKey: queryKeys.auth.me(),

@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useCreateMilestone } from "@/hooks/queries/useRoadmapQueries";
 import { CreateMilestonePayload } from "@/types/roadmap";
+import { logger } from "@/lib/logger";
 
 interface AddMilestoneModalProps {
   isOpen: boolean;
@@ -70,7 +71,7 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
       });
       handleClose();
     } catch (error) {
-      console.error("Failed to create milestone:", error);
+      logger.error("Failed to create milestone:", error);
     }
   };
 
