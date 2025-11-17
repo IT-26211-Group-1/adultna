@@ -16,6 +16,7 @@ import {
   useCreateResume,
   useUpdateResume,
   useExportResume,
+  useSaveToFilebox,
 } from "@/hooks/queries/useResumeQueries";
 import { TemplateId, isValidTemplateId } from "@/constants/templates";
 import {
@@ -72,9 +73,11 @@ export default function ResumeEditor() {
   const createResume = useCreateResume();
   const updateResume = useUpdateResume(currentResumeId || "");
   const exportResume = useExportResume();
+  const saveToFilebox = useSaveToFilebox(currentResumeId || "");
 
   const isSaving = createResume.isPending || updateResume.isPending;
   const isExporting = exportResume.isPending;
+  const isSavingToFilebox = saveToFilebox.isPending;
 
   const FormComponent = steps.find(
     (step) => step.key === currentStep,
@@ -315,6 +318,23 @@ export default function ResumeEditor() {
     }
   };
 
+  const handleSaveToFilebox = async () => {
+    if (currentResumeId) {
+      try {
+        await saveToFilebox.mutateAsync();
+        addToast({
+          title: "Saved to Filebox!",
+          color: "success",
+        });
+      } catch (error) {
+        addToast({
+          title: "Failed to save to Filebox",
+          color: "danger",
+        });
+      }
+    }
+  };
+
   // Show completion page if resume is completed
   if (isCompleted) {
     return <Completed resumeData={resumeData} setResumeData={setResumeData} />;
@@ -354,7 +374,38 @@ export default function ResumeEditor() {
           </div>
           <div className="flex items-center gap-3 text-sm">
             {currentResumeId && (
-              <ExportButton isExporting={isExporting} onExport={handleExport} />
+              <>
+                <button
+                  className="px-4 py-2 bg-[#11553F] hover:bg-[#0e4634] text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  disabled={isSavingToFilebox}
+                  onClick={handleSaveToFilebox}
+                >
+                  {isSavingToFilebox ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                      Save to Filebox
+                    </>
+                  )}
+                </button>
+                <ExportButton isExporting={isExporting} onExport={handleExport} />
+              </>
             )}
             <SaveStatusIndicator
               hasSaved={!!currentResumeId && !isSaving && !hasUnsavedChanges}
