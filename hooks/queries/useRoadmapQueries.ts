@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, queryKeys } from "@/lib/apiClient";
 import {
@@ -24,6 +25,38 @@ export function useUserMilestones() {
       >("/roadmap/milestones");
 
       return response.data?.milestones || [];
+    },
+  });
+}
+
+export function useUserMilestonesWithPolling(enablePolling = false) {
+  const startTimeRef = useRef(Date.now());
+  const POLLING_INTERVAL = 2500; // 2.5 seconds
+  const MAX_POLLING_DURATION = 30000; // 30 seconds
+
+  return useQuery({
+    queryKey: queryKeys.roadmap.milestones(),
+    queryFn: async () => {
+      const response = await ApiClient.get<
+        ServiceResponse<{ milestones: Milestone[]; count: number }>
+      >("/roadmap/milestones");
+
+      return response.data?.milestones || [];
+    },
+    refetchInterval: (query) => {
+      if (!enablePolling) return false;
+
+      const milestones = query.state.data || [];
+      const hasElapsedMaxTime =
+        Date.now() - startTimeRef.current > MAX_POLLING_DURATION;
+
+      // Stop polling if we have milestones or max time has elapsed
+      if (milestones.length > 0 || hasElapsedMaxTime) {
+        return false;
+      }
+
+      // Continue polling
+      return POLLING_INTERVAL;
     },
   });
 }

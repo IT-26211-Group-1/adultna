@@ -14,6 +14,7 @@ import {
   useUpdateMilestone,
 } from "@/hooks/queries/useRoadmapQueries";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { logger } from "@/lib/logger";
 
 interface MilestoneModalProps {
   isOpen: boolean;
@@ -81,7 +82,7 @@ export function MilestoneModal({
       await deleteTask.mutateAsync(taskId);
       onMilestoneUpdated?.();
     } catch (error) {
-      console.error("Failed to delete task:", error);
+      logger.error("Failed to delete task:", error);
     }
   };
 
@@ -106,7 +107,7 @@ export function MilestoneModal({
       setEditingTaskTitle("");
       onMilestoneUpdated?.();
     } catch (error) {
-      console.error("Failed to update task:", error);
+      logger.error("Failed to update task:", error);
       addToast({
         title: "Failed to update task",
         color: "danger",
@@ -131,7 +132,7 @@ export function MilestoneModal({
       setNewTaskTitle("");
       onMilestoneUpdated?.();
     } catch (error) {
-      console.error("Failed to create task:", error);
+      logger.error("Failed to create task:", error);
     }
   };
 
@@ -147,7 +148,7 @@ export function MilestoneModal({
       onClose();
       setShowDeleteConfirm(false);
     } catch (error) {
-      console.error("Failed to delete milestone:", error);
+      logger.error("Failed to delete milestone:", error);
       addToast({
         title: "Failed to delete milestone",
         color: "danger",
@@ -171,7 +172,7 @@ export function MilestoneModal({
       setIsEditing(false);
       onMilestoneUpdated?.();
     } catch (error) {
-      console.error("Failed to update milestone:", error);
+      logger.error("Failed to update milestone:", error);
       addToast({
         title: "Failed to update milestone",
         color: "danger",
