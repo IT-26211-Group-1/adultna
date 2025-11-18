@@ -250,10 +250,18 @@ function PreviewGuideModal({
                 {formatDate(guide.updatedAt)}
               </p>
             </div>
-            <div className="col-span-2">
-              <label className="block text-gray-500">Last Updated By</label>
-              <p className="mt-1 text-gray-900">{guide.updatedBy}</p>
-            </div>
+            {guide.createdByEmail && (
+              <div>
+                <label className="block text-gray-500">Created By</label>
+                <p className="mt-1 text-gray-900">{guide.createdByEmail}</p>
+              </div>
+            )}
+            {guide.updatedByEmail && (
+              <div>
+                <label className="block text-gray-500">Last Updated By</label>
+                <p className="mt-1 text-gray-900">{guide.updatedByEmail}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
