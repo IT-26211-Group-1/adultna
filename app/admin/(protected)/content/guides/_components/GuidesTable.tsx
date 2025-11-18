@@ -296,15 +296,16 @@ const GuidesTable: React.FC = () => {
     // Map backend data to frontend format
     return data.data.guides.map((guide: any) => {
       // Parse JSON fields if they're strings
-      const offices = typeof guide.offices === 'string'
-        ? JSON.parse(guide.offices)
-        : guide.offices;
-      const steps = typeof guide.steps === 'string'
-        ? JSON.parse(guide.steps)
-        : guide.steps;
-      const requirements = typeof guide.requirements === 'string'
-        ? JSON.parse(guide.requirements)
-        : guide.requirements;
+      const offices =
+        typeof guide.offices === "string"
+          ? JSON.parse(guide.offices)
+          : guide.offices;
+      const steps =
+        typeof guide.steps === "string" ? JSON.parse(guide.steps) : guide.steps;
+      const requirements =
+        typeof guide.requirements === "string"
+          ? JSON.parse(guide.requirements)
+          : guide.requirements;
 
       return {
         id: guide.id,
@@ -321,7 +322,9 @@ const GuidesTable: React.FC = () => {
         status: guide.status,
         isActive: !guide.deletedAt,
         stepsCount: Array.isArray(steps) ? steps.length : 0,
-        requirementsCount: Array.isArray(requirements) ? requirements.length : 0,
+        requirementsCount: Array.isArray(requirements)
+          ? requirements.length
+          : 0,
         createdAt: guide.createdAt,
         updatedAt: guide.updatedAt,
         updatedBy: guide.updatedBy || guide.createdBy,
@@ -593,9 +596,7 @@ const GuidesTable: React.FC = () => {
         columns={columns}
         data={displayGuides}
         emptyMessage={
-          showArchived
-            ? "No archived guides found"
-            : "No guides found. Click 'Add Guide' to create your first guide."
+          showArchived ? "No archived guides found" : "No data available."
         }
         loading={loading}
         pagination={{
