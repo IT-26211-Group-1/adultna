@@ -5,11 +5,9 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
-import {
-  addGuideSchema,
-  AddGuideForm,
-} from "@/validators/guideSchema";
+import { addGuideSchema, AddGuideForm } from "@/validators/guideSchema";
 import { addToast } from "@heroui/toast";
+import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
 
 interface AddGuideModalProps {
   open?: boolean;
@@ -21,6 +19,7 @@ function AddGuideModal({
   onClose = () => {},
 }: AddGuideModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { createGuideAsync } = useGuidesQueries();
 
   const {
     register,
@@ -34,10 +33,13 @@ function AddGuideModal({
     defaultValues: {
       title: "",
       issuingAgency: "",
+      category: "" as any,
+      customCategory: "",
       summary: "",
       estimatedProcessingTime: "",
       feeAmount: null,
-      status: "review" as const,
+      feeCurrency: "PHP",
+      oneTimeFee: true,
       steps: [{ stepNumber: 1, title: "" }],
       requirements: [
         {
@@ -69,20 +71,48 @@ function AddGuideModal({
   const onSubmit = useCallback(
     handleSubmit(async (data: AddGuideForm) => {
       setIsSubmitting(true);
-      
+
       try {
-        // TODO: Replace with actual API call
-        console.log("Guide data:", data);
-        
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        handleClose();
-        addToast({
-          title: "Guide created successfully",
-          color: "success",
-          timeout: 4000,
-        });
+        // Map frontend data to backend API format
+        const guideData = {
+          title: data.title,
+          category: data.category as any,
+          customCategory: data.category === "other" ? data.customCategory : null,
+          description: data.summary || "",
+          keywords: [], // Can be added to form later
+          steps: data.steps.map((step, index) => ({
+            stepNumber: index + 1,
+            title: step.title,
+            description: "",
+            estimatedTime: "",
+          })),
+          requirements: data.requirements.map((req) => ({
+            name: req.name,
+            description: req.description || "",
+            isRequired: true,
+          })),
+          processingTime: data.estimatedProcessingTime || "",
+          offices: {
+            issuingAgency: data.issuingAgency,
+            locations: [],
+            feeAmount: data.feeAmount || undefined,
+            feeCurrency: data.feeCurrency || "PHP",
+            oneTimeFee: data.oneTimeFee,
+          },
+        };
+
+        const response = await createGuideAsync(guideData);
+
+        if (response.success) {
+          handleClose();
+          addToast({
+            title: "Guide created successfully",
+            color: "success",
+            timeout: 4000,
+          });
+        } else {
+          throw new Error(response.message || "Failed to create guide");
+        }
       } catch (error: any) {
         addToast({
           title: error?.message || "Failed to create guide",
@@ -93,7 +123,7 @@ function AddGuideModal({
         setIsSubmitting(false);
       }
     }),
-    [handleSubmit],
+    [handleSubmit, createGuideAsync]
   );
 
   const handleClose = useCallback(() => {
@@ -136,7 +166,9 @@ function AddGuideModal({
               type="text"
             />
             {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.title.message}
+              </p>
             )}
           </div>
 
@@ -160,6 +192,57 @@ function AddGuideModal({
               </p>
             )}
           </div>
+
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="category"
+            >
+              Category *
+            </label>
+            <select
+              {...register("category")}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+              id="category"
+            >
+              <option value="">Select a category</option>
+              <option value="identification">Identification</option>
+              <option value="civil-registration">Civil Registration</option>
+              <option value="permits-licenses">Permits & Licenses</option>
+              <option value="social-services">Social Services</option>
+              <option value="tax-related">Tax Related</option>
+              <option value="legal">Legal</option>
+              <option value="other">Other</option>
+            </select>
+            {errors.category && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.category.message}
+              </p>
+            )}
+          </div>
+
+          {watch("category") === "other" && (
+            <div>
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="customCategory"
+              >
+                Custom Category *
+              </label>
+              <input
+                {...register("customCategory")}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+                id="customCategory"
+                placeholder="Enter custom category name"
+                type="text"
+              />
+              {errors.customCategory && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.customCategory.message}
+                </p>
+              )}
+            </div>
+          )}
 
           <div>
             <label
@@ -212,24 +295,6 @@ function AddGuideModal({
                 type="number"
               />
             </div>
-          </div>
-
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="status"
-            >
-              Status
-            </label>
-            <select
-              {...register("status")}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-              id="status"
-            >
-              <option value="review">Review</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
-            </select>
           </div>
         </div>
 

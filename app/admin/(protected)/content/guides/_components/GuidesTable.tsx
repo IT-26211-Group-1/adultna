@@ -5,22 +5,27 @@ import Table, { Column } from "@/components/ui/Table";
 import Badge from "@/components/ui/Badge";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import type { GovGuide, GuideStatus } from "@/types/govguide";
-import { formatDate } from "@/constants/formatDate";
+import { formatDate } from "@/constants/format-date";
 import EditGuideModal from "./EditGuideModal";
 import PreviewGuideModal from "./PreviewGuideModal";
+import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
+import { addToast } from "@heroui/react";
 
 // Guide Status Badge Component
+
 const GuideStatusBadge = React.memo<{ status: GuideStatus }>(({ status }) => {
   const variants = {
-    review: "info",
-    published: "success",
-    archived: "warning",
+    pending: "warning",
+    accepted: "success",
+    rejected: "error",
+    to_revise: "info",
   } as const;
 
   const labels = {
-    review: "Review",
-    published: "Published",
-    archived: "Archived",
+    pending: "Pending",
+    accepted: "Accepted",
+    rejected: "Rejected",
+    to_revise: "To Revise",
   };
 
   return (
@@ -37,18 +42,37 @@ type GuideActionsProps = {
   onEdit: (guideId: string) => void;
   onPreview: (guideId: string) => void;
   onDelete: (guideId: string) => void;
+  onRestore: (guideId: string) => void;
+  onPermanentDelete: (guideId: string) => void;
   isDeleting: boolean;
+  isRestoring: boolean;
+  isPermanentDeleting: boolean;
   isDeletingThisGuide: boolean;
+  isRestoringThisGuide: boolean;
+  isPermanentDeletingThisGuide: boolean;
 };
 
 // Memoized actions dropdown
 const GuideActions = React.memo<GuideActionsProps>(
-  ({ guide, onEdit, onPreview, onDelete, isDeleting, isDeletingThisGuide }) => {
-    if (isDeletingThisGuide) {
+  ({
+    guide,
+    onEdit,
+    onPreview,
+    onDelete,
+    onRestore,
+    onPermanentDelete,
+    isDeleting,
+    isRestoring,
+    isPermanentDeleting,
+    isDeletingThisGuide,
+    isRestoringThisGuide,
+    isPermanentDeletingThisGuide,
+  }) => {
+    if (isDeletingThisGuide || isPermanentDeletingThisGuide) {
       return (
         <div className="flex items-center justify-center">
           <svg
-            className="animate-spin h-5 w-5 text-gray-400"
+            className="animate-spin h-5 w-5 text-red-600"
             fill="none"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
@@ -71,75 +95,153 @@ const GuideActions = React.memo<GuideActionsProps>(
       );
     }
 
-    const menuItems = [
-      {
-        label: "Edit Guide",
-        onClick: () => onEdit(guide.id),
-        disabled: isDeleting,
-        icon: (
+    if (isRestoringThisGuide) {
+      return (
+        <div className="flex items-center justify-center">
           <svg
-            className="w-4 h-4"
+            className="animate-spin h-5 w-5 text-adult-green"
             fill="none"
-            stroke="currentColor"
             viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
             <path
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
+              className="opacity-75"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              fill="currentColor"
             />
           </svg>
-        ),
-      },
-      {
-        label: "Preview Guide",
-        onClick: () => onPreview(guide.id),
-        disabled: isDeleting,
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-            <path
-              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        ),
-      },
-      {
-        label: "Delete Guide",
-        onClick: () => onDelete(guide.id),
-        disabled: isDeleting,
-        destructive: true,
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        ),
-      },
-    ];
+        </div>
+      );
+    }
+
+    const menuItems = [];
+    const isArchived = !guide.isActive;
+
+    // If archived, show restore and permanent delete options
+    if (isArchived) {
+      menuItems.push(
+        {
+          label: "Restore",
+          onClick: () => onRestore(guide.id),
+          disabled: isRestoring || isPermanentDeleting,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        },
+        {
+          label: "Delete Permanently",
+          onClick: () => onPermanentDelete(guide.id),
+          disabled: isRestoring || isPermanentDeleting,
+          destructive: true,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        }
+      );
+    } else {
+      // Active guides
+      menuItems.push(
+        {
+          label: "Edit Guide",
+          onClick: () => onEdit(guide.id),
+          disabled: isDeleting,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        },
+        {
+          label: "Preview Guide",
+          onClick: () => onPreview(guide.id),
+          disabled: isDeleting,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+              <path
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        },
+        {
+          label: "Archive",
+          onClick: () => onDelete(guide.id),
+          disabled: isDeleting,
+          destructive: true,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        }
+      );
+    }
 
     return (
       <DropdownMenu
@@ -147,7 +249,7 @@ const GuideActions = React.memo<GuideActionsProps>(
         trigger={
           <button
             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-            disabled={isDeleting}
+            disabled={isDeleting || isRestoring || isPermanentDeleting}
           >
             <svg
               className="w-5 h-5 text-gray-600"
@@ -160,83 +262,96 @@ const GuideActions = React.memo<GuideActionsProps>(
         }
       />
     );
-  },
+  }
 );
 
 GuideActions.displayName = "GuideActions";
 
 const GuidesTable: React.FC = () => {
+  const [showArchived, setShowArchived] = useState(false);
   const [deletingGuideId, setDeletingGuideId] = useState<string | null>(null);
+  const [restoringGuideId, setRestoringGuideId] = useState<string | null>(null);
+  const [permanentDeletingGuideId, setPermanentDeletingGuideId] = useState<
+    string | null
+  >(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState<GovGuide | null>(null);
 
-  // Mock data - replace with actual API call
-  const guides: GovGuide[] = useMemo(
-    () => [
-      {
-        id: "1",
-        slug: "philhealth-membership",
-        title: "How to Apply for PhilHealth Membership",
-        issuingAgency: "PhilHealth",
-        category: "Benefit",
-        summary: "Get PhilHealth coverage for medical expenses",
-        estimatedProcessingTime: "2-3 weeks",
-        feeAmount: 125.0,
-        feeCurrency: "PHP",
-        oneTimeFee: false,
-        status: "published",
-        isActive: true,
-        stepsCount: 6,
-        requirementsCount: 3,
-        createdAt: "2024-01-15T08:00:00Z",
-        updatedAt: "2024-01-15T08:00:00Z",
-        updatedBy: "admin@adultna.com",
-      },
-      {
-        id: "2",
-        slug: "sss-membership",
-        title: "SSS Membership Registration Process",
-        issuingAgency: "SSS",
-        category: "Benefit",
-        summary: "Register for Social Security benefits",
-        estimatedProcessingTime: "1-2 weeks",
-        feeAmount: 0,
-        feeCurrency: "PHP",
-        oneTimeFee: true,
-        status: "published",
-        isActive: true,
-        stepsCount: 4,
-        requirementsCount: 2,
-        createdAt: "2024-01-14T08:00:00Z",
-        updatedAt: "2024-01-14T08:00:00Z",
-        updatedBy: "content@adultna.com",
-      },
-      {
-        id: "3",
-        slug: "tin-application",
-        title: "TIN Application for First-Time Taxpayers",
-        issuingAgency: "BIR",
-        category: "Tax Document",
-        summary: "Get your Tax Identification Number",
-        estimatedProcessingTime: "1 week",
-        feeAmount: 0,
-        feeCurrency: "PHP",
-        oneTimeFee: true,
-        status: "review",
-        isActive: true,
-        stepsCount: 5,
-        requirementsCount: 4,
-        createdAt: "2024-01-13T08:00:00Z",
-        updatedAt: "2024-01-13T08:00:00Z",
-        updatedBy: "admin@adultna.com",
-      },
-    ],
-    [],
+  // Fetch guides from API
+  const {
+    useListGuides,
+    softDeleteGuide,
+    restoreGuide,
+    hardDeleteGuide,
+    isSoftDeletingGuide,
+    isRestoringGuide,
+    isHardDeletingGuide,
+  } = useGuidesQueries();
+  const { data, isLoading } = useListGuides();
+
+  const guides: GovGuide[] = useMemo(() => {
+    if (!data?.success || !data?.data?.guides) return [];
+
+    // Map backend data to frontend format
+    return data.data.guides.map((guide: any) => {
+      // Parse JSON fields if they're strings
+      const offices = typeof guide.offices === 'string'
+        ? JSON.parse(guide.offices)
+        : guide.offices;
+      const steps = typeof guide.steps === 'string'
+        ? JSON.parse(guide.steps)
+        : guide.steps;
+      const requirements = typeof guide.requirements === 'string'
+        ? JSON.parse(guide.requirements)
+        : guide.requirements;
+
+      return {
+        id: guide.id,
+        slug: guide.slug,
+        title: guide.title,
+        issuingAgency: offices?.issuingAgency || "",
+        category: guide.category,
+        customCategory: guide.customCategory || null,
+        summary: guide.description,
+        estimatedProcessingTime: guide.processingTime,
+        feeAmount: offices?.feeAmount || null,
+        feeCurrency: offices?.feeCurrency || "PHP",
+        oneTimeFee: offices?.oneTimeFee || true,
+        status: guide.status,
+        isActive: !guide.deletedAt,
+        stepsCount: Array.isArray(steps) ? steps.length : 0,
+        requirementsCount: Array.isArray(requirements) ? requirements.length : 0,
+        createdAt: guide.createdAt,
+        updatedAt: guide.updatedAt,
+        updatedBy: guide.updatedBy || guide.createdBy,
+        updatedByEmail: guide.updatedByEmail || null,
+        createdByEmail: guide.createdByEmail || null,
+        offices: offices,
+        steps: steps,
+        requirements: requirements,
+      };
+    });
+  }, [data]);
+
+  const loading = isLoading;
+  const isDeleting = isSoftDeletingGuide || deletingGuideId !== null;
+  const isRestoring = isRestoringGuide || restoringGuideId !== null;
+  const isPermanentDeleting =
+    isHardDeletingGuide || permanentDeletingGuideId !== null;
+
+  // Filter guides into active and archived
+  const activeGuides = useMemo(
+    () => guides.filter((g) => g.isActive),
+    [guides]
+  );
+  const archivedGuides = useMemo(
+    () => guides.filter((g) => !g.isActive),
+    [guides]
   );
 
-  const loading = false;
-  const isDeleting = deletingGuideId !== null;
+  // Determine which guides to display based on toggle
+  const displayGuides = showArchived ? archivedGuides : activeGuides;
 
   const handleEditGuide = useCallback(
     (guideId: string) => {
@@ -247,11 +362,11 @@ const GuidesTable: React.FC = () => {
         setEditModalOpen(true);
       }
     },
-    [guides],
+    [guides]
   );
 
   const handleGuideUpdated = useCallback(() => {
-    // TODO: Refetch guides from API
+    // Guides will auto-refresh via TanStack Query invalidation
     setEditModalOpen(false);
     setSelectedGuide(null);
   }, []);
@@ -270,7 +385,7 @@ const GuidesTable: React.FC = () => {
         setPreviewModalOpen(true);
       }
     },
-    [guides],
+    [guides]
   );
 
   const handleClosePreviewModal = useCallback(() => {
@@ -278,18 +393,79 @@ const GuidesTable: React.FC = () => {
     setSelectedGuide(null);
   }, []);
 
-  const handleDeleteGuide = useCallback((guideId: string) => {
-    if (!confirm("Are you sure you want to delete this guide?")) return;
+  const handleDeleteGuide = useCallback(
+    (guideId: string) => {
+      if (!confirm("Are you sure you want to archive this guide?")) return;
 
-    setDeletingGuideId(guideId);
+      setDeletingGuideId(guideId);
+      softDeleteGuide(guideId, {
+        onSuccess: () => {
+          setDeletingGuideId(null);
+          addToast({
+            title: "Guide archived successfully",
+            color: "success",
+          });
+        },
+        onError: () => {
+          setDeletingGuideId(null);
+          addToast({ title: "Failed to archive guide", color: "danger" });
+        },
+      });
+    },
+    [softDeleteGuide]
+  );
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Delete guide:", guideId);
-      setDeletingGuideId(null);
-      // TODO: Implement actual delete and refetch
-    }, 1000);
-  }, []);
+  const handleRestoreGuide = useCallback(
+    (guideId: string) => {
+      if (!confirm("Are you sure you want to restore this guide?")) return;
+
+      setRestoringGuideId(guideId);
+      restoreGuide(guideId, {
+        onSuccess: () => {
+          setRestoringGuideId(null);
+          addToast({
+            title: "Guide restored successfully",
+            color: "success",
+          });
+        },
+        onError: () => {
+          setRestoringGuideId(null);
+          addToast({ title: "Failed to restore guide", color: "danger" });
+        },
+      });
+    },
+    [restoreGuide]
+  );
+
+  const handlePermanentDeleteGuide = useCallback(
+    (guideId: string) => {
+      if (
+        !confirm(
+          "Are you sure you want to PERMANENTLY delete this guide? This action cannot be undone."
+        )
+      )
+        return;
+
+      setPermanentDeletingGuideId(guideId);
+      hardDeleteGuide(guideId, {
+        onSuccess: () => {
+          setPermanentDeletingGuideId(null);
+          addToast({
+            title: "Guide permanently deleted",
+            color: "success",
+          });
+        },
+        onError: () => {
+          setPermanentDeletingGuideId(null);
+          addToast({
+            title: "Failed to permanently delete guide",
+            color: "danger",
+          });
+        },
+      });
+    },
+    [hardDeleteGuide]
+  );
 
   const columns: Column<GovGuide>[] = useMemo(
     () => [
@@ -340,11 +516,11 @@ const GuidesTable: React.FC = () => {
         header: "Last Updated",
         accessor: (guide) => (
           <div className="flex flex-col text-sm">
-            <span className="text-gray-900">
-              {formatDate(guide.updatedAt)}
-            </span>
-            {guide.updatedBy && (
-              <span className="text-gray-500 text-xs">by {guide.updatedBy}</span>
+            <span className="text-gray-900">{formatDate(guide.updatedAt)}</span>
+            {guide.updatedByEmail && (
+              <span className="text-gray-500 text-xs">
+                by {guide.updatedByEmail}
+              </span>
             )}
           </div>
         ),
@@ -356,8 +532,14 @@ const GuidesTable: React.FC = () => {
           <GuideActions
             guide={guide}
             isDeleting={isDeleting}
+            isRestoring={isRestoring}
+            isPermanentDeleting={isPermanentDeleting}
             isDeletingThisGuide={deletingGuideId === guide.id}
+            isRestoringThisGuide={restoringGuideId === guide.id}
+            isPermanentDeletingThisGuide={permanentDeletingGuideId === guide.id}
             onDelete={handleDeleteGuide}
+            onRestore={handleRestoreGuide}
+            onPermanentDelete={handlePermanentDeleteGuide}
             onEdit={handleEditGuide}
             onPreview={handlePreviewGuide}
           />
@@ -370,17 +552,51 @@ const GuidesTable: React.FC = () => {
       handleEditGuide,
       handlePreviewGuide,
       handleDeleteGuide,
+      handleRestoreGuide,
+      handlePermanentDeleteGuide,
       isDeleting,
+      isRestoring,
+      isPermanentDeleting,
       deletingGuideId,
-    ],
+      restoringGuideId,
+      permanentDeletingGuideId,
+    ]
   );
 
   return (
     <>
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex gap-2">
+          <button
+            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+              !showArchived
+                ? "bg-adult-green text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+            onClick={() => setShowArchived(false)}
+          >
+            Active Guides ({activeGuides.length})
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+              showArchived
+                ? "bg-adult-green text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+            onClick={() => setShowArchived(true)}
+          >
+            Archived Guides ({archivedGuides.length})
+          </button>
+        </div>
+      </div>
       <Table
         columns={columns}
-        data={guides}
-        emptyMessage="No guides found. Click 'Add Guide' to create your first guide."
+        data={displayGuides}
+        emptyMessage={
+          showArchived
+            ? "No archived guides found"
+            : "No guides found. Click 'Add Guide' to create your first guide."
+        }
         loading={loading}
         pagination={{
           enabled: true,

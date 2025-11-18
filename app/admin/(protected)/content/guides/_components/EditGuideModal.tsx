@@ -11,6 +11,7 @@ import {
 } from "@/validators/guideSchema";
 import { addToast } from "@heroui/toast";
 import type { GovGuide } from "@/types/govguide";
+import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
 
 interface EditGuideModalProps {
   open?: boolean;
@@ -76,6 +77,7 @@ function EditForm({
   onGuideUpdated?: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { updateGuideAsync } = useGuidesQueries();
 
   const {
     register,
@@ -83,15 +85,19 @@ function EditForm({
     formState: { errors, isDirty },
     reset,
     control,
+    watch,
   } = useForm({
     resolver: zodResolver(addGuideSchema),
     defaultValues: {
       title: guide.title,
       issuingAgency: guide.issuingAgency,
+      category: guide.category as any,
+      customCategory: guide.customCategory || "",
       summary: guide.summary || "",
       estimatedProcessingTime: guide.estimatedProcessingTime || "",
       feeAmount: guide.feeAmount,
-      status: guide.status,
+      feeCurrency: "PHP",
+      oneTimeFee: true,
       steps: [{ stepNumber: 1, title: "" }],
       requirements: [
         {
@@ -145,21 +151,52 @@ function EditForm({
       setIsSubmitting(true);
 
       try {
-        // TODO: Replace with actual API call
-        console.log("Update guide:", guide.id, data);
+        // Map frontend data to backend API format
+        const guideData = {
+          title: data.title,
+          category: data.category as any,
+          customCategory: data.category === "other" ? data.customCategory : null,
+          description: data.summary || "",
+          keywords: [],
+          steps: data.steps.map((step, index) => ({
+            stepNumber: index + 1,
+            title: step.title,
+            description: "",
+            estimatedTime: "",
+          })),
+          requirements: data.requirements.map((req) => ({
+            name: req.name,
+            description: req.description || "",
+            isRequired: true,
+          })),
+          processingTime: data.estimatedProcessingTime || "",
+          offices: {
+            issuingAgency: data.issuingAgency,
+            locations: [],
+            feeAmount: data.feeAmount || undefined,
+            feeCurrency: data.feeCurrency || "PHP",
+            oneTimeFee: data.oneTimeFee,
+          },
+        };
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        handleClose();
-        if (onGuideUpdated) {
-          onGuideUpdated();
-        }
-        addToast({
-          title: "Guide updated successfully",
-          color: "success",
-          timeout: 4000,
+        const response = await updateGuideAsync({
+          guideId: guide.id,
+          data: guideData,
         });
+
+        if (response.success) {
+          handleClose();
+          if (onGuideUpdated) {
+            onGuideUpdated();
+          }
+          addToast({
+            title: "Guide updated successfully",
+            color: "success",
+            timeout: 4000,
+          });
+        } else {
+          throw new Error(response.message || "Failed to update guide");
+        }
       } catch (error: any) {
         addToast({
           title: error?.message || "Failed to update guide",
@@ -170,17 +207,20 @@ function EditForm({
         setIsSubmitting(false);
       }
     }),
-    [handleSubmit, guide, onGuideUpdated],
+    [handleSubmit, guide, onGuideUpdated, updateGuideAsync],
   );
 
   const handleClose = useCallback(() => {
     reset({
       title: guide.title,
       issuingAgency: guide.issuingAgency,
+      category: guide.category as any,
+      customCategory: guide.customCategory || "",
       summary: guide.summary || "",
       estimatedProcessingTime: guide.estimatedProcessingTime || "",
       feeAmount: guide.feeAmount,
-      status: guide.status,
+      feeCurrency: "PHP",
+      oneTimeFee: true,
       steps: [{ stepNumber: 1, title: "" }],
       requirements: [
         {
@@ -255,6 +295,57 @@ function EditForm({
           <div>
             <label
               className="block text-sm font-medium text-gray-700"
+              htmlFor="category"
+            >
+              Category *
+            </label>
+            <select
+              {...register("category")}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+              id="category"
+            >
+              <option value="">Select a category</option>
+              <option value="identification">Identification</option>
+              <option value="civil-registration">Civil Registration</option>
+              <option value="permits-licenses">Permits & Licenses</option>
+              <option value="social-services">Social Services</option>
+              <option value="tax-related">Tax Related</option>
+              <option value="legal">Legal</option>
+              <option value="other">Other</option>
+            </select>
+            {errors.category && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.category.message}
+              </p>
+            )}
+          </div>
+
+          {watch("category") === "other" && (
+            <div>
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="customCategory"
+              >
+                Custom Category *
+              </label>
+              <input
+                {...register("customCategory")}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+                id="customCategory"
+                placeholder="Enter custom category name"
+                type="text"
+              />
+              {errors.customCategory && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.customCategory.message}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700"
               htmlFor="summary"
             >
               Summary
@@ -303,24 +394,6 @@ function EditForm({
                 type="number"
               />
             </div>
-          </div>
-
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="status"
-            >
-              Status
-            </label>
-            <select
-              {...register("status")}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-              id="status"
-            >
-              <option value="review">Review</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
-            </select>
           </div>
         </div>
 

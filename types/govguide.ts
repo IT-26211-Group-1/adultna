@@ -1,11 +1,13 @@
-export type GuideStatus = "review" | "published" | "archived";
+export type GuideStatus = "pending" | "rejected" | "to_revise" | "accepted";
 
 export type GuideCategory =
-  | "ID"
-  | "Clearance"
-  | "Benefit"
-  | "Tax Document"
-  | "License";
+  | "identification"
+  | "civil-registration"
+  | "permits-licenses"
+  | "social-services"
+  | "tax-related"
+  | "legal"
+  | "other";
 
 export type GovGuide = {
   id: string;
@@ -13,6 +15,7 @@ export type GovGuide = {
   title: string;
   issuingAgency: string;
   category: GuideCategory;
+  customCategory: string | null;
   summary: string | null;
   estimatedProcessingTime: string | null;
   feeAmount: number | null;
@@ -25,4 +28,9 @@ export type GovGuide = {
   createdAt: string;
   updatedAt: string;
   updatedBy: string | null;
+  updatedByEmail: string | null;
+  createdByEmail: string | null;
+  offices?: any;
+  steps?: any;
+  requirements?: any;
 };

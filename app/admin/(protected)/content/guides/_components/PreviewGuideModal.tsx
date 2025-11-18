@@ -1,10 +1,11 @@
 "use client";
 
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { Modal } from "@/components/ui/Modal";
 import Badge from "@/components/ui/Badge";
 import type { GovGuide } from "@/types/govguide";
-import { formatDate } from "@/constants/formatDate";
+import { formatDate } from "@/constants/format-date";
+import type { ProcessStep, DocumentRequirement, OfficeInfo } from "@/hooks/queries/admin/useGuidesQueries";
 
 interface PreviewGuideModalProps {
   open?: boolean;
@@ -19,16 +20,55 @@ function PreviewGuideModal({
 }: PreviewGuideModalProps) {
   if (!guide) return null;
 
+  // Parse JSON fields
+  const offices: OfficeInfo | null = useMemo(() => {
+    if (!guide.offices) return null;
+    try {
+      return typeof guide.offices === "string"
+        ? JSON.parse(guide.offices)
+        : guide.offices;
+    } catch (error) {
+      console.error("Error parsing offices:", error);
+      return null;
+    }
+  }, [guide.offices]);
+
+  const steps: ProcessStep[] = useMemo(() => {
+    if (!guide.steps) return [];
+    try {
+      return typeof guide.steps === "string"
+        ? JSON.parse(guide.steps)
+        : guide.steps;
+    } catch (error) {
+      console.error("Error parsing steps:", error);
+      return [];
+    }
+  }, [guide.steps]);
+
+  const requirements: DocumentRequirement[] = useMemo(() => {
+    if (!guide.requirements) return [];
+    try {
+      return typeof guide.requirements === "string"
+        ? JSON.parse(guide.requirements)
+        : guide.requirements;
+    } catch (error) {
+      console.error("Error parsing requirements:", error);
+      return [];
+    }
+  }, [guide.requirements]);
+
   const statusVariants = {
-    review: "info",
-    published: "success",
-    archived: "warning",
+    pending: "warning",
+    accepted: "success",
+    rejected: "error",
+    to_revise: "info",
   } as const;
 
   const statusLabels = {
-    review: "Review",
-    published: "Published",
-    archived: "Archived",
+    pending: "Pending Review",
+    accepted: "Accepted",
+    rejected: "Rejected",
+    to_revise: "To Revise",
   };
 
   return (
@@ -68,7 +108,7 @@ function PreviewGuideModal({
                 Issuing Agency
               </label>
               <p className="mt-1 text-gray-900 font-medium">
-                {guide.issuingAgency}
+                {offices?.issuingAgency || "N/A"}
               </p>
             </div>
             <div>
@@ -84,8 +124,8 @@ function PreviewGuideModal({
                 Fee Amount
               </label>
               <p className="mt-1 text-gray-900">
-                {guide.feeAmount !== null && guide.feeAmount !== undefined
-                  ? `PHP ${guide.feeAmount.toFixed(2)}`
+                {offices?.feeAmount !== null && offices?.feeAmount !== undefined
+                  ? `${offices.feeCurrency || "PHP"} ${offices.feeAmount.toFixed(2)}`
                   : "Free"}
               </p>
             </div>
@@ -108,78 +148,95 @@ function PreviewGuideModal({
         {/* Steps Section */}
         <div className="border-t pt-4">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Steps ({guide.stepsCount})
+            Steps ({steps.length})
           </h3>
           <div className="space-y-3">
-            {/* TODO: Fetch actual steps from API */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-500 italic">
-                Step details will be loaded from the API. Currently showing:{" "}
-                {guide.stepsCount} step(s).
-              </p>
-              {/* Placeholder for demonstration */}
-              {Array.from({ length: Math.min(guide.stepsCount, 3) }, (_, i) => (
+            {steps.length > 0 ? (
+              steps.map((step, index) => (
                 <div
-                  key={i}
-                  className="flex gap-3 items-start mt-3 p-3 bg-white rounded border"
+                  key={index}
+                  className="flex gap-3 items-start p-4 bg-gray-50 rounded-lg border"
                 >
                   <div className="flex items-center justify-center w-8 h-8 bg-adult-green text-white rounded-full text-sm font-semibold flex-shrink-0">
-                    {i + 1}
+                    {step.stepNumber}
                   </div>
                   <div className="flex-1">
-                    <p className="text-gray-700 font-medium">
-                      Step {i + 1} placeholder
+                    <p className="text-gray-900 font-medium mb-1">
+                      {step.title}
                     </p>
+                    {step.description && (
+                      <p className="text-sm text-gray-600 mb-2">
+                        {step.description}
+                      </p>
+                    )}
+                    {step.estimatedTime && (
+                      <p className="text-xs text-gray-500">
+                        Estimated time: {step.estimatedTime}
+                      </p>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
+              ))
+            ) : (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500 italic">
+                  No steps available for this guide.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Requirements Section */}
         <div className="border-t pt-4">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Requirements ({guide.requirementsCount})
+            Requirements ({requirements.length})
           </h3>
           <div className="space-y-3">
-            {/* TODO: Fetch actual requirements from API */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-500 italic">
-                Requirement details will be loaded from the API. Currently
-                showing: {guide.requirementsCount} requirement(s).
-              </p>
-              {/* Placeholder for demonstration */}
-              {Array.from(
-                { length: Math.min(guide.requirementsCount, 3) },
-                (_, i) => (
-                  <div
-                    key={i}
-                    className="flex gap-3 items-start mt-3 p-3 bg-white rounded border"
-                  >
-                    <div className="flex items-center justify-center w-8 h-8 bg-adult-green text-white rounded-full text-sm font-semibold flex-shrink-0">
-                      {i + 1}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-gray-700 font-medium">
-                        Requirement {i + 1}
-                      </p>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Description placeholder
-                      </p>
-                    </div>
+            {requirements.length > 0 ? (
+              requirements.map((requirement, index) => (
+                <div
+                  key={index}
+                  className="flex gap-3 items-start p-4 bg-gray-50 rounded-lg border"
+                >
+                  <div className="flex items-center justify-center w-8 h-8 bg-adult-green text-white rounded-full text-sm font-semibold flex-shrink-0">
+                    {index + 1}
                   </div>
-                ),
-              )}
-            </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-gray-900 font-medium">
+                        {requirement.name}
+                      </p>
+                      {requirement.isRequired !== undefined && (
+                        <Badge
+                          size="sm"
+                          variant={requirement.isRequired ? "error" : "default"}
+                        >
+                          {requirement.isRequired ? "Required" : "Optional"}
+                        </Badge>
+                      )}
+                    </div>
+                    {requirement.description && (
+                      <p className="text-sm text-gray-600">
+                        {requirement.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500 italic">
+                  No requirements available for this guide.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Metadata Section */}
         <div className="border-t pt-4">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Metadata
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Metadata</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <label className="block text-gray-500">Created</label>
