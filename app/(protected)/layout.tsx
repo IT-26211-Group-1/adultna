@@ -24,8 +24,8 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
       )}
       <IdleWarningModal
         open={showIdleWarning}
-        onStayActive={onStayActive}
         onLogout={onLogoutNow}
+        onStayActive={onStayActive}
       />
     </ProtectedRoute>
   );

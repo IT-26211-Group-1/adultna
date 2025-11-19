@@ -23,7 +23,7 @@ interface UseIdleTimeoutOptions {
 
 export function useIdleTimeout(
   onIdle: (() => void) | UseIdleTimeoutOptions,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   // Support both old and new API
   const options: UseIdleTimeoutOptions =
@@ -31,8 +31,13 @@ export function useIdleTimeout(
       ? { onIdle, enabled }
       : { ...onIdle, enabled: onIdle.enabled ?? true };
 
-  const { onIdle: idleCallback, onWarning, warningTime = WARNING_BEFORE_TIMEOUT } = options;
-  const isEnabled = typeof onIdle === "function" ? enabled : options.enabled ?? true;
+  const {
+    onIdle: idleCallback,
+    onWarning,
+    warningTime = WARNING_BEFORE_TIMEOUT,
+  } = options;
+  const isEnabled =
+    typeof onIdle === "function" ? enabled : (options.enabled ?? true);
 
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -84,6 +89,7 @@ export function useIdleTimeout(
   useEffect(() => {
     if (!isEnabled) {
       clearAllTimers();
+
       return;
     }
 

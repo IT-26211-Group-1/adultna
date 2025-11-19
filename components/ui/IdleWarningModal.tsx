@@ -22,6 +22,7 @@ export const IdleWarningModal = ({
   useEffect(() => {
     if (!open) {
       setTimeLeft(countdownSeconds);
+
       return;
     }
 
@@ -29,8 +30,10 @@ export const IdleWarningModal = ({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
+
           return 0;
         }
+
         return prev - 1;
       });
     }, 1000);
@@ -41,15 +44,21 @@ export const IdleWarningModal = ({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
+
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
-    <Modal open={open} onClose={onStayActive} title="Are you still there?" size="sm">
+    <Modal
+      open={open}
+      size="sm"
+      title="Are you still there?"
+      onClose={onStayActive}
+    >
       <div className="space-y-4">
         <p className="text-gray-600 dark:text-gray-300">
-          You've been inactive for a while. For your security, you will be automatically
-          logged out in:
+          You&apos;ve been inactive for a while. For your security, you will be
+          automatically logged out in:
         </p>
 
         <div className="flex justify-center">
@@ -62,14 +71,14 @@ export const IdleWarningModal = ({
 
         <div className="flex gap-3 pt-4">
           <Button
+            className="flex-1 bg-adult-green hover:bg-adult-green/90 text-white"
             onClick={onStayActive}
-            className="flex-1 bg-primary-600 hover:bg-primary-700 text-white"
           >
             Stay Logged In
           </Button>
           <Button
-            onClick={onLogout}
             className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200"
+            onClick={onLogout}
           >
             Logout Now
           </Button>
