@@ -36,6 +36,15 @@ export default function OfficeMapModal({
           return;
         }
 
+        // Check if script is already being loaded
+        const existingScript = document.querySelector(
+          'script[src*="maps.googleapis.com"]'
+        );
+        if (existingScript) {
+          existingScript.addEventListener("load", () => resolve());
+          return;
+        }
+
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API}&libraries=places`;
         script.async = true;
@@ -62,47 +71,52 @@ export default function OfficeMapModal({
         if (office.locations && office.locations.length > 0) {
           const geocoder = new window.google.maps.Geocoder();
 
-          office.locations.forEach(async (location, index) => {
+          for (let index = 0; index < office.locations.length; index++) {
+            const location = office.locations[index];
             try {
-              const result = await geocoder.geocode({ address: location });
-              if (result.results[0]) {
-                const position = result.results[0].geometry.location;
+              geocoder.geocode(
+                { address: location },
+                (results: any, status: any) => {
+                  if (status === "OK" && results && results[0]) {
+                    const position = results[0].geometry.location;
 
-                new window.google.maps.Marker({
-                  map,
-                  position,
-                  title: `${office.issuingAgency} - ${location}`,
-                });
+                    new window.google.maps.Marker({
+                      map,
+                      position,
+                      title: `${office.issuingAgency} - ${location}`,
+                    });
 
-                if (index === 0) {
-                  map.setCenter(position);
-                  map.setZoom(15);
+                    if (index === 0) {
+                      map.setCenter(position);
+                      map.setZoom(15);
+                    }
+                  }
                 }
-              }
+              );
             } catch (err) {
               console.error("Geocoding error:", err);
             }
-          });
+          }
         } else {
           const searchQuery = `${office.issuingAgency} Philippines`;
           const geocoder = new window.google.maps.Geocoder();
 
-          try {
-            const result = await geocoder.geocode({ address: searchQuery });
-            if (result.results[0]) {
-              const position = result.results[0].geometry.location;
-              map.setCenter(position);
-              map.setZoom(14);
+          geocoder.geocode(
+            { address: searchQuery },
+            (results: any, status: any) => {
+              if (status === "OK" && results && results[0]) {
+                const position = results[0].geometry.location;
+                map.setCenter(position);
+                map.setZoom(14);
 
-              new window.google.maps.Marker({
-                map,
-                position,
-                title: office.issuingAgency,
-              });
+                new window.google.maps.Marker({
+                  map,
+                  position,
+                  title: office.issuingAgency,
+                });
+              }
             }
-          } catch (err) {
-            console.error("Geocoding error:", err);
-          }
+          );
         }
 
         setIsLoading(false);

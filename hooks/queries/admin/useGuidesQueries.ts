@@ -233,10 +233,14 @@ export function useGuidesQueries() {
 
   // Update guide mutation
   const updateGuideMutation = useMutation({
-    mutationFn: ({ guideId, data }: { guideId: string; data: UpdateGuideRequest }) =>
-      guidesApi.updateGuide(guideId, data),
+    mutationFn: ({
+      guideId,
+      data,
+    }: {
+      guideId: string;
+      data: UpdateGuideRequest;
+    }) => guidesApi.updateGuide(guideId, data),
     onSuccess: (data, variables) => {
-      logger.info("Guide updated successfully", { guideId: variables.guideId });
       queryClient.invalidateQueries({
         queryKey: ["admin", "guides"],
       });
@@ -251,10 +255,17 @@ export function useGuidesQueries() {
 
   // Verify guide mutation
   const verifyGuideMutation = useMutation({
-    mutationFn: ({ guideId, data }: { guideId: string; data: VerifyGuideRequest }) =>
-      guidesApi.verifyGuide(guideId, data),
+    mutationFn: ({
+      guideId,
+      data,
+    }: {
+      guideId: string;
+      data: VerifyGuideRequest;
+    }) => guidesApi.verifyGuide(guideId, data),
     onSuccess: (data, variables) => {
-      logger.info("Guide verified successfully", { guideId: variables.guideId });
+      logger.info("Guide verified successfully", {
+        guideId: variables.guideId,
+      });
       queryClient.invalidateQueries({
         queryKey: ["admin", "guides"],
       });

@@ -77,7 +77,8 @@ function AddGuideModal({
         const guideData = {
           title: data.title,
           category: data.category as any,
-          customCategory: data.category === "other" ? data.customCategory : null,
+          customCategory:
+            data.category === "other" ? data.customCategory : null,
           description: data.summary || "",
           keywords: [], // Can be added to form later
           steps: data.steps.map((step, index) => ({
@@ -114,8 +115,17 @@ function AddGuideModal({
           throw new Error(response.message || "Failed to create guide");
         }
       } catch (error: any) {
+        let errorMessage = "A similar title has been created already";
+
+        if (
+          errorMessage.includes("Duplicate entry") &&
+          errorMessage.includes("slug_unique")
+        ) {
+          errorMessage = "Title is already taken";
+        }
+
         addToast({
-          title: error?.message || "Failed to create guide",
+          title: errorMessage,
           color: "danger",
           timeout: 4000,
         });

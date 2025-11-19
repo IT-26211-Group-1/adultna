@@ -96,8 +96,8 @@ function EditForm({
       summary: guide.summary || "",
       estimatedProcessingTime: guide.estimatedProcessingTime || "",
       feeAmount: guide.feeAmount,
-      feeCurrency: "PHP",
-      oneTimeFee: true,
+      feeCurrency: guide.feeCurrency || "PHP",
+      oneTimeFee: guide.oneTimeFee ?? true,
       steps: [{ stepNumber: 1, title: "" }],
       requirements: [
         {
@@ -128,23 +128,29 @@ function EditForm({
     name: "requirements",
   });
 
-  // TODO: Fetch full guide details with steps and requirements from API
-  // For now, using mock data
   React.useEffect(() => {
-    if (open) {
-      replaceSteps([
-        { stepNumber: 1, title: "Step 1 placeholder" },
-        { stepNumber: 2, title: "Step 2 placeholder" },
-      ]);
+    if (open && guide) {
+      // Load actual steps from guide data
+      const guideSteps = Array.isArray(guide.steps) && guide.steps.length > 0
+        ? guide.steps.map((step: any) => ({
+            stepNumber: step.stepNumber,
+            title: step.title || "",
+          }))
+        : [{ stepNumber: 1, title: "" }];
 
-      replaceRequirements([
-        {
-          name: "Requirement 1",
-          description: "Description 1",
-        },
-      ]);
+      replaceSteps(guideSteps);
+
+      // Load actual requirements from guide data
+      const guideRequirements = Array.isArray(guide.requirements) && guide.requirements.length > 0
+        ? guide.requirements.map((req: any) => ({
+            name: req.name || "",
+            description: req.description || "",
+          }))
+        : [{ name: "", description: "" }];
+
+      replaceRequirements(guideRequirements);
     }
-  }, [open, replaceSteps, replaceRequirements]);
+  }, [open, guide, replaceSteps, replaceRequirements]);
 
   const onSubmit = useCallback(
     handleSubmit(async (data: AddGuideForm) => {
@@ -198,8 +204,17 @@ function EditForm({
           throw new Error(response.message || "Failed to update guide");
         }
       } catch (error: any) {
+        let errorMessage = error?.message || "Failed to update guide";
+
+        if (
+          errorMessage.includes("Duplicate entry") &&
+          errorMessage.includes("slug_unique")
+        ) {
+          errorMessage = "Title is already taken";
+        }
+
         addToast({
-          title: error?.message || "Failed to update guide",
+          title: errorMessage,
           color: "danger",
           timeout: 4000,
         });
@@ -219,8 +234,8 @@ function EditForm({
       summary: guide.summary || "",
       estimatedProcessingTime: guide.estimatedProcessingTime || "",
       feeAmount: guide.feeAmount,
-      feeCurrency: "PHP",
-      oneTimeFee: true,
+      feeCurrency: guide.feeCurrency || "PHP",
+      oneTimeFee: guide.oneTimeFee ?? true,
       steps: [{ stepNumber: 1, title: "" }],
       requirements: [
         {
