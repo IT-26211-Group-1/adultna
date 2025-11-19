@@ -9,6 +9,33 @@ export type GuideCategory =
   | "legal"
   | "other";
 
+export type OfficeInfo = {
+  issuingAgency: string;
+  locations?: string[];
+  feeAmount?: number;
+  feeCurrency?: string;
+  oneTimeFee?: boolean;
+};
+
+export type ProcessStep = {
+  stepNumber: number;
+  title: string;
+  description?: string;
+  estimatedTime?: string;
+};
+
+export type DocumentRequirement = {
+  name: string;
+  description?: string;
+  isRequired?: boolean;
+};
+
+export type GeneralTips = {
+  tipsToFollow?: string[];
+  tipsToAvoid?: string[];
+  importantReminders?: string[];
+};
+
 export type GovGuide = {
   id: string;
   slug: string;
@@ -30,7 +57,8 @@ export type GovGuide = {
   updatedBy: string | null;
   updatedByEmail: string | null;
   createdByEmail: string | null;
-  offices?: any;
-  steps?: any;
-  requirements?: any;
+  offices?: OfficeInfo;
+  steps?: ProcessStep[];
+  requirements?: DocumentRequirement[];
+  generalTips?: GeneralTips | null;
 };

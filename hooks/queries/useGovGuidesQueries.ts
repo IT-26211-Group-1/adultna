@@ -3,72 +3,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { ApiClient, queryKeys as baseQueryKeys } from "@/lib/apiClient";
 import { API_CONFIG } from "@/config/api";
-
-export type GuideStatus = "pending" | "accepted" | "rejected" | "to_revise";
-
-export type GuideCategory =
-  | "identification"
-  | "civil-registration"
-  | "permits-licenses"
-  | "social-services"
-  | "tax-related"
-  | "legal"
-  | "other";
-
-export type OfficeInfo = {
-  issuingAgency: string;
-  locations?: string[];
-  feeAmount?: number;
-  feeCurrency?: string;
-  oneTimeFee?: boolean;
-};
-
-export type DocumentRequirement = {
-  name: string;
-  description?: string;
-  isRequired?: boolean;
-};
-
-export type ProcessStep = {
-  stepNumber: number;
-  title: string;
-  description?: string;
-  estimatedTime?: string;
-};
-
-export type Guide = {
-  id: string;
-  title: string;
-  slug: string;
-  category: GuideCategory;
-  customCategory: string | null;
-  description: string;
-  keywords: string[];
-  steps: ProcessStep[];
-  requirements: DocumentRequirement[];
-  processingTime: string;
-  offices: OfficeInfo;
-  status: GuideStatus;
-  createdBy: string;
-  verifiedBy: string | null;
-  updatedBy: string | null;
-  rejectionReason: string | null;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-  deletedBy: string | null;
-};
+import type {
+  GovGuide,
+  GuideStatus,
+  GuideCategory,
+} from "@/types/govguide";
 
 export type ListGuidesResponse = {
   success: boolean;
-  guides: Guide[];
+  guides: GovGuide[];
   total: number;
   message?: string;
 };
 
 export type GetGuideResponse = {
   success: boolean;
-  guide: Guide;
+  guide: GovGuide;
   message?: string;
 };
 
@@ -82,13 +32,13 @@ const govGuidesApi = {
     if (params?.category) queryParams.append("category", params.category);
 
     const queryString = queryParams.toString();
-    const endpoint = `/guides/view${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `/guides/public${queryString ? `?${queryString}` : ""}`;
 
     return ApiClient.get(endpoint);
   },
 
   getGuide: (id: string): Promise<GetGuideResponse> =>
-    ApiClient.get(`/guides/view/${id}`),
+    ApiClient.get(`/guides/public/${id}`),
 };
 
 export const queryKeys = {

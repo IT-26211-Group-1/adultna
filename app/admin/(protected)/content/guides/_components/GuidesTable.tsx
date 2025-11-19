@@ -8,7 +8,9 @@ import type { GovGuide, GuideStatus } from "@/types/govguide";
 import { formatDate } from "@/constants/format-date";
 import EditGuideModal from "./EditGuideModal";
 import PreviewGuideModal from "./PreviewGuideModal";
+import UpdateGuideStatusModal from "./UpdateGuideStatusModal";
 import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
+import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import { addToast } from "@heroui/react";
 
 // Guide Status Badge Component
@@ -41,6 +43,7 @@ type GuideActionsProps = {
   guide: GovGuide;
   onEdit: (guideId: string) => void;
   onPreview: (guideId: string) => void;
+  onUpdateStatus: (guideId: string) => void;
   onDelete: (guideId: string) => void;
   onRestore: (guideId: string) => void;
   onPermanentDelete: (guideId: string) => void;
@@ -50,6 +53,7 @@ type GuideActionsProps = {
   isDeletingThisGuide: boolean;
   isRestoringThisGuide: boolean;
   isPermanentDeletingThisGuide: boolean;
+  userRole?: string;
 };
 
 // Memoized actions dropdown
@@ -58,6 +62,7 @@ const GuideActions = React.memo<GuideActionsProps>(
     guide,
     onEdit,
     onPreview,
+    onUpdateStatus,
     onDelete,
     onRestore,
     onPermanentDelete,
@@ -67,6 +72,7 @@ const GuideActions = React.memo<GuideActionsProps>(
     isDeletingThisGuide,
     isRestoringThisGuide,
     isPermanentDeletingThisGuide,
+    userRole,
   }) => {
     if (isDeletingThisGuide || isPermanentDeletingThisGuide) {
       return (
@@ -125,8 +131,8 @@ const GuideActions = React.memo<GuideActionsProps>(
     const menuItems = [];
     const isArchived = !guide.isActive;
 
-    // If archived, show restore and permanent delete options
-    if (isArchived) {
+    // If archived, show restore and permanent delete options (technical admin only)
+    if (isArchived && userRole === "technical_admin") {
       menuItems.push(
         {
           label: "Restore",
@@ -170,14 +176,68 @@ const GuideActions = React.memo<GuideActionsProps>(
           ),
         }
       );
-    } else {
-      // Active guides
-      menuItems.push(
-        {
-          label: "Edit Guide",
-          onClick: () => onEdit(guide.id),
-          disabled: isDeleting,
+    } else if (!isArchived) {
+      // Preview is available for all admin roles
+      menuItems.push({
+        label: "Preview Guide",
+        onClick: () => onPreview(guide.id),
+        disabled: isDeleting,
+        icon: (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
+            <path
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
+          </svg>
+        ),
+      });
+
+      // Verifier admin can only update status
+      if (userRole === "verifier_admin") {
+        const isAccepted = guide.status === "accepted";
+        menuItems.push({
+          label: "Update Status",
+          onClick: () => onUpdateStatus(guide.id),
+          disabled: isDeleting || isAccepted,
           icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        });
+      }
+
+      // Technical admin has full access
+      if (userRole === "technical_admin") {
+        menuItems.push(
+          {
+            label: "Edit Guide",
+            onClick: () => onEdit(guide.id),
+            disabled: isDeleting,
+            icon: (
             <svg
               className="w-4 h-4"
               fill="none"
@@ -186,32 +246,6 @@ const GuideActions = React.memo<GuideActionsProps>(
             >
               <path
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-          ),
-        },
-        {
-          label: "Preview Guide",
-          onClick: () => onPreview(guide.id),
-          disabled: isDeleting,
-          icon: (
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-              <path
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
@@ -240,7 +274,13 @@ const GuideActions = React.memo<GuideActionsProps>(
             </svg>
           ),
         }
-      );
+        );
+      }
+    }
+
+    // If no menu items, show message
+    if (menuItems.length === 0) {
+      return <div className="text-xs text-gray-400 text-center">No actions</div>;
     }
 
     return (
@@ -276,7 +316,12 @@ const GuidesTable: React.FC = () => {
   >(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState<GovGuide | null>(null);
+  const [selectedGuideForStatus, setSelectedGuideForStatus] =
+    useState<GovGuide | null>(null);
+
+  const { user } = useAdminAuth();
 
   // Fetch guides from API
   const {
@@ -394,6 +439,28 @@ const GuidesTable: React.FC = () => {
   const handleClosePreviewModal = useCallback(() => {
     setPreviewModalOpen(false);
     setSelectedGuide(null);
+  }, []);
+
+  const handleUpdateStatus = useCallback(
+    (guideId: string) => {
+      const guide = guides.find((g) => g.id === guideId);
+      if (guide) {
+        setSelectedGuideForStatus(guide);
+        setStatusModalOpen(true);
+      }
+    },
+    [guides]
+  );
+
+  const handleStatusUpdated = useCallback(() => {
+    // Guides will auto-refresh via TanStack Query invalidation
+    setStatusModalOpen(false);
+    setSelectedGuideForStatus(null);
+  }, []);
+
+  const handleCloseStatusModal = useCallback(() => {
+    setStatusModalOpen(false);
+    setSelectedGuideForStatus(null);
   }, []);
 
   const handleDeleteGuide = useCallback(
@@ -540,11 +607,13 @@ const GuidesTable: React.FC = () => {
             isDeletingThisGuide={deletingGuideId === guide.id}
             isRestoringThisGuide={restoringGuideId === guide.id}
             isPermanentDeletingThisGuide={permanentDeletingGuideId === guide.id}
+            userRole={user?.role}
             onDelete={handleDeleteGuide}
             onRestore={handleRestoreGuide}
             onPermanentDelete={handlePermanentDeleteGuide}
             onEdit={handleEditGuide}
             onPreview={handlePreviewGuide}
+            onUpdateStatus={handleUpdateStatus}
           />
         ),
         width: "80px",
@@ -557,12 +626,14 @@ const GuidesTable: React.FC = () => {
       handleDeleteGuide,
       handleRestoreGuide,
       handlePermanentDeleteGuide,
+      handleUpdateStatus,
       isDeleting,
       isRestoring,
       isPermanentDeleting,
       deletingGuideId,
       restoringGuideId,
       permanentDeletingGuideId,
+      user?.role,
     ]
   );
 
@@ -624,6 +695,14 @@ const GuidesTable: React.FC = () => {
           onClose={handleClosePreviewModal}
         />
       )}
+
+      {/* Update Status Modal */}
+      <UpdateGuideStatusModal
+        open={statusModalOpen}
+        guide={selectedGuideForStatus}
+        onClose={handleCloseStatusModal}
+        onStatusUpdated={handleStatusUpdated}
+      />
     </>
   );
 };

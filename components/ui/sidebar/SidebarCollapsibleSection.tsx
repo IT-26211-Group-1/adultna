@@ -22,7 +22,7 @@ const adultingToolkitItems: SectionItem[] = [
   {
     id: "govguides",
     label: "GovGuides",
-    href: "/govguides",
+    href: "/gov-guides",
   },
   {
     id: "adulting-filebox",
@@ -64,7 +64,7 @@ function SidebarCollapsibleSection({
 
   const isActiveRoute = useCallback(
     (href: string) => pathname === href,
-    [pathname],
+    [pathname]
   );
 
   const renderSection = useCallback(
@@ -72,7 +72,7 @@ function SidebarCollapsibleSection({
       sectionId: string,
       label: string,
       icon: React.ComponentType<any>,
-      items: SectionItem[],
+      items: SectionItem[]
     ) => {
       const Icon = icon;
       const isExpanded = expandedSections.includes(sectionId);
@@ -140,7 +140,7 @@ function SidebarCollapsibleSection({
       onToggleSection,
       onExpandSidebar,
       isActiveRoute,
-    ],
+    ]
   );
 
   return (
@@ -149,13 +149,13 @@ function SidebarCollapsibleSection({
         "adulting-toolkit",
         "Adulting Toolkit",
         FolderOpen,
-        adultingToolkitItems,
+        adultingToolkitItems
       )}
       {renderSection(
         "career-center",
         "Career Center",
         Briefcase,
-        careerCenterItems,
+        careerCenterItems
       )}
     </>
   );
