@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiClient, queryKeys } from "@/lib/apiClient";
+import { ApiClient } from "@/lib/apiClient";
 import { logger } from "@/lib/logger";
 
 // Types
@@ -141,6 +141,7 @@ const guidesApi = {
     limit?: number;
   }): Promise<GuidesListResponse> => {
     const queryParams = new URLSearchParams();
+
     if (params?.category) queryParams.append("category", params.category);
     if (params?.status) queryParams.append("status", params.status);
     if (params?.search) queryParams.append("search", params.search);
@@ -148,6 +149,7 @@ const guidesApi = {
     if (params?.limit) queryParams.append("limit", params.limit.toString());
 
     const queryString = queryParams.toString();
+
     return ApiClient.get(`/guides/view${queryString ? `?${queryString}` : ""}`);
   },
 
@@ -162,14 +164,14 @@ const guidesApi = {
   // Update guide
   updateGuide: (
     guideId: string,
-    data: UpdateGuideRequest
+    data: UpdateGuideRequest,
   ): Promise<UpdateGuideResponse> =>
     ApiClient.put(`/guides/update/${guideId}`, data),
 
   // Verify guide (approve/reject/revise)
   verifyGuide: (
     guideId: string,
-    data: VerifyGuideRequest
+    data: VerifyGuideRequest,
   ): Promise<VerifyGuideResponse> =>
     ApiClient.put(`/guides/verify/${guideId}`, data),
 

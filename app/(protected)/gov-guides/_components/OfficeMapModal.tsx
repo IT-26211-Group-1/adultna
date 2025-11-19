@@ -33,19 +33,23 @@ export default function OfficeMapModal({
       return new Promise<void>((resolve, reject) => {
         if (window.google) {
           resolve();
+
           return;
         }
 
         // Check if script is already being loaded
         const existingScript = document.querySelector(
-          'script[src*="maps.googleapis.com"]'
+          'script[src*="maps.googleapis.com"]',
         );
+
         if (existingScript) {
           existingScript.addEventListener("load", () => resolve());
+
           return;
         }
 
         const script = document.createElement("script");
+
         script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API}&libraries=places`;
         script.async = true;
         script.defer = true;
@@ -73,6 +77,7 @@ export default function OfficeMapModal({
 
           for (let index = 0; index < office.locations.length; index++) {
             const location = office.locations[index];
+
             try {
               geocoder.geocode(
                 { address: location },
@@ -91,7 +96,7 @@ export default function OfficeMapModal({
                       map.setZoom(15);
                     }
                   }
-                }
+                },
               );
             } catch (err) {
               console.error("Geocoding error:", err);
@@ -106,6 +111,7 @@ export default function OfficeMapModal({
             (results: any, status: any) => {
               if (status === "OK" && results && results[0]) {
                 const position = results[0].geometry.location;
+
                 map.setCenter(position);
                 map.setZoom(14);
 
@@ -115,7 +121,7 @@ export default function OfficeMapModal({
                   title: office.issuingAgency,
                 });
               }
-            }
+            },
           );
         }
 
@@ -132,11 +138,11 @@ export default function OfficeMapModal({
 
   return (
     <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="3xl"
-      scrollBehavior="inside"
       disableAnimation
+      isOpen={isOpen}
+      scrollBehavior="inside"
+      size="3xl"
+      onClose={onClose}
     >
       <ModalContent>
         <ModalHeader>
@@ -159,7 +165,7 @@ export default function OfficeMapModal({
             {isLoading && (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adult-green mx-auto mb-4"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-adult-green mx-auto mb-4" />
                   <p className="text-gray-600">Loading map...</p>
                 </div>
               </div>

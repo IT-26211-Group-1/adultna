@@ -20,14 +20,14 @@ export default function GuidePagination({
   return (
     <div className="flex justify-center mt-8">
       <Pagination
-        total={totalPages}
-        page={currentPage}
-        onChange={onPageChange}
-        showControls
         disableAnimation
+        showControls
         classNames={{
           cursor: "bg-adult-green text-white",
         }}
+        page={currentPage}
+        total={totalPages}
+        onChange={onPageChange}
       />
     </div>
   );

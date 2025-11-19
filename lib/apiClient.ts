@@ -98,6 +98,7 @@ export class ApiClient {
                   const loginPath = currentPath.startsWith("/admin")
                     ? "/admin/login"
                     : "/auth/login";
+
                   window.location.href = loginPath;
                 }
               }
@@ -119,6 +120,7 @@ export class ApiClient {
                 const loginPath = currentPath.startsWith("/admin")
                   ? "/admin/login"
                   : "/auth/login";
+
                 window.location.href = loginPath;
               }
             }

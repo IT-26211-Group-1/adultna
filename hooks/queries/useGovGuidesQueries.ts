@@ -2,12 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ApiClient, queryKeys as baseQueryKeys } from "@/lib/apiClient";
-import { API_CONFIG } from "@/config/api";
-import type {
-  GovGuide,
-  GuideStatus,
-  GuideCategory,
-} from "@/types/govguide";
+import type { GovGuide, GuideStatus, GuideCategory } from "@/types/govguide";
 
 export type ListGuidesResponse = {
   success: boolean;
@@ -28,6 +23,7 @@ const govGuidesApi = {
     category?: GuideCategory;
   }): Promise<ListGuidesResponse> => {
     const queryParams = new URLSearchParams();
+
     if (params?.status) queryParams.append("status", params.status);
     if (params?.category) queryParams.append("category", params.category);
 

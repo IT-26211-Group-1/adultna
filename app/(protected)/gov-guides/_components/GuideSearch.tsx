@@ -11,16 +11,16 @@ type GuideSearchProps = {
 export default function GuideSearch({ value, onChange }: GuideSearchProps) {
   return (
     <Input
-      type="text"
-      placeholder="Search government processes"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      startContent={<Search className="w-4 h-4 text-gray-400" />}
       disableAnimation
       classNames={{
         base: "max-w-full",
         inputWrapper: "h-12 border border-gray-300 hover:border-adult-green",
       }}
+      placeholder="Search government processes"
+      startContent={<Search className="w-4 h-4 text-gray-400" />}
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
     />
   );
 }

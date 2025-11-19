@@ -68,10 +68,12 @@ export default function UpdateGuideStatusModal({
             timeout: 3000,
           });
           onClose();
+
           return;
         }
 
         let action: "approve" | "reject" | "revise";
+
         if (data.status === "accepted") {
           action = "approve";
         } else if (data.status === "rejected") {
@@ -108,7 +110,7 @@ export default function UpdateGuideStatusModal({
                 timeout: 4000,
               });
             },
-          }
+          },
         );
       } catch {
         addToast({
@@ -118,7 +120,7 @@ export default function UpdateGuideStatusModal({
         });
       }
     },
-    [guide, verifyGuide, onStatusUpdated, onClose, reset]
+    [guide, verifyGuide, onStatusUpdated, onClose, reset],
   );
 
   const handleClose = useCallback(() => {

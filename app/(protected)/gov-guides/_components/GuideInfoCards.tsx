@@ -56,10 +56,10 @@ export default function GuideInfoCards({
       </Card>
 
       <Card
-        isPressable
         disableAnimation
-        onClick={onOpenMap}
+        isPressable
         className="border border-gray-200 hover:border-adult-green transition-colors cursor-pointer"
+        onClick={onOpenMap}
       >
         <CardBody className="p-6">
           <div className="flex items-start gap-3">

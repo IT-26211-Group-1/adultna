@@ -15,9 +15,7 @@ export default function CompleteGuideTab({ steps }: CompleteGuideTabProps) {
     );
   }
 
-  const sortedSteps = [...steps].sort(
-    (a, b) => a.stepNumber - b.stepNumber
-  );
+  const sortedSteps = [...steps].sort((a, b) => a.stepNumber - b.stepNumber);
 
   return (
     <div className="space-y-6">

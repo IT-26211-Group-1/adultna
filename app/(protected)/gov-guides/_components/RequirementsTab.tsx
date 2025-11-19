@@ -13,19 +13,13 @@ export default function RequirementsTab({
   if (!requirements || requirements.length === 0) {
     return (
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-        <p className="text-gray-600">
-          No document requirements specified yet.
-        </p>
+        <p className="text-gray-600">No document requirements specified yet.</p>
       </div>
     );
   }
 
-  const requiredDocs = requirements.filter(
-    (req) => req.isRequired !== false
-  );
-  const optionalDocs = requirements.filter(
-    (req) => req.isRequired === false
-  );
+  const requiredDocs = requirements.filter((req) => req.isRequired !== false);
+  const optionalDocs = requirements.filter((req) => req.isRequired === false);
 
   return (
     <div className="space-y-6">

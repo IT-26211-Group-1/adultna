@@ -115,7 +115,7 @@ function AddGuideModal({
           throw new Error(response.message || "Failed to create guide");
         }
       } catch (error: any) {
-        let errorMessage = "A similar title has been created already";
+        let errorMessage = error?.message || "Failed to create guide";
 
         if (
           errorMessage.includes("Duplicate entry") &&
@@ -133,7 +133,7 @@ function AddGuideModal({
         setIsSubmitting(false);
       }
     }),
-    [handleSubmit, createGuideAsync]
+    [handleSubmit, createGuideAsync],
   );
 
   const handleClose = useCallback(() => {
@@ -440,7 +440,7 @@ function AddGuideModal({
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <div className="w-8 flex-shrink-0"></div>
+                  <div className="w-8 flex-shrink-0" />
                   <textarea
                     {...register(`requirements.${index}.description`)}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"

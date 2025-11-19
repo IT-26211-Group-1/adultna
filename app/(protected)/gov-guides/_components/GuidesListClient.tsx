@@ -13,7 +13,9 @@ const GUIDES_PER_PAGE = 10;
 
 export default function GuidesListClient() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<GuideCategory | "all">("all");
+  const [selectedCategory, setSelectedCategory] = useState<
+    GuideCategory | "all"
+  >("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   const { guides, isLoading, error } = useGovGuides({ status: "accepted" });
@@ -39,6 +41,7 @@ export default function GuidesListClient() {
   const paginatedGuides = useMemo(() => {
     const startIndex = (currentPage - 1) * GUIDES_PER_PAGE;
     const endIndex = startIndex + GUIDES_PER_PAGE;
+
     return filteredGuides.slice(startIndex, endIndex);
   }, [filteredGuides, currentPage]);
 
@@ -58,7 +61,10 @@ export default function GuidesListClient() {
         <div className="flex-1">
           <GuideSearch value={searchQuery} onChange={handleSearchChange} />
         </div>
-        <CategoryFilter value={selectedCategory} onChange={handleCategoryChange} />
+        <CategoryFilter
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+        />
       </div>
 
       {isLoading && <GuidesLoadingSkeleton />}

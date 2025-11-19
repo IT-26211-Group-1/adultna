@@ -5,7 +5,11 @@ import { Modal } from "@/components/ui/Modal";
 import Badge from "@/components/ui/Badge";
 import type { GovGuide } from "@/types/govguide";
 import { formatDate } from "@/constants/format-date";
-import type { ProcessStep, DocumentRequirement, OfficeInfo } from "@/hooks/queries/admin/useGuidesQueries";
+import type {
+  ProcessStep,
+  DocumentRequirement,
+  OfficeInfo,
+} from "@/hooks/queries/admin/useGuidesQueries";
 
 interface PreviewGuideModalProps {
   open?: boolean;
@@ -18,44 +22,47 @@ function PreviewGuideModal({
   onClose = () => {},
   guide,
 }: PreviewGuideModalProps) {
-  if (!guide) return null;
-
-  // Parse JSON fields
+  // Parse JSON fields - hooks must be called before any early returns
   const offices: OfficeInfo | null = useMemo(() => {
-    if (!guide.offices) return null;
+    if (!guide?.offices) return null;
     try {
       return typeof guide.offices === "string"
         ? JSON.parse(guide.offices)
         : guide.offices;
     } catch (error) {
       console.error("Error parsing offices:", error);
+
       return null;
     }
-  }, [guide.offices]);
+  }, [guide?.offices]);
 
   const steps: ProcessStep[] = useMemo(() => {
-    if (!guide.steps) return [];
+    if (!guide?.steps) return [];
     try {
       return typeof guide.steps === "string"
         ? JSON.parse(guide.steps)
         : guide.steps;
     } catch (error) {
       console.error("Error parsing steps:", error);
+
       return [];
     }
-  }, [guide.steps]);
+  }, [guide?.steps]);
 
   const requirements: DocumentRequirement[] = useMemo(() => {
-    if (!guide.requirements) return [];
+    if (!guide?.requirements) return [];
     try {
       return typeof guide.requirements === "string"
         ? JSON.parse(guide.requirements)
         : guide.requirements;
     } catch (error) {
       console.error("Error parsing requirements:", error);
+
       return [];
     }
-  }, [guide.requirements]);
+  }, [guide?.requirements]);
+
+  if (!guide) return null;
 
   const statusVariants = {
     pending: "warning",
@@ -104,25 +111,25 @@ function PreviewGuideModal({
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500">
+              <div className="block text-sm font-medium text-gray-500">
                 Issuing Agency
-              </label>
+              </div>
               <p className="mt-1 text-gray-900 font-medium">
                 {offices?.issuingAgency || "N/A"}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500">
+              <div className="block text-sm font-medium text-gray-500">
                 Estimated Processing Time
-              </label>
+              </div>
               <p className="mt-1 text-gray-900">
                 {guide.estimatedProcessingTime || "N/A"}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500">
+              <div className="block text-sm font-medium text-gray-500">
                 Fee Amount
-              </label>
+              </div>
               <p className="mt-1 text-gray-900">
                 {offices?.feeAmount !== null && offices?.feeAmount !== undefined
                   ? `${offices.feeCurrency || "PHP"} ${offices.feeAmount.toFixed(2)}`
@@ -130,9 +137,9 @@ function PreviewGuideModal({
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-500">
+              <div className="block text-sm font-medium text-gray-500">
                 Active Status
-              </label>
+              </div>
               <p className="mt-1">
                 <Badge
                   size="sm"
@@ -239,26 +246,26 @@ function PreviewGuideModal({
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Metadata</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <label className="block text-gray-500">Created</label>
+              <div className="block text-gray-500">Created</div>
               <p className="mt-1 text-gray-900">
                 {formatDate(guide.createdAt)}
               </p>
             </div>
             <div>
-              <label className="block text-gray-500">Last Updated</label>
+              <div className="block text-gray-500">Last Updated</div>
               <p className="mt-1 text-gray-900">
                 {formatDate(guide.updatedAt)}
               </p>
             </div>
             {guide.createdByEmail && (
               <div>
-                <label className="block text-gray-500">Created By</label>
+                <div className="block text-gray-500">Created By</div>
                 <p className="mt-1 text-gray-900">{guide.createdByEmail}</p>
               </div>
             )}
             {guide.updatedByEmail && (
               <div>
-                <label className="block text-gray-500">Last Updated By</label>
+                <div className="block text-gray-500">Last Updated By</div>
                 <p className="mt-1 text-gray-900">{guide.updatedByEmail}</p>
               </div>
             )}

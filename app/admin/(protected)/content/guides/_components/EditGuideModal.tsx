@@ -5,10 +5,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
-import {
-  addGuideSchema,
-  AddGuideForm,
-} from "@/validators/guideSchema";
+import { addGuideSchema, AddGuideForm } from "@/validators/guideSchema";
 import { addToast } from "@heroui/toast";
 import type { GovGuide } from "@/types/govguide";
 import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
@@ -57,8 +54,8 @@ function EditGuideModal({
 
   return (
     <EditForm
-      open={open}
       guide={guide}
+      open={open}
       onClose={onClose}
       onGuideUpdated={onGuideUpdated}
     />
@@ -131,22 +128,24 @@ function EditForm({
   React.useEffect(() => {
     if (open && guide) {
       // Load actual steps from guide data
-      const guideSteps = Array.isArray(guide.steps) && guide.steps.length > 0
-        ? guide.steps.map((step: any) => ({
-            stepNumber: step.stepNumber,
-            title: step.title || "",
-          }))
-        : [{ stepNumber: 1, title: "" }];
+      const guideSteps =
+        Array.isArray(guide.steps) && guide.steps.length > 0
+          ? guide.steps.map((step: any) => ({
+              stepNumber: step.stepNumber,
+              title: step.title || "",
+            }))
+          : [{ stepNumber: 1, title: "" }];
 
       replaceSteps(guideSteps);
 
       // Load actual requirements from guide data
-      const guideRequirements = Array.isArray(guide.requirements) && guide.requirements.length > 0
-        ? guide.requirements.map((req: any) => ({
-            name: req.name || "",
-            description: req.description || "",
-          }))
-        : [{ name: "", description: "" }];
+      const guideRequirements =
+        Array.isArray(guide.requirements) && guide.requirements.length > 0
+          ? guide.requirements.map((req: any) => ({
+              name: req.name || "",
+              description: req.description || "",
+            }))
+          : [{ name: "", description: "" }];
 
       replaceRequirements(guideRequirements);
     }
@@ -161,7 +160,8 @@ function EditForm({
         const guideData = {
           title: data.title,
           category: data.category as any,
-          customCategory: data.category === "other" ? data.customCategory : null,
+          customCategory:
+            data.category === "other" ? data.customCategory : null,
           description: data.summary || "",
           keywords: [],
           steps: data.steps.map((step, index) => ({
@@ -282,7 +282,9 @@ function EditForm({
               type="text"
             />
             {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.title.message}
+              </p>
             )}
           </div>
 
@@ -544,7 +546,7 @@ function EditForm({
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <div className="w-8 flex-shrink-0"></div>
+                  <div className="w-8 flex-shrink-0" />
                   <textarea
                     {...register(`requirements.${index}.description`)}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"

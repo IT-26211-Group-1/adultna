@@ -174,7 +174,7 @@ const GuideActions = React.memo<GuideActionsProps>(
               />
             </svg>
           ),
-        }
+        },
       );
     } else if (!isArchived) {
       // Preview is available for all admin roles
@@ -208,6 +208,7 @@ const GuideActions = React.memo<GuideActionsProps>(
       // Verifier admin can only update status
       if (userRole === "verifier_admin") {
         const isAccepted = guide.status === "accepted";
+
         menuItems.push({
           label: "Update Status",
           onClick: () => onUpdateStatus(guide.id),
@@ -253,34 +254,36 @@ const GuideActions = React.memo<GuideActionsProps>(
               </svg>
             ),
           },
-        {
-          label: "Archive",
-          onClick: () => onDelete(guide.id),
-          disabled: isDeleting,
-          destructive: true,
-          icon: (
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-          ),
-        }
+          {
+            label: "Archive",
+            onClick: () => onDelete(guide.id),
+            disabled: isDeleting,
+            destructive: true,
+            icon: (
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+            ),
+          },
         );
       }
     }
 
     // If no menu items, show message
     if (menuItems.length === 0) {
-      return <div className="text-xs text-gray-400 text-center">No actions</div>;
+      return (
+        <div className="text-xs text-gray-400 text-center">No actions</div>
+      );
     }
 
     return (
@@ -302,7 +305,7 @@ const GuideActions = React.memo<GuideActionsProps>(
         }
       />
     );
-  }
+  },
 );
 
 GuideActions.displayName = "GuideActions";
@@ -391,11 +394,11 @@ const GuidesTable: React.FC = () => {
   // Filter guides into active and archived
   const activeGuides = useMemo(
     () => guides.filter((g) => g.isActive),
-    [guides]
+    [guides],
   );
   const archivedGuides = useMemo(
     () => guides.filter((g) => !g.isActive),
-    [guides]
+    [guides],
   );
 
   // Determine which guides to display based on toggle
@@ -410,7 +413,7 @@ const GuidesTable: React.FC = () => {
         setEditModalOpen(true);
       }
     },
-    [guides]
+    [guides],
   );
 
   const handleGuideUpdated = useCallback(() => {
@@ -433,7 +436,7 @@ const GuidesTable: React.FC = () => {
         setPreviewModalOpen(true);
       }
     },
-    [guides]
+    [guides],
   );
 
   const handleClosePreviewModal = useCallback(() => {
@@ -444,12 +447,13 @@ const GuidesTable: React.FC = () => {
   const handleUpdateStatus = useCallback(
     (guideId: string) => {
       const guide = guides.find((g) => g.id === guideId);
+
       if (guide) {
         setSelectedGuideForStatus(guide);
         setStatusModalOpen(true);
       }
     },
-    [guides]
+    [guides],
   );
 
   const handleStatusUpdated = useCallback(() => {
@@ -482,7 +486,7 @@ const GuidesTable: React.FC = () => {
         },
       });
     },
-    [softDeleteGuide]
+    [softDeleteGuide],
   );
 
   const handleRestoreGuide = useCallback(
@@ -504,14 +508,14 @@ const GuidesTable: React.FC = () => {
         },
       });
     },
-    [restoreGuide]
+    [restoreGuide],
   );
 
   const handlePermanentDeleteGuide = useCallback(
     (guideId: string) => {
       if (
         !confirm(
-          "Are you sure you want to PERMANENTLY delete this guide? This action cannot be undone."
+          "Are you sure you want to PERMANENTLY delete this guide? This action cannot be undone.",
         )
       )
         return;
@@ -534,7 +538,7 @@ const GuidesTable: React.FC = () => {
         },
       });
     },
-    [hardDeleteGuide]
+    [hardDeleteGuide],
   );
 
   const columns: Column<GovGuide>[] = useMemo(
@@ -602,17 +606,17 @@ const GuidesTable: React.FC = () => {
           <GuideActions
             guide={guide}
             isDeleting={isDeleting}
-            isRestoring={isRestoring}
-            isPermanentDeleting={isPermanentDeleting}
             isDeletingThisGuide={deletingGuideId === guide.id}
-            isRestoringThisGuide={restoringGuideId === guide.id}
+            isPermanentDeleting={isPermanentDeleting}
             isPermanentDeletingThisGuide={permanentDeletingGuideId === guide.id}
+            isRestoring={isRestoring}
+            isRestoringThisGuide={restoringGuideId === guide.id}
             userRole={user?.role}
             onDelete={handleDeleteGuide}
-            onRestore={handleRestoreGuide}
-            onPermanentDelete={handlePermanentDeleteGuide}
             onEdit={handleEditGuide}
+            onPermanentDelete={handlePermanentDeleteGuide}
             onPreview={handlePreviewGuide}
+            onRestore={handleRestoreGuide}
             onUpdateStatus={handleUpdateStatus}
           />
         ),
@@ -634,7 +638,7 @@ const GuidesTable: React.FC = () => {
       restoringGuideId,
       permanentDeletingGuideId,
       user?.role,
-    ]
+    ],
   );
 
   return (
@@ -698,8 +702,8 @@ const GuidesTable: React.FC = () => {
 
       {/* Update Status Modal */}
       <UpdateGuideStatusModal
-        open={statusModalOpen}
         guide={selectedGuideForStatus}
+        open={statusModalOpen}
         onClose={handleCloseStatusModal}
         onStatusUpdated={handleStatusUpdated}
       />

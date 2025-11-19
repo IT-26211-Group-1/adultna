@@ -25,19 +25,17 @@ export default function CategoryFilter({
 }: CategoryFilterProps) {
   return (
     <Select
-      label="Category"
-      selectedKeys={[value]}
-      onChange={(e) => onChange(e.target.value as GuideCategory | "all")}
       disableAnimation
       classNames={{
         base: "w-full md:w-64",
         trigger: "h-12 border border-gray-300 hover:border-adult-green",
       }}
+      label="Category"
+      selectedKeys={[value]}
+      onChange={(e) => onChange(e.target.value as GuideCategory | "all")}
     >
       {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-        <SelectItem key={key}>
-          {label}
-        </SelectItem>
+        <SelectItem key={key}>{label}</SelectItem>
       ))}
     </Select>
   );

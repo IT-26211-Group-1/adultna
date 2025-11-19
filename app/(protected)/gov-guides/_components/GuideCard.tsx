@@ -13,8 +13,8 @@ export default function GuideCard({ guide }: GuideCardProps) {
   return (
     <Link href={`/gov-guides/${guide.slug}`}>
       <Card
-        isPressable
         disableAnimation
+        isPressable
         className="border border-gray-200 hover:border-adult-green transition-all duration-200 hover:shadow-md"
       >
         <CardBody className="p-6">

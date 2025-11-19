@@ -36,9 +36,9 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
             : "Guide not found."}
         </p>
         <Button
-          onPress={() => router.push("/gov-guides")}
-          className="mt-4 bg-adult-green text-white"
           disableAnimation
+          className="mt-4 bg-adult-green text-white"
+          onPress={() => router.push("/gov-guides")}
         >
           Back to Guides
         </Button>
@@ -49,11 +49,11 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   return (
     <>
       <Button
+        disableAnimation
+        className="mb-6 text-gray-600 hover:text-adult-green"
+        startContent={<ArrowLeft className="w-4 h-4" />}
         variant="light"
         onPress={() => router.push("/gov-guides")}
-        startContent={<ArrowLeft className="w-4 h-4" />}
-        className="mb-6 text-gray-600 hover:text-adult-green"
-        disableAnimation
       >
         Back
       </Button>
@@ -64,8 +64,6 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
 
       <div className="mt-8">
         <Tabs
-          selectedKey={selectedTab}
-          onSelectionChange={(key) => setSelectedTab(key as string)}
           disableAnimation
           classNames={{
             base: "w-full",
@@ -74,6 +72,8 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
             cursor: "bg-adult-green",
             tabContent: "group-data-[selected=true]:text-adult-green",
           }}
+          selectedKey={selectedTab}
+          onSelectionChange={(key) => setSelectedTab(key as string)}
         >
           <Tab key="complete-guide" title="Complete Guide">
             <div className="py-6">
@@ -95,8 +95,8 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
 
       <OfficeMapModal
         isOpen={isMapModalOpen}
-        onClose={() => setIsMapModalOpen(false)}
         office={guide.offices}
+        onClose={() => setIsMapModalOpen(false)}
       />
     </>
   );
