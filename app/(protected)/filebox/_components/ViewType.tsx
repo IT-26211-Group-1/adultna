@@ -1,18 +1,19 @@
 "use client";
 
 import { Button, ButtonGroup } from "@heroui/react";
+import { Grid3X3Icon, ListIcon } from "lucide-react";
 
-interface ViewTypeProps {
+type ViewTypeProps = {
   selectedView: "grid" | "list";
   onViewChange: (view: "grid" | "list") => void;
 }
 
 export function ViewType({ selectedView, onViewChange }: ViewTypeProps) {
   return (
-    <ButtonGroup className="bg-gray-100 p-1 rounded-lg" variant="flat">
+    <ButtonGroup className="bg-gray-100 p-0.5 rounded-md" variant="flat">
       <Button
         className={`
-                    rounded-md px-4 py-2 text-sm font-medium transition-all
+                    rounded-sm px-1.5 py-1.5 text-sm font-medium transition-all
                     ${
                       selectedView === "grid"
                         ? "bg-white shadow-sm text-gray-900"
@@ -23,11 +24,11 @@ export function ViewType({ selectedView, onViewChange }: ViewTypeProps) {
         variant={selectedView === "grid" ? "solid" : "light"}
         onPress={() => onViewChange("grid")}
       >
-        Grid View
+        <Grid3X3Icon size={20} />
       </Button>
       <Button
         className={`
-                    rounded-md px-4 py-2 text-sm font-medium transition-all
+                    rounded-sm px-1.5 py-1.5 text-sm font-medium transition-all
                     ${
                       selectedView === "list"
                         ? "bg-white shadow-sm text-gray-900"
@@ -38,7 +39,7 @@ export function ViewType({ selectedView, onViewChange }: ViewTypeProps) {
         variant={selectedView === "list" ? "solid" : "light"}
         onPress={() => onViewChange("list")}
       >
-        List View
+        <ListIcon size={20} />
       </Button>
     </ButtonGroup>
   );

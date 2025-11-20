@@ -1,4 +1,4 @@
-export interface FileItem {
+export type FileItem = {
   id: string;
   name: string;
   category: string;

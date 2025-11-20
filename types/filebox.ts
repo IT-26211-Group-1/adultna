@@ -33,7 +33,7 @@ export const DISPLAY_CATEGORY_MAPPING: Record<FileCategory, string> = {
   other: "Personal",
 } as const;
 
-export interface FileMetadata {
+export type FileMetadata = {
   id: string;
   fileName: string;
   category: FileCategory;
@@ -45,7 +45,7 @@ export interface FileMetadata {
   isSecure: boolean;
 }
 
-export interface UserQuota {
+export type UserQuota = {
   userId: string;
   usedStorageBytes: number;
   usedStorageMB: number;
@@ -59,7 +59,7 @@ export interface UserQuota {
 }
 
 // API Response types
-export interface UploadUrlResponse {
+export type UploadUrlResponse = {
   success: boolean;
   message: string;
   statusCode?: number;
@@ -73,7 +73,7 @@ export interface UploadUrlResponse {
   };
 }
 
-export interface DownloadUrlResponse {
+export type DownloadUrlResponse = {
   success: boolean;
   message: string;
   data: {
@@ -85,7 +85,7 @@ export interface DownloadUrlResponse {
   };
 }
 
-export interface ListFilesResponse {
+export type ListFilesResponse = {
   success: boolean;
   message: string;
   data: {
@@ -96,19 +96,19 @@ export interface ListFilesResponse {
   };
 }
 
-export interface DeleteFileResponse {
+export type DeleteFileResponse = {
   success: boolean;
   message: string;
 }
 
-export interface QuotaResponse {
+export type QuotaResponse = {
   success: boolean;
   message: string;
   data: UserQuota;
 }
 
 // Request types
-export interface GenerateUploadUrlRequest {
+export type GenerateUploadUrlRequest = {
   fileName: string;
   category: FileCategory;
   contentType: string;
@@ -118,28 +118,28 @@ export interface GenerateUploadUrlRequest {
   keepBoth?: boolean;
 }
 
-export interface ListFilesRequest {
+export type ListFilesRequest = {
   category?: FileCategory;
 }
 
 // Document OTP types
 export type OTPAction = "preview" | "download" | "delete";
 
-export interface RequestDocumentOTPRequest {
+export type RequestDocumentOTPRequest = {
   action?: OTPAction;
 }
 
-export interface RequestDocumentOTPResponse {
+export type RequestDocumentOTPResponse = {
   success: boolean;
   message: string;
 }
 
-export interface VerifyDocumentOTPRequest {
+export type VerifyDocumentOTPRequest = {
   otp: string;
   action?: OTPAction;
 }
 
-export interface VerifyDocumentOTPResponse {
+export type VerifyDocumentOTPResponse = {
   success: boolean;
   message: string;
   downloadUrl?: string;
