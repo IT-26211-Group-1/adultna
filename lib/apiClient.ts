@@ -95,7 +95,11 @@ export class ApiClient {
 
                 // Only redirect if not already on a public route
                 if (!isPublicRoute(currentPath)) {
-                  window.location.href = "/auth/login";
+                  const loginPath = currentPath.startsWith("/admin")
+                    ? "/admin/login"
+                    : "/auth/login";
+
+                  window.location.href = loginPath;
                 }
               }
 
@@ -113,7 +117,11 @@ export class ApiClient {
 
               // Only redirect if not already on a public route
               if (!isPublicRoute(currentPath)) {
-                window.location.href = "/auth/login";
+                const loginPath = currentPath.startsWith("/admin")
+                  ? "/admin/login"
+                  : "/auth/login";
+
+                window.location.href = loginPath;
               }
             }
 
