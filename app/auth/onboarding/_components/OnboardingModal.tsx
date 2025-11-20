@@ -91,8 +91,21 @@ export default function OnboardingModal({
     nextStep();
   }, [nextStep]);
 
+  const previousStep = useCallback(() => {
+    updateCurrentStep(currentStep > STEPS.INTRODUCTION ? currentStep - 1 : currentStep);
+  }, [currentStep, updateCurrentStep]);
+
+  const goToStep = useCallback((step: number) => {
+    if (step <= currentStep) {
+      updateCurrentStep(step);
+    }
+  }, [currentStep, updateCurrentStep]);
+
+  const [isCompleting, setIsCompleting] = useState(false);
+
   const handleComplete = useCallback(
     async (data: any) => {
+      setIsCompleting(true);
       await onComplete(data);
 
       // Reset onboarding state after successful submission
@@ -110,7 +123,7 @@ export default function OnboardingModal({
     ],
   );
 
-  if (!isOpen || !hydrated) return null;
+  if (!isOpen || !hydrated || isCompleting) return null;
 
   const renderCurrentStep = () => {
     switch (currentStep) {
@@ -129,6 +142,7 @@ export default function OnboardingModal({
             setSelectedLifeStage={updateSelectedLifeStage}
             onNext={nextStep}
             onSkip={skipStep}
+            onBack={previousStep}
           />
         );
       case STEPS.PRIORITIES:
@@ -138,6 +152,7 @@ export default function OnboardingModal({
             setSelectedPriorities={setSelectedPriorities}
             onNext={nextStep}
             onSkip={skipStep}
+            onBack={previousStep}
           />
         );
       case STEPS.YOUR_PATH:
@@ -148,6 +163,7 @@ export default function OnboardingModal({
             lifeStage={selectedLifeStage}
             priorities={selectedPriorities}
             onComplete={handleComplete}
+            // onBack={previousStep}
           />
         );
       default:
@@ -162,7 +178,7 @@ export default function OnboardingModal({
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-teal-700">AdultNa.</h1>
           </div>
-          <ProgressIndicator currentStep={currentStep} />
+          <ProgressIndicator currentStep={currentStep} onStepClick={goToStep} />
         </div>
         <div className="p-8">{renderCurrentStep()}</div>
       </div>
