@@ -12,6 +12,8 @@ export type GuideCategory =
 export type OfficeInfo = {
   issuingAgency: string;
   locations?: string[];
+  latitude?: number;
+  longitude?: number;
   feeAmount?: number;
   feeCurrency?: string;
   oneTimeFee?: boolean;

@@ -10,7 +10,6 @@ import GuideInfoCards from "./GuideInfoCards";
 import CompleteGuideTab from "./CompleteGuideTab";
 import RequirementsTab from "./RequirementsTab";
 import GeneralTipsTab from "./GeneralTipsTab";
-import OfficeMapModal from "./OfficeMapModal";
 import GuideDetailSkeleton from "./GuideDetailSkeleton";
 
 type GuideDetailClientProps = {
@@ -21,7 +20,6 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   const router = useRouter();
   const { guide, isLoading, error } = useGovGuide(slug);
   const [selectedTab, setSelectedTab] = useState("complete-guide");
-  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   if (isLoading) {
     return <GuideDetailSkeleton />;
@@ -60,7 +58,7 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
 
       <h1 className="text-3xl font-bold text-gray-900 mb-6">{guide.title}</h1>
 
-      <GuideInfoCards guide={guide} onOpenMap={() => setIsMapModalOpen(true)} />
+      <GuideInfoCards guide={guide} />
 
       <div className="mt-8">
         <Tabs
@@ -92,12 +90,6 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
           </Tab>
         </Tabs>
       </div>
-
-      <OfficeMapModal
-        isOpen={isMapModalOpen}
-        office={guide.offices}
-        onClose={() => setIsMapModalOpen(false)}
-      />
     </>
   );
 }

@@ -3,16 +3,13 @@
 import { GovGuide } from "@/types/govguide";
 import { DollarSign, Clock, MapPin } from "lucide-react";
 import { Card, CardBody } from "@heroui/card";
+import Link from "next/link";
 
 type GuideInfoCardsProps = {
   guide: GovGuide;
-  onOpenMap: () => void;
 };
 
-export default function GuideInfoCards({
-  guide,
-  onOpenMap,
-}: GuideInfoCardsProps) {
+export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card disableAnimation className="border border-gray-200">
@@ -55,28 +52,31 @@ export default function GuideInfoCards({
         </CardBody>
       </Card>
 
-      <Card
-        disableAnimation
-        isPressable
-        className="border border-gray-200 hover:border-adult-green transition-colors cursor-pointer"
-        onClick={onOpenMap}
+      <Link
+        href={`/find-office?search=${encodeURIComponent(guide.offices?.issuingAgency || guide.issuingAgency)}`}
       >
-        <CardBody className="p-6">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <MapPin className="w-5 h-5 text-blue-600" />
+        <Card
+          disableAnimation
+          isPressable
+          className="border border-gray-200 hover:border-adult-green transition-colors cursor-pointer"
+        >
+          <CardBody className="p-6">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <MapPin className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  Find Nearest {guide.offices?.issuingAgency || "Office"}
+                </h3>
+                <p className="text-sm text-adult-green hover:underline">
+                  View office locations
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-1">
-                Find Nearest {guide.offices?.issuingAgency || "Office"}
-              </h3>
-              <p className="text-sm text-adult-green hover:underline">
-                Redirects you to GovMap
-              </p>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
+      </Link>
     </div>
   );
 }
