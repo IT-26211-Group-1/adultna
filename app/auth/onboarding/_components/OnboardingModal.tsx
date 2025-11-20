@@ -163,7 +163,7 @@ export default function OnboardingModal({
             lifeStage={selectedLifeStage}
             priorities={selectedPriorities}
             onComplete={handleComplete}
-            // onBack={previousStep}
+            onBack={previousStep}
           />
         );
       default:
