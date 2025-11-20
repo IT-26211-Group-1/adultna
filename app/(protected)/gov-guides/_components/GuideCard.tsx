@@ -11,14 +11,14 @@ type GuideCardProps = {
 
 export default function GuideCard({ guide }: GuideCardProps) {
   return (
-    <Link href={`/gov-guides/${guide.slug}`}>
+    <Link className="block w-full" href={`/gov-guides/${guide.slug}`}>
       <Card
         disableAnimation
         isPressable
-        className="border border-gray-200 hover:border-adult-green transition-all duration-200 hover:shadow-md"
+        className="border border-gray-200 hover:border-adult-green transition-all duration-200 hover:shadow-md w-full"
       >
         <CardBody className="p-6">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-4 min-h-[120px]">
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 {guide.title}

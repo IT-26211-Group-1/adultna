@@ -16,7 +16,7 @@ export function usePlacesSearch() {
   const searchPlaces = useCallback(
     async (
       query: string,
-      userLocation?: Coordinates | null
+      userLocation?: Coordinates | null,
     ): Promise<OfficeLocation[]> => {
       if (!query || !window.google) {
         return [];
@@ -27,7 +27,7 @@ export function usePlacesSearch() {
 
       try {
         const service = new window.google.maps.places.PlacesService(
-          document.createElement("div")
+          document.createElement("div"),
         );
 
         const searchQuery = `${query} office Philippines`;
@@ -39,7 +39,7 @@ export function usePlacesSearch() {
               location: userLocation
                 ? new window.google.maps.LatLng(
                     userLocation.latitude,
-                    userLocation.longitude
+                    userLocation.longitude,
                   )
                 : new window.google.maps.LatLng(14.5995, 120.9842),
               radius: 50000,
@@ -82,7 +82,7 @@ export function usePlacesSearch() {
                 setError("No offices found. Try a different search term.");
                 resolve([]);
               }
-            }
+            },
           );
         });
       } catch {
@@ -92,7 +92,7 @@ export function usePlacesSearch() {
         return [];
       }
     },
-    []
+    [],
   );
 
   return { searchPlaces, isSearching, error };

@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import GuidesListClient from "./_components/GuidesListClient";
+import GuidesLoadingSkeleton from "./_components/GuidesLoadingSkeleton";
 
 export default function GovernmentGuidesPage() {
   return (
@@ -12,7 +14,9 @@ export default function GovernmentGuidesPage() {
         </p>
       </div>
 
-      <GuidesListClient />
+      <Suspense fallback={<GuidesLoadingSkeleton />}>
+        <GuidesListClient />
+      </Suspense>
     </div>
   );
 }
