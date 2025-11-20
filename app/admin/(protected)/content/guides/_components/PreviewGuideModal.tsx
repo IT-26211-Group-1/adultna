@@ -9,6 +9,7 @@ import type {
   ProcessStep,
   DocumentRequirement,
   OfficeInfo,
+  GeneralTips,
 } from "@/hooks/queries/admin/useGuidesQueries";
 
 interface PreviewGuideModalProps {
@@ -61,6 +62,19 @@ function PreviewGuideModal({
       return [];
     }
   }, [guide?.requirements]);
+
+  const generalTips: GeneralTips | null = useMemo(() => {
+    if (!guide?.generalTips) return null;
+    try {
+      return typeof guide.generalTips === "string"
+        ? JSON.parse(guide.generalTips)
+        : guide.generalTips;
+    } catch (error) {
+      console.error("Error parsing generalTips:", error);
+
+      return null;
+    }
+  }, [guide?.generalTips]);
 
   if (!guide) return null;
 
@@ -240,6 +254,82 @@ function PreviewGuideModal({
             )}
           </div>
         </div>
+
+        {/* General Tips Section */}
+        {generalTips &&
+          (generalTips.tipsToFollow?.length ||
+            generalTips.tipsToAvoid?.length ||
+            generalTips.importantReminders?.length) && (
+            <div className="border-t pt-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                General Tips
+              </h3>
+              <div className="space-y-4">
+                {generalTips.tipsToFollow &&
+                  generalTips.tipsToFollow.length > 0 && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                        <span className="text-green-600">✓</span>
+                        Tips to Follow
+                      </h4>
+                      <ul className="space-y-2">
+                        {generalTips.tipsToFollow.map((tip, index) => (
+                          <li
+                            key={index}
+                            className="flex items-start gap-2 text-sm"
+                          >
+                            <span className="font-semibold text-green-700 min-w-[1.5rem]">
+                              {index + 1}.
+                            </span>
+                            <span className="text-green-900">{tip}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                {generalTips.tipsToAvoid &&
+                  generalTips.tipsToAvoid.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-red-900 mb-3 flex items-center gap-2">
+                        <span className="text-red-600">✗</span>
+                        Tips to Avoid
+                      </h4>
+                      <ul className="space-y-2">
+                        {generalTips.tipsToAvoid.map((tip, index) => (
+                          <li
+                            key={index}
+                            className="flex items-start gap-2 text-sm"
+                          >
+                            <span className="font-semibold text-red-700 min-w-[1.5rem]">
+                              {index + 1}.
+                            </span>
+                            <span className="text-red-900">{tip}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                {generalTips.importantReminders &&
+                  generalTips.importantReminders.length > 0 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                        <span className="text-blue-600">ℹ</span>
+                        Important Reminders
+                      </h4>
+                      <ul className="list-disc list-inside space-y-2 text-sm text-blue-900">
+                        {generalTips.importantReminders.map(
+                          (reminder, index) => (
+                            <li key={index}>{reminder}</li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+                  )}
+              </div>
+            </div>
+          )}
 
         {/* Metadata Section */}
         <div className="border-t pt-4">

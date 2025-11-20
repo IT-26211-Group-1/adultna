@@ -47,6 +47,7 @@ export type GovGuide = {
   customCategory: string | null;
   summary: string | null;
   estimatedProcessingTime: string | null;
+  processingTime?: string | null;
   feeAmount: number | null;
   feeCurrency: string;
   oneTimeFee: boolean;

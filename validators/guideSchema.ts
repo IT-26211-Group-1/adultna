@@ -10,6 +10,12 @@ export const guideRequirementSchema = z.object({
   description: z.string().optional(),
 });
 
+export const generalTipsSchema = z.object({
+  tipsToFollow: z.array(z.string()).optional(),
+  tipsToAvoid: z.array(z.string()).optional(),
+  importantReminders: z.array(z.string()).optional(),
+});
+
 export const addGuideSchema = z
   .object({
     title: z.string().min(1, "Guide title is required"),
@@ -26,13 +32,15 @@ export const addGuideSchema = z
     customCategory: z.string().optional(),
     summary: z.string().optional(),
     estimatedProcessingTime: z.string().optional(),
-    feeAmount: z.number().min(0).optional().nullable(),
+    isFree: z.boolean().default(false),
+    feeAmount: z.number().min(0).default(0),
     feeCurrency: z.string().default("PHP"),
     oneTimeFee: z.boolean().default(true),
     steps: z.array(guideStepSchema).min(1, "At least one step is required"),
     requirements: z
       .array(guideRequirementSchema)
       .min(1, "At least one requirement is required"),
+    generalTips: generalTipsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -52,3 +60,4 @@ export const addGuideSchema = z
 export type AddGuideForm = z.infer<typeof addGuideSchema>;
 export type GuideStepForm = z.infer<typeof guideStepSchema>;
 export type GuideRequirementForm = z.infer<typeof guideRequirementSchema>;
+export type GeneralTipsForm = z.infer<typeof generalTipsSchema>;

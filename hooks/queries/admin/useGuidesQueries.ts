@@ -37,6 +37,12 @@ export type OfficeInfo = {
   oneTimeFee?: boolean;
 };
 
+export type GeneralTips = {
+  tipsToFollow?: string[];
+  tipsToAvoid?: string[];
+  importantReminders?: string[];
+};
+
 export type Guide = {
   id: string;
   title: string;
@@ -49,6 +55,7 @@ export type Guide = {
   requirements: DocumentRequirement[];
   processingTime: string;
   offices: OfficeInfo;
+  generalTips?: GeneralTips | null;
   status: GuideStatus;
   createdBy: string;
   verifiedBy: string | null;
@@ -70,6 +77,7 @@ export type CreateGuideRequest = {
   requirements: DocumentRequirement[];
   processingTime: string;
   offices: OfficeInfo;
+  generalTips?: GeneralTips;
 };
 
 export type CreateGuideResponse = {
@@ -88,6 +96,7 @@ export type UpdateGuideRequest = {
   requirements?: DocumentRequirement[];
   processingTime?: string;
   offices?: OfficeInfo;
+  generalTips?: GeneralTips;
 };
 
 export type UpdateGuideResponse = {

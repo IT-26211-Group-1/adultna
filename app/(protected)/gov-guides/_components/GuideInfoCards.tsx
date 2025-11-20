@@ -23,11 +23,22 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
                 Processing Fee
               </h3>
               <p className="text-sm text-gray-600">
-                {guide.feeAmount !== null && guide.feeAmount !== undefined
-                  ? `₱${guide.feeAmount.toLocaleString()} ${
-                      guide.oneTimeFee ? "(One-time payment required)" : ""
-                    }`
-                  : "No fee information available"}
+                {(() => {
+                  const feeAmount =
+                    guide.feeAmount ?? guide.offices?.feeAmount ?? null;
+                  const oneTimeFee =
+                    guide.oneTimeFee ?? guide.offices?.oneTimeFee ?? false;
+                  const currency =
+                    guide.feeCurrency || guide.offices?.feeCurrency || "PHP";
+
+                  if (feeAmount !== null && feeAmount !== undefined) {
+                    return `${currency === "PHP" ? "₱" : currency}${feeAmount.toLocaleString()}${
+                      oneTimeFee ? " (One-time)" : ""
+                    }`;
+                  }
+
+                  return "No fee information available";
+                })()}
               </p>
             </div>
           </div>
@@ -45,7 +56,9 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
                 Processing Time
               </h3>
               <p className="text-sm text-gray-600">
-                {guide.estimatedProcessingTime || "Not specified"}
+                {guide.estimatedProcessingTime ||
+                  guide.processingTime ||
+                  "Not specified"}
               </p>
             </div>
           </div>

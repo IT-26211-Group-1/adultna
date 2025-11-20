@@ -83,6 +83,7 @@ function EditForm({
     reset,
     control,
     watch,
+    setValue,
   } = useForm({
     resolver: zodResolver(addGuideSchema),
     defaultValues: {
@@ -92,7 +93,8 @@ function EditForm({
       customCategory: guide.customCategory || "",
       summary: guide.summary || "",
       estimatedProcessingTime: guide.estimatedProcessingTime || "",
-      feeAmount: guide.feeAmount,
+      isFree: guide.feeAmount === 0 || guide.feeAmount === null,
+      feeAmount: guide.feeAmount || 0,
       feeCurrency: guide.feeCurrency || "PHP",
       oneTimeFee: guide.oneTimeFee ?? true,
       steps: [{ stepNumber: 1, title: "" }],
@@ -102,6 +104,11 @@ function EditForm({
           description: "",
         },
       ],
+      generalTips: {
+        tipsToFollow: guide.generalTips?.tipsToFollow || [],
+        tipsToAvoid: guide.generalTips?.tipsToAvoid || [],
+        importantReminders: guide.generalTips?.importantReminders || [],
+      },
     },
   });
 
@@ -124,6 +131,44 @@ function EditForm({
     control,
     name: "requirements",
   });
+
+  const {
+    fields: tipsToFollowFields,
+    append: appendTipToFollow,
+    remove: removeTipToFollow,
+    replace: replaceTipsToFollow,
+  } = useFieldArray({
+    control,
+    name: "generalTips.tipsToFollow" as any,
+  });
+
+  const {
+    fields: tipsToAvoidFields,
+    append: appendTipToAvoid,
+    remove: removeTipToAvoid,
+    replace: replaceTipsToAvoid,
+  } = useFieldArray({
+    control,
+    name: "generalTips.tipsToAvoid" as any,
+  });
+
+  const {
+    fields: importantRemindersFields,
+    append: appendImportantReminder,
+    remove: removeImportantReminder,
+    replace: replaceImportantReminders,
+  } = useFieldArray({
+    control,
+    name: "generalTips.importantReminders" as any,
+  });
+
+  const isFree = watch("isFree");
+
+  React.useEffect(() => {
+    if (isFree) {
+      setValue("feeAmount", 0, { shouldDirty: true, shouldValidate: true });
+    }
+  }, [isFree, setValue]);
 
   React.useEffect(() => {
     if (open && guide) {
@@ -148,11 +193,29 @@ function EditForm({
           : [{ name: "", description: "" }];
 
       replaceRequirements(guideRequirements);
+
+      // Load general tips from guide data
+      if (guide.generalTips) {
+        replaceTipsToFollow(guide.generalTips.tipsToFollow || ([] as any));
+        replaceTipsToAvoid(guide.generalTips.tipsToAvoid || ([] as any));
+        replaceImportantReminders(
+          guide.generalTips.importantReminders || ([] as any),
+        );
+      }
     }
-  }, [open, guide, replaceSteps, replaceRequirements]);
+  }, [
+    open,
+    guide,
+    replaceSteps,
+    replaceRequirements,
+    replaceTipsToFollow,
+    replaceTipsToAvoid,
+    replaceImportantReminders,
+  ]);
 
   const onSubmit = useCallback(
     handleSubmit(async (data: AddGuideForm) => {
+      console.log("Form submitted! Data:", data);
       setIsSubmitting(true);
 
       try {
@@ -179,11 +242,15 @@ function EditForm({
           offices: {
             issuingAgency: data.issuingAgency,
             locations: [],
-            feeAmount: data.feeAmount || undefined,
+            feeAmount: data.isFree ? 0 : data.feeAmount,
             feeCurrency: data.feeCurrency || "PHP",
             oneTimeFee: data.oneTimeFee,
           },
+          generalTips: data.generalTips,
         };
+
+        console.log("Submitting update with data:", guideData);
+        console.log("isFree:", data.isFree, "feeAmount:", data.feeAmount);
 
         const response = await updateGuideAsync({
           guideId: guide.id,
@@ -233,7 +300,7 @@ function EditForm({
       customCategory: guide.customCategory || "",
       summary: guide.summary || "",
       estimatedProcessingTime: guide.estimatedProcessingTime || "",
-      feeAmount: guide.feeAmount,
+      feeAmount: guide.feeAmount || 0,
       feeCurrency: guide.feeCurrency || "PHP",
       oneTimeFee: guide.oneTimeFee ?? true,
       steps: [{ stepNumber: 1, title: "" }],
@@ -243,6 +310,11 @@ function EditForm({
           description: "",
         },
       ],
+      generalTips: {
+        tipsToFollow: guide.generalTips?.tipsToFollow || [],
+        tipsToAvoid: guide.generalTips?.tipsToAvoid || [],
+        importantReminders: guide.generalTips?.importantReminders || [],
+      },
     });
     onClose();
   }, [reset, guide, onClose]);
@@ -256,6 +328,18 @@ function EditForm({
       name: "",
       description: "",
     });
+  };
+
+  const handleAddTipToFollow = () => {
+    appendTipToFollow("" as any);
+  };
+
+  const handleAddTipToAvoid = () => {
+    appendTipToAvoid("" as any);
+  };
+
+  const handleAddImportantReminder = () => {
+    appendImportantReminder("" as any);
   };
 
   return (
@@ -394,22 +478,32 @@ function EditForm({
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-                htmlFor="feeAmount"
-              >
-                Fee Amount (PHP)
-              </label>
-              <input
-                {...register("feeAmount", {
-                  setValueAs: (v) => (v === "" ? null : parseFloat(v)),
-                })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
-                id="feeAmount"
-                placeholder="0.00"
-                step="0.01"
-                type="number"
-              />
+              <div className="block text-sm font-medium text-gray-700 mb-2">
+                Processing Fee
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  {...register("isFree")}
+                  className="h-4 w-4 text-adult-green focus:ring-adult-green border-gray-300 rounded"
+                  id="isFree"
+                  type="checkbox"
+                />
+                <label className="text-sm text-gray-700" htmlFor="isFree">
+                  Free (No Fee)
+                </label>
+              </div>
+              {!isFree && (
+                <input
+                  {...register("feeAmount", {
+                    setValueAs: (v) => (v === "" ? null : parseFloat(v)),
+                  })}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+                  id="feeAmount"
+                  placeholder="0.00"
+                  step="0.01"
+                  type="number"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -556,6 +650,157 @@ function EditForm({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* General Tips Section */}
+        <div className="space-y-4 border-t pt-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            General Tips (Optional)
+          </h3>
+
+          {/* Tips to Follow */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-gray-700">
+                Tips to Follow ({tipsToFollowFields.length})
+              </h4>
+              <button
+                className="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+                type="button"
+                onClick={handleAddTipToFollow}
+              >
+                + Add Tip
+              </button>
+            </div>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {tipsToFollowFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-start">
+                  <span className="text-green-600 mt-2">✓</span>
+                  <input
+                    {...register(`generalTips.tipsToFollow.${index}`)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
+                    placeholder="e.g., Bring original documents"
+                    type="text"
+                  />
+                  <button
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-md"
+                    type="button"
+                    onClick={() => removeTipToFollow(index)}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M6 18L18 6M6 6l12 12"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tips to Avoid */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-gray-700">
+                Tips to Avoid ({tipsToAvoidFields.length})
+              </h4>
+              <button
+                className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+                type="button"
+                onClick={handleAddTipToAvoid}
+              >
+                + Add Tip
+              </button>
+            </div>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {tipsToAvoidFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-start">
+                  <span className="text-red-600 mt-2">✗</span>
+                  <input
+                    {...register(`generalTips.tipsToAvoid.${index}`)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
+                    placeholder="e.g., Don't bring photocopies only"
+                    type="text"
+                  />
+                  <button
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-md"
+                    type="button"
+                    onClick={() => removeTipToAvoid(index)}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M6 18L18 6M6 6l12 12"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Important Reminders */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-gray-700">
+                Important Reminders ({importantRemindersFields.length})
+              </h4>
+              <button
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                type="button"
+                onClick={handleAddImportantReminder}
+              >
+                + Add Reminder
+              </button>
+            </div>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {importantRemindersFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-start">
+                  <span className="text-blue-600 mt-2">ℹ</span>
+                  <input
+                    {...register(`generalTips.importantReminders.${index}`)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
+                    placeholder="e.g., Processing takes 2-3 weeks"
+                    type="text"
+                  />
+                  <button
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-md"
+                    type="button"
+                    onClick={() => removeImportantReminder(index)}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M6 18L18 6M6 6l12 12"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

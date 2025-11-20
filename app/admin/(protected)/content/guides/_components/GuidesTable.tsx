@@ -354,6 +354,10 @@ const GuidesTable: React.FC = () => {
         typeof guide.requirements === "string"
           ? JSON.parse(guide.requirements)
           : guide.requirements;
+      const generalTips =
+        typeof guide.generalTips === "string"
+          ? JSON.parse(guide.generalTips)
+          : guide.generalTips;
 
       return {
         id: guide.id,
@@ -381,6 +385,7 @@ const GuidesTable: React.FC = () => {
         offices: offices,
         steps: steps,
         requirements: requirements,
+        generalTips: generalTips,
       };
     });
   }, [data]);
