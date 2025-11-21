@@ -12,6 +12,7 @@ export type AdminUser = {
   role: string;
   firstName?: string;
   lastName?: string;
+  displayName?: string;
 };
 
 export type AdminAuthMeResponse = {

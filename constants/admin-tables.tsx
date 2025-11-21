@@ -30,18 +30,32 @@ export const UserAvatar = React.memo<{ user: User }>(({ user }) => (
 UserAvatar.displayName = "UserAvatar";
 
 // Status Badges Component
-export const StatusBadges = React.memo<{ user: User }>(({ user }) => (
-  <div className="flex items-center space-x-2">
-    <Badge size="sm" variant={user.status === "active" ? "success" : "error"}>
-      {user.status === "active" ? "Active" : "Deactivated"}
-    </Badge>
-    {user.emailVerified && (
-      <Badge size="sm" variant="info">
-        Verified
+export const StatusBadges = React.memo<{ user: User }>(({ user }) => {
+  const getStatusVariant = () => {
+    if (user.status === "active") return "success";
+    if (user.status === "unverified") return "warning";
+    return "error";
+  };
+
+  const getStatusLabel = () => {
+    if (user.status === "active") return "Active";
+    if (user.status === "unverified") return "Unverified";
+    return "Deactivated";
+  };
+
+  return (
+    <div className="flex items-center space-x-2">
+      <Badge size="sm" variant={getStatusVariant()}>
+        {getStatusLabel()}
       </Badge>
-    )}
-  </div>
-));
+      {user.emailVerified && (
+        <Badge size="sm" variant="info">
+          Verified
+        </Badge>
+      )}
+    </div>
+  );
+});
 
 StatusBadges.displayName = "StatusBadges";
 

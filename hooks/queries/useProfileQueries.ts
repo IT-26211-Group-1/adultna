@@ -134,7 +134,10 @@ export function useDeleteAccount() {
       queryClient.clear();
       localStorage.clear();
       sessionStorage.clear();
-      window.location.href = "/auth/login";
+
+      // Redirect to appropriate login page based on current path
+      const isAdmin = window.location.pathname.startsWith('/admin');
+      window.location.href = isAdmin ? "/admin/login" : "/auth/login";
     },
     onError: (error: any) => {
       addToast({
