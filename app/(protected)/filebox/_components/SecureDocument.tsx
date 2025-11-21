@@ -13,6 +13,7 @@ import {
 import { OTPAction } from "@/types/filebox";
 import { ResendTimer } from "@/components/ui/ResendTimer";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { logger } from "@/lib/logger";
 
 type OtpFormType = { otp: string };
 
@@ -217,17 +218,10 @@ export function SecureDocument({
     setErrorMessage("");
     setSuccessMessage("");
 
-    console.log(`[SecureDocument] Verifying OTP for action: ${action}`);
-
     verifyOTPMutation.mutate(
       { fileId: file.id, otp: data.otp, action },
       {
         onSuccess: async (response) => {
-          console.log(
-            `[SecureDocument] OTP verified successfully for action: ${action}`,
-            response,
-          );
-
           // Clear cooldown on successful verification
           removeSecureItem(cooldownKey);
 
@@ -290,7 +284,7 @@ export function SecureDocument({
           }
         },
         onError: (error: any) => {
-          console.error(
+          logger.error(
             `[SecureDocument] OTP verification failed for action: ${action}`,
             error,
           );

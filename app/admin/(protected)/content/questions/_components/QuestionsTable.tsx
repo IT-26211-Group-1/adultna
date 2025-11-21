@@ -15,7 +15,8 @@ import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestio
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditQuestionModal from "./EditQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
-import { formatDate } from "@/constants/formatDate";
+import { formatDate } from "@/constants/format-date";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 // Question Status Badge Component
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
@@ -52,7 +53,7 @@ const QuestionCategoryBadge = React.memo<{
     behavioral: "Behavioral",
     technical: "Technical",
     situational: "Situational",
-    background: "background",
+    background: "Background",
   };
 
   return (
@@ -68,7 +69,7 @@ QuestionCategoryBadge.displayName = "QuestionCategoryBadge";
 const QuestionSourceBadge = React.memo<{ source: QuestionSource }>(
   ({ source }) => {
     const labels: Record<QuestionSource, string> = {
-      ai: "AI Generated",
+      ai: "AI Suggested",
       manual: "Manual",
     };
 
@@ -547,6 +548,25 @@ const QuestionsTable: React.FC = () => {
         width: "150px",
       },
       {
+        header: "Job Roles",
+        accessor: (question) => (
+          <div className="text-sm text-gray-700">
+            {question.jobRoles && question.jobRoles.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {question.jobRoles.map((role, index) => (
+                  <Badge key={index} size="sm" variant="default">
+                    {role}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <span className="text-gray-400 text-sm">-</span>
+            )}
+          </div>
+        ),
+        width: "200px",
+      },
+      {
         header: "Source",
         accessor: (question) => (
           <QuestionSourceBadge source={question.source} />
@@ -671,15 +691,10 @@ const QuestionsTable: React.FC = () => {
   if (questionsError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">
+        <p className="text-red-600 mb-4">
           Failed to load questions. Please try again.
         </p>
-        <button
-          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-          onClick={() => refetchQuestions()}
-        >
-          Retry
-        </button>
+        <RetryButton onRetry={refetchQuestions} />
       </div>
     );
   }

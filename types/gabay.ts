@@ -5,12 +5,13 @@ export interface ChatMessage {
 
 export interface ChatRequest {
   message: string;
-  conversationHistory?: ChatMessage[];
+  sessionId?: string; // Optional: backend creates new session if not provided
 }
 
 export interface ChatResponse {
   success: boolean;
   message?: string;
+  sessionId?: string; // Backend returns session ID for tracking
   blocked?: boolean;
   blockReason?: string;
   error?: string;
@@ -26,4 +27,13 @@ export interface ConversationMessage extends ChatMessage {
   timestamp: Date;
   isLoading?: boolean;
   error?: string;
+}
+
+// Conversation history type for sidebar
+export interface Conversation {
+  id: string;
+  title: string;
+  lastMessage?: string;
+  lastActivityAt: Date;
+  messageCount: number;
 }

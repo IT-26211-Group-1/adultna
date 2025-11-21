@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import DashboardCalendar from "./DashboardCalendar";
 import DashboardNotifications from "./DashboardNotifications";
 import Image from "next/image";
+import { logger } from "@/lib/logger";
 
 function ProfileSidebar() {
   const router = useRouter();
@@ -20,7 +21,6 @@ function ProfileSidebar() {
         className="h-[calc(100vh-3rem)] backdrop-blur-md border border-white/30 rounded-3xl relative overflow-hidden transition-all duration-300"
         style={{ backgroundColor: "rgba(17,85,63, 0.10)" }}
       >
-
         {/* Profile Header */}
         <div className="bg-transparent text-gray-900 p-2 pt-15 relative">
           <div className="flex flex-col items-center text-center">

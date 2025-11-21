@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { API_CONFIG } from "@/config/api";
+import { logger } from "@/lib/logger";
 
 // Types
 export type AdminUser = {
@@ -148,7 +149,7 @@ const adminApi = {
     }),
 
   updateUserStatus: (
-    data: UpdateUserStatusRequest
+    data: UpdateUserStatusRequest,
   ): Promise<UpdateUserStatusResponse> =>
     ApiClient.patch(`/admin/update-status/${data.userId}`, {
       status: data.status,
@@ -225,7 +226,7 @@ export function useAdminAuth() {
     },
     onError: (error) => {
       queryClient.setQueryData(queryKeys.admin.auth.me(), null);
-      console.error("Admin login failed:", error);
+      logger.error("Admin login failed:", error);
     },
   });
 
@@ -238,7 +239,7 @@ export function useAdminAuth() {
       window.location.href = "/admin/login";
     },
     onError: (error) => {
-      console.error("Admin logout failed:", error);
+      logger.error("Admin logout failed:", error);
       queryClient.removeQueries({ queryKey: queryKeys.admin.all });
       queryClient.setQueryData(queryKeys.admin.auth.me(), null);
       window.location.href = "/admin/login";
@@ -264,7 +265,7 @@ export function useAdminAuth() {
         if (!oldUser) return null;
 
         return { ...oldUser, ...updatedUser };
-      }
+      },
     );
   };
 

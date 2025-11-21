@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:https": "next dev --turbopack --experimental-https",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
+    "dev:https": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
     "lint": "eslint --fix",
@@ -13,8 +14,13 @@
     "export": "next export"
   },
   "dependencies": {
-    "@arcjet/inspect": "1.0.0-beta.10",
-    "@arcjet/next": "^1.0.0-beta.10",
+    "@aws-sdk/client-transcribe-streaming": "^3.920.0",
+    "@aws-sdk/credential-providers": "^3.920.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@googlemaps/js-api-loader": "^2.0.2",
     "@heroui/button": "2.2.24",
     "@heroui/code": "2.2.18",
     "@heroui/dropdown": "^2.3.26",
@@ -31,6 +37,7 @@
     "@heroui/theme": "2.4.20",
     "@heroui/toast": "^2.0.14",
     "@hookform/resolvers": "^5.2.1",
+    "@internationalized/date": "^3.10.0",
     "@nextui-org/react": "^2.6.11",
     "@react-aria/ssr": "3.9.10",
     "@react-aria/visually-hidden": "3.8.26",
@@ -49,6 +56,7 @@
     "gsap": "^3.13.0",
     "intl-messageformat": "10.7.16",
     "jsonwebtoken": "^9.0.2",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.542.0",
     "next": "^15.5.3",
     "next-themes": "0.4.6",
@@ -57,8 +65,10 @@
     "react-dom": "18.3.1",
     "react-google-recaptcha": "^3.1.0",
     "react-hook-form": "^7.62.0",
+    "react-markdown": "^10.1.0",
     "react-pdf": "^10.2.0",
     "react-zoom-pan-pinch": "^3.7.0",
+    "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.180.0",
@@ -76,13 +86,14 @@
     "@tailwindcss/postcss": "4.1.11",
     "@types/dotenv": "^6.1.1",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^20.5.7",
+    "@types/node": "^20.19.24",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
     "@types/react-google-recaptcha": "^2.1.9",
     "@types/three": "^0.180.0",
     "@typescript-eslint/eslint-plugin": "8.34.1",
     "@typescript-eslint/parser": "8.34.1",
+    "cssnano": "^7.1.2",
     "eslint": "^9.35.0",
     "eslint-config-next": "15.3.4",
     "eslint-config-prettier": "9.1.0",
@@ -100,6 +111,19 @@
     "tailwind-variants": "2.0.1",
     "tailwindcss": "4.1.11",
     "typescript": "5.6.3"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 90",
+      "firefox >= 88",
+      "safari >= 14",
+      "edge >= 90"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d"
 }

@@ -7,9 +7,11 @@ import { AuthButton } from "../../register/_components/AuthButton";
 import { GoogleSignInButton } from "../../register/_components/GoogleSignInButton";
 import { ImageContainer } from "../../register/_components/ImageContainer";
 import { useLogin } from "../hooks/useLogin";
+import { useGoogleAuth } from "../../../../hooks/useGoogleAuth";
 
 export const LoginForm = () => {
-  const { register, errors, loading, onSubmit, handleGoogleLogin } = useLogin();
+  const { register, errors, loading, onSubmit } = useLogin();
+  const { handleGoogleSignIn } = useGoogleAuth();
 
   return (
     <div className="min-h-screen flex">
@@ -55,7 +57,7 @@ export const LoginForm = () => {
               <AuthButton loading={loading} type="submit">
                 Login
               </AuthButton>
-              <GoogleSignInButton onPress={handleGoogleLogin} />
+              <GoogleSignInButton onPress={() => handleGoogleSignIn("login")} />
             </div>
 
             {/* Footer */}

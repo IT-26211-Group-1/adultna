@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useRef, useMemo } from "react";
+import { ReactNode, useRef, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
@@ -31,12 +31,14 @@ export function ProtectedRoute({ children, fallback, roles }: RouteProps) {
     return { redirect: false, to: null };
   }, [isLoading, isAuthenticated, user, roles]);
 
-  if (isLoading || shouldRedirect.redirect) {
+  useEffect(() => {
     if (shouldRedirect.redirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace(shouldRedirect.to!), 0);
+      router.replace(shouldRedirect.to!);
     }
+  }, [shouldRedirect, router]);
 
+  if (isLoading || shouldRedirect.redirect) {
     return fallback || <LoadingSpinner />;
   }
 
@@ -51,12 +53,14 @@ export function PublicRoute({ children, fallback }: RouteProps) {
 
   const shouldRedirect = !isLoading && isAuthenticated;
 
-  if (isLoading || shouldRedirect) {
+  useEffect(() => {
     if (shouldRedirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace("/dashboard"), 0);
+      router.replace("/dashboard");
     }
+  }, [shouldRedirect, router]);
 
+  if (isLoading || shouldRedirect) {
     return fallback || <LoadingSpinner />;
   }
 
@@ -82,12 +86,14 @@ export function OnboardingRoute({ children, fallback }: RouteProps) {
     return { redirect: false, to: null };
   }, [isLoading, isAuthenticated, user]);
 
-  if (isLoading || shouldRedirect.redirect) {
+  useEffect(() => {
     if (shouldRedirect.redirect && !hasRedirected.current) {
       hasRedirected.current = true;
-      setTimeout(() => router.replace(shouldRedirect.to!), 0);
+      router.replace(shouldRedirect.to!);
     }
+  }, [shouldRedirect, router]);
 
+  if (isLoading || shouldRedirect.redirect) {
     return fallback || <LoadingSpinner />;
   }
 

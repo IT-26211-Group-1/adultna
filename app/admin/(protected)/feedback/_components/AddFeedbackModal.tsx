@@ -9,6 +9,7 @@ import {
   useFeedback,
   CreateFeedbackRequest,
 } from "@/hooks/queries/admin/useFeedbackQueries";
+import { logger } from "@/lib/logger";
 
 interface AddFeedbackModalProps {
   open?: boolean;
@@ -77,7 +78,7 @@ export default function AddFeedbackModal({
           },
         });
       } catch (error) {
-        console.error("Failed to create feedback:", error);
+        logger.error("Failed to create feedback:", error);
         addToast({
           title: "Failed to create feedback",
           color: "danger",

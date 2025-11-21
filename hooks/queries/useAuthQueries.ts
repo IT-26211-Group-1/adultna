@@ -1,10 +1,15 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { API_CONFIG } from "@/config/api";
+import { useAuthSync } from "@/hooks/useAuthSync";
+import { useTokenRefresh } from "@/hooks/useTokenRefresh";
+import { useIdleTimeout } from "@/hooks/useIdleTimeout";
+import { logger } from "@/lib/logger";
+import { useCallback } from "react";
 
 // Types
 export type User = {
@@ -65,15 +70,29 @@ const authApi = {
 export function useAuth() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const pathname = usePathname();
   const { setSecureItem } = useSecureStorage();
 
-  const isPublicRoute = [
-    "/auth/login",
-    "/auth/register",
-    "/auth/verify-email",
-    "/auth/forgot-password",
-  ].some((route) => pathname?.startsWith(route));
+  // Sync auth state across tabs
+  useAuthSync();
+
+  // Proactive token refresh
+  useTokenRefresh();
+
+  // Idle timeout - logout after 30 minutes of inactivity
+  const handleIdleTimeout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      logger.error("Idle timeout logout failed:", error);
+    } finally {
+      import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
+        broadcastLogout();
+      });
+      queryClient.removeQueries({ queryKey: queryKeys.auth.all });
+      queryClient.setQueryData(queryKeys.auth.me(), null);
+      window.location.href = "/auth/login";
+    }
+  }, [queryClient]);
 
   const {
     data: user,
@@ -82,7 +101,7 @@ export function useAuth() {
     refetch: checkAuth,
   } = useQuery({
     queryKey: queryKeys.auth.me(),
-    enabled: !isPublicRoute,
+    enabled: true,
     queryFn: async () => {
       try {
         const response = await authApi.me();
@@ -105,7 +124,10 @@ export function useAuth() {
 
         return null;
       } catch (error) {
-        if (error instanceof ApiError && error.isForbidden) {
+        if (
+          error instanceof ApiError &&
+          (error.isForbidden || error.isUnauthorized)
+        ) {
           return null;
         }
 
@@ -137,7 +159,10 @@ export function useAuth() {
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
     retry: (failureCount, error) => {
-      if (error instanceof ApiError && error.isForbidden) {
+      if (
+        error instanceof ApiError &&
+        (error.isForbidden || error.isUnauthorized)
+      ) {
         return false;
       }
 
@@ -149,11 +174,6 @@ export function useAuth() {
         return false;
       }
 
-      // retry once to allow token refresh
-      if (error instanceof ApiError && error.isUnauthorized) {
-        return failureCount < 1;
-      }
-
       return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
     },
   });
@@ -163,6 +183,11 @@ export function useAuth() {
     mutationFn: authApi.login,
     onSuccess: async (data) => {
       if (data.success) {
+        // Broadcast login to other tabs
+        import("@/hooks/useAuthSync").then(({ broadcastLogin }) => {
+          broadcastLogin();
+        });
+
         await queryClient.invalidateQueries({
           queryKey: queryKeys.auth.all,
           exact: false,
@@ -202,12 +227,23 @@ export function useAuth() {
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
+      // Broadcast logout to other tabs
+      import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
+        broadcastLogout();
+      });
+
       queryClient.removeQueries({ queryKey: queryKeys.auth.all });
       queryClient.setQueryData(queryKeys.auth.me(), null);
       window.location.href = "/auth/login";
     },
     onError: (error) => {
-      console.error("Logout failed:", error);
+      logger.error("Logout failed:", error);
+
+      // Broadcast logout to other tabs even on error
+      import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
+        broadcastLogout();
+      });
+
       queryClient.removeQueries({ queryKey: queryKeys.auth.all });
       queryClient.setQueryData(queryKeys.auth.me(), null);
       window.location.href = "/auth/login";
@@ -246,6 +282,9 @@ export function useAuth() {
 
     return dataAge < API_CONFIG.AUTH_QUERY.STALE_TIME;
   };
+
+  // Enable idle timeout only when user is authenticated
+  useIdleTimeout(handleIdleTimeout, !!user);
 
   const authState = {
     user,

@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { verifyEmailSchema } from "@/validators/authSchema";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 import { useEmailVerification } from "@/hooks/useAuth";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { logger } from "@/lib/logger";
 
 export function useVerifyEmail() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export function useVerifyEmail() {
 
         sessionStorage.removeItem("initial_resend_cooldown");
       } catch (error) {
-        console.warn("Failed to parse initial cooldown:", error);
+        logger.warn("Failed to parse initial cooldown:", error);
         sessionStorage.removeItem("initial_resend_cooldown");
       }
     }

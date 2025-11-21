@@ -25,27 +25,27 @@ const LoadingSpinnerComponent = ({
       case "dots":
         return (
           <div className={`flex space-x-1.5 ${className}`}>
-            <div className="w-2.5 h-2.5 bg-adult-green rounded-full animate-bounce [animation-delay:0ms] [animation-duration:1.4s]" />
-            <div className="w-2.5 h-2.5 bg-adult-green rounded-full animate-bounce [animation-delay:200ms] [animation-duration:1.4s]" />
-            <div className="w-2.5 h-2.5 bg-adult-green rounded-full animate-bounce [animation-delay:400ms] [animation-duration:1.4s]" />
+            <div className="w-2.5 h-2.5 bg-[#11553F] rounded-full animate-bounce [animation-delay:0ms] [animation-duration:1.4s]" />
+            <div className="w-2.5 h-2.5 bg-[#11553F] rounded-full animate-bounce [animation-delay:200ms] [animation-duration:1.4s]" />
+            <div className="w-2.5 h-2.5 bg-[#11553F] rounded-full animate-bounce [animation-delay:400ms] [animation-duration:1.4s]" />
           </div>
         );
 
       case "pulse":
         return (
           <div className={`${sizeMap[size]} relative ${className}`}>
-            <div className="absolute inset-0 bg-adult-green rounded-full animate-ping opacity-30 [animation-duration:2s]" />
-            <div className="absolute inset-1 bg-adult-green rounded-full animate-ping opacity-50 [animation-duration:2s] [animation-delay:0.5s]" />
-            <div className="relative bg-adult-green rounded-full h-full w-full animate-pulse opacity-90 [animation-duration:1.5s]" />
+            <div className="absolute inset-0 bg-[#11553F] rounded-full animate-ping opacity-30 [animation-duration:2s]" />
+            <div className="absolute inset-1 bg-[#11553F] rounded-full animate-ping opacity-50 [animation-duration:2s] [animation-delay:0.5s]" />
+            <div className="relative bg-[#11553F] rounded-full h-full w-full animate-pulse opacity-90 [animation-duration:1.5s]" />
           </div>
         );
 
       default:
         return (
           <div className={`${sizeMap[size]} relative ${className}`}>
-            <div className="absolute inset-0 rounded-full border-4 border-adult-green border-t-transparent animate-spin [animation-duration:1s]" />
-            <div className="absolute inset-1 rounded-full border-2 border-transparent border-r-adult-green animate-spin opacity-70 [animation-duration:1.5s] [animation-direction:reverse]" />
-            <div className="absolute inset-2 rounded-full border border-transparent border-b-adult-green animate-spin opacity-40 [animation-duration:2.5s]" />
+            <div className="absolute inset-0 rounded-full border-4 border-[#11553F] border-t-transparent animate-spin [animation-duration:1s]" />
+            <div className="absolute inset-1 rounded-full border-2 border-transparent border-r-[#11553F] animate-spin opacity-70 [animation-duration:1.5s] [animation-direction:reverse]" />
+            <div className="absolute inset-2 rounded-full border border-transparent border-b-[#11553F] animate-spin opacity-40 [animation-duration:2.5s]" />
           </div>
         );
     }

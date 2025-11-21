@@ -9,6 +9,7 @@ import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { useAuth } from "@/hooks/useAuth";
 
 import { addToast } from "@heroui/toast";
+import { logger } from "@/lib/logger";
 
 const OnboardingModal = dynamic(() => import("./OnboardingModal"), {
   ssr: false,
@@ -71,7 +72,7 @@ export default function DashboardClient() {
         if (result?.message?.includes("Personalized Roadmap")) {
           setSecureItem(ONBOARDING_COMPLETED_KEY, "true", CACHE_DURATION);
           addToast({
-            title: "Personalizing your Roadmap",
+            title: "Registration Successful",
             color: "success",
           });
         } else {
@@ -81,7 +82,7 @@ export default function DashboardClient() {
           });
         }
       } catch (error) {
-        console.error("Failed to save onboarding:", error);
+        logger.error("Failed to save onboarding:", error);
 
         // More specific error handling based on error type
         let errorMessage = "An unexpected error occurred";

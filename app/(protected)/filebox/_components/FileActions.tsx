@@ -14,11 +14,12 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { Eye, Download, Trash2, EllipsisVertical } from "lucide-react";
+import { Eye, Download, Trash2, EllipsisVertical, Edit3 } from "lucide-react";
 import { FileItem } from "./FileItem";
 import {
   useFileboxDownload,
   useFileboxDelete,
+  useFileboxRename,
 } from "@/hooks/queries/useFileboxQueries";
 import { addToast } from "@heroui/toast";
 import { ApiError, ApiClient } from "@/lib/apiClient";
@@ -26,6 +27,9 @@ import { FileMetadata, OTPAction } from "@/types/filebox";
 import { API_CONFIG } from "@/config/api";
 import { FilePreview } from "./FilePreview";
 import { SecureDocument } from "./SecureDocument";
+import { RenameFileModal } from "./RenameFileModal";
+import { ReplaceFileConfirmation } from "./ReplaceFileConfirmation";
+import { logger } from "@/lib/logger";
 
 interface FileActionsProps {
   file: FileItem;
@@ -40,6 +44,7 @@ export function FileActions({
 }: FileActionsProps) {
   const downloadMutation = useFileboxDownload();
   const deleteMutation = useFileboxDelete();
+  const renameMutation = useFileboxRename();
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
@@ -50,11 +55,22 @@ export function FileActions({
     onOpen: onPreviewOpen,
     onClose: onPreviewClose,
   } = useDisclosure();
+  const {
+    isOpen: isRenameOpen,
+    onOpen: onRenameOpen,
+    onClose: onRenameClose,
+  } = useDisclosure();
+  const {
+    isOpen: isReplaceOpen,
+    onOpen: onReplaceOpen,
+    onClose: onReplaceClose,
+  } = useDisclosure();
 
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [showSecureAccess, setShowSecureAccess] = useState(false);
   const [secureAction, setSecureAction] = useState<OTPAction>("preview");
+  const [pendingRename, setPendingRename] = useState<string | null>(null);
 
   const handleView = async () => {
     // Check if file is secure
@@ -88,7 +104,7 @@ export function FileActions({
         throw new Error("Failed to generate preview URL");
       }
     } catch (error) {
-      console.error("View error:", error);
+      logger.error("View error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -131,7 +147,7 @@ export function FileActions({
         color: "success",
       });
     } catch (error) {
-      console.error("Download error:", error);
+      logger.error("Download error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -159,7 +175,7 @@ export function FileActions({
         color: "success",
       });
     } catch (error) {
-      console.error("Delete error:", error);
+      logger.error("Delete error:", error);
 
       if (error instanceof ApiError) {
         addToast({
@@ -180,6 +196,121 @@ export function FileActions({
     }
 
     onDeleteOpen();
+  };
+
+  const handleRename = async (newFileName: string) => {
+    if (!fileMetadata) {
+      addToast({
+        title: "File metadata not available",
+        color: "danger",
+      });
+
+      return;
+    }
+
+    try {
+      const response = await renameMutation.mutateAsync({
+        fileId: fileMetadata.id,
+        fileName: newFileName,
+        replaceDuplicate: false,
+      });
+
+      if (response.statusCode === 409) {
+        setPendingRename(newFileName);
+        onRenameClose();
+        onReplaceOpen();
+
+        return;
+      }
+
+      if (response.success) {
+        addToast({
+          title: "File renamed successfully",
+          color: "success",
+        });
+        onRenameClose();
+      }
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        // Duplicate file detected - show modal instead of error toast
+        setPendingRename(newFileName);
+        onRenameClose();
+        onReplaceOpen();
+
+        return;
+      }
+
+      logger.error("Rename error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to rename file",
+          color: "danger",
+        });
+      }
+    }
+  };
+
+  const handleReplaceConfirm = async () => {
+    if (!fileMetadata || !pendingRename) {
+      return;
+    }
+
+    try {
+      const response = await renameMutation.mutateAsync({
+        fileId: fileMetadata.id,
+        fileName: pendingRename,
+        replaceDuplicate: true,
+        keepBoth: false,
+      });
+
+      if (response.success) {
+        onReplaceClose();
+        setPendingRename(null);
+      }
+    } catch (error) {
+      logger.error("Replace error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to rename file",
+          color: "danger",
+        });
+      }
+    }
+  };
+
+  const handleKeepBothConfirm = async () => {
+    if (!fileMetadata || !pendingRename) {
+      return;
+    }
+
+    try {
+      const response = await renameMutation.mutateAsync({
+        fileId: fileMetadata.id,
+        fileName: pendingRename,
+        replaceDuplicate: false,
+        keepBoth: true,
+      });
+
+      if (response.success) {
+        addToast({
+          title: response.message || "File renamed successfully",
+          color: "success",
+        });
+        onReplaceClose();
+        setPendingRename(null);
+      }
+    } catch (error) {
+      logger.error("Keep both error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to rename file",
+          color: "danger",
+        });
+      }
+    }
   };
 
   const handleSecureSuccess = (downloadUrl: string) => {
@@ -228,6 +359,15 @@ export function FileActions({
             onPress={handleDownload}
           >
             <Download className="w-4 h-4" />
+          </Button>
+          <Button
+            isIconOnly
+            className="text-gray-600 hover:text-amber-600"
+            size="sm"
+            variant="light"
+            onPress={onRenameOpen}
+          >
+            <Edit3 className="w-4 h-4" />
           </Button>
           <Button
             isIconOnly
@@ -283,6 +423,25 @@ export function FileActions({
             )}
           </ModalContent>
         </Modal>
+
+        {/* Rename Modal */}
+        <RenameFileModal
+          currentFileName={file.name}
+          isLoading={renameMutation.isPending}
+          isOpen={isRenameOpen}
+          onClose={onRenameClose}
+          onRename={handleRename}
+        />
+
+        {/* Replace Confirmation Modal */}
+        <ReplaceFileConfirmation
+          fileName={pendingRename || ""}
+          isLoading={renameMutation.isPending}
+          isOpen={isReplaceOpen}
+          onClose={onReplaceClose}
+          onKeepBoth={handleKeepBothConfirm}
+          onReplace={handleReplaceConfirm}
+        />
       </>
     );
   }
@@ -328,6 +487,13 @@ export function FileActions({
               onPress={handleDownload}
             >
               {downloadMutation.isPending ? "Downloading..." : "Download"}
+            </DropdownItem>
+            <DropdownItem
+              key="rename"
+              startContent={<Edit3 className="w-4 h-4" />}
+              onPress={onRenameOpen}
+            >
+              Rename
             </DropdownItem>
             <DropdownItem
               key="delete"
@@ -385,6 +551,25 @@ export function FileActions({
           )}
         </ModalContent>
       </Modal>
+
+      {/* Rename Modal */}
+      <RenameFileModal
+        currentFileName={file.name}
+        isLoading={renameMutation.isPending}
+        isOpen={isRenameOpen}
+        onClose={onRenameClose}
+        onRename={handleRename}
+      />
+
+      {/* Replace Confirmation Modal */}
+      <ReplaceFileConfirmation
+        fileName={pendingRename || ""}
+        isLoading={renameMutation.isPending}
+        isOpen={isReplaceOpen}
+        onClose={onReplaceClose}
+        onKeepBoth={handleKeepBothConfirm}
+        onReplace={handleReplaceConfirm}
+      />
     </>
   );
 }

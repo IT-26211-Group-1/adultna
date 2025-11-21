@@ -2,17 +2,19 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useCallback } from "react";
 import { useDisclosure } from "@heroui/react";
 import { CameraController } from "./CameraController";
 import { RoadmapModel } from "./RoadmapModel";
 import { MilestoneModal } from "./MilestoneModal";
-import { MilestoneService } from "../infrastructure/milestoneService";
+import { useUserMilestonesWithPolling } from "@/hooks/queries/useRoadmapQueries";
 import {
   CameraAnimation,
   Milestone,
   RoadmapInteraction,
 } from "../../../../types/roadmap";
+import { logger } from "@/lib/logger";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const CAMERA_ANIMATION: CameraAnimation = {
   from: {
@@ -32,15 +34,81 @@ export function RoadmapClient() {
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
     null,
   );
+  const [milestoneAnimation, setMilestoneAnimation] =
+    useState<CameraAnimation | null>(null);
+
+  const {
+    data: milestones = [],
+    isLoading,
+    refetch: refetchMilestones,
+  } = useUserMilestonesWithPolling(true);
+
+  // Calculate camera position for milestone zoom
+  const createMilestoneZoom = (milestone: Milestone): CameraAnimation => {
+    const { x, y, z } = milestone.position;
+
+    // Calculate optimal camera angle based on milestone position with top-down view
+    const offsetX = x > 0 ? 1.2 : -1.2; // Reduced horizontal offset
+    const offsetZ = z > 0 ? 1.2 : -1.2; // Reduced depth offset
+
+    return {
+      from: {
+        position: [5, 8, 5], // Current camera position after initial animation
+        fov: 40,
+      },
+      to: {
+        position: [x + offsetX, y + 3.5, z + offsetZ], // Higher Y for top-down view
+        fov: 30, // Less aggressive zoom
+      },
+      duration: 1200,
+      delay: 0,
+    };
+  };
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
-    const milestone = MilestoneService.getMilestone(interaction.milestoneId);
+    const milestone = milestones.find((m) => m.id === interaction.milestoneId);
 
     if (milestone) {
       setSelectedMilestone(milestone);
+      const zoomAnimation = createMilestoneZoom(milestone);
+
+      setMilestoneAnimation(zoomAnimation);
       onOpen();
+    } else {
+      logger.log("❌ No milestone found for ID:", interaction.milestoneId);
     }
   };
+
+  const handleMilestoneUpdated = useCallback(() => {
+    refetchMilestones();
+  }, [refetchMilestones]);
+
+  const handleModalClose = () => {
+    setMilestoneAnimation(null);
+    setSelectedMilestone(null);
+    onClose();
+  };
+
+  // Fallback click handler for the Canvas element
+  const handleCanvasClick = (event: React.MouseEvent) => {
+    logger.log("🖱️  Canvas clicked at:", event.clientX, event.clientY);
+  };
+
+  if (isLoading || milestones.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex flex-col items-center gap-4">
+          <LoadingSpinner fullScreen={false} size="xl" variant="default" />
+          <p className="text-gray-600 text-lg font-medium">
+            {isLoading
+              ? "Loading your roadmap..."
+              : "Generating your personalized roadmap..."}
+          </p>
+          <p className="text-gray-500 text-sm">This may take a few moments</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -49,8 +117,12 @@ export function RoadmapClient() {
           camera={{ position: [0, 5, 15], fov: 55 }}
           className="w-full h-full"
           resize={{ scroll: false, debounce: { scroll: 50, resize: 100 } }}
+          onClick={handleCanvasClick}
         >
-          <CameraController animation={CAMERA_ANIMATION} />
+          <CameraController
+            animation={CAMERA_ANIMATION}
+            milestoneAnimation={milestoneAnimation}
+          />
           {/* eslint-disable-next-line react/no-unknown-property */}
           <ambientLight intensity={1.2} />
           {/* eslint-disable-next-line react/no-unknown-property */}
@@ -58,7 +130,10 @@ export function RoadmapClient() {
           {/* eslint-disable-next-line react/no-unknown-property */}
           <pointLight intensity={1.5} position={[0, 20, 0]} />
           <Suspense fallback={null}>
-            <RoadmapModel onMilestoneClick={handleMilestoneClick} />
+            <RoadmapModel
+              milestones={milestones}
+              onMilestoneClick={handleMilestoneClick}
+            />
           </Suspense>
           {/* OrbitControls with full freedom - no restrictions on movement */}
           <OrbitControls
@@ -77,7 +152,8 @@ export function RoadmapClient() {
       <MilestoneModal
         isOpen={isOpen}
         milestone={selectedMilestone}
-        onClose={onClose}
+        onClose={handleModalClose}
+        onMilestoneUpdated={handleMilestoneUpdated}
       />
     </>
   );
