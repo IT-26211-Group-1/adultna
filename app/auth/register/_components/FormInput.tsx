@@ -92,8 +92,8 @@ export const FormInput = ({
     <div className={className}>
       <Input
         {...register(name)}
-        autoComplete={autoComplete}
         isRequired
+        autoComplete={autoComplete}
         classNames={{
           base: "mb-1",
           label: "text-[10px] font-normal text-gray-500 mb-7",

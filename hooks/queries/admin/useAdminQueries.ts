@@ -87,7 +87,7 @@ export type UpdateUserResponse = {
 
 export type UpdateUserStatusRequest = {
   userId: string;
-  status: "active" | "deactivated";
+  status: "active" | "deactivated" | "unverified";
 };
 
 export type UpdateUserStatusResponse = {
@@ -192,11 +192,11 @@ export function useAdminAuth() {
         throw error;
       }
     },
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: API_CONFIG.AUTH_QUERY.CACHE_TIME,
-    refetchInterval: 10 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: "always",
+    refetchInterval: false, // Disable automatic refetching
+    refetchOnWindowFocus: false, // Disable for Safari performance
+    refetchOnMount: true, // Refetch on mount if data is stale (respects staleTime)
     retry: (failureCount, error) => {
       if (
         error instanceof ApiError &&

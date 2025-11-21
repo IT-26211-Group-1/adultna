@@ -152,7 +152,8 @@ function EditUserModal({
           </label>
           <input
             {...register("email")}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            disabled
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200 cursor-not-allowed"
             id="email"
             placeholder="Enter email address"
             type="email"

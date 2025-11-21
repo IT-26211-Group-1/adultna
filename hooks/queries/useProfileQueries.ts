@@ -136,7 +136,8 @@ export function useDeleteAccount() {
       sessionStorage.clear();
 
       // Redirect to appropriate login page based on current path
-      const isAdmin = window.location.pathname.startsWith('/admin');
+      const isAdmin = window.location.pathname.startsWith("/admin");
+
       window.location.href = isAdmin ? "/admin/login" : "/auth/login";
     },
     onError: (error: any) => {

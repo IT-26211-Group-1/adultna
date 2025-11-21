@@ -34,12 +34,14 @@ export const StatusBadges = React.memo<{ user: User }>(({ user }) => {
   const getStatusVariant = () => {
     if (user.status === "active") return "success";
     if (user.status === "unverified") return "warning";
+
     return "error";
   };
 
   const getStatusLabel = () => {
     if (user.status === "active") return "Active";
     if (user.status === "unverified") return "Unverified";
+
     return "Deactivated";
   };
 

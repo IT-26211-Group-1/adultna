@@ -40,25 +40,7 @@ const UserActions = React.memo<{
           </svg>
         ),
       },
-      {
-        label: "Reset Password",
-        onClick: () => onResetPassword(user.id, user.email),
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        ),
-      },
+
       {
         label:
           user.status === "active" ? "Deactivate Account" : "Activate Account",
@@ -188,7 +170,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
 
       if (confirm(`Are you sure you want to ${action} this account?`)) {
         updateUserStatus(
-          { userId, status: newStatus as "active" | "deactivated" | "unverified" },
+          {
+            userId,
+            status: newStatus as "active" | "deactivated" | "unverified",
+          },
           {
             onSuccess: (response) => {
               if (response.success) {
