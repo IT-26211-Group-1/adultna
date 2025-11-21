@@ -338,7 +338,7 @@ export function useEmailVerification() {
         await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
 
         const userData = queryClient.getQueryData(
-          queryKeys.auth.me()
+          queryKeys.auth.me(),
         ) as User | null;
 
         if (userData?.onboardingStatus === "completed") {

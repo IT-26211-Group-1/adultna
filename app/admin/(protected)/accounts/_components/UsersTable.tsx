@@ -18,7 +18,7 @@ const UserActions = React.memo<{
   onResetPassword: (userId: string, email: string) => void;
   onToggleStatus: (userId: string, status: string) => void;
   isUpdating: boolean;
-}>(({ user, onEdit, onResetPassword, onToggleStatus, isUpdating }) => (
+}>(({ user, onEdit, onResetPassword: _onResetPassword, onToggleStatus, isUpdating }) => (
   <DropdownMenu
     items={[
       {
