@@ -8,6 +8,7 @@ import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
 import YourPathStep from "./YourPathStep";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 type OnboardingModalProps = {
   isOpen: boolean;
@@ -123,7 +124,17 @@ export default function OnboardingModal({
     ],
   );
 
-  if (!isOpen || !hydrated || isCompleting) return null;
+  if (!isOpen || !hydrated) return null;
+
+  if (isCompleting) {
+    return (
+      <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <LoadingSpinner fullScreen={false} size="xl" className="my-32" />
+        </div>
+      </div>
+    );
+  }
 
   const renderCurrentStep = () => {
     switch (currentStep) {
