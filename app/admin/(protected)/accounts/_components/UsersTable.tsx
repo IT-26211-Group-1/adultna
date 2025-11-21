@@ -18,77 +18,87 @@ const UserActions = React.memo<{
   onResetPassword: (userId: string, email: string) => void;
   onToggleStatus: (userId: string, status: string) => void;
   isUpdating: boolean;
-}>(({ user, onEdit, onResetPassword: _onResetPassword, onToggleStatus, isUpdating }) => (
-  <DropdownMenu
-    items={[
-      {
-        label: "Edit Account",
-        onClick: () => onEdit(user.id),
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        ),
-      },
+}>(
+  ({
+    user,
+    onEdit,
+    onResetPassword: _onResetPassword,
+    onToggleStatus,
+    isUpdating,
+  }) => (
+    <DropdownMenu
+      items={[
+        {
+          label: "Edit Account",
+          onClick: () => onEdit(user.id),
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          ),
+        },
 
-      {
-        label:
-          user.status === "active" ? "Deactivate Account" : "Activate Account",
-        onClick: () => onToggleStatus(user.id, user.status),
-        destructive: user.status === "active",
-        disabled: isUpdating,
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            {user.status === "active" ? (
-              <path
-                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            ) : (
-              <path
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            )}
-          </svg>
-        ),
-      },
-    ]}
-    trigger={
-      <button
-        className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-        disabled={isUpdating}
-      >
-        <svg
-          className="w-5 h-5 text-gray-400"
-          fill="currentColor"
-          viewBox="0 0 20 20"
+        {
+          label:
+            user.status === "active"
+              ? "Deactivate Account"
+              : "Activate Account",
+          onClick: () => onToggleStatus(user.id, user.status),
+          destructive: user.status === "active",
+          disabled: isUpdating,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {user.status === "active" ? (
+                <path
+                  d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              ) : (
+                <path
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              )}
+            </svg>
+          ),
+        },
+      ]}
+      trigger={
+        <button
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+          disabled={isUpdating}
         >
-          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-        </svg>
-      </button>
-    }
-  />
-));
+          <svg
+            className="w-5 h-5 text-gray-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+          </svg>
+        </button>
+      }
+    />
+  ),
+);
 
 UserActions.displayName = "UserActions";
 
