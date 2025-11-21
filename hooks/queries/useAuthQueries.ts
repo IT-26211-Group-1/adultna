@@ -158,11 +158,11 @@ export function useAuth() {
         throw error;
       }
     },
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: API_CONFIG.AUTH_QUERY.CACHE_TIME,
     refetchInterval: false,
-    refetchOnWindowFocus: true,
-    refetchOnMount: "always",
+    refetchOnWindowFocus: false,
+    refetchOnMount: true, // Refetch on mount if data is stale (respects staleTime)
     retry: (failureCount, error) => {
       if (
         error instanceof ApiError &&
@@ -338,7 +338,7 @@ export function useEmailVerification() {
         await queryClient.refetchQueries({ queryKey: queryKeys.auth.me() });
 
         const userData = queryClient.getQueryData(
-          queryKeys.auth.me(),
+          queryKeys.auth.me()
         ) as User | null;
 
         if (userData?.onboardingStatus === "completed") {
