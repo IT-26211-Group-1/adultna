@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { RecentFiles } from "./_components/RecentFiles";
 import { MyFilesTable } from "./_components/MyFilesTable";
-import { FileDetailsSidebar } from "./_components/FileDetailsSidebar";
 import { Search } from "./_components/Search";
 import { Categories } from "./_components/Categories";
 import { Button } from "@heroui/button";
@@ -18,7 +17,6 @@ export default function FileBoxPage() {
     selectedFile,
     selectedRecentFile,
     selectedMyFile,
-    showSidebar,
     selectedCategory,
     searchTerm,
     viewType,
@@ -42,11 +40,9 @@ export default function FileBoxPage() {
     handleRecentFileClick,
     handleMyFileClick,
     handleFileDoubleClick,
-    handleShowDetails,
     handleDownload,
     handleSort,
     clearAllSelections,
-    closeSidebar,
     closePreview,
     handleSecureSuccess,
     closeSecureAccess,
@@ -58,10 +54,8 @@ export default function FileBoxPage() {
       const target = e.target as Element;
       // Check if click is within a file item
       const isFileItem = target.closest('[data-file-item="true"]');
-      // Check if click is within the file sidebar (to keep selection when interacting with sidebar)
-      const isFileSidebar = target.closest('[data-file-sidebar="true"]');
 
-      if (!isFileItem && !isFileSidebar) {
+      if (!isFileItem) {
         clearAllSelections();
       }
     };
@@ -79,19 +73,13 @@ export default function FileBoxPage() {
     }
   }, [showUpload, showSecureAccess, showPreview, clearAllSelections]);
 
-  // Clear selections when sidebar opens
-  useEffect(() => {
-    if (showSidebar) {
-      clearAllSelections();
-    }
-  }, [showSidebar, clearAllSelections]);
 
   return (
     <div className="flex h-screen flex-col">
       <div className="flex-1 flex overflow-hidden">
         {/* Main Content */}
-        <main className={`flex-1 overflow-y-auto transition-all duration-300 ${showSidebar ? 'mr-80' : ''}`}>
-          <div className={`py-8 transition-all duration-300 ${showSidebar ? 'px-4 ml-2 mr-2' : 'px-6 mx-12'}`}>
+        <main className="flex-1 overflow-y-auto">
+          <div className="py-8 px-6 mx-12">
             {/* Search and Action Controls */}
             <div className="mb-6">
               <div className="flex flex-col md:flex-row md:items-center gap-4">
@@ -150,7 +138,6 @@ export default function FileBoxPage() {
                   selectedMyFile={selectedMyFile}
                   onFileClick={handleMyFileClick}
                   onFileDoubleClick={handleFileDoubleClick}
-                  onShowDetails={handleShowDetails}
                   onViewTypeChange={setViewType}
                   onSort={handleSort}
                 />
@@ -170,16 +157,6 @@ export default function FileBoxPage() {
             )}
           </div>
         </main>
-
-        {/* File Details Sidebar */}
-        <div data-file-sidebar="true">
-          <FileDetailsSidebar
-            selectedFile={selectedFile}
-            fileMetadata={fileMetadataMap.get(selectedFile?.id || '')}
-            isOpen={showSidebar}
-            onClose={closeSidebar}
-          />
-        </div>
       </div>
 
       {/* Modals */}

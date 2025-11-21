@@ -14,7 +14,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { Eye, Download, Trash2, EllipsisVertical, Edit3, Info } from "lucide-react";
+import { Eye, Download, Trash2, EllipsisVertical, Edit3 } from "lucide-react";
 import { FileItem } from "./FileItem";
 import {
   useFileboxDownload,
@@ -35,14 +35,12 @@ type FileActionsProps = {
   file: FileItem;
   fileMetadata?: FileMetadata;
   viewType?: "grid" | "list";
-  onShowDetails?: (file: FileItem) => void;
 }
 
 export function FileActions({
   file,
   fileMetadata,
   viewType = "grid",
-  onShowDetails,
 }: FileActionsProps) {
   const downloadMutation = useFileboxDownload();
   const deleteMutation = useFileboxDelete();
@@ -388,13 +386,6 @@ export function FileActions({
                 Rename
               </DropdownItem>
               <DropdownItem
-                key="details"
-                startContent={<Info className="w-4 h-4" />}
-                onPress={() => onShowDetails?.(file)}
-              >
-                Details
-              </DropdownItem>
-              <DropdownItem
                 key="delete"
                 startContent={<Trash2 className="w-4 h-4" />}
                 className="text-danger"
@@ -521,13 +512,6 @@ export function FileActions({
               onPress={onRenameOpen}
             >
               Rename
-            </DropdownItem>
-            <DropdownItem
-              key="details"
-              startContent={<Info className="w-4 h-4" />}
-              onPress={() => onShowDetails?.(file)}
-            >
-              More Details
             </DropdownItem>
             <DropdownItem
               key="delete"

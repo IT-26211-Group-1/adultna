@@ -20,7 +20,6 @@ type MyFilesTableProps = {
   selectedMyFile?: FileItem | null;
   onFileClick?: (file: FileItem, event?: React.MouseEvent) => void;
   onFileDoubleClick?: (file: FileItem) => void;
-  onShowDetails?: (file: FileItem) => void;
   onViewTypeChange?: (viewType: "grid" | "list") => void;
   onSort?: (field: SortBy) => void;
 };
@@ -34,7 +33,6 @@ export const MyFilesTable = memo(({
   selectedMyFile,
   onFileClick,
   onFileDoubleClick,
-  onShowDetails,
   onViewTypeChange,
   onSort
 }: MyFilesTableProps) => {
@@ -182,7 +180,6 @@ export const MyFilesTable = memo(({
                         file={file}
                         fileMetadata={fileMetadataMap.get(file.id)}
                         viewType="list"
-                        onShowDetails={onShowDetails}
                       />
                     </td>
                   </tr>
@@ -217,7 +214,6 @@ export const MyFilesTable = memo(({
                       file={file}
                       fileMetadata={fileMetadataMap.get(file.id)}
                       viewType="grid"
-                      onShowDetails={onShowDetails}
                     />
                   </div>
                 </div>
