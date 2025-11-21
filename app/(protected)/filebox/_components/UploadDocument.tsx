@@ -378,7 +378,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
                 className="text-sm font-medium text-gray-900"
                 htmlFor="category-select"
               >
-                Document Category
+                Document Category <span className="text-red-500">*</span>
               </label>
               <p className="text-xs text-gray-500">
                 Choose a category to organize your document
@@ -409,7 +409,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
             <div className="flex-1">
               <h4 className="text-sm font-medium text-gray-900">Secure Access</h4>
               <p className="text-xs text-gray-500 mt-1">
-                Require OTP verification to access this document
+                Requires OTP verification to access this document
               </p>
             </div>
             <Controller

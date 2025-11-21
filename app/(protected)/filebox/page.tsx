@@ -88,19 +88,10 @@ export default function FileBoxPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white py-3 pt-6">
-        <div className="px-6 mx-12">
-          <h1 className="text-xl font-semibold text-gray-900">
-            Adulting Filebox
-          </h1>
-        </div>
-      </header>
-
       <div className="flex-1 flex overflow-hidden">
         {/* Main Content */}
         <main className={`flex-1 overflow-y-auto transition-all duration-300 ${showSidebar ? 'mr-80' : ''}`}>
-          <div className="py-6 px-6 mx-12">
+          <div className={`py-8 transition-all duration-300 ${showSidebar ? 'px-4 ml-2 mr-2' : 'px-6 mx-12'}`}>
             {/* Search and Action Controls */}
             <div className="mb-6">
               <div className="flex flex-col md:flex-row md:items-center gap-4">
