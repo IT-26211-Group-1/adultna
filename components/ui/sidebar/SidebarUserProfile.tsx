@@ -4,17 +4,29 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Settings, LogOut, User, ChevronUp, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import { useAuth as useAuthData } from "@/hooks/queries/useAuthQueries";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/modal";
 import { Button } from "@heroui/react";
+import { LoadingSpinner } from "../LoadingSpinner";
 
 interface SidebarUserProfileProps {
   isCollapsed: boolean;
 }
 
-export default function SidebarUserProfile({ isCollapsed }: SidebarUserProfileProps) {
+export default function SidebarUserProfile({
+  isCollapsed,
+}: SidebarUserProfileProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
   const { logout, isLoggingOut } = useAuth();
+  const { user } = useAuthData();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -28,9 +40,9 @@ export default function SidebarUserProfile({ isCollapsed }: SidebarUserProfilePr
     onOpen();
   };
 
-  const handleConfirmLogout = async () => {
+  const handleConfirmLogout = () => {
     try {
-      await logout();
+      logout();
       onClose();
     } catch (error) {
       console.error("Logout error:", error);
@@ -44,22 +56,26 @@ export default function SidebarUserProfile({ isCollapsed }: SidebarUserProfilePr
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
 
     if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener("mousedown", handleClickOutside);
       };
     }
   }, [isDropdownOpen]);
 
   if (isCollapsed) {
     return (
-      <div className="relative p-2" ref={dropdownRef}>
+      <div ref={dropdownRef} className="relative p-2">
         <button
           className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors duration-200"
           onClick={toggleDropdown}
@@ -93,7 +109,7 @@ export default function SidebarUserProfile({ isCollapsed }: SidebarUserProfilePr
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div ref={dropdownRef} className="relative">
       {/* User Profile Section */}
       <div className="px-4 py-3 border-t border-white/10">
         <button
@@ -104,8 +120,18 @@ export default function SidebarUserProfile({ isCollapsed }: SidebarUserProfilePr
             <User className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 text-left">
-            <p className="text-sm font-medium text-gray-700">Tricia Arellano</p>
-            <p className="text-xs text-gray-500">adultna.org@gmail.com</p>
+            <div className="text-sm font-medium text-gray-700">
+              {user ? (
+                user.firstName && user.lastName ? (
+                  `${user.firstName} ${user.lastName}`
+                ) : (
+                  user.displayName || "User"
+                )
+              ) : (
+                <LoadingSpinner fullScreen={false} size="sm" />
+              )}
+            </div>
+            <p className="text-xs text-gray-500">{user?.email || ""}</p>
           </div>
           <ChevronUp
             className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
@@ -136,14 +162,21 @@ export default function SidebarUserProfile({ isCollapsed }: SidebarUserProfilePr
       </div>
 
       {/* Logout Confirmation Modal */}
-      <Modal backdrop="blur" isOpen={isOpen} placement="center" size="sm" onClose={onClose}>
+      <Modal
+        backdrop="blur"
+        isOpen={isOpen}
+        placement="center"
+        size="sm"
+        onClose={onClose}
+      >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
             <h3 className="text-lg font-semibold text-gray-900">
               Sign Out Confirmation
             </h3>
             <p className="text-sm text-gray-500">
-              You will be logged out of your account and redirected to the login page.
+              You will be logged out of your account and redirected to the login
+              page.
             </p>
           </ModalHeader>
           <ModalBody>
@@ -154,7 +187,8 @@ export default function SidebarUserProfile({ isCollapsed }: SidebarUserProfilePr
                   Are you sure you want to sign out?
                 </p>
                 <p className="text-orange-700 mt-1">
-                  Any unsaved changes will be lost. Make sure to save your work before proceeding.
+                  Any unsaved changes will be lost. Make sure to save your work
+                  before proceeding.
                 </p>
               </div>
             </div>
@@ -163,9 +197,9 @@ export default function SidebarUserProfile({ isCollapsed }: SidebarUserProfilePr
             <Button
               className="mr-2"
               color="default"
+              isDisabled={isLoggingOut}
               variant="flat"
               onPress={onClose}
-              isDisabled={isLoggingOut}
             >
               Cancel
             </Button>

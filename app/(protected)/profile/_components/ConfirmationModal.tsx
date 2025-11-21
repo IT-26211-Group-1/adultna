@@ -1,12 +1,14 @@
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@heroui/react";
+import { ReactNode } from "react";
 
 type ConfirmationModalProps = {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
   title: string;
-  message: string;
+  message?: string;
+  children?: ReactNode;
   confirmText?: string;
   cancelText?: string;
   isLoading?: boolean;
@@ -18,6 +20,7 @@ export function ConfirmationModal({
   onConfirm,
   title,
   message,
+  children,
   confirmText = "Confirm",
   cancelText = "Cancel",
   isLoading = false,
@@ -25,7 +28,7 @@ export function ConfirmationModal({
   return (
     <Modal open={open} size="sm" title={title} onClose={onClose}>
       <div className="space-y-6">
-        <p className="text-gray-600">{message}</p>
+        {children || <p className="text-gray-600">{message}</p>}
 
         <div className="flex justify-end gap-3">
           <Button isDisabled={isLoading} variant="bordered" onClick={onClose}>

@@ -15,7 +15,12 @@ import { useCallback } from "react";
 export type User = {
   id: string;
   email: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  profilePictureUrl?: string | null;
   role: string;
+  emailVerified: boolean;
   onboardingStatus?: "not_started" | "in_progress" | "completed";
 };
 

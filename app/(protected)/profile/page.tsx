@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { ProfileSection } from "./_components/ProfileSection";
 import { ProfileForm } from "./_components/ProfileForm";
 import { PasswordForm } from "./_components/PasswordForm";
+import { DeleteAccountSection } from "./_components/DeleteAccountSection";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
@@ -35,6 +36,14 @@ export default function ProfilePage() {
             title="Update Password"
           >
             <PasswordForm />
+          </ProfileSection>
+
+          {/* Delete Account Section */}
+          <ProfileSection
+            description="Permanently delete your account and all associated data."
+            title="Delete Account"
+          >
+            <DeleteAccountSection />
           </ProfileSection>
         </div>
       </div>

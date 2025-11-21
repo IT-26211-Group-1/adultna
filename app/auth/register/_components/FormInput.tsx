@@ -10,13 +10,14 @@ interface FormInputProps {
   error?: string;
   className?: string;
   disabled?: boolean;
+  autoComplete?: string;
 }
 
 const getDetailedValidationMessage = (
   error: string,
   fieldName: string,
   value?: string,
-) => {
+): string | null => {
   if (!error) return null;
 
   // Email validation details
@@ -71,6 +72,7 @@ export const FormInput = ({
   error,
   className = "",
   disabled = false,
+  autoComplete,
 }: FormInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldValue, setFieldValue] = useState("");
@@ -90,13 +92,13 @@ export const FormInput = ({
     <div className={className}>
       <Input
         {...register(name)}
+        autoComplete={autoComplete}
         isRequired
         classNames={{
           base: "mb-1",
           label: "text-[10px] font-normal text-gray-500 mb-7",
-          input: "text-sm bg-gray-50 focus:bg-white transition-colors",
-          inputWrapper:
-            "bg-gray-50 hover:bg-gray-100 focus-within:!bg-white border-0 shadow-none h-10",
+          input: `text-sm ${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-gray-50 focus:bg-white"} transition-colors`,
+          inputWrapper: `${disabled ? "bg-gray-200 cursor-not-allowed" : "bg-gray-50 hover:bg-gray-100 focus-within:!bg-white"} border-0 shadow-none h-10`,
           errorMessage: "text-[10px] font-normal mt-0",
           innerWrapper: "items-center",
         }}

@@ -18,9 +18,7 @@ export function ProfileSection({
       </div>
 
       {/* Right side - Content */}
-      <div className="border-l-4 border-gray-200 pl-6 py-2">
-        {children}
-      </div>
+      <div className="border-l-4 border-gray-200 pl-6 py-2">{children}</div>
     </div>
   );
 }

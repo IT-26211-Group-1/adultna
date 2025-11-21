@@ -11,6 +11,8 @@ import {
   ProfileUpdateInput,
 } from "@/validators/profileSchema";
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/hooks/queries/useAuthQueries";
+import { useUpdateProfile } from "@/hooks/queries/useProfileQueries";
 
 export function ProfileForm() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -19,11 +21,13 @@ export function ProfileForm() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [profilePictureChanged, setProfilePictureChanged] = useState(false);
 
+  const { user } = useAuth();
+  const updateProfile = useUpdateProfile();
+
   const {
     register,
     handleSubmit,
     formState: { errors, isDirty },
-    watch,
     reset,
   } = useForm<ProfileUpdateInput>({
     resolver: zodResolver(profileUpdateSchema),
@@ -35,25 +39,40 @@ export function ProfileForm() {
     },
   });
 
-  const formValues = watch();
+  useEffect(() => {
+    if (user) {
+      reset({
+        displayName: user.displayName || "",
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+      });
+    }
+  }, [user, reset]);
 
   // Track changes in form values and profile picture
   useEffect(() => {
     const hasChanges = isDirty || profilePictureChanged;
+
     setHasUnsavedChanges(hasChanges);
   }, [isDirty, profilePictureChanged]);
 
   // Handle beforeunload event to warn about unsaved changes
-  const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
-    if (hasUnsavedChanges) {
-      e.preventDefault();
-      e.returnValue = "";
-      return "";
-    }
-  }, [hasUnsavedChanges]);
+  const handleBeforeUnload = useCallback(
+    (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+
+        return "";
+      }
+    },
+    [hasUnsavedChanges],
+  );
 
   useEffect(() => {
     window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
@@ -67,18 +86,23 @@ export function ProfileForm() {
 
   const handleConfirmSave = async () => {
     setIsSaving(true);
-    // Get form values
     handleSubmit(async (data) => {
-      // Add your save logic here
-      console.log("Saving profile:", data);
+      try {
+        await updateProfile.mutateAsync({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          displayName: data.displayName,
+        });
 
-      setIsSaving(false);
-      setShowConfirmModal(false);
-      setProfilePictureChanged(false);
-      reset(data); // Reset form to mark as not dirty
-      setHasUnsavedChanges(false);
-
-      // You can add a success toast notification here
+        setShowConfirmModal(false);
+        setProfilePictureChanged(false);
+        reset(data);
+        setHasUnsavedChanges(false);
+      } catch (error) {
+        console.error("Failed to update profile:", error);
+      } finally {
+        setIsSaving(false);
+      }
     })();
   };
 
