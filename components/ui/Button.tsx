@@ -1,6 +1,30 @@
 import React from "react";
 import clsx from "clsx";
 
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+}
+
+export const Button = ({
+  children,
+  className,
+  type = "button",
+  ...rest
+}: ButtonProps) => {
+  return (
+    <button
+      className={clsx(
+        "px-4 py-2 rounded text-white disabled:opacity-60",
+        className,
+      )}
+      type={type}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+};
+
 interface LoadingButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useSecureStorageListener } from "@/hooks/useSecureStorage";
+import {
+  useSecureStorageListener,
+  useSecureStorage,
+} from "@/hooks/useSecureStorage";
 import EmailStep from "./InputEmail";
 import OtpStep from "./InputOtp";
 import ResetPasswordStep from "./ResetPassword";
@@ -9,11 +12,21 @@ import { UserAuthTitle } from "../../register/_components/UserAuthTitle";
 import { ImageContainer } from "../../register/_components/ImageContainer";
 
 const BackToLoginButton = () => {
+  const { removeSecureItem } = useSecureStorage();
+
+  const handleBackToLogin = () => {
+    // Clear forgot password flow data when returning to login
+    removeSecureItem("forgotPasswordEmail");
+    removeSecureItem("forgotPasswordStep");
+    removeSecureItem("forgotPasswordToken");
+  };
+
   return (
     <div className="mb-6">
       <a
         className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
         href="/auth/login"
+        onClick={handleBackToLogin}
       >
         <svg
           className="w-4 h-4"
@@ -100,8 +113,8 @@ export default function ForgotPassword() {
       {/* Left Side - Forgot Password Form */}
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
-          {/* Back to Login - Show on email and reset steps */}
-          {(step === "email" || step === "reset") && <BackToLoginButton />}
+          {/* Back to Login - Show on all steps */}
+          <BackToLoginButton />
 
           {/* Title and Subtitle */}
           {step === "otp" ? (
