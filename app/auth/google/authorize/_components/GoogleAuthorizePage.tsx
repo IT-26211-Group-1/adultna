@@ -76,7 +76,6 @@ export const GoogleAuthorizePage = () => {
         logger.error("❌ Google registration failed:", data.message);
         addToast({
           title: "Registration Failed",
-          description: data.message || "Something went wrong",
           color: "danger",
         });
         router.replace("/auth/register");

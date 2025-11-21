@@ -7,6 +7,7 @@ import SidebarHeader from "./SidebarHeader";
 import SidebarNavigation from "./SidebarNavigation";
 import SidebarCollapsibleSection from "./SidebarCollapsibleSection";
 import SidebarStorage from "./SidebarStorage";
+import SidebarUserProfile from "./SidebarUserProfile";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -190,6 +191,9 @@ function UserSidebar({
 
           {/* Storage Section */}
           <SidebarStorage isCollapsed={isCollapsed} />
+
+          {/* User Profile Section */}
+          <SidebarUserProfile isCollapsed={isCollapsed} />
         </div>
       </div>
 
