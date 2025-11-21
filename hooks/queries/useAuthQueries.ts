@@ -9,7 +9,7 @@ import { useAuthSync } from "@/hooks/useAuthSync";
 import { useTokenRefresh } from "@/hooks/useTokenRefresh";
 import { useIdleTimeout } from "@/hooks/useIdleTimeout";
 import { logger } from "@/lib/logger";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 // Types
 export type User = {
@@ -71,6 +71,7 @@ export function useAuth() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { setSecureItem } = useSecureStorage();
+  const [showIdleWarning, setShowIdleWarning] = useState(false);
 
   // Sync auth state across tabs
   useAuthSync();
@@ -78,8 +79,14 @@ export function useAuth() {
   // Proactive token refresh
   useTokenRefresh();
 
-  // Idle timeout - logout after 30 minutes of inactivity
+  // Idle timeout warning callback
+  const handleIdleWarning = useCallback(() => {
+    setShowIdleWarning(true);
+  }, []);
+
+  // Idle timeout - logout after 15 minutes of inactivity
   const handleIdleTimeout = useCallback(async () => {
+    setShowIdleWarning(false);
     try {
       await authApi.logout();
     } catch (error) {
@@ -284,7 +291,23 @@ export function useAuth() {
   };
 
   // Enable idle timeout only when user is authenticated
-  useIdleTimeout(handleIdleTimeout, !!user);
+  const { resetIdleTimer } = useIdleTimeout({
+    onIdle: handleIdleTimeout,
+    onWarning: handleIdleWarning,
+    enabled: !!user,
+  });
+
+  // Handle "Stay Active" button click
+  const handleStayActive = useCallback(() => {
+    setShowIdleWarning(false);
+    resetIdleTimer();
+  }, [resetIdleTimer]);
+
+  // Handle "Logout Now" button click
+  const handleLogoutNow = useCallback(() => {
+    setShowIdleWarning(false);
+    logoutMutation.mutate();
+  }, [logoutMutation]);
 
   const authState = {
     user,
@@ -301,6 +324,11 @@ export function useAuth() {
     isLoggingIn: loginMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
     loginError: loginMutation.error,
+
+    // Idle warning state
+    showIdleWarning,
+    onStayActive: handleStayActive,
+    onLogoutNow: handleLogoutNow,
 
     // Utilities
     checkAuth,
