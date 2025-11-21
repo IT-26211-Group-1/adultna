@@ -279,6 +279,11 @@ export const useFileboxOperations = () => {
     }
   }, [sortBy, sortDirection]);
 
+  const clearAllSelections = useCallback(() => {
+    setSelectedRecentFile(null);
+    setSelectedMyFile(null);
+  }, []);
+
   return {
     // State
     selectedFile,
@@ -316,6 +321,7 @@ export const useFileboxOperations = () => {
     handleShowDetails,
     handleDownload,
     handleSort,
+    clearAllSelections,
     closeSidebar,
     closePreview,
     handleSecureSuccess,

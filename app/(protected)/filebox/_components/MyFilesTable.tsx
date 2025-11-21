@@ -99,15 +99,12 @@ export const MyFilesTable = memo(({
   );
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-white rounded-lg">
+      <div className="pr-6 py-4 border-b border-gray-200">
         {/* Header with View Type controls */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-900">My Files</h3>
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              {files.length} Total
-            </span>
           </div>
 
           <ViewType
@@ -118,7 +115,7 @@ export const MyFilesTable = memo(({
       </div>
 
       {/* Content Area */}
-      <div className="p-6">
+      <div className="pr-6 pt-6 pb-6">
         {viewType === "list" ? (
           /* List View - Table */
           <div className="overflow-x-auto">
@@ -145,6 +142,7 @@ export const MyFilesTable = memo(({
                   return (
                   <tr
                     key={file.id}
+                    data-file-item="true"
                     className={`transition-colors cursor-pointer ${
                       isSelected
                         ? 'bg-blue-100 hover:bg-blue-100'
@@ -201,6 +199,7 @@ export const MyFilesTable = memo(({
               return (
               <div
                 key={file.id}
+                data-file-item="true"
                 className={`p-4 border-2 rounded-lg transition-all cursor-pointer relative group min-h-[140px] ${
                   isSelected
                     ? 'border-transparent bg-blue-100'

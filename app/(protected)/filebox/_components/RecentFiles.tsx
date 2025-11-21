@@ -31,6 +31,7 @@ const FileCard = memo(({ file, selectedRecentFile, onFileClick, onFileDoubleClic
 
   return (
     <div
+      data-file-item="true"
       className={`rounded-lg p-4 flex flex-col items-center justify-center min-h-[120px] transition-colors cursor-pointer group border-2 ${
         isSelected
           ? 'bg-blue-100 border-transparent'

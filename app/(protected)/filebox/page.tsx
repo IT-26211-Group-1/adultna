@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { RecentFiles } from "./_components/RecentFiles";
 import { MyFilesTable } from "./_components/MyFilesTable";
 import { FileDetailsSidebar } from "./_components/FileDetailsSidebar";
@@ -44,11 +45,46 @@ export default function FileBoxPage() {
     handleShowDetails,
     handleDownload,
     handleSort,
+    clearAllSelections,
     closeSidebar,
     closePreview,
     handleSecureSuccess,
     closeSecureAccess,
   } = useFileboxOperations();
+
+  // Global click handler to clear selections when clicking outside file items
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as Element;
+      // Check if click is within a file item
+      const isFileItem = target.closest('[data-file-item="true"]');
+      // Check if click is within the file sidebar (to keep selection when interacting with sidebar)
+      const isFileSidebar = target.closest('[data-file-sidebar="true"]');
+
+      if (!isFileItem && !isFileSidebar) {
+        clearAllSelections();
+      }
+    };
+
+    document.addEventListener('click', handleGlobalClick);
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, [clearAllSelections]);
+
+  // Clear selections when modals open
+  useEffect(() => {
+    if (showUpload || showSecureAccess || showPreview) {
+      clearAllSelections();
+    }
+  }, [showUpload, showSecureAccess, showPreview, clearAllSelections]);
+
+  // Clear selections when sidebar opens
+  useEffect(() => {
+    if (showSidebar) {
+      clearAllSelections();
+    }
+  }, [showSidebar, clearAllSelections]);
 
   return (
     <div className="flex h-screen flex-col">
@@ -62,7 +98,7 @@ export default function FileBoxPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Main Content */}
         <main className={`flex-1 overflow-y-auto transition-all duration-300 ${showSidebar ? 'mr-80' : ''}`}>
-          <div className="p-6">
+          <div className="py-6 px-6 mx-12">
             {/* Search and Action Controls */}
             <div className="mb-6">
               <div className="flex flex-col md:flex-row md:items-center gap-4">
@@ -143,12 +179,14 @@ export default function FileBoxPage() {
         </main>
 
         {/* File Details Sidebar */}
-        <FileDetailsSidebar
-          selectedFile={selectedFile}
-          fileMetadata={fileMetadataMap.get(selectedFile?.id || '')}
-          isOpen={showSidebar}
-          onClose={closeSidebar}
-        />
+        <div data-file-sidebar="true">
+          <FileDetailsSidebar
+            selectedFile={selectedFile}
+            fileMetadata={fileMetadataMap.get(selectedFile?.id || '')}
+            isOpen={showSidebar}
+            onClose={closeSidebar}
+          />
+        </div>
       </div>
 
       {/* Modals */}
