@@ -23,8 +23,13 @@ export type FileboxState = {
   secureAction: OTPAction;
 };
 
+type SortBy = "name" | "lastModified" | "category" | null;
+type SortDirection = "asc" | "desc";
+
 export const useFileboxOperations = () => {
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+  const [selectedRecentFile, setSelectedRecentFile] = useState<FileItem | null>(null);
+  const [selectedMyFile, setSelectedMyFile] = useState<FileItem | null>(null);
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -34,6 +39,8 @@ export const useFileboxOperations = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [secureAction, setSecureAction] = useState<OTPAction>("preview");
+  const [sortBy, setSortBy] = useState<SortBy>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const downloadMutation = useFileboxDownload();
 
@@ -73,7 +80,7 @@ export const useFileboxOperations = () => {
   }, [filesResponse]);
 
   const filteredFiles = useMemo(() => {
-    return files.filter((file: FileItem) => {
+    let filtered = files.filter((file: FileItem) => {
       const categoryMatch =
         selectedCategory === "all" || file.category === selectedCategory;
 
@@ -83,7 +90,41 @@ export const useFileboxOperations = () => {
 
       return categoryMatch && searchMatch;
     });
-  }, [files, selectedCategory, searchTerm]);
+
+    // Apply sorting if sortBy is set
+    if (sortBy) {
+      filtered = filtered.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortBy) {
+          case "name":
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case "lastModified":
+            const fileA = fileMetadataMap.get(a.id);
+            const fileB = fileMetadataMap.get(b.id);
+            if (!fileA || !fileB) return 0;
+            aValue = new Date(fileA.lastModified).getTime();
+            bValue = new Date(fileB.lastModified).getTime();
+            break;
+          case "category":
+            aValue = a.category.toLowerCase();
+            bValue = b.category.toLowerCase();
+            break;
+          default:
+            return 0;
+        }
+
+        if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [files, selectedCategory, searchTerm, sortBy, sortDirection, fileMetadataMap]);
 
   const recentFiles = useMemo(() => {
     return [...files]
@@ -106,9 +147,23 @@ export const useFileboxOperations = () => {
       : "Failed to load files"
     : null;
 
-  const handleFileClick = useCallback(async (file: FileItem) => {
+  const handleFileClick = useCallback((file: FileItem) => {
     setSelectedFile(file);
-    setShowSidebar(true);
+  }, []);
+
+  const handleRecentFileClick = useCallback((file: FileItem) => {
+    setSelectedRecentFile(file);
+    setSelectedMyFile(null); // Clear My Files selection
+  }, []);
+
+  const handleMyFileClick = useCallback((file: FileItem) => {
+    setSelectedMyFile(file);
+    setSelectedRecentFile(null); // Clear Recent Files selection
+    setSelectedFile(file); // Keep for sidebar compatibility
+  }, []);
+
+  const handleFileDoubleClick = useCallback(async (file: FileItem) => {
+    setSelectedFile(file);
 
     if (file.isSecure) {
       setSecureAction("preview");
@@ -155,6 +210,11 @@ export const useFileboxOperations = () => {
       }
     }
   }, [fileMetadataMap]);
+
+  const handleShowDetails = useCallback((file: FileItem) => {
+    setSelectedFile(file);
+    setShowSidebar(true);
+  }, []);
 
   const handleDownload = useCallback(async () => {
     if (!selectedFile) return;
@@ -208,9 +268,22 @@ export const useFileboxOperations = () => {
     setSelectedFile(null);
   }, []);
 
+  const handleSort = useCallback((field: SortBy) => {
+    if (sortBy === field) {
+      // If clicking the same field, toggle direction
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // If clicking a new field, set it as sortBy and default to desc
+      setSortBy(field);
+      setSortDirection("desc");
+    }
+  }, [sortBy, sortDirection]);
+
   return {
     // State
     selectedFile,
+    selectedRecentFile,
+    selectedMyFile,
     showSidebar,
     selectedCategory,
     searchTerm,
@@ -220,6 +293,8 @@ export const useFileboxOperations = () => {
     showPreview,
     previewUrl,
     secureAction,
+    sortBy,
+    sortDirection,
 
     // Data
     files,
@@ -235,7 +310,12 @@ export const useFileboxOperations = () => {
     setViewType,
     setShowUpload,
     handleFileClick,
+    handleRecentFileClick,
+    handleMyFileClick,
+    handleFileDoubleClick,
+    handleShowDetails,
     handleDownload,
+    handleSort,
     closeSidebar,
     closePreview,
     handleSecureSuccess,

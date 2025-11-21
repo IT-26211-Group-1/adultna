@@ -14,7 +14,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { Eye, Download, Trash2, EllipsisVertical, Edit3 } from "lucide-react";
+import { Eye, Download, Trash2, EllipsisVertical, Edit3, Info } from "lucide-react";
 import { FileItem } from "./FileItem";
 import {
   useFileboxDownload,
@@ -31,16 +31,18 @@ import { RenameFileModal } from "./RenameFileModal";
 import { ReplaceFileConfirmation } from "./ReplaceFileConfirmation";
 import { logger } from "@/lib/logger";
 
-interface FileActionsProps {
+type FileActionsProps = {
   file: FileItem;
   fileMetadata?: FileMetadata;
   viewType?: "grid" | "list";
+  onShowDetails?: (file: FileItem) => void;
 }
 
 export function FileActions({
   file,
   fileMetadata,
   viewType = "grid",
+  onShowDetails,
 }: FileActionsProps) {
   const downloadMutation = useFileboxDownload();
   const deleteMutation = useFileboxDelete();
@@ -340,6 +342,7 @@ export function FileActions({
         )}
 
         <div className="flex items-center space-x-1">
+          {/* Primary Actions - Always Visible */}
           <Button
             isIconOnly
             className="text-gray-600 hover:text-blue-600"
@@ -347,6 +350,7 @@ export function FileActions({
             size="sm"
             variant="light"
             onPress={handleView}
+            title="Preview file"
           >
             <Eye className="w-4 h-4" />
           </Button>
@@ -357,27 +361,50 @@ export function FileActions({
             size="sm"
             variant="light"
             onPress={handleDownload}
+            title="Download"
           >
             <Download className="w-4 h-4" />
           </Button>
-          <Button
-            isIconOnly
-            className="text-gray-600 hover:text-amber-600"
-            size="sm"
-            variant="light"
-            onPress={onRenameOpen}
-          >
-            <Edit3 className="w-4 h-4" />
-          </Button>
-          <Button
-            isIconOnly
-            className="text-gray-600 hover:text-red-600"
-            size="sm"
-            variant="light"
-            onPress={handleDelete}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+
+          {/* Secondary Actions - Dropdown Menu */}
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                isIconOnly
+                className="text-gray-600 hover:text-gray-800"
+                size="sm"
+                variant="light"
+                title="More actions"
+              >
+                <EllipsisVertical className="w-4 h-4" />
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="File actions">
+              <DropdownItem
+                key="edit"
+                startContent={<Edit3 className="w-4 h-4" />}
+                onPress={onRenameOpen}
+              >
+                Rename
+              </DropdownItem>
+              <DropdownItem
+                key="details"
+                startContent={<Info className="w-4 h-4" />}
+                onPress={() => onShowDetails?.(file)}
+              >
+                Details
+              </DropdownItem>
+              <DropdownItem
+                key="delete"
+                startContent={<Trash2 className="w-4 h-4" />}
+                className="text-danger"
+                color="danger"
+                onPress={handleDelete}
+              >
+                Delete
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </div>
 
         {/* File Preview Modal */}
@@ -494,6 +521,13 @@ export function FileActions({
               onPress={onRenameOpen}
             >
               Rename
+            </DropdownItem>
+            <DropdownItem
+              key="details"
+              startContent={<Info className="w-4 h-4" />}
+              onPress={() => onShowDetails?.(file)}
+            >
+              More Details
             </DropdownItem>
             <DropdownItem
               key="delete"

@@ -15,6 +15,8 @@ import { useFileboxOperations } from "./hooks/useFileboxOperations";
 export default function FileBoxPage() {
   const {
     selectedFile,
+    selectedRecentFile,
+    selectedMyFile,
     showSidebar,
     selectedCategory,
     searchTerm,
@@ -24,6 +26,8 @@ export default function FileBoxPage() {
     showPreview,
     previewUrl,
     secureAction,
+    sortBy,
+    sortDirection,
     files,
     filteredFiles,
     recentFiles,
@@ -34,8 +38,12 @@ export default function FileBoxPage() {
     setSearchTerm,
     setViewType,
     setShowUpload,
-    handleFileClick,
+    handleRecentFileClick,
+    handleMyFileClick,
+    handleFileDoubleClick,
+    handleShowDetails,
     handleDownload,
+    handleSort,
     closeSidebar,
     closePreview,
     handleSecureSuccess,
@@ -45,8 +53,8 @@ export default function FileBoxPage() {
   return (
     <div className="flex h-screen flex-col">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white px-6 py-4">
-        <h1 className="text-2xl font-semibold text-gray-900">
+      <header className="border-b border-gray-200 bg-white px-6 py-3 pt-6">
+        <h1 className="text-xl font-semibold text-gray-900">
           Adulting Filebox
         </h1>
       </header>
@@ -79,6 +87,7 @@ export default function FileBoxPage() {
               </div>
             </div>
 
+
             {/* Loading State */}
             {filesLoading && <FileBoxSkeleton viewType={viewType} />}
 
@@ -97,7 +106,9 @@ export default function FileBoxPage() {
                 {/* Recent Files Section */}
                 <RecentFiles
                   files={recentFiles}
-                  onFileClick={handleFileClick}
+                  selectedRecentFile={selectedRecentFile}
+                  onFileClick={handleRecentFileClick}
+                  onFileDoubleClick={handleFileDoubleClick}
                 />
 
                 {/* My Files Table */}
@@ -105,8 +116,14 @@ export default function FileBoxPage() {
                   files={filteredFiles}
                   fileMetadataMap={fileMetadataMap}
                   viewType={viewType}
-                  onFileClick={handleFileClick}
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  selectedMyFile={selectedMyFile}
+                  onFileClick={handleMyFileClick}
+                  onFileDoubleClick={handleFileDoubleClick}
+                  onShowDetails={handleShowDetails}
                   onViewTypeChange={setViewType}
+                  onSort={handleSort}
                 />
               </>
             )}
