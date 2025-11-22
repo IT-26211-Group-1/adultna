@@ -12,7 +12,10 @@ type AuditLogsTableProps = {
   isLoading: boolean;
 };
 
-export default function AuditLogsTable({ logs, isLoading }: AuditLogsTableProps) {
+export default function AuditLogsTable({
+  logs,
+  isLoading,
+}: AuditLogsTableProps) {
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
@@ -26,30 +29,59 @@ export default function AuditLogsTable({ logs, isLoading }: AuditLogsTableProps)
     setSelectedLog(null);
   };
 
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+
+    return date
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      })
+      .replace(",", "");
+  };
+
+  const formatAction = (action: string) => {
+    return action
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const columns: TableColumn<AuditLog>[] = [
     {
       header: "Timestamp",
       accessor: "timestamp",
-      render: (log) => (
-        <span className="text-sm">
-          {new Date(log.timestamp).toLocaleString()}
+      render: (log: AuditLog) => (
+        <span className="text-sm font-mono">
+          {formatTimestamp(log.timestamp)}
         </span>
       ),
     },
     {
       header: "Service",
       accessor: "service",
-      render: (log) => <span className="text-sm font-medium">{log.service}</span>,
+      render: (log: AuditLog) => (
+        <span className="text-sm font-medium capitalize">
+          {log.service.replace("-", " ")}
+        </span>
+      ),
     },
     {
       header: "Action",
       accessor: "action",
-      render: (log) => <span className="text-sm">{log.action}</span>,
+      render: (log: AuditLog) => (
+        <span className="text-sm">{formatAction(log.action)}</span>
+      ),
     },
     {
       header: "User",
       accessor: "userEmail",
-      render: (log) => (
+      render: (log: AuditLog) => (
         <div className="flex flex-col">
           <span className="text-sm font-medium">{log.userEmail}</span>
           <span className="text-xs text-gray-500">{log.userRole}</span>
@@ -59,7 +91,7 @@ export default function AuditLogsTable({ logs, isLoading }: AuditLogsTableProps)
     {
       header: "Resource",
       accessor: "resource",
-      render: (log) => (
+      render: (log: AuditLog) => (
         <div className="flex flex-col">
           <span className="text-sm">{log.resource}</span>
           <span className="text-xs text-gray-500 truncate max-w-[150px]">
@@ -71,12 +103,12 @@ export default function AuditLogsTable({ logs, isLoading }: AuditLogsTableProps)
     {
       header: "Status",
       accessor: "status",
-      render: (log) => <AuditLogStatusBadge status={log.status} />,
+      render: (log: AuditLog) => <AuditLogStatusBadge status={log.status} />,
     },
     {
       header: "Message",
       accessor: "message",
-      render: (log) => (
+      render: (log: AuditLog) => (
         <span className="text-sm text-gray-600 truncate max-w-[200px] block">
           {log.message}
         </span>
@@ -85,10 +117,10 @@ export default function AuditLogsTable({ logs, isLoading }: AuditLogsTableProps)
     {
       header: "Actions",
       accessor: "timestamp",
-      render: (log) => (
+      render: (log: AuditLog) => (
         <button
+          className="text-sm text-adult-green hover:text-adult-green/80 font-medium"
           onClick={() => handleViewDetails(log)}
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
         >
           View Details
         </button>
@@ -101,14 +133,14 @@ export default function AuditLogsTable({ logs, isLoading }: AuditLogsTableProps)
       <Table
         columns={columns}
         data={logs}
-        loading={isLoading}
         emptyMessage="No audit logs found"
+        loading={isLoading}
       />
 
       <AuditLogDetailsModal
         isOpen={detailsModalOpen}
-        onClose={handleCloseModal}
         log={selectedLog}
+        onClose={handleCloseModal}
       />
     </>
   );

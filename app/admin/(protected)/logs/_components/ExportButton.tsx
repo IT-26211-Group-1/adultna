@@ -36,17 +36,18 @@ export default function ExportButton({ logs, disabled }: ExportButtonProps) {
           log.status,
           `"${log.message.replace(/"/g, '""')}"`,
           log.errorMessage ? `"${log.errorMessage.replace(/"/g, '""')}"` : "",
-        ].join(",")
+        ].join(","),
       ),
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
+
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `audit-logs-${new Date().toISOString().split("T")[0]}.csv`
+      `audit-logs-${new Date().toISOString().split("T")[0]}.csv`,
     );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
@@ -56,9 +57,9 @@ export default function ExportButton({ logs, disabled }: ExportButtonProps) {
 
   return (
     <button
-      onClick={handleExport}
-      disabled={disabled || logs.length === 0}
       className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled={disabled || logs.length === 0}
+      onClick={handleExport}
     >
       Export to CSV
     </button>

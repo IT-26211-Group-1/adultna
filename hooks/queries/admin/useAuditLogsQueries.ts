@@ -2,11 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ApiClient, queryKeys } from "@/lib/apiClient";
-import type {
-  AuditLog,
-  AuditLogsFilter,
-  AuditLogsResponse,
-} from "@/types/audit";
+import type { AuditLogsFilter, AuditLogsResponse } from "@/types/audit";
 
 // API Functions
 const auditLogsApi = {
@@ -44,7 +40,10 @@ const auditLogsApi = {
   },
 };
 
-export function useAuditLogs(filters?: AuditLogsFilter, enabled: boolean = true) {
+export function useAuditLogs(
+  filters?: AuditLogsFilter,
+  enabled: boolean = true,
+) {
   return useQuery({
     queryKey: queryKeys.admin.auditLogs.list(filters),
     queryFn: () => auditLogsApi.listAuditLogs(filters),

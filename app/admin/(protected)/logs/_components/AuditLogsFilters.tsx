@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { AuditLogsFilter } from "@/types/audit";
 
 type AuditLogsFiltersProps = {
@@ -7,44 +8,58 @@ type AuditLogsFiltersProps = {
   onFiltersChange: (filters: AuditLogsFilter) => void;
 };
 
-const ADMIN_SERVICES = [
-  "admin-auth",
-  "gov-guides",
-  "onboarding",
-  "feedback",
-] as const;
+const DATE_RANGES = {
+  today: { label: "Today", days: 0 },
+  last7days: { label: "Last 7 Days", days: 7 },
+  last30days: { label: "Last 30 Days", days: 30 },
+  last90days: { label: "Last 90 Days", days: 90 },
+  custom: { label: "Custom Date Range", days: -1 },
+} as const;
 
 export default function AuditLogsFilters({
   filters,
   onFiltersChange,
 }: AuditLogsFiltersProps) {
-  const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const [dateRange, setDateRange] =
+    useState<keyof typeof DATE_RANGES>("last7days");
+  const [showCustomDates, setShowCustomDates] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const handleDateRangeChange = (range: keyof typeof DATE_RANGES) => {
+    setDateRange(range);
+
+    if (range === "custom") {
+      setShowCustomDates(true);
+
+      return;
+    }
+
+    setShowCustomDates(false);
+    const config = DATE_RANGES[range];
+    const endTime = new Date();
+    const startTime = new Date();
+
+    if (config.days === 0) {
+      startTime.setHours(0, 0, 0, 0);
+    } else {
+      startTime.setDate(startTime.getDate() - config.days);
+    }
+
+    onFiltersChange({
+      ...filters,
+      startTime,
+      endTime,
+    });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    onFiltersChange({
-      ...filters,
-      service: value || undefined,
-    });
-  };
 
-  const handleActionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onFiltersChange({
-      ...filters,
-      action: e.target.value || undefined,
-    });
-  };
+    setSearchText(value);
 
-  const handleUserEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFiltersChange({
       ...filters,
-      userEmail: e.target.value || undefined,
-    });
-  };
-
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value as "success" | "failure" | "";
-    onFiltersChange({
-      ...filters,
-      status: value || undefined,
+      userEmail: value || undefined,
+      action: value || undefined,
     });
   };
 
@@ -62,125 +77,94 @@ export default function AuditLogsFilters({
     });
   };
 
-  const handleClearFilters = () => {
-    onFiltersChange({
-      limit: 100,
-    });
-  };
-
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 mb-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div>
-          <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-1">
-            Service
-          </label>
-          <select
-            id="service"
-            value={filters.service || ""}
-            onChange={handleServiceChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Services</option>
-            {ADMIN_SERVICES.map((service) => (
-              <option key={service} value={service}>
-                {service}
-              </option>
-            ))}
-          </select>
+      <div className="flex flex-wrap items-center gap-4">
+        {/* Date Range Selector */}
+        <div className="flex items-center gap-2">
+          {Object.entries(DATE_RANGES).map(([key, { label }]) => (
+            <button
+              key={key}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                dateRange === key
+                  ? "bg-adult-green text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              onClick={() =>
+                handleDateRangeChange(key as keyof typeof DATE_RANGES)
+              }
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
-        <div>
-          <label htmlFor="action" className="block text-sm font-medium text-gray-700 mb-1">
-            Action
-          </label>
+        {/* Search Filter */}
+        <div className="flex-1 min-w-[300px]">
           <input
-            id="action"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adult-green focus:border-transparent"
+            placeholder="Type text to filter..."
             type="text"
-            value={filters.action || ""}
-            onChange={handleActionChange}
-            placeholder="e.g., create_guide, update_account"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="userEmail" className="block text-sm font-medium text-gray-700 mb-1">
-            User Email
-          </label>
-          <input
-            id="userEmail"
-            type="text"
-            value={filters.userEmail || ""}
-            onChange={handleUserEmailChange}
-            placeholder="admin@example.com"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
-          <select
-            id="status"
-            value={filters.status || ""}
-            onChange={handleStatusChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Statuses</option>
-            <option value="success">Success</option>
-            <option value="failure">Failure</option>
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-1">
-            Start Time
-          </label>
-          <input
-            id="startTime"
-            type="datetime-local"
-            value={
-              filters.startTime
-                ? new Date(filters.startTime.getTime() - filters.startTime.getTimezoneOffset() * 60000)
-                    .toISOString()
-                    .slice(0, 16)
-                : ""
-            }
-            onChange={handleStartTimeChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 mb-1">
-            End Time
-          </label>
-          <input
-            id="endTime"
-            type="datetime-local"
-            value={
-              filters.endTime
-                ? new Date(filters.endTime.getTime() - filters.endTime.getTimezoneOffset() * 60000)
-                    .toISOString()
-                    .slice(0, 16)
-                : ""
-            }
-            onChange={handleEndTimeChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={searchText}
+            onChange={handleSearchChange}
           />
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
-        <button
-          onClick={handleClearFilters}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Clear Filters
-        </button>
-      </div>
+      {/* Custom Date Range Inputs */}
+      {showCustomDates && (
+        <div className="mt-4 flex gap-4">
+          <div className="flex-1">
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="startTime"
+            >
+              Start Date
+            </label>
+            <input
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adult-green"
+              id="startTime"
+              type="datetime-local"
+              value={
+                filters.startTime
+                  ? new Date(
+                      filters.startTime.getTime() -
+                        filters.startTime.getTimezoneOffset() * 60000,
+                    )
+                      .toISOString()
+                      .slice(0, 16)
+                  : ""
+              }
+              onChange={handleStartTimeChange}
+            />
+          </div>
+
+          <div className="flex-1">
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="endTime"
+            >
+              End Date
+            </label>
+            <input
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-adult-green"
+              id="endTime"
+              type="datetime-local"
+              value={
+                filters.endTime
+                  ? new Date(
+                      filters.endTime.getTime() -
+                        filters.endTime.getTimezoneOffset() * 60000,
+                    )
+                      .toISOString()
+                      .slice(0, 16)
+                  : ""
+              }
+              onChange={handleEndTimeChange}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

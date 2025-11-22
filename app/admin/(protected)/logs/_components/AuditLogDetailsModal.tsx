@@ -18,17 +18,14 @@ export default function AuditLogDetailsModal({
   if (!log) return null;
 
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      title="Audit Log Details"
-      size="lg"
-    >
+    <Modal open={isOpen} size="lg" title="Audit Log Details" onClose={onClose}>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm font-medium text-gray-500">Timestamp</p>
-            <p className="text-sm text-gray-900">{new Date(log.timestamp).toLocaleString()}</p>
+            <p className="text-sm text-gray-900">
+              {new Date(log.timestamp).toLocaleString()}
+            </p>
           </div>
 
           <div>
@@ -85,7 +82,9 @@ export default function AuditLogDetailsModal({
 
         {log.errorMessage && (
           <div>
-            <p className="text-sm font-medium text-red-500 mb-2">Error Message</p>
+            <p className="text-sm font-medium text-red-500 mb-2">
+              Error Message
+            </p>
             <div className="bg-red-50 border border-red-200 p-3 rounded-md">
               <p className="text-sm text-red-900">{log.errorMessage}</p>
             </div>

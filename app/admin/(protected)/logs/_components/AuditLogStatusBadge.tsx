@@ -5,11 +5,13 @@ type AuditLogStatusBadgeProps = {
   status: AuditLogStatus;
 };
 
-export default function AuditLogStatusBadge({ status }: AuditLogStatusBadgeProps) {
+export default function AuditLogStatusBadge({
+  status,
+}: AuditLogStatusBadgeProps) {
   const variant = status === "success" ? "success" : "error";
 
   return (
-    <Badge variant={variant} size="sm">
+    <Badge size="sm" variant={variant}>
       {status}
     </Badge>
   );
