@@ -2,6 +2,19 @@
 
 import { ProcessStep } from "@/types/govguide";
 
+// Function to parse and format numbered lists from admin input
+function parseNumberedList(text: string): string[] | null {
+  // Check if text contains numbered items (1. 2. 3. etc.)
+  const numberedItemRegex = /(\d+\.\s+[^0-9]+?)(?=\d+\.\s+|$)/g;
+  const matches = text.match(numberedItemRegex);
+
+  if (matches && matches.length > 2) { // Only format if 3+ items
+    return matches.map(item => item.trim());
+  }
+
+  return null;
+}
+
 type CompleteGuideTabProps = {
   steps: ProcessStep[];
 };
@@ -34,9 +47,34 @@ export default function CompleteGuideTab({ steps }: CompleteGuideTabProps) {
               {step.title}
             </h3>
             {step.description && (
-              <p className="text-xs text-gray-700 mb-2 whitespace-pre-line leading-relaxed">
-                {step.description}
-              </p>
+              <div className="text-xs text-gray-700 mb-2">
+                {(() => {
+                  const numberedItems = parseNumberedList(step.description);
+
+                  if (numberedItems) {
+                    return (
+                      <ol className="list-none space-y-2 leading-relaxed">
+                        {numberedItems.map((item, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="font-semibold text-adult-green min-w-[1.5rem] text-xs">
+                              {index + 1}.
+                            </span>
+                            <span className="flex-1">
+                              {item.replace(/^\d+\.\s*/, '')}
+                            </span>
+                          </li>
+                        ))}
+                      </ol>
+                    );
+                  }
+
+                  return (
+                    <p className="whitespace-pre-line leading-relaxed">
+                      {step.description}
+                    </p>
+                  );
+                })()}
+              </div>
             )}
             {step.estimatedTime && (
               <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
