@@ -279,9 +279,9 @@ export function SecureDocument({
               <Image
                 alt="Security lock icon"
                 className="w-28 h-28"
+                height={112}
                 src="/filebox-lock.png"
                 width={112}
-                height={112}
               />
             </div>
           </ModalHeader>
@@ -405,7 +405,7 @@ export function SecureDocument({
                         `}
                         onClick={() => handleBoxClick(index)}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
+                          if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
                             handleBoxClick(index);
                           }
