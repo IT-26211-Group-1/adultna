@@ -35,10 +35,14 @@ function UserSidebar({
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const pathname = usePathname();
 
-  // Apply olivine background specifically for roadmap page
+  // Apply specific backgrounds for certain pages
   const resolvedBackgroundColor =
     backgroundColor ||
-    (pathname === "/roadmap" ? "rgba(154,205,50, 0.08)" : "white");
+    (pathname === "/roadmap"
+      ? "rgba(154,205,50, 0.08)"
+      : pathname === "/find-office"
+        ? "white"
+        : "white");
 
   // Use controlled state if provided, otherwise use internal state
   const isOpen =

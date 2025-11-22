@@ -1,7 +1,16 @@
 "use client";
 
 import { GovGuide } from "@/types/govguide";
-import { ChevronRight, Clock } from "lucide-react";
+import {
+  ChevronRight,
+  FileText,
+  Users,
+  CreditCard,
+  Shield,
+  Building,
+  Scale,
+  Folder,
+} from "lucide-react";
 import Link from "next/link";
 import { Card, CardBody } from "@heroui/card";
 
@@ -10,50 +19,113 @@ type GuideCardProps = {
 };
 
 export default function GuideCard({ guide }: GuideCardProps) {
+  const getCategoryConfig = (category: string) => {
+    const configs = {
+      identification: {
+        icon: Shield,
+        label: "Government IDs",
+        className:
+          "border border-adult-green text-adult-green bg-adult-green/5",
+      },
+      "civil-registration": {
+        icon: FileText,
+        label: "Civil Registration",
+        className: "border border-olivine text-olivine bg-olivine/5",
+      },
+      "permits-licenses": {
+        icon: CreditCard,
+        label: "Permits & Licenses",
+        className:
+          "border border-crayola-orange text-crayola-orange bg-crayola-orange/5",
+      },
+      "social-services": {
+        icon: Users,
+        label: "Social Services",
+        className:
+          "border border-adult-green text-adult-green bg-adult-green/5",
+      },
+      "tax-related": {
+        icon: Building,
+        label: "Tax-Related",
+        className:
+          "border border-ultra-violet text-ultra-violet bg-ultra-violet/5",
+      },
+      legal: {
+        icon: Scale,
+        label: "Legal Documents",
+        className:
+          "border border-periwinkle text-ultra-violet bg-periwinkle/10",
+      },
+      other: {
+        icon: Folder,
+        label: "Other",
+        className: "border border-gray-300 text-gray-600 bg-gray-50",
+      },
+    };
+
+    return (
+      configs[category as keyof typeof configs] || {
+        icon: Folder,
+        label: category,
+        className: "border border-gray-300 text-gray-600 bg-gray-50",
+      }
+    );
+  };
+
+  const categoryConfig = getCategoryConfig(guide.category);
+  const IconComponent = categoryConfig.icon;
+
   return (
-    <Link className="block w-full" href={`/gov-guides/${guide.slug}`}>
+    <div className="group">
       <Card
         disableAnimation
-        isPressable
-        className="border border-gray-200 hover:border-adult-green transition-all duration-200 hover:shadow-md w-full"
+        className="border border-gray-200 w-full h-full bg-white shadow-none"
       >
-        <CardBody className="p-6">
-          <div className="flex items-start justify-between gap-4 min-h-[120px]">
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {guide.title}
-              </h3>
-              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                {guide.summary ||
-                  `Complete guide for applying for your ${guide.title}`}
-              </p>
-              <div className="text-xs text-gray-500 space-y-1">
-                {guide.requirements && guide.requirements.length > 0 && (
-                  <div className="flex items-start gap-1">
-                    <span className="font-medium min-w-fit">Requirements:</span>
-                    <span className="line-clamp-1">
-                      {guide.requirements
-                        .slice(0, 3)
-                        .map((req) => req.name)
-                        .join(", ")}
-                      {guide.requirements.length > 3 && "..."}
-                    </span>
-                  </div>
-                )}
+        <CardBody className="p-4 min-h-[200px]">
+          <div className="flex flex-col h-full">
+            {/* Title */}
+            <h3 className="text-sm font-semibold text-gray-900 mb-3 line-clamp-2">
+              {guide.title}
+            </h3>
+
+            {/* Divider */}
+            <div className="border-t border-gray-100 mb-3" />
+
+            {/* Summary */}
+            <p className="text-xs text-gray-600 mb-4 line-clamp-2 flex-1">
+              {guide.summary ||
+                `Complete guide for applying for your ${guide.title}`}
+            </p>
+
+            {/* Requirements */}
+            <div className="mb-3">
+              <div className="text-xs text-gray-500">
+                {guide.requirements && guide.requirements.length > 0
+                  ? `${guide.requirements.length} requirement${guide.requirements.length > 1 ? "s" : ""}`
+                  : "No requirements"}
               </div>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              {guide.estimatedProcessingTime && (
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Clock className="w-3 h-3" />
-                  <span>{guide.estimatedProcessingTime}</span>
-                </div>
-              )}
-              <ChevronRight className="w-5 h-5 text-gray-400" />
+
+            {/* Category Tag and Action */}
+            <div className="flex items-end justify-between">
+              <div
+                className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${categoryConfig.className}`}
+              >
+                <IconComponent className="w-3 h-3" />
+                {categoryConfig.label}
+              </div>
+
+              <Link
+                className="inline-flex items-center gap-1 text-adult-green hover:text-green-600 font-medium text-xs transition-colors group"
+                href={`/gov-guides/${guide.slug}`}
+              >
+                View Details
+                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
             </div>
           </div>
         </CardBody>
       </Card>
-    </Link>
+    </div>
   );
 }

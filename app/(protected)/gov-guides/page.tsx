@@ -1,22 +1,18 @@
 import { Suspense } from "react";
 import GuidesListClient from "./_components/GuidesListClient";
 import GuidesLoadingSkeleton from "./_components/GuidesLoadingSkeleton";
+import GovGuidesHero from "./_components/GovGuidesHero";
 
 export default function GovernmentGuidesPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Government Process Guides
-        </h1>
-        <p className="text-gray-600">
-          Find step-by-step guides for various government processes
-        </p>
-      </div>
+    <div className="pt-4">
+      <GovGuidesHero />
 
-      <Suspense fallback={<GuidesLoadingSkeleton />}>
-        <GuidesListClient />
-      </Suspense>
+      <div className="mx-4 sm:mx-6 lg:mx-8 py-8">
+        <Suspense fallback={<GuidesLoadingSkeleton />}>
+          <GuidesListClient />
+        </Suspense>
+      </div>
     </div>
   );
 }
