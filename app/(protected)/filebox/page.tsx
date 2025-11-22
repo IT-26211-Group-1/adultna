@@ -162,10 +162,11 @@ export default function FileBoxPage() {
       {/* Modals */}
       {showUpload && <UploadDocument onClose={() => setShowUpload(false)} />}
 
-      {showSecureAccess && selectedFile && (
+      {selectedFile && (
         <SecureDocument
           action={secureAction}
           file={selectedFile}
+          isOpen={showSecureAccess}
           onClose={closeSecureAccess}
           onSuccess={handleSecureSuccess}
         />
