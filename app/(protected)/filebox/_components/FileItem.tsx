@@ -1,4 +1,4 @@
-export interface FileItem {
+export type FileItem = {
   id: string;
   name: string;
   category: string;
@@ -7,4 +7,4 @@ export interface FileItem {
   lastAccessed: string;
   type: "pdf" | "jpg" | "doc" | "png" | "docx";
   isSecure?: boolean;
-}
+};
