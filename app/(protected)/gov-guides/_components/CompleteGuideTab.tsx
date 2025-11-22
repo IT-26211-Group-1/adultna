@@ -18,28 +18,28 @@ export default function CompleteGuideTab({ steps }: CompleteGuideTabProps) {
   const sortedSteps = [...steps].sort((a, b) => a.stepNumber - b.stepNumber);
 
   return (
-    <div className="space-y-6">
-      {sortedSteps.map((step, index) => (
+    <div className="space-y-4">
+      {sortedSteps.map((step) => (
         <div
-          key={index}
-          className="flex gap-4 pb-6 border-b border-gray-200 last:border-0 last:pb-0"
+          key={step.stepNumber}
+          className="flex gap-3 pb-4 border-b border-gray-200 last:border-0 last:pb-0"
         >
           <div className="flex-shrink-0">
-            <div className="w-10 h-10 rounded-full bg-adult-green text-white flex items-center justify-center font-semibold">
+            <div className="w-7 h-7 rounded-full bg-adult-green text-white flex items-center justify-center text-xs font-semibold">
               {step.stepNumber}
             </div>
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="flex-1 mt-1.5">
+            <h3 className="text-sm text-gray-900 mb-2 leading-tight">
               {step.title}
             </h3>
             {step.description && (
-              <p className="text-gray-700 mb-2 whitespace-pre-line">
+              <p className="text-xs text-gray-700 mb-2 whitespace-pre-line leading-relaxed">
                 {step.description}
               </p>
             )}
             {step.estimatedTime && (
-              <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
+              <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
                 <span className="font-medium">Estimated time:</span>
                 <span>{step.estimatedTime}</span>
               </div>
