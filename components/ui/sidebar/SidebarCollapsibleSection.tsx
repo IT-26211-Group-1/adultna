@@ -22,7 +22,7 @@ const adultingToolkitItems: SectionItem[] = [
   {
     id: "govguides",
     label: "GovGuides",
-    href: "/govguides",
+    href: "/gov-guides",
   },
   {
     id: "adulting-filebox",

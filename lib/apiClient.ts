@@ -95,7 +95,11 @@ export class ApiClient {
 
                 // Only redirect if not already on a public route
                 if (!isPublicRoute(currentPath)) {
-                  window.location.href = "/auth/login";
+                  const loginPath = currentPath.startsWith("/admin")
+                    ? "/admin/login"
+                    : "/auth/login";
+
+                  window.location.href = loginPath;
                 }
               }
 
@@ -113,7 +117,11 @@ export class ApiClient {
 
               // Only redirect if not already on a public route
               if (!isPublicRoute(currentPath)) {
-                window.location.href = "/auth/login";
+                const loginPath = currentPath.startsWith("/admin")
+                  ? "/admin/login"
+                  : "/auth/login";
+
+                window.location.href = loginPath;
               }
             }
 
@@ -311,6 +319,18 @@ export const queryKeys = {
       list: () => ["admin", "onboarding", "list"] as const,
       detail: (questionId: number) =>
         ["admin", "onboarding", "detail", questionId] as const,
+    },
+    auditLogs: {
+      all: ["admin", "auditLogs"] as const,
+      list: (filters?: {
+        startTime?: Date;
+        endTime?: Date;
+        service?: string;
+        action?: string;
+        userEmail?: string;
+        status?: "success" | "failure";
+        limit?: number;
+      }) => ["admin", "auditLogs", "list", filters] as const,
     },
   },
 

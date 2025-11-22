@@ -588,3 +588,29 @@ export function useGradeResume() {
     },
   });
 }
+
+export function useSaveToFilebox(resumeId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["saveToFilebox", resumeId],
+    mutationFn: async () => {
+      const response = await ApiClient.post<{
+        success: boolean;
+        message: string;
+        data: { fileId: string; fileKey: string };
+      }>(`/resumes/${resumeId}/save-to-filebox`, {});
+
+      if (!response.data) {
+        throw new Error("No filebox data returned from server");
+      }
+
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.quota(),
+      });
+    },
+  });
+}
