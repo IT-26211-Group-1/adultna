@@ -39,7 +39,7 @@ export default function AuditLogsContent() {
 
       <AuditLogsFilters filters={filters} onFiltersChange={setFilters} />
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto max-w-full">
         <AuditLogsTable isLoading={isLoading} logs={paginatedLogs} />
       </div>
 

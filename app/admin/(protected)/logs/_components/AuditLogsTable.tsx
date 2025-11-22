@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Table from "@/components/ui/Table";
 import type { AuditLog } from "@/types/audit";
-import type { TableColumn } from "@/types/table";
+import type { Column } from "@/types/table";
 import AuditLogStatusBadge from "./AuditLogStatusBadge";
 import AuditLogDetailsModal from "./AuditLogDetailsModal";
 
@@ -52,11 +52,17 @@ export default function AuditLogsTable({
       .join(" ");
   };
 
-  const columns: TableColumn<AuditLog>[] = [
+  const formatRole = (role: string) => {
+    return role
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const columns: Column<AuditLog>[] = [
     {
       header: "Timestamp",
-      accessor: "timestamp",
-      render: (log: AuditLog) => (
+      accessor: (log: AuditLog) => (
         <span className="text-sm font-mono">
           {formatTimestamp(log.timestamp)}
         </span>
@@ -64,8 +70,7 @@ export default function AuditLogsTable({
     },
     {
       header: "Service",
-      accessor: "service",
-      render: (log: AuditLog) => (
+      accessor: (log: AuditLog) => (
         <span className="text-sm font-medium capitalize">
           {log.service.replace("-", " ")}
         </span>
@@ -73,25 +78,24 @@ export default function AuditLogsTable({
     },
     {
       header: "Action",
-      accessor: "action",
-      render: (log: AuditLog) => (
+      accessor: (log: AuditLog) => (
         <span className="text-sm">{formatAction(log.action)}</span>
       ),
     },
     {
       header: "User",
-      accessor: "userEmail",
-      render: (log: AuditLog) => (
+      accessor: (log: AuditLog) => (
         <div className="flex flex-col">
           <span className="text-sm font-medium">{log.userEmail}</span>
-          <span className="text-xs text-gray-500">{log.userRole}</span>
+          <span className="text-xs text-gray-500">
+            {formatRole(log.userRole)}
+          </span>
         </div>
       ),
     },
     {
       header: "Resource",
-      accessor: "resource",
-      render: (log: AuditLog) => (
+      accessor: (log: AuditLog) => (
         <div className="flex flex-col">
           <span className="text-sm">{log.resource}</span>
           <span className="text-xs text-gray-500 truncate max-w-[150px]">
@@ -102,13 +106,11 @@ export default function AuditLogsTable({
     },
     {
       header: "Status",
-      accessor: "status",
-      render: (log: AuditLog) => <AuditLogStatusBadge status={log.status} />,
+      accessor: (log: AuditLog) => <AuditLogStatusBadge status={log.status} />,
     },
     {
       header: "Message",
-      accessor: "message",
-      render: (log: AuditLog) => (
+      accessor: (log: AuditLog) => (
         <span className="text-sm text-gray-600 truncate max-w-[200px] block">
           {log.message}
         </span>
@@ -116,8 +118,7 @@ export default function AuditLogsTable({
     },
     {
       header: "Actions",
-      accessor: "timestamp",
-      render: (log: AuditLog) => (
+      accessor: (log: AuditLog) => (
         <button
           className="text-sm text-adult-green hover:text-adult-green/80 font-medium"
           onClick={() => handleViewDetails(log)}

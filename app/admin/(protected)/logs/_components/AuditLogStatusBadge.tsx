@@ -8,7 +8,7 @@ type AuditLogStatusBadgeProps = {
 export default function AuditLogStatusBadge({
   status,
 }: AuditLogStatusBadgeProps) {
-  const variant = status === "success" ? "success" : "error";
+  const variant = status.toLowerCase() === "success" ? "success" : "error";
 
   return (
     <Badge size="sm" variant={variant}>
