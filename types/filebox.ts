@@ -43,7 +43,7 @@ export type FileMetadata = {
   uploadDate: string;
   lastModified: string;
   isSecure: boolean;
-}
+};
 
 export type UserQuota = {
   userId: string;
@@ -56,7 +56,7 @@ export type UserQuota = {
   percentageUsed: number;
   isQuotaExceeded: boolean;
   fileCount: number;
-}
+};
 
 // API Response types
 export type UploadUrlResponse = {
@@ -71,7 +71,7 @@ export type UploadUrlResponse = {
     duplicateFileId?: string;
     duplicateFileName?: string;
   };
-}
+};
 
 export type DownloadUrlResponse = {
   success: boolean;
@@ -83,7 +83,7 @@ export type DownloadUrlResponse = {
     fileSize: number;
     expiresIn: number;
   };
-}
+};
 
 export type ListFilesResponse = {
   success: boolean;
@@ -94,18 +94,18 @@ export type ListFilesResponse = {
     totalStorageBytes: number;
     totalStorageMB: number;
   };
-}
+};
 
 export type DeleteFileResponse = {
   success: boolean;
   message: string;
-}
+};
 
 export type QuotaResponse = {
   success: boolean;
   message: string;
   data: UserQuota;
-}
+};
 
 // Request types
 export type GenerateUploadUrlRequest = {
@@ -116,34 +116,34 @@ export type GenerateUploadUrlRequest = {
   isSecure?: boolean;
   replaceDuplicate?: boolean;
   keepBoth?: boolean;
-}
+};
 
 export type ListFilesRequest = {
   category?: FileCategory;
-}
+};
 
 // Document OTP types
 export type OTPAction = "preview" | "download" | "delete";
 
 export type RequestDocumentOTPRequest = {
   action?: OTPAction;
-}
+};
 
 export type RequestDocumentOTPResponse = {
   success: boolean;
   message: string;
-}
+};
 
 export type VerifyDocumentOTPRequest = {
   otp: string;
   action?: OTPAction;
-}
+};
 
 export type VerifyDocumentOTPResponse = {
   success: boolean;
   message: string;
   downloadUrl?: string;
-}
+};
 
 // Helper function to format file size
 export function formatFileSize(bytes: number): string {

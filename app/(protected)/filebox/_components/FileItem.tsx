@@ -7,4 +7,4 @@ export type FileItem = {
   lastAccessed: string;
   type: "pdf" | "jpg" | "doc" | "png" | "docx";
   isSecure?: boolean;
-}
+};

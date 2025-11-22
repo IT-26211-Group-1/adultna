@@ -40,8 +40,7 @@ export function SecureDocument({
   onClose,
   onSuccess,
 }: SecureDocumentProps) {
-  // Initialize secure storage hook
-  const { getSecureItem, setSecureItem, removeSecureItem } = useSecureStorage();
+  const { setSecureItem, removeSecureItem } = useSecureStorage();
 
   // Memoize the storage key for this file+action combination
   const cooldownKey = useMemo(
@@ -202,6 +201,7 @@ export function SecureDocument({
             setSuccessMessage("Access granted! Proceeding to delete...");
             onSuccess?.("");
             onClose?.();
+
             return;
           }
 
@@ -276,9 +276,9 @@ export function SecureDocument({
             {/* Icon at the top */}
             <div className="mb-6">
               <img
-                src="/filebox-lock.png"
                 alt="Security lock icon"
                 className="w-28 h-28"
+                src="/filebox-lock.png"
               />
             </div>
           </ModalHeader>
@@ -326,11 +326,14 @@ export function SecureDocument({
                       await handleRequestOtp();
                     }}
                   >
-                    {requestOTPMutation.isPending ? "Sending Verification Code..." : "Send Verification Code"}
+                    {requestOTPMutation.isPending
+                      ? "Sending Verification Code..."
+                      : "Send Verification Code"}
                   </Button>
 
                   <p className="text-gray-500 text-xs leading-relaxed">
-                    A 6-digit code will be sent to your registered email address.
+                    A 6-digit code will be sent to your registered email
+                    address.
                   </p>
                 </>
               ) : (
@@ -340,7 +343,9 @@ export function SecureDocument({
                       Verify Your Identity
                     </h3>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      We've sent a 6-digit verification code to your registered email address. Please enter the code below to securely access your document.
+                      We&apos;ve sent a 6-digit verification code to your
+                      registered email address. Please enter the code below to
+                      securely access your document.
                     </p>
                   </div>
 
@@ -416,7 +421,9 @@ export function SecureDocument({
                   <div className="space-y-3">
                     <Button
                       className="w-full py-3 bg-[#11553F] hover:bg-[#0d4532] text-white font-medium rounded-lg"
-                      isDisabled={verifyOTPMutation.isPending || otpValue.length !== 6}
+                      isDisabled={
+                        verifyOTPMutation.isPending || otpValue.length !== 6
+                      }
                       type="submit"
                       variant="solid"
                     >
@@ -438,8 +445,8 @@ export function SecureDocument({
                       />
                       <span className="text-gray-300">|</span>
                       <button
-                        type="button"
                         className="text-gray-500 hover:text-gray-700"
+                        type="button"
                         onClick={handleCancel}
                       >
                         Cancel

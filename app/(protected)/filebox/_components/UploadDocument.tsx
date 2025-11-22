@@ -272,24 +272,24 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     <>
       <Modal
         open={!isReplaceOpen}
-        onClose={handleCancel}
-        title="Upload a New Document"
         size="md"
+        title="Upload a New Document"
+        onClose={handleCancel}
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="text-center space-y-6">
             {/* Error Messages */}
             {errors.file && (
               <p className="text-sm text-red-600">{errors.file.message}</p>
             )}
             {storageError && (
-              <p className="text-sm text-red-600 font-medium">
-                {storageError}
-              </p>
+              <p className="text-sm text-red-600 font-medium">{storageError}</p>
             )}
 
             {/* Upload Area */}
             <div
+              role="button"
+              tabIndex={0}
               className={`border-2 border-dashed rounded-xl p-12 transition-all duration-200 cursor-pointer ${
                 isDragOver
                   ? "border-blue-400 bg-blue-50"
@@ -301,6 +301,12 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleBrowseClick();
+                }
+              }}
             >
               {watchedFile ? (
                 // File uploaded state
@@ -341,9 +347,9 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
                     PDF, DOC, JPG, PNG up to 10MB
                   </p>
                   <Button
+                    className="bg-white"
                     size="md"
                     variant="bordered"
-                    className="bg-white"
                     onPress={() => handleBrowseClick()}
                   >
                     Browse File
@@ -385,20 +391,18 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
               </p>
             </div>
             {errors.category && (
-              <p className="text-sm text-red-600">
-                {errors.category.message}
-              </p>
+              <p className="text-sm text-red-600">{errors.category.message}</p>
             )}
             <Controller
               control={control}
               name="category"
               render={({ field }) => (
                 <CategoriesUpload
+                  className="w-full"
                   id="category-select"
                   placeholder="Select a category..."
                   selectedCategory={field.value}
                   onSelectionChange={field.onChange}
-                  className="w-full"
                 />
               )}
             />
@@ -407,7 +411,9 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
           {/* Secure Access Toggle */}
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div className="flex-1">
-              <h4 className="text-sm font-medium text-gray-900">Secure Access</h4>
+              <h4 className="text-sm font-medium text-gray-900">
+                Secure Access
+              </h4>
               <p className="text-xs text-gray-500 mt-1">
                 Requires OTP verification to access this document
               </p>
@@ -417,13 +423,13 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
               name="isSecure"
               render={({ field }) => (
                 <Switch
-                  isSelected={field.value}
-                  onValueChange={field.onChange}
-                  size="md"
-                  color="success"
                   classNames={{
                     wrapper: "mr-0",
                   }}
+                  color="success"
+                  isSelected={field.value}
+                  size="md"
+                  onValueChange={field.onChange}
                 />
               )}
             />
@@ -432,21 +438,21 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
           {/* Action Buttons - Right aligned */}
           <div className="flex justify-end gap-3 pt-4">
             <Button
-              variant="bordered"
-              size="md"
-              onPress={handleCancel}
               className="px-6"
+              size="md"
+              variant="bordered"
+              onPress={handleCancel}
             >
               Cancel
             </Button>
             <Button
-              type="submit"
-              size="md"
               className="bg-adult-green hover:bg-adult-green/90 text-white px-6"
               isDisabled={
                 !isValid || uploadMutation.isPending || !!storageError
               }
               isLoading={uploadMutation.isPending}
+              size="md"
+              type="submit"
             >
               {uploadMutation.isPending ? "Uploading..." : "Upload"}
             </Button>

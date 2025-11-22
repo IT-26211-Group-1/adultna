@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/Skeletons";
 
 type FileBoxSkeletonProps = {
   viewType: "grid" | "list";
-}
+};
 
 export function FileBoxSkeleton({ viewType }: FileBoxSkeletonProps) {
   return (

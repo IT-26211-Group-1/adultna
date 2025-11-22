@@ -1,9 +1,16 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { useFileboxFiles, useFileboxDownload } from "@/hooks/queries/useFileboxQueries";
-import { formatFileSize, getFileType, DISPLAY_CATEGORY_MAPPING } from "@/types/filebox";
-import { FileItem } from "../_components/FileItem";
+import {
+  useFileboxFiles,
+  useFileboxDownload,
+} from "@/hooks/queries/useFileboxQueries";
+import {
+  formatFileSize,
+  getFileType,
+  DISPLAY_CATEGORY_MAPPING,
+} from "@/types/filebox";
+import { FileItem } from "@/app/(protected)/filebox/_components/FileItem";
 import { ApiClient, ApiError } from "@/lib/apiClient";
 import { API_CONFIG } from "@/config/api";
 import { addToast } from "@heroui/toast";
@@ -28,7 +35,9 @@ type SortDirection = "asc" | "desc";
 
 export const useFileboxOperations = () => {
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
-  const [selectedRecentFile, setSelectedRecentFile] = useState<FileItem | null>(null);
+  const [selectedRecentFile, setSelectedRecentFile] = useState<FileItem | null>(
+    null,
+  );
   const [selectedMyFile, setSelectedMyFile] = useState<FileItem | null>(null);
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -91,7 +100,6 @@ export const useFileboxOperations = () => {
       return categoryMatch && searchMatch;
     });
 
-    // Apply sorting if sortBy is set
     if (sortBy) {
       filtered = filtered.sort((a, b) => {
         let aValue: any;
@@ -105,6 +113,7 @@ export const useFileboxOperations = () => {
           case "lastModified":
             const fileA = fileMetadataMap.get(a.id);
             const fileB = fileMetadataMap.get(b.id);
+
             if (!fileA || !fileB) return 0;
             aValue = new Date(fileA.lastModified).getTime();
             bValue = new Date(fileB.lastModified).getTime();
@@ -119,24 +128,33 @@ export const useFileboxOperations = () => {
 
         if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
         if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+
         return 0;
       });
     }
 
     return filtered;
-  }, [files, selectedCategory, searchTerm, sortBy, sortDirection, fileMetadataMap]);
+  }, [
+    files,
+    selectedCategory,
+    searchTerm,
+    sortBy,
+    sortDirection,
+    fileMetadataMap,
+  ]);
 
   const recentFiles = useMemo(() => {
     return [...files]
       .sort((a, b) => {
-        // Get the metadata for both files to access the actual lastModified timestamps
         const fileA = fileMetadataMap.get(a.id);
         const fileB = fileMetadataMap.get(b.id);
 
         if (!fileA || !fileB) return 0;
 
-        // Sort by lastModified date in descending order (most recent first)
-        return new Date(fileB.lastModified).getTime() - new Date(fileA.lastModified).getTime();
+        return (
+          new Date(fileB.lastModified).getTime() -
+          new Date(fileA.lastModified).getTime()
+        );
       })
       .slice(0, 4);
   }, [files, fileMetadataMap]);
@@ -153,63 +171,68 @@ export const useFileboxOperations = () => {
 
   const handleRecentFileClick = useCallback((file: FileItem) => {
     setSelectedRecentFile(file);
-    setSelectedMyFile(null); // Clear My Files selection
+    setSelectedMyFile(null);
   }, []);
 
   const handleMyFileClick = useCallback((file: FileItem) => {
     setSelectedMyFile(file);
-    setSelectedRecentFile(null); // Clear Recent Files selection
-    setSelectedFile(file); // Keep for sidebar compatibility
+    setSelectedRecentFile(null);
+    setSelectedFile(file);
   }, []);
 
-  const handleFileDoubleClick = useCallback(async (file: FileItem) => {
-    setSelectedFile(file);
+  const handleFileDoubleClick = useCallback(
+    async (file: FileItem) => {
+      setSelectedFile(file);
 
-    if (file.isSecure) {
-      setSecureAction("preview");
-      setShowSecureAccess(true);
-      return;
-    }
+      if (file.isSecure) {
+        setSecureAction("preview");
+        setShowSecureAccess(true);
 
-    const fileMetadata = fileMetadataMap.get(file.id);
-
-    if (!fileMetadata) {
-      addToast({
-        title: "File metadata not available",
-        color: "danger",
-      });
-      return;
-    }
-
-    try {
-      const response: any = await ApiClient.get(
-        `/filebox/download/${fileMetadata.id}`,
-        {},
-        API_CONFIG.API_URL,
-      );
-
-      if (response.success && response.data?.downloadUrl) {
-        setPreviewUrl(response.data.downloadUrl);
-        setShowPreview(true);
-      } else {
-        throw new Error("Failed to generate preview URL");
+        return;
       }
-    } catch (error) {
-      logger.error("Preview error:", error);
 
-      if (error instanceof ApiError) {
+      const fileMetadata = fileMetadataMap.get(file.id);
+
+      if (!fileMetadata) {
         addToast({
-          title: error.message || "Failed to open file",
+          title: "File metadata not available",
           color: "danger",
         });
-      } else {
-        addToast({
-          title: "Failed to open file",
-          color: "danger",
-        });
+
+        return;
       }
-    }
-  }, [fileMetadataMap]);
+
+      try {
+        const response: any = await ApiClient.get(
+          `/filebox/download/${fileMetadata.id}`,
+          {},
+          API_CONFIG.API_URL,
+        );
+
+        if (response.success && response.data?.downloadUrl) {
+          setPreviewUrl(response.data.downloadUrl);
+          setShowPreview(true);
+        } else {
+          throw new Error("Failed to generate preview URL");
+        }
+      } catch (error) {
+        logger.error("Preview error:", error);
+
+        if (error instanceof ApiError) {
+          addToast({
+            title: error.message || "Failed to open file",
+            color: "danger",
+          });
+        } else {
+          addToast({
+            title: "Failed to open file",
+            color: "danger",
+          });
+        }
+      }
+    },
+    [fileMetadataMap],
+  );
 
   const handleShowDetails = useCallback((file: FileItem) => {
     setSelectedFile(file);
@@ -226,6 +249,7 @@ export const useFileboxOperations = () => {
         setShowPreview(false);
         setSecureAction("download");
         setShowSecureAccess(true);
+
         return;
       }
 
@@ -268,16 +292,17 @@ export const useFileboxOperations = () => {
     setSelectedFile(null);
   }, []);
 
-  const handleSort = useCallback((field: SortBy) => {
-    if (sortBy === field) {
-      // If clicking the same field, toggle direction
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      // If clicking a new field, set it as sortBy and default to desc
-      setSortBy(field);
-      setSortDirection("desc");
-    }
-  }, [sortBy, sortDirection]);
+  const handleSort = useCallback(
+    (field: SortBy) => {
+      if (sortBy === field) {
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      } else {
+        setSortBy(field);
+        setSortDirection("desc");
+      }
+    },
+    [sortBy, sortDirection],
+  );
 
   const clearAllSelections = useCallback(() => {
     setSelectedRecentFile(null);
@@ -285,7 +310,6 @@ export const useFileboxOperations = () => {
   }, []);
 
   return {
-    // State
     selectedFile,
     selectedRecentFile,
     selectedMyFile,
@@ -300,16 +324,12 @@ export const useFileboxOperations = () => {
     secureAction,
     sortBy,
     sortDirection,
-
-    // Data
     files,
     filteredFiles,
     recentFiles,
     fileMetadataMap,
     filesLoading,
     error,
-
-    // Actions
     setSelectedCategory,
     setSearchTerm,
     setViewType,

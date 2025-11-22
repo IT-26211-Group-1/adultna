@@ -6,7 +6,7 @@ import { Grid3X3Icon, ListIcon } from "lucide-react";
 type ViewTypeProps = {
   selectedView: "grid" | "list";
   onViewChange: (view: "grid" | "list") => void;
-}
+};
 
 export function ViewType({ selectedView, onViewChange }: ViewTypeProps) {
   return (

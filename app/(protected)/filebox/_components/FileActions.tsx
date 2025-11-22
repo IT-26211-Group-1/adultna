@@ -35,7 +35,7 @@ type FileActionsProps = {
   file: FileItem;
   fileMetadata?: FileMetadata;
   viewType?: "grid" | "list";
-}
+};
 
 export function FileActions({
   file,
@@ -346,9 +346,9 @@ export function FileActions({
             className="text-gray-600 hover:text-blue-600"
             isDisabled={isLoadingPreview}
             size="sm"
+            title="Preview file"
             variant="light"
             onPress={handleView}
-            title="Preview file"
           >
             <Eye className="w-4 h-4" />
           </Button>
@@ -357,9 +357,9 @@ export function FileActions({
             className="text-gray-600 hover:text-green-600"
             isDisabled={downloadMutation.isPending}
             size="sm"
+            title="Download"
             variant="light"
             onPress={handleDownload}
-            title="Download"
           >
             <Download className="w-4 h-4" />
           </Button>
@@ -371,8 +371,8 @@ export function FileActions({
                 isIconOnly
                 className="text-gray-600 hover:text-gray-800"
                 size="sm"
-                variant="light"
                 title="More actions"
+                variant="light"
               >
                 <EllipsisVertical className="w-4 h-4" />
               </Button>
@@ -387,9 +387,9 @@ export function FileActions({
               </DropdownItem>
               <DropdownItem
                 key="delete"
-                startContent={<Trash2 className="w-4 h-4" />}
                 className="text-danger"
                 color="danger"
+                startContent={<Trash2 className="w-4 h-4" />}
                 onPress={handleDelete}
               >
                 Delete

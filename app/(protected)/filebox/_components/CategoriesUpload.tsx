@@ -31,6 +31,7 @@ export function CategoriesUpload({
 
     if (onSelectionChange && selectedKey) {
       const categoryName = categoryKeyMap[selectedKey];
+
       onSelectionChange(categoryName);
     }
   };
@@ -39,14 +40,13 @@ export function CategoriesUpload({
     <Select
       className={className}
       classNames={{
-        trigger: "bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 hover:bg-gray-50 transition-colors h-12",
+        trigger:
+          "bg-white border border-gray-300 rounded-lg shadow-sm hover:border-gray-400 hover:bg-gray-50 transition-colors h-12",
         value: "text-gray-900 text-sm",
         label: "text-gray-700 text-sm",
         popoverContent: "bg-white border border-gray-200 rounded-xl shadow-lg",
         listbox: "p-1",
       }}
-      size="lg"
-      variant="bordered"
       id={id}
       placeholder={placeholder}
       selectedKeys={
@@ -60,6 +60,8 @@ export function CategoriesUpload({
             ]
           : undefined
       }
+      size="lg"
+      variant="bordered"
       onSelectionChange={handleSelectionChange}
     >
       <SelectItem
