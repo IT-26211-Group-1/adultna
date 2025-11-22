@@ -31,11 +31,11 @@ import { RenameFileModal } from "./RenameFileModal";
 import { ReplaceFileConfirmation } from "./ReplaceFileConfirmation";
 import { logger } from "@/lib/logger";
 
-interface FileActionsProps {
+type FileActionsProps = {
   file: FileItem;
   fileMetadata?: FileMetadata;
   viewType?: "grid" | "list";
-}
+};
 
 export function FileActions({
   file,
@@ -340,11 +340,13 @@ export function FileActions({
         )}
 
         <div className="flex items-center space-x-1">
+          {/* Primary Actions - Always Visible */}
           <Button
             isIconOnly
             className="text-gray-600 hover:text-blue-600"
             isDisabled={isLoadingPreview}
             size="sm"
+            title="Preview file"
             variant="light"
             onPress={handleView}
           >
@@ -355,29 +357,45 @@ export function FileActions({
             className="text-gray-600 hover:text-green-600"
             isDisabled={downloadMutation.isPending}
             size="sm"
+            title="Download"
             variant="light"
             onPress={handleDownload}
           >
             <Download className="w-4 h-4" />
           </Button>
-          <Button
-            isIconOnly
-            className="text-gray-600 hover:text-amber-600"
-            size="sm"
-            variant="light"
-            onPress={onRenameOpen}
-          >
-            <Edit3 className="w-4 h-4" />
-          </Button>
-          <Button
-            isIconOnly
-            className="text-gray-600 hover:text-red-600"
-            size="sm"
-            variant="light"
-            onPress={handleDelete}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+
+          {/* Secondary Actions - Dropdown Menu */}
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                isIconOnly
+                className="text-gray-600 hover:text-gray-800"
+                size="sm"
+                title="More actions"
+                variant="light"
+              >
+                <EllipsisVertical className="w-4 h-4" />
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="File actions">
+              <DropdownItem
+                key="edit"
+                startContent={<Edit3 className="w-4 h-4" />}
+                onPress={onRenameOpen}
+              >
+                Rename
+              </DropdownItem>
+              <DropdownItem
+                key="delete"
+                className="text-danger"
+                color="danger"
+                startContent={<Trash2 className="w-4 h-4" />}
+                onPress={handleDelete}
+              >
+                Delete
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </div>
 
         {/* File Preview Modal */}

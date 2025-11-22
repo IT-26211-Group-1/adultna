@@ -320,6 +320,18 @@ export const queryKeys = {
       detail: (questionId: number) =>
         ["admin", "onboarding", "detail", questionId] as const,
     },
+    auditLogs: {
+      all: ["admin", "auditLogs"] as const,
+      list: (filters?: {
+        startTime?: Date;
+        endTime?: Date;
+        service?: string;
+        action?: string;
+        userEmail?: string;
+        status?: "success" | "failure";
+        limit?: number;
+      }) => ["admin", "auditLogs", "list", filters] as const,
+    },
   },
 
   // Jobs queries
