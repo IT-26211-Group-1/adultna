@@ -47,8 +47,10 @@ export default function OfficeSidebar({
         <Breadcrumb
           items={[
             { label: "Government Guides", href: "/gov-guides" },
-            ...(guideTitle && guideSlug ? [{ label: guideTitle, href: `/gov-guides/${guideSlug}` }] : []),
-            { label: "Gov Map", current: true }
+            ...(guideTitle && guideSlug
+              ? [{ label: guideTitle, href: `/gov-guides/${guideSlug}` }]
+              : []),
+            { label: "Gov Map", current: true },
           ]}
         />
         <div className="relative mt-4">
@@ -83,8 +85,12 @@ export default function OfficeSidebar({
         {isLoadingLocation && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-adult-green mx-auto mb-3" />
-            <p className="text-gray-600 font-medium">Getting your location...</p>
-            <p className="text-xs text-gray-500 mt-1">This helps find nearby offices</p>
+            <p className="text-gray-600 font-medium">
+              Getting your location...
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              This helps find nearby offices
+            </p>
           </div>
         )}
 

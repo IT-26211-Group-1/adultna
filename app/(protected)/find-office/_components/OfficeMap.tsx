@@ -142,7 +142,11 @@ export default function OfficeMap({
 
   return (
     <div className="flex-1 relative bg-white p-4">
-      <div key="office-finder-map" ref={mapRef} className="w-full h-full rounded-lg overflow-hidden" />
+      <div
+        key="office-finder-map"
+        ref={mapRef}
+        className="w-full h-full rounded-lg overflow-hidden"
+      />
     </div>
   );
 }

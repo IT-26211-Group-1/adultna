@@ -14,7 +14,7 @@ export default function GuidesLoadingSkeleton() {
               <Skeleton className="h-4 w-3/4 rounded-lg mb-3" />
 
               {/* Divider */}
-              <div className="border-t border-gray-100 mb-3"></div>
+              <div className="border-t border-gray-100 mb-3" />
 
               {/* Summary */}
               <div className="flex-1 space-y-2 mb-4">

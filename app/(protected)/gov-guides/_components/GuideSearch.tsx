@@ -24,7 +24,7 @@ export default function GuideSearch({
   searchValue,
   onSearchChange,
   selectedCategory,
-  onCategoryChange
+  onCategoryChange,
 }: GuideSearchProps) {
   const handleClearSearch = () => {
     onSearchChange("");
@@ -71,7 +71,9 @@ export default function GuideSearch({
             <select
               className="border-none bg-transparent text-sm focus:outline-none text-gray-600 w-full"
               value={selectedCategory}
-              onChange={(e) => onCategoryChange(e.target.value as GuideCategory | "all")}
+              onChange={(e) =>
+                onCategoryChange(e.target.value as GuideCategory | "all")
+              }
             >
               {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                 <option key={key} value={key}>

@@ -38,8 +38,11 @@ function UserSidebar({
   // Apply specific backgrounds for certain pages
   const resolvedBackgroundColor =
     backgroundColor ||
-    (pathname === "/roadmap" ? "rgba(154,205,50, 0.08)" :
-     pathname === "/find-office" ? "white" : "white");
+    (pathname === "/roadmap"
+      ? "rgba(154,205,50, 0.08)"
+      : pathname === "/find-office"
+        ? "white"
+        : "white");
 
   // Use controlled state if provided, otherwise use internal state
   const isOpen =

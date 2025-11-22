@@ -58,9 +58,9 @@ export default function GuidesListClient() {
     <>
       <GuideSearch
         searchValue={searchQuery}
-        onSearchChange={handleSearchChange}
         selectedCategory={selectedCategory}
         onCategoryChange={handleCategoryChange}
+        onSearchChange={handleSearchChange}
       />
 
       {isLoading && <GuidesLoadingSkeleton />}

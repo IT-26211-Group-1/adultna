@@ -72,26 +72,26 @@ export default function FindOfficeClient() {
 
   return (
     <div className="h-screen flex overflow-hidden">
-        <OfficeSidebar
-          initialSearch={initialSearch}
-          isLoadingLocation={isLoadingLocation || isSearching}
-          offices={offices}
-          selectedOffice={selectedOffice}
-          onOfficeSelect={setSelectedOffice}
-          onSearch={async (query) => {
-            const results = await searchPlaces(query, userLocation);
+      <OfficeSidebar
+        guideSlug={guideSlug}
+        guideTitle={guideTitle}
+        initialSearch={initialSearch}
+        isLoadingLocation={isLoadingLocation || isSearching}
+        offices={offices}
+        selectedOffice={selectedOffice}
+        onOfficeSelect={setSelectedOffice}
+        onSearch={async (query) => {
+          const results = await searchPlaces(query, userLocation);
 
-            setOffices(results);
-          }}
-          guideTitle={guideTitle}
-          guideSlug={guideSlug}
-        />
+          setOffices(results);
+        }}
+      />
 
-        <OfficeMap
-          offices={offices}
-          selectedOffice={selectedOffice}
-          userLocation={userLocation}
-        />
+      <OfficeMap
+        offices={offices}
+        selectedOffice={selectedOffice}
+        userLocation={userLocation}
+      />
     </div>
   );
 }

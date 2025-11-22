@@ -13,7 +13,9 @@ export default function RequirementsTab({
   if (!requirements || requirements.length === 0) {
     return (
       <div className="text-center">
-        <p className="text-sm text-gray-600">No document requirements specified yet.</p>
+        <p className="text-sm text-gray-600">
+          No document requirements specified yet.
+        </p>
       </div>
     );
   }
@@ -38,7 +40,9 @@ export default function RequirementsTab({
               <div key={index} className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-adult-green flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{req.name}</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {req.name}
+                  </p>
                   {req.description && (
                     <p className="text-xs text-gray-600 mt-1">
                       {req.description}
@@ -60,7 +64,9 @@ export default function RequirementsTab({
                 <div key={index} className="flex items-start gap-2">
                   <Circle className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-gray-700">{req.name}</p>
+                    <p className="text-sm font-medium text-gray-700">
+                      {req.name}
+                    </p>
                     {req.description && (
                       <p className="text-xs text-gray-600 mt-1">
                         {req.description}

@@ -12,7 +12,10 @@ type GuideInfoCardsProps = {
 export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-2 my-4 mb-8">
-      <Card disableAnimation className="border border-gray-200 h-16 w-full shadow-none">
+      <Card
+        disableAnimation
+        className="border border-gray-200 h-16 w-full shadow-none"
+      >
         <CardBody className="p-3">
           <div className="flex items-start gap-2">
             <div className="p-1.5 bg-green-50 rounded-lg">
@@ -45,7 +48,10 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
         </CardBody>
       </Card>
 
-      <Card disableAnimation className="border border-gray-200 h-16 w-full shadow-none">
+      <Card
+        disableAnimation
+        className="border border-gray-200 h-16 w-full shadow-none"
+      >
         <CardBody className="p-3">
           <div className="flex items-start gap-2">
             <div className="p-1.5 bg-orange-50 rounded-lg">

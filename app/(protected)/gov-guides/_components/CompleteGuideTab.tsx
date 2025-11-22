@@ -8,8 +8,9 @@ function parseNumberedList(text: string): string[] | null {
   const numberedItemRegex = /(\d+\.\s+[^0-9]+?)(?=\d+\.\s+|$)/g;
   const matches = text.match(numberedItemRegex);
 
-  if (matches && matches.length > 2) { // Only format if 3+ items
-    return matches.map(item => item.trim());
+  if (matches && matches.length > 2) {
+    // Only format if 3+ items
+    return matches.map((item) => item.trim());
   }
 
   return null;
@@ -23,7 +24,9 @@ export default function CompleteGuideTab({ steps }: CompleteGuideTabProps) {
   if (!steps || steps.length === 0) {
     return (
       <div className="text-center">
-        <p className="text-sm text-gray-600">No step-by-step guide available yet.</p>
+        <p className="text-sm text-gray-600">
+          No step-by-step guide available yet.
+        </p>
       </div>
     );
   }
@@ -60,7 +63,7 @@ export default function CompleteGuideTab({ steps }: CompleteGuideTabProps) {
                               {index + 1}.
                             </span>
                             <span className="flex-1">
-                              {item.replace(/^\d+\.\s*/, '')}
+                              {item.replace(/^\d+\.\s*/, "")}
                             </span>
                           </li>
                         ))}

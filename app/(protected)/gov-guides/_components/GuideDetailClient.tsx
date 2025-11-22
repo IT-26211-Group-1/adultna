@@ -51,8 +51,8 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center space-x-2 mb-6 text-sm text-gray-500">
         <Link
-          href="/gov-guides"
           className="hover:text-adult-green transition-colors"
+          href="/gov-guides"
         >
           Government Guides
         </Link>
@@ -64,7 +64,9 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
 
       <hr className="border-gray-200 mb-6" />
 
-      <h1 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight leading-tight">{guide.title}</h1>
+      <h1 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight leading-tight">
+        {guide.title}
+      </h1>
 
       <GuideInfoCards guide={guide} />
 
@@ -76,7 +78,8 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
             tabList: "w-full border-b border-gray-200 bg-transparent",
             tab: "px-0 py-1.5 pb-3 text-sm font-medium text-gray-500 hover:text-green-700 transition-all duration-200 ease-in-out bg-transparent data-[selected=true]:bg-transparent data-[selected=true]:border-b-2 data-[selected=true]:border-adult-green rounded-none border-b-2 border-transparent mb-[-2px]",
             cursor: "hidden",
-            tabContent: "group-data-[selected=true]:text-adult-green group-data-[selected=true]:font-semibold",
+            tabContent:
+              "group-data-[selected=true]:text-adult-green group-data-[selected=true]:font-semibold",
           }}
           selectedKey={selectedTab}
           onSelectionChange={(key) => setSelectedTab(key as string)}
