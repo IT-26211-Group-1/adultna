@@ -39,7 +39,9 @@ export function Activity() {
     if (diffInDays === 1) return "1 day ago";
     if (diffInDays < 30) return `${diffInDays} days ago`;
     const diffInMonths = Math.floor(diffInDays / 30);
+
     if (diffInMonths === 1) return "1 month ago";
+
     return `${diffInMonths} months ago`;
   };
 
