@@ -46,7 +46,7 @@ export function SecureDocument({
   // Memoize the storage key for this file+action combination
   const cooldownKey = useMemo(
     () => `otp_cooldown_${file.id}_${action}`,
-    [file.id, action]
+    [file.id, action],
   );
 
   const [otpValue, setOtpValue] = useState("");
@@ -146,19 +146,19 @@ export function SecureDocument({
             setSecureItem(
               cooldownKey,
               expiryTime.toString(),
-              COOLDOWN_SECONDS / 60
+              COOLDOWN_SECONDS / 60,
             );
 
             resolve(COOLDOWN_SECONDS);
           },
           onError: (error: any) => {
             setErrorMessage(
-              error.message || "Failed to send OTP. Please try again."
+              error.message || "Failed to send OTP. Please try again.",
             );
             setSuccessMessage("");
             reject(error);
           },
-        }
+        },
       );
     });
   };
@@ -248,13 +248,13 @@ export function SecureDocument({
         onError: (error: any) => {
           logger.error(
             `[SecureDocument] OTP verification failed for action: ${action}`,
-            error
+            error,
           );
           setErrorMessage(
-            error.message || "Invalid or expired OTP. Please try again."
+            error.message || "Invalid or expired OTP. Please try again.",
           );
         },
-      }
+      },
     );
   };
 
@@ -386,8 +386,6 @@ export function SecureDocument({
                     {otpArray.map((digit, index) => (
                       <div
                         key={index}
-                        role="button"
-                        tabIndex={0}
                         className={`
                           w-12 h-12
                           border-2 rounded-lg
@@ -403,6 +401,8 @@ export function SecureDocument({
                                 : "border-gray-300 bg-gray-50 hover:border-gray-400"
                           }
                         `}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => handleBoxClick(index)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
