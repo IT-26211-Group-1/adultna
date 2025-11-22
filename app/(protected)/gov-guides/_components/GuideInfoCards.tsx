@@ -11,8 +11,8 @@ type GuideInfoCardsProps = {
 
 export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-      <Card disableAnimation className="border border-gray-200 h-16 w-full">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 my-4 mb-8">
+      <Card disableAnimation className="border border-gray-200 h-16 w-full shadow-none">
         <CardBody className="p-3">
           <div className="flex items-start gap-2">
             <div className="p-1.5 bg-green-50 rounded-lg">
@@ -45,7 +45,7 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
         </CardBody>
       </Card>
 
-      <Card disableAnimation className="border border-gray-200 h-16 w-full">
+      <Card disableAnimation className="border border-gray-200 h-16 w-full shadow-none">
         <CardBody className="p-3">
           <div className="flex items-start gap-2">
             <div className="p-1.5 bg-orange-50 rounded-lg">
@@ -71,7 +71,7 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
         <Card
           disableAnimation
           isPressable
-          className="border border-gray-200 hover:border-adult-green transition-colors cursor-pointer h-16 w-full"
+          className="border border-gray-200 hover:border-adult-green transition-colors cursor-pointer h-16 w-full shadow-none"
         >
           <CardBody className="p-3">
             <div className="flex items-start gap-2">

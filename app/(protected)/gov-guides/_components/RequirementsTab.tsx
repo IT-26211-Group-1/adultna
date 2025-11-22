@@ -12,8 +12,8 @@ export default function RequirementsTab({
 }: RequirementsTabProps) {
   if (!requirements || requirements.length === 0) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-        <p className="text-gray-600">No document requirements specified yet.</p>
+      <div className="text-center">
+        <p className="text-sm text-gray-600">No document requirements specified yet.</p>
       </div>
     );
   }
