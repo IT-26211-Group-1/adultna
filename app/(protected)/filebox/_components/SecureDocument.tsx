@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo } from "react";
+import Image from "next/image";
 import {
   Modal,
   ModalContent,
@@ -45,7 +46,7 @@ export function SecureDocument({
   // Memoize the storage key for this file+action combination
   const cooldownKey = useMemo(
     () => `otp_cooldown_${file.id}_${action}`,
-    [file.id, action],
+    [file.id, action]
   );
 
   const [otpValue, setOtpValue] = useState("");
@@ -145,19 +146,19 @@ export function SecureDocument({
             setSecureItem(
               cooldownKey,
               expiryTime.toString(),
-              COOLDOWN_SECONDS / 60,
+              COOLDOWN_SECONDS / 60
             );
 
             resolve(COOLDOWN_SECONDS);
           },
           onError: (error: any) => {
             setErrorMessage(
-              error.message || "Failed to send OTP. Please try again.",
+              error.message || "Failed to send OTP. Please try again."
             );
             setSuccessMessage("");
             reject(error);
           },
-        },
+        }
       );
     });
   };
@@ -247,13 +248,13 @@ export function SecureDocument({
         onError: (error: any) => {
           logger.error(
             `[SecureDocument] OTP verification failed for action: ${action}`,
-            error,
+            error
           );
           setErrorMessage(
-            error.message || "Invalid or expired OTP. Please try again.",
+            error.message || "Invalid or expired OTP. Please try again."
           );
         },
-      },
+      }
     );
   };
 
@@ -275,10 +276,12 @@ export function SecureDocument({
           <ModalHeader className="flex flex-col items-center px-6 pt-8 pb-0 text-center">
             {/* Icon at the top */}
             <div className="mb-6">
-              <img
+              <Image
                 alt="Security lock icon"
                 className="w-28 h-28"
                 src="/filebox-lock.png"
+                width={112}
+                height={112}
               />
             </div>
           </ModalHeader>
@@ -383,6 +386,8 @@ export function SecureDocument({
                     {otpArray.map((digit, index) => (
                       <div
                         key={index}
+                        role="button"
+                        tabIndex={0}
                         className={`
                           w-12 h-12
                           border-2 rounded-lg
@@ -399,6 +404,12 @@ export function SecureDocument({
                           }
                         `}
                         onClick={() => handleBoxClick(index)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleBoxClick(index);
+                          }
+                        }}
                       >
                         {digit.trim() && (
                           <span className="text-gray-900">{digit}</span>

@@ -288,8 +288,6 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
             {/* Upload Area */}
             <div
-              role="button"
-              tabIndex={0}
               className={`border-2 border-dashed rounded-xl p-12 transition-all duration-200 cursor-pointer ${
                 isDragOver
                   ? "border-blue-400 bg-blue-50"
@@ -297,12 +295,14 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
                     ? "border-green-400 bg-green-50"
                     : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
               }`}
+              role="button"
+              tabIndex={0}
               onClick={handleBrowseClick}
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   handleBrowseClick();
                 }
