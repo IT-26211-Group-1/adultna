@@ -8,7 +8,7 @@ interface ModalProps {
   title?: string;
   description?: string;
   children?: React.ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
 }
 
 export const Modal = ({
@@ -22,7 +22,13 @@ export const Modal = ({
   if (!open) return null;
 
   const sizeClass =
-    size === "sm" ? "max-w-md" : size === "lg" ? "max-w-3xl" : "max-w-2xl";
+    size === "xs"
+      ? "max-w-sm"
+      : size === "sm"
+        ? "max-w-md"
+        : size === "lg"
+          ? "max-w-3xl"
+          : "max-w-2xl";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto py-4">

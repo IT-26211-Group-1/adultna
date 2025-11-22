@@ -5,7 +5,6 @@ import { useGovGuides } from "@/hooks/queries/useGovGuidesQueries";
 import { GuideCategory } from "@/types/govguide";
 import GuideCard from "./GuideCard";
 import GuideSearch from "./GuideSearch";
-import CategoryFilter from "./CategoryFilter";
 import GuidePagination from "./GuidePagination";
 import GuidesLoadingSkeleton from "./GuidesLoadingSkeleton";
 
@@ -57,15 +56,12 @@ export default function GuidesListClient() {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <GuideSearch value={searchQuery} onChange={handleSearchChange} />
-        </div>
-        <CategoryFilter
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-        />
-      </div>
+      <GuideSearch
+        searchValue={searchQuery}
+        selectedCategory={selectedCategory}
+        onCategoryChange={handleCategoryChange}
+        onSearchChange={handleSearchChange}
+      />
 
       {isLoading && <GuidesLoadingSkeleton />}
 
@@ -76,7 +72,7 @@ export default function GuidesListClient() {
       )}
 
       {!isLoading && !error && paginatedGuides.length === 0 && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+        <div className="text-center">
           <p className="text-gray-600">
             {searchQuery || selectedCategory !== "all"
               ? "No guides found matching your criteria."
@@ -87,7 +83,7 @@ export default function GuidesListClient() {
 
       {!isLoading && !error && paginatedGuides.length > 0 && (
         <>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {paginatedGuides.map((guide) => (
               <GuideCard key={guide.id} guide={guide} />
             ))}
