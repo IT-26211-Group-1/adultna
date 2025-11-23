@@ -2,6 +2,7 @@
 
 import React, { memo } from "react";
 import { useMockInterviewState } from "@/hooks/useMockInterviewState";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HowItWorks } from "./HowItWorks";
 import { FieldSelector } from "./FieldSelector";
 import { JobRoleSelector } from "./JobRoleSelector";
@@ -11,9 +12,41 @@ import { QuestionsList } from "./QuestionsList";
 const MockInterviewContainerComponent = () => {
   const { state, actions } = useMockInterviewState();
 
+  const getBreadcrumbItems = () => {
+    type BreadcrumbItem = {
+      label: string;
+      href?: string;
+      current?: boolean;
+      onClick?: () => void;
+    };
+
+    const items: BreadcrumbItem[] = [
+      { label: "Dashboard", href: "/dashboard" },
+    ];
+
+    if (state.currentStep === "field") {
+      items.push({ label: "Mock Interview", current: true });
+    } else if (state.selectedField) {
+      items.push({
+        label: "Mock Interview",
+        onClick: () => actions.reset()
+      });
+
+      const fieldName = state.selectedField.charAt(0).toUpperCase() + state.selectedField.slice(1).toLowerCase();
+      items.push({ label: fieldName, current: true });
+    }
+
+    return items;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <Breadcrumb items={getBreadcrumbItems()} />
+        </div>
+
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-gray-900">
