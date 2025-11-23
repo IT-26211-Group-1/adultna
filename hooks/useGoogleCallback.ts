@@ -34,7 +34,8 @@ export const useGoogleCallback = () => {
       if (!code) {
         logger.error("❌ No authorization code received");
         addToast({
-          title: "Registration Failed",
+          title: "Authentication Failed",
+          description: "No authorization code received from Google",
           color: "danger",
         });
         router.replace("/auth/login");
