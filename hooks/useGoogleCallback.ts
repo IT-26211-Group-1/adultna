@@ -121,7 +121,7 @@ export const useGoogleCallback = () => {
               code,
               codeVerifier,
             }),
-          }
+          },
         );
 
         const data = await response.json();

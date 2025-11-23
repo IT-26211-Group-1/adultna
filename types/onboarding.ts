@@ -44,6 +44,7 @@ export type PrioritiesStepProps = {
   >;
   onNext: () => void;
   onSkip: () => void;
+  onBack?: () => void;
 };
 
 export type YourPathStepProps = {
@@ -52,6 +53,7 @@ export type YourPathStepProps = {
   priorities: { questionId: number; optionId: number }[];
   onComplete: (data: OnboardingData) => Promise<void>;
   isSubmitting?: boolean;
+  onBack?: () => void;
 };
 
 // Admin Form Types
