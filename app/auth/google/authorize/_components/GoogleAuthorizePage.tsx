@@ -37,6 +37,7 @@ export const GoogleAuthorizePage = () => {
 
     const code = sessionStorage.getItem("google_oauth_code");
     const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
 
     try {
       const response = await fetch(
@@ -50,6 +51,7 @@ export const GoogleAuthorizePage = () => {
           body: JSON.stringify({
             code,
             codeVerifier,
+            redirectUri,
           }),
         },
       );

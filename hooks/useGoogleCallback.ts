@@ -119,6 +119,7 @@ export const useGoogleCallback = () => {
 
       // For login, proceed with authentication
       try {
+        const redirectUri = `${window.location.origin}/auth/google/callback`;
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API}/auth/google/callback?mode=${mode}`,
           {
@@ -130,11 +131,22 @@ export const useGoogleCallback = () => {
             body: JSON.stringify({
               code,
               codeVerifier,
+              redirectUri,
             }),
           },
         );
 
         const data = await response.json();
+
+        logger.log("📥 Google OAuth response:", {
+          status: response.status,
+          success: data.success,
+          isNew: data.isNew,
+          message: data.message,
+          headers: response.headers.get("set-cookie"),
+        });
+
+        logger.log("🍪 Checking cookies:", document.cookie);
 
         if (data.success) {
           addToast({
@@ -143,13 +155,17 @@ export const useGoogleCallback = () => {
             color: "success",
           });
 
+          logger.log("✅ Redirecting to:", data.isNew ? "/auth/onboarding" : "/dashboard");
+
+          // Wait longer for cookies to be properly set
           setTimeout(() => {
+            logger.log("🍪 Cookies before redirect:", document.cookie);
             if (data.isNew) {
               router.replace("/auth/onboarding");
             } else {
               router.replace("/dashboard");
             }
-          }, 300);
+          }, 1000);
         } else {
           addToast({
             title: "Authentication Failed",
