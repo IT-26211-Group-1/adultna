@@ -13,16 +13,14 @@ type InterviewGuidelinesProps = {
   selectedIndustry: string;
   selectedJobRole: string;
   onNext: (sessionId: string, questions: SessionQuestion[]) => void;
-  onBack: () => void;
 };
 
 export const InterviewGuidelines = memo(function InterviewGuidelines({
   selectedIndustry,
   selectedJobRole,
   onNext,
-  onBack,
 }: InterviewGuidelinesProps) {
-  const guidelinesText = `Let's Get You Interview-Ready. You'll be asked 5 common interview questions based on the role you selected. There are no right or wrong answers — just a chance to reflect, improve, and grow.`;
+  const speechText = `Let's Get You Interview-Ready. You'll be asked 5 common interview questions based on the role you selected.`;
 
   const { user } = useAuth();
   const { getSecureItem, setSecureItem } = useSecureStorage();
@@ -41,9 +39,9 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
   // Auto-speak when voice is ready and not muted
   useEffect(() => {
     if (isReady && !isMuted) {
-      speak(guidelinesText);
+      speak(speechText);
     }
-  }, [isReady, isMuted, speak, guidelinesText]);
+  }, [isReady, isMuted, speak, speechText]);
 
   const handleToggleSpeech = () => {
     const newMuted = !isMuted;
@@ -54,12 +52,12 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
     if (newMuted && isSpeaking) {
       stop();
     } else if (!newMuted) {
-      speak(guidelinesText);
+      speak(speechText);
     }
   };
 
   const handleNextClick = async () => {
-    const userId = (user as any)?.userId;
+    const userId = user?.id;
 
     if (!userId) {
       logger.error("User not authenticated");
@@ -86,29 +84,19 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
 
   return (
     <div className="min-h-[500px] flex flex-col">
-      {/* Back button in top left */}
-      <div className="mb-8 flex items-center justify-between">
-        <button
-          className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
-          onClick={onBack}
-        >
-          ← {selectedJobRole}
-        </button>
-
-        {/* Auto-play Toggle */}
-        <AutoPlayToggle
-          isMuted={isMuted}
-          isReady={isReady}
-          onToggle={handleToggleSpeech}
-        />
-      </div>
-
       {/* Centered content */}
       <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto text-center space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Let&apos;s Get You{" "}
-          <span className="text-adult-green">Interview-Ready</span>
-        </h1>
+        <div className="flex items-center justify-center gap-4">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Let&apos;s Get You{" "}
+            <span className="text-adult-green">Interview-Ready</span>
+          </h1>
+          <AutoPlayToggle
+            isMuted={isMuted}
+            isReady={isReady}
+            onToggle={handleToggleSpeech}
+          />
+        </div>
 
         <p className="text-base text-gray-700">
           You&apos;ll be asked 5 common interview questions based on the role
@@ -130,14 +118,14 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
         {/* Next button bottom right */}
         <div className="pt-8">
           <button
-            className="px-6 py-3 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isCreatingSession || !(user as any)?.userId}
+            className="px-8 py-3 border-2 border-adult-green text-adult-green rounded-full font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-adult-green hover:text-white hover:shadow-md hover:scale-105 active:scale-95 active:shadow-sm"
+            disabled={isCreatingSession || !user?.id}
             onClick={handleNextClick}
           >
             {isCreatingSession ? (
               <>
                 <svg
-                  className="h-5 w-5 animate-spin"
+                  className="h-5 w-5 animate-spin inline mr-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
@@ -156,25 +144,10 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
                     fill="currentColor"
                   />
                 </svg>
-                Next
+                I&apos;m Ready!
               </>
             ) : (
-              <>
-                Next
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 5l7 7-7 7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </>
+              "I&apos;m Ready!"
             )}
           </button>
         </div>
