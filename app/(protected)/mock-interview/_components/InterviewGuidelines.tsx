@@ -20,7 +20,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
   selectedJobRole,
   onNext,
 }: InterviewGuidelinesProps) {
-  const guidelinesText = `Let's Get You Interview-Ready. You'll be asked 5 common interview questions based on the role you selected. There are no right or wrong answers — just a chance to reflect, improve, and grow.`;
+  const speechText = `Let's Get You Interview-Ready. You'll be asked 5 common interview questions based on the role you selected.`;
 
   const { user } = useAuth();
   const { getSecureItem, setSecureItem } = useSecureStorage();
@@ -39,9 +39,9 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
   // Auto-speak when voice is ready and not muted
   useEffect(() => {
     if (isReady && !isMuted) {
-      speak(guidelinesText);
+      speak(speechText);
     }
-  }, [isReady, isMuted, speak, guidelinesText]);
+  }, [isReady, isMuted, speak, speechText]);
 
   const handleToggleSpeech = () => {
     const newMuted = !isMuted;
@@ -52,7 +52,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
     if (newMuted && isSpeaking) {
       stop();
     } else if (!newMuted) {
-      speak(guidelinesText);
+      speak(speechText);
     }
   };
 
