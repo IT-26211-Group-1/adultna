@@ -1,6 +1,31 @@
+"use client";
+
 import { memo } from "react";
+import { useDashboardSummary } from "@/hooks/queries/useDashboardQueries";
+import { RecentActivitiesCardSkeleton } from "./CardSkeletons";
 
 function RecentActivitiesCard() {
+  const { data, isLoading, error } = useDashboardSummary();
+
+  if (isLoading) {
+    return <RecentActivitiesCardSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div
+        className="backdrop-blur-md border border-white/40 rounded-3xl p-6 relative overflow-hidden h-48"
+        style={{ backgroundColor: "rgba(241, 111, 51, 0.2)" }}
+      >
+        <div className="flex items-center justify-center h-full">
+          <p className="text-red-600 text-sm">Failed to load activities</p>
+        </div>
+      </div>
+    );
+  }
+
+  const activitiesCount = data?.recentActivities.length || 0;
+
   return (
     <div
       className="backdrop-blur-md border border-white/40 rounded-3xl p-6 relative overflow-hidden h-48"
@@ -18,8 +43,10 @@ function RecentActivitiesCard() {
             Stay updated with progress
           </p>
           <p className="text-xs text-gray-600">
-            <span className="text-orange-600 font-semibold">+150%</span> vs last
-            week
+            <span className="text-orange-600 font-semibold">
+              {activitiesCount}
+            </span>{" "}
+            recent {activitiesCount === 1 ? "activity" : "activities"}
           </p>
         </div>
         <div className="flex flex-col items-center justify-center h-full">
