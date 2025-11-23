@@ -11,18 +11,21 @@ type GuideInfoCardsProps = {
 
 export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card disableAnimation className="border border-gray-200">
-        <CardBody className="p-6">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-green-50 rounded-lg">
-              <DollarSign className="w-5 h-5 text-adult-green" />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 my-4 mb-8">
+      <Card
+        disableAnimation
+        className="border border-gray-200 h-16 w-full shadow-none"
+      >
+        <CardBody className="p-3">
+          <div className="flex items-start gap-2">
+            <div className="p-1.5 bg-green-50 rounded-lg">
+              <DollarSign className="w-4 h-4 text-adult-green" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-1">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">
                 Processing Fee
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs text-gray-600">
                 {(() => {
                   const feeAmount =
                     guide.feeAmount ?? guide.offices?.feeAmount ?? null;
@@ -45,17 +48,20 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
         </CardBody>
       </Card>
 
-      <Card disableAnimation className="border border-gray-200">
-        <CardBody className="p-6">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-orange-50 rounded-lg">
-              <Clock className="w-5 h-5 text-crayola-orange" />
+      <Card
+        disableAnimation
+        className="border border-gray-200 h-16 w-full shadow-none"
+      >
+        <CardBody className="p-3">
+          <div className="flex items-start gap-2">
+            <div className="p-1.5 bg-orange-50 rounded-lg">
+              <Clock className="w-4 h-4 text-crayola-orange" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-1">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">
                 Processing Time
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs text-gray-600">
                 {guide.estimatedProcessingTime ||
                   guide.processingTime ||
                   "Not specified"}
@@ -71,18 +77,18 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
         <Card
           disableAnimation
           isPressable
-          className="border border-gray-200 hover:border-adult-green transition-colors cursor-pointer"
+          className="border border-gray-200 hover:border-adult-green transition-colors cursor-pointer h-16 w-full shadow-none"
         >
-          <CardBody className="p-6">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <MapPin className="w-5 h-5 text-blue-600" />
+          <CardBody className="p-3">
+            <div className="flex items-start gap-2">
+              <div className="p-1.5 bg-blue-50 rounded-lg">
+                <MapPin className="w-4 h-4 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 mb-1">
+                <h3 className="text-sm font-semibold text-gray-900 mb-1">
                   Find Nearest {guide.offices?.issuingAgency || "Office"}
                 </h3>
-                <p className="text-sm text-adult-green hover:underline">
+                <p className="text-xs text-adult-green hover:underline">
                   View office locations
                 </p>
               </div>
