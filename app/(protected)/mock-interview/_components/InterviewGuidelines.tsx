@@ -59,7 +59,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
   };
 
   const handleNextClick = async () => {
-    const userId = (user as any)?.userId;
+    const userId = user?.id;
 
     if (!userId) {
       logger.error("User not authenticated");
@@ -131,7 +131,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
         <div className="pt-8">
           <button
             className="px-6 py-3 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isCreatingSession || !(user as any)?.userId}
+            disabled={isCreatingSession || !user?.id}
             onClick={handleNextClick}
           >
             {isCreatingSession ? (

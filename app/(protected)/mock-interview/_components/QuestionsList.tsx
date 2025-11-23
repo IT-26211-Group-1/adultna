@@ -560,7 +560,7 @@ export const QuestionsList = memo(function QuestionsList({
                     ) : (
                       <button
                         className="flex items-center gap-2 px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium disabled:opacity-50"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isGrading}
                         onClick={navigation.goNext}
                       >
                         Next
