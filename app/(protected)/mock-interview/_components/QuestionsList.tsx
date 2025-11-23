@@ -19,7 +19,6 @@ type QuestionsListProps = {
   selectedJobRole: string;
   sessionId: string;
   sessionQuestions: SessionQuestion[];
-  onBack: () => void;
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -32,7 +31,6 @@ const CATEGORY_LABELS: Record<string, string> = {
 export const QuestionsList = memo(function QuestionsList({
   selectedJobRole,
   sessionQuestions,
-  onBack,
   sessionId,
 }: QuestionsListProps) {
   const { user } = useAuth();
@@ -243,12 +241,6 @@ export const QuestionsList = memo(function QuestionsList({
   if (sessionQuestions.length === 0) {
     return (
       <div className="space-y-4">
-        <button
-          className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
-          onClick={onBack}
-        >
-          ← Back to Guidelines
-        </button>
         <h2 className="text-2xl font-semibold">Interview Questions</h2>
         <div className="text-center py-8 text-gray-500">
           No questions found for this session. Please go back and try again.
@@ -260,27 +252,7 @@ export const QuestionsList = memo(function QuestionsList({
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-3xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
-          <button
-            className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
-            onClick={onBack}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15 19l-7-7 7-7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-            {selectedJobRole}
-          </button>
-
+        <div className="flex items-center justify-end mb-6">
           <AutoPlayToggle
             isMuted={audio.tts.isMuted}
             isReady={!audio.tts.isLoadingAudio}

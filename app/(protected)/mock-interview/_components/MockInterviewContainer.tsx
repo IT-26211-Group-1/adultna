@@ -86,13 +86,12 @@ const MockInterviewContainerComponent = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-10">
+            <>
               {state.currentStep === "jobRole" &&
                 state.selectedField &&
                 state.selectedField.toLowerCase() !== "general" && (
                   <JobRoleSelector
                     selectedIndustry={state.selectedField}
-                    onBack={actions.goBack}
                     onSelectJobRole={actions.selectJobRole}
                   />
                 )}
@@ -103,7 +102,6 @@ const MockInterviewContainerComponent = () => {
                   <InterviewGuidelines
                     selectedIndustry={state.selectedField}
                     selectedJobRole={state.selectedJobRole}
-                    onBack={actions.goBack}
                     onNext={actions.startQuestions}
                   />
                 )}
@@ -117,10 +115,9 @@ const MockInterviewContainerComponent = () => {
                     selectedJobRole={state.selectedJobRole}
                     sessionId={state.sessionId}
                     sessionQuestions={state.sessionQuestions}
-                    onBack={actions.goBack}
                   />
                 )}
-            </div>
+            </>
           )}
         </div>
       </div>

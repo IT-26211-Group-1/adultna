@@ -13,14 +13,12 @@ type InterviewGuidelinesProps = {
   selectedIndustry: string;
   selectedJobRole: string;
   onNext: (sessionId: string, questions: SessionQuestion[]) => void;
-  onBack: () => void;
 };
 
 export const InterviewGuidelines = memo(function InterviewGuidelines({
   selectedIndustry,
   selectedJobRole,
   onNext,
-  onBack,
 }: InterviewGuidelinesProps) {
   const guidelinesText = `Let's Get You Interview-Ready. You'll be asked 5 common interview questions based on the role you selected. There are no right or wrong answers — just a chance to reflect, improve, and grow.`;
 
@@ -86,29 +84,19 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
 
   return (
     <div className="min-h-[500px] flex flex-col">
-      {/* Back button in top left */}
-      <div className="mb-8 flex items-center justify-between">
-        <button
-          className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
-          onClick={onBack}
-        >
-          ← {selectedJobRole}
-        </button>
-
-        {/* Auto-play Toggle */}
-        <AutoPlayToggle
-          isMuted={isMuted}
-          isReady={isReady}
-          onToggle={handleToggleSpeech}
-        />
-      </div>
-
       {/* Centered content */}
       <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto text-center space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Let&apos;s Get You{" "}
-          <span className="text-adult-green">Interview-Ready</span>
-        </h1>
+        <div className="flex items-center justify-center gap-4">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Let&apos;s Get You{" "}
+            <span className="text-adult-green">Interview-Ready</span>
+          </h1>
+          <AutoPlayToggle
+            isMuted={isMuted}
+            isReady={isReady}
+            onToggle={handleToggleSpeech}
+          />
+        </div>
 
         <p className="text-base text-gray-700">
           You&apos;ll be asked 5 common interview questions based on the role
