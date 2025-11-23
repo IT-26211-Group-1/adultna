@@ -54,11 +54,11 @@ const MockInterviewContainerComponent = () => {
       <div className="flex-1 px-4 sm:px-6 lg:px-8 pt-8">
         <div className="max-w-5xl w-full mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
           {state.currentStep === "field" ? (
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr]">
+            <div className="grid grid-cols-1 lg:grid-cols-[3fr_1px_2fr] lg:gap-8">
               {/* Left Column - Title and How it Works */}
-              <div className="space-y-10 pt-0 pr-4">
+              <div className="space-y-10 pt-0">
                 <div className="text-center lg:text-left">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
+                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-snug">
                     Practice Job Interviews with{" "}
                     <span className="text-adult-green bg-adult-green/10 px-6 py-1 rounded-lg">Confidence</span>
                   </h1>
@@ -72,8 +72,11 @@ const MockInterviewContainerComponent = () => {
                 </div>
               </div>
 
+              {/* Vertical Divider */}
+              <div className="hidden lg:block bg-gray-200"></div>
+
               {/* Right Column - Field Selection */}
-              <div className="pl-4">
+              <div>
                 <FieldSelector onSelectField={actions.selectField} />
               </div>
             </div>
