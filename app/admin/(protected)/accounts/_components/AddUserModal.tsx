@@ -168,8 +168,9 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
 
         <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
           <p>
-            <strong>Note:</strong> The default password (Pa$$w0rd) will be sent
-            to the user&apos;s email with instructions to change it.
+            <strong>Note:</strong> A secure temporary password will be
+            automatically generated and sent to the user&apos;s email with
+            instructions to change it.
           </p>
         </div>
 
