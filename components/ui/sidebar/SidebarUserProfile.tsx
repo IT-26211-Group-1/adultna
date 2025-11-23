@@ -164,6 +164,10 @@ export default function SidebarUserProfile({
       {/* Logout Confirmation Modal */}
       <Modal
         backdrop="blur"
+        classNames={{
+          wrapper: "z-[200]",
+          backdrop: "z-[150]",
+        }}
         isOpen={isOpen}
         placement="center"
         size="sm"
