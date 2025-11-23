@@ -45,11 +45,6 @@ export const useGoogleCallback = () => {
       const storedState = sessionStorage.getItem("oauth_state");
       const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
 
-      logger.log("🔍 Retrieved from sessionStorage:", {
-        storedState: storedState ? "exists" : "missing",
-        codeVerifier: codeVerifier ? "exists" : "missing",
-      });
-
       if (!state || state !== storedState) {
         logger.error("❌ State validation failed:", { state, storedState });
         addToast({
@@ -75,7 +70,6 @@ export const useGoogleCallback = () => {
         const stateData = JSON.parse(atob(state));
 
         mode = stateData.mode || "login";
-        logger.log("🔍 OAuth mode extracted from state:", mode);
       } catch (error) {
         logger.error("Failed to parse state:", error);
       }
@@ -95,9 +89,6 @@ export const useGoogleCallback = () => {
 
       // For registration, redirect to authorization page
       if (mode === "register") {
-        logger.log(
-          "✅ Registration mode detected - redirecting to authorize page",
-        );
         // Store OAuth data for authorization page
         sessionStorage.setItem("google_oauth_code", code);
         // Keep codeVerifier in sessionStorage for authorize page to use
@@ -115,8 +106,6 @@ export const useGoogleCallback = () => {
       // For login mode, clear the codeVerifier after we're done with it
       sessionStorage.removeItem("pkce_code_verifier");
 
-      logger.log("ℹ️ Login mode - proceeding with login flow");
-
       // For login, proceed with authentication
       try {
         const redirectUri = `${window.location.origin}/auth/google/callback`;
@@ -133,20 +122,10 @@ export const useGoogleCallback = () => {
               codeVerifier,
               redirectUri,
             }),
-          },
+          }
         );
 
         const data = await response.json();
-
-        logger.log("📥 Google OAuth response:", {
-          status: response.status,
-          success: data.success,
-          isNew: data.isNew,
-          message: data.message,
-          headers: response.headers.get("set-cookie"),
-        });
-
-        logger.log("🍪 Checking cookies:", document.cookie);
 
         if (data.success) {
           addToast({
@@ -155,11 +134,8 @@ export const useGoogleCallback = () => {
             color: "success",
           });
 
-          logger.log("✅ Redirecting to:", data.isNew ? "/auth/onboarding" : "/dashboard");
-
           // Wait longer for cookies to be properly set
           setTimeout(() => {
-            logger.log("🍪 Cookies before redirect:", document.cookie);
             if (data.isNew) {
               router.replace("/auth/onboarding");
             } else {
