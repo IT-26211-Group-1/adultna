@@ -118,14 +118,14 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
         {/* Next button bottom right */}
         <div className="pt-8">
           <button
-            className="px-6 py-3 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3 border-2 border-adult-green text-adult-green rounded-full font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-adult-green hover:text-white hover:shadow-md hover:scale-105 active:scale-95 active:shadow-sm"
             disabled={isCreatingSession || !user?.id}
             onClick={handleNextClick}
           >
             {isCreatingSession ? (
               <>
                 <svg
-                  className="h-5 w-5 animate-spin"
+                  className="h-5 w-5 animate-spin inline mr-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
@@ -144,25 +144,10 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
                     fill="currentColor"
                   />
                 </svg>
-                Next
+                I'm Ready!
               </>
             ) : (
-              <>
-                Next
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 5l7 7-7 7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </>
+              "I'm Ready!"
             )}
           </button>
         </div>
