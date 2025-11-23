@@ -8,9 +8,12 @@ import { UserAuthTitle } from "../../../register/_components/UserAuthTitle";
 import { AuthButton } from "../../../register/_components/AuthButton";
 import { ImageContainer } from "../../../register/_components/ImageContainer";
 import { logger } from "@/lib/logger";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/apiClient";
 
 export const GoogleAuthorizePage = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
@@ -53,7 +56,7 @@ export const GoogleAuthorizePage = () => {
             codeVerifier,
             redirectUri,
           }),
-        },
+        }
       );
 
       const data = await response.json();
@@ -65,15 +68,21 @@ export const GoogleAuthorizePage = () => {
         const shouldGoToOnboarding =
           data.user?.onboardingStatus !== "completed";
 
-        setTimeout(() => {
-          if (shouldGoToOnboarding) {
-            logger.log("🔄 Navigating to /auth/onboarding");
-            router.replace("/auth/onboarding");
-          } else {
-            logger.log("🔄 Navigating to /dashboard");
-            router.replace("/dashboard");
-          }
-        }, 300);
+        // Invalidate and refetch auth cache to ensure synchronized state
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.auth.me(),
+        });
+
+        await queryClient.refetchQueries({
+          queryKey: queryKeys.auth.me(),
+        });
+
+        // Navigate after cache is refreshed
+        if (shouldGoToOnboarding) {
+          router.replace("/auth/onboarding");
+        } else {
+          router.replace("/dashboard");
+        }
       } else {
         logger.error("❌ Google registration failed:", data.message);
         addToast({

@@ -4,10 +4,13 @@ import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import { logger } from "@/lib/logger";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/apiClient";
 
 export const useGoogleCallback = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -34,7 +37,8 @@ export const useGoogleCallback = () => {
       if (!code) {
         logger.error("❌ No authorization code received");
         addToast({
-          title: "Registration Failed",
+          title: "Authentication Failed",
+          description: "No authorization code received from Google",
           color: "danger",
         });
         router.replace("/auth/login");
@@ -44,11 +48,6 @@ export const useGoogleCallback = () => {
 
       const storedState = sessionStorage.getItem("oauth_state");
       const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
-
-      logger.log("🔍 Retrieved from sessionStorage:", {
-        storedState: storedState ? "exists" : "missing",
-        codeVerifier: codeVerifier ? "exists" : "missing",
-      });
 
       if (!state || state !== storedState) {
         logger.error("❌ State validation failed:", { state, storedState });
@@ -75,7 +74,6 @@ export const useGoogleCallback = () => {
         const stateData = JSON.parse(atob(state));
 
         mode = stateData.mode || "login";
-        logger.log("🔍 OAuth mode extracted from state:", mode);
       } catch (error) {
         logger.error("Failed to parse state:", error);
       }
@@ -95,9 +93,6 @@ export const useGoogleCallback = () => {
 
       // For registration, redirect to authorization page
       if (mode === "register") {
-        logger.log(
-          "✅ Registration mode detected - redirecting to authorize page",
-        );
         // Store OAuth data for authorization page
         sessionStorage.setItem("google_oauth_code", code);
         // Keep codeVerifier in sessionStorage for authorize page to use
@@ -114,8 +109,6 @@ export const useGoogleCallback = () => {
 
       // For login mode, clear the codeVerifier after we're done with it
       sessionStorage.removeItem("pkce_code_verifier");
-
-      logger.log("ℹ️ Login mode - proceeding with login flow");
 
       // For login, proceed with authentication
       try {
@@ -138,16 +131,6 @@ export const useGoogleCallback = () => {
 
         const data = await response.json();
 
-        logger.log("📥 Google OAuth response:", {
-          status: response.status,
-          success: data.success,
-          isNew: data.isNew,
-          message: data.message,
-          headers: response.headers.get("set-cookie"),
-        });
-
-        logger.log("🍪 Checking cookies:", document.cookie);
-
         if (data.success) {
           addToast({
             title: data.isNew ? "Registration Successful" : "Login Successful",
@@ -155,17 +138,21 @@ export const useGoogleCallback = () => {
             color: "success",
           });
 
-          logger.log("✅ Redirecting to:", data.isNew ? "/auth/onboarding" : "/dashboard");
+          // Invalidate and refetch auth cache to ensure synchronized state
+          await queryClient.invalidateQueries({
+            queryKey: queryKeys.auth.me(),
+          });
 
-          // Wait longer for cookies to be properly set
-          setTimeout(() => {
-            logger.log("🍪 Cookies before redirect:", document.cookie);
-            if (data.isNew) {
-              router.replace("/auth/onboarding");
-            } else {
-              router.replace("/dashboard");
-            }
-          }, 1000);
+          await queryClient.refetchQueries({
+            queryKey: queryKeys.auth.me(),
+          });
+
+          // Navigate after cache is refreshed
+          if (data.isNew) {
+            router.replace("/auth/onboarding");
+          } else {
+            router.replace("/dashboard");
+          }
         } else {
           addToast({
             title: "Authentication Failed",
