@@ -47,7 +47,7 @@ export default function RootLayout({
         suppressHydrationWarning //added so the body will handle browser extension differences while keeping the app function normally
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>

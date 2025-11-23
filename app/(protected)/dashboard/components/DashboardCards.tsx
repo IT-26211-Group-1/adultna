@@ -11,7 +11,6 @@ interface DashboardCardsProps {
 }
 
 export default function DashboardCards({ activeTab }: DashboardCardsProps) {
-  // Render specific tab view
   if (activeTab === "roadmap") {
     return <RoadmapProgressTable />;
   }
@@ -24,7 +23,6 @@ export default function DashboardCards({ activeTab }: DashboardCardsProps) {
     return <DeadlinesTable />;
   }
 
-  // Default "all" view with cards
   return (
     <div className="grid grid-cols-2 gap-4">
       <DailyStreakCard />
