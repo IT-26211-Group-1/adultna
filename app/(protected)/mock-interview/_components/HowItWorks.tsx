@@ -33,16 +33,23 @@ const STEPS = [
 export const HowItWorks = memo(function HowItWorks() {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">How it Works</h2>
-      <div className="space-y-4">
-        {STEPS.map((step) => (
-          <div key={step.number} className="space-y-1">
-            <h3 className="font-medium text-gray-900">
-              Step {step.number}: {step.title}
-            </h3>
-            <ul className="list-disc list-inside ml-2">
-              <li className="text-sm text-gray-600">{step.description}</li>
-            </ul>
+      <h2 className="text-2xl font-bold text-gray-900">How it Works</h2>
+      <div className="space-y-5">
+        {STEPS.map((step, index) => (
+          <div
+            key={step.number}
+            className="flex items-start space-x-4 animate-in fade-in slide-in-from-left-2 duration-300"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            <div className="flex-shrink-0 w-7 h-7 bg-gradient-to-r from-adult-green to-adult-green/80 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-sm">
+              {step.number}
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-gray-900 mb-2">
+                {step.title}
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">{step.description}</p>
+            </div>
           </div>
         ))}
       </div>

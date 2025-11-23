@@ -40,40 +40,45 @@ const MockInterviewContainerComponent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Breadcrumbs */}
-        <div className="mb-6">
-          <Breadcrumb items={getBreadcrumbItems()} />
-        </div>
-
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-900">
-            Practice Job Interviews with{" "}
-            <span className="text-adult-green">Confidence</span>
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Your safe space to prepare for job interviews and first impressions.
-          </p>
-        </div>
-
-        {/* Main Content */}
-        {state.currentStep === "field" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column - How it Works */}
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <HowItWorks />
-            </div>
-
-            {/* Right Column - Field Selection */}
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <FieldSelector onSelectField={actions.selectField} />
-            </div>
+    <div className="min-h-screen bg-white flex flex-col">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Breadcrumbs */}
+          <div className="mb-3">
+            <Breadcrumb items={getBreadcrumbItems()} />
           </div>
-        ) : (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm p-8">
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="max-w-5xl w-full mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {state.currentStep === "field" ? (
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr]">
+              {/* Left Column - Title and How it Works */}
+              <div className="space-y-10 pt-0 pr-4">
+                <div className="text-center lg:text-left">
+                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
+                    Practice Job Interviews with{" "}
+                    <span className="text-adult-green bg-adult-green/10 px-6 py-1 rounded-lg">Confidence</span>
+                  </h1>
+                  <p className="text-base text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    Your safe space to prepare for job interviews and first impressions.
+                  </p>
+                </div>
+
+                <div>
+                  <HowItWorks />
+                </div>
+              </div>
+
+              {/* Right Column - Field Selection */}
+              <div className="pl-4">
+                <FieldSelector onSelectField={actions.selectField} />
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-10 animate-in fade-in slide-in-from-right-4 duration-500">
               {state.currentStep === "jobRole" &&
                 state.selectedField &&
                 state.selectedField.toLowerCase() !== "general" && (
@@ -108,8 +113,8 @@ const MockInterviewContainerComponent = () => {
                   />
                 )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
