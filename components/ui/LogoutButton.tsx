@@ -60,7 +60,7 @@ export function LogoutButton({
 
   return (
     <Button
-      className={className}
+      className={`z-[110] ${className || ""}`}
       color={color}
       disabled={isLoggingOut}
       isLoading={isLoggingOut}
