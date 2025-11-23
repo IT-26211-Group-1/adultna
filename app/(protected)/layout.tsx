@@ -13,11 +13,12 @@ interface ProtectedLayoutProps {
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const pathname = usePathname();
   const isAIGabayPage = pathname.startsWith("/ai-gabay");
+  const isMockInterviewPage = pathname.startsWith("/mock-interview");
   const { showIdleWarning, onStayActive, onLogoutNow } = useAuth();
 
   return (
     <ProtectedRoute roles={["user"]}>
-      {isAIGabayPage ? (
+      {isAIGabayPage || isMockInterviewPage ? (
         <div className="w-full h-screen overflow-hidden">{children}</div>
       ) : (
         <UserSidebar>{children}</UserSidebar>
