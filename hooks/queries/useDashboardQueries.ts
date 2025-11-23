@@ -2,7 +2,6 @@
 
 import {
   useQuery,
-  useSuspenseQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -74,7 +73,7 @@ const dashboardApi = {
 };
 
 export function useDashboardSummary() {
-  return useSuspenseQuery<DashboardSummary>({
+  return useQuery<DashboardSummary>({
     queryKey: queryKeys.dashboard.summary(),
     queryFn: async () => {
       const response = await dashboardApi.getSummary();
