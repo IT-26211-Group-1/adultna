@@ -85,7 +85,13 @@ export default function OnboardingModal({
     setSelectedPriorities((prev) => {
       const newPriorities =
         typeof priorities === "function" ? priorities(prev) : priorities;
-      setSecureItem("onboarding-priorities", JSON.stringify(newPriorities), 1440); // 24 hours
+
+      setSecureItem(
+        "onboarding-priorities",
+        JSON.stringify(newPriorities),
+        1440,
+      ); // 24 hours
+
       return newPriorities;
     });
   };
@@ -101,14 +107,19 @@ export default function OnboardingModal({
   }, [nextStep]);
 
   const previousStep = useCallback(() => {
-    updateCurrentStep(currentStep > STEPS.INTRODUCTION ? currentStep - 1 : currentStep);
+    updateCurrentStep(
+      currentStep > STEPS.INTRODUCTION ? currentStep - 1 : currentStep,
+    );
   }, [currentStep, updateCurrentStep]);
 
-  const goToStep = useCallback((step: number) => {
-    if (step <= currentStep) {
-      updateCurrentStep(step);
-    }
-  }, [currentStep, updateCurrentStep]);
+  const goToStep = useCallback(
+    (step: number) => {
+      if (step <= currentStep) {
+        updateCurrentStep(step);
+      }
+    },
+    [currentStep, updateCurrentStep],
+  );
 
   const [isCompleting, setIsCompleting] = useState(false);
 
@@ -161,9 +172,9 @@ export default function OnboardingModal({
           <LifeStageStep
             selectedLifeStage={selectedLifeStage}
             setSelectedLifeStage={updateSelectedLifeStage}
+            onBack={previousStep}
             onNext={nextStep}
             onSkip={skipStep}
-            onBack={previousStep}
           />
         );
       case STEPS.PRIORITIES:
@@ -171,9 +182,9 @@ export default function OnboardingModal({
           <PrioritiesStep
             selectedPriorities={selectedPriorities}
             setSelectedPriorities={updateSelectedPriorities}
+            onBack={previousStep}
             onNext={nextStep}
             onSkip={skipStep}
-            onBack={previousStep}
           />
         );
       case STEPS.YOUR_PATH:
@@ -183,8 +194,8 @@ export default function OnboardingModal({
             isSubmitting={isSubmitting}
             lifeStage={selectedLifeStage}
             priorities={selectedPriorities}
-            onComplete={handleComplete}
             onBack={previousStep}
+            onComplete={handleComplete}
           />
         );
       default:

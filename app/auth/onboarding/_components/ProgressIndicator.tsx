@@ -20,9 +20,6 @@ const ProgressIndicator = React.memo(
           <React.Fragment key={step.number}>
             <div className="flex flex-col items-center">
               <button
-                type="button"
-                onClick={() => onStepClick?.(step.number)}
-                disabled={!onStepClick || step.number > currentStep}
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-medium transition-all ${
                   step.number === currentStep
                     ? "bg-teal-700 text-white"
@@ -30,6 +27,9 @@ const ProgressIndicator = React.memo(
                       ? "bg-teal-100 text-teal-700 border-2 border-teal-700 hover:bg-teal-200 cursor-pointer"
                       : "bg-gray-200 text-gray-500 cursor-not-allowed"
                 } ${onStepClick && step.number <= currentStep ? "hover:scale-110" : ""}`}
+                disabled={!onStepClick || step.number > currentStep}
+                type="button"
+                onClick={() => onStepClick?.(step.number)}
               >
                 {step.number}
               </button>
