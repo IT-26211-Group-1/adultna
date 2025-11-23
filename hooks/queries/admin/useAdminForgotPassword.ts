@@ -136,7 +136,11 @@ export function useAdminForgotPasswordFlow() {
   const getStoredEmail = () => getSecureItem("adminForgotPasswordEmail");
   const getStoredToken = () => getSecureItem("adminForgotPasswordToken");
   const getStoredStep = () =>
-    getSecureItem("adminForgotPasswordStep") as "email" | "otp" | "reset" | null;
+    getSecureItem("adminForgotPasswordStep") as
+      | "email"
+      | "otp"
+      | "reset"
+      | null;
 
   const clearForgotPasswordData = () => {
     removeSecureItem("adminForgotPasswordToken");

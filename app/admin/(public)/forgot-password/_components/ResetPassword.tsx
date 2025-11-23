@@ -23,7 +23,7 @@ export const resetPasswordSchema = z
       .regex(/\d/, "Password must contain at least one number")
       .regex(
         /[!@#$%^&*(),.?":{}|<>]/,
-        "Password must contain at least one special character"
+        "Password must contain at least one special character",
       ),
     confirmPassword: z.string(),
   })
@@ -81,7 +81,7 @@ export default function ResetPassword() {
             color: "danger",
           });
         },
-      }
+      },
     );
   };
 
