@@ -252,13 +252,6 @@ export const QuestionsList = memo(function QuestionsList({
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-3xl mx-auto px-4">
-        <div className="flex items-center justify-end mb-6">
-          <AutoPlayToggle
-            isMuted={audio.tts.isMuted}
-            isReady={!audio.tts.isLoadingAudio}
-            onToggle={audio.tts.toggleMute}
-          />
-        </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="h-2 bg-adult-green" />
@@ -352,6 +345,13 @@ export const QuestionsList = memo(function QuestionsList({
 
                 <p className="text-xl text-gray-900 leading-relaxed font-medium">
                   {navigation.currentQuestion.question}
+                  <span className="ml-3 inline-block">
+                    <AutoPlayToggle
+                      isMuted={audio.tts.isMuted}
+                      isReady={!audio.tts.isLoadingAudio}
+                      onToggle={audio.tts.toggleMute}
+                    />
+                  </span>
                 </p>
 
                 <div className="space-y-2">
