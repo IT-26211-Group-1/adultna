@@ -76,10 +76,18 @@ export default function OnboardingModal({
   };
 
   const updateSelectedPriorities = (
-    priorities: { questionId: number; optionId: number }[],
+    priorities:
+      | { questionId: number; optionId: number }[]
+      | ((
+          prevState: { questionId: number; optionId: number }[],
+        ) => { questionId: number; optionId: number }[]),
   ) => {
-    setSelectedPriorities(priorities);
-    setSecureItem("onboarding-priorities", JSON.stringify(priorities), 1440); // 24 hours
+    setSelectedPriorities((prev) => {
+      const newPriorities =
+        typeof priorities === "function" ? priorities(prev) : priorities;
+      setSecureItem("onboarding-priorities", JSON.stringify(newPriorities), 1440); // 24 hours
+      return newPriorities;
+    });
   };
 
   const nextStep = useCallback(() => {
@@ -130,7 +138,9 @@ export default function OnboardingModal({
     return (
       <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <LoadingSpinner fullScreen={false} size="xl" className="my-32" />
+          <div className="flex items-center justify-center my-32">
+            <LoadingSpinner fullScreen={false} size="xl" />
+          </div>
         </div>
       </div>
     );
@@ -160,7 +170,7 @@ export default function OnboardingModal({
         return (
           <PrioritiesStep
             selectedPriorities={selectedPriorities}
-            setSelectedPriorities={setSelectedPriorities}
+            setSelectedPriorities={updateSelectedPriorities}
             onNext={nextStep}
             onSkip={skipStep}
             onBack={previousStep}
