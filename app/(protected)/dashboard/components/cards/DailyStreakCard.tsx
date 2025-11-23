@@ -44,7 +44,7 @@ function DailyStreakCard() {
             <span className="text-adult-green font-semibold">
               {data?.dailyStreak.completionRate || 0}%
             </span>{" "}
-            completion rate
+            roadmap completion rate
           </p>
         </div>
         <div className="flex flex-col items-center justify-center h-full">

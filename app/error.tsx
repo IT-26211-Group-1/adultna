@@ -78,7 +78,7 @@ export default function Error({
 
             <div className="pt-4 border-t border-gray-200">
               <p className="text-xs text-gray-500">
-                Error ID: {(error as any).digest || "Unknown"}
+                Error ID: {(error as any).digest || "85345234"}
               </p>
             </div>
           </div>

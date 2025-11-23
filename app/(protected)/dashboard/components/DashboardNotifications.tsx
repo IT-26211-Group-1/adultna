@@ -1,20 +1,29 @@
 "use client";
 
-import { memo } from "react";
-import { Bell } from "lucide-react";
+import { memo, useState } from "react";
+import { Bell, X } from "lucide-react";
 import {
   useDashboardNotifications,
-  useMarkAllNotificationsRead,
+  useDeleteAllNotifications,
+  useDeleteNotification,
 } from "@/hooks/queries/useDashboardQueries";
 import { formatDistanceToNow } from "date-fns";
 import type { DashboardNotification } from "@/types/dashboard";
 
 function DashboardNotifications() {
   const { data: notifications = [], isLoading } = useDashboardNotifications(10);
-  const markAllAsRead = useMarkAllNotificationsRead();
+  const deleteAllNotifications = useDeleteAllNotifications();
+  const deleteNotification = useDeleteNotification();
+  const [hoveredNotification, setHoveredNotification] = useState<string | null>(
+    null,
+  );
 
   const handleClearAll = () => {
-    markAllAsRead.mutate();
+    deleteAllNotifications.mutate();
+  };
+
+  const handleDeleteNotification = (notificationId: string) => {
+    deleteNotification.mutate(notificationId);
   };
 
   const getNotificationIcon = (type: string) => {
@@ -40,10 +49,10 @@ function DashboardNotifications() {
         {notifications.length > 0 && (
           <button
             className="text-xs text-adult-green hover:text-teal-700 font-medium"
-            disabled={markAllAsRead.isPending}
+            disabled={deleteAllNotifications.isPending}
             onClick={handleClearAll}
           >
-            {markAllAsRead.isPending ? "Clearing..." : "Clear All"}
+            {deleteAllNotifications.isPending ? "Deleting..." : "Delete All"}
           </button>
         )}
       </div>
@@ -92,11 +101,13 @@ function DashboardNotifications() {
             {notifications.map((notification: DashboardNotification) => (
               <div
                 key={notification.id}
-                className={`p-3 rounded-xl border transition-all shadow-sm ${
+                className={`p-3 rounded-xl border transition-all shadow-sm relative group ${
                   notification.isRead
                     ? "bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/100"
                     : "bg-blue-50/80 backdrop-blur-md border-blue-200/50 hover:bg-blue-50/100"
                 }`}
+                onMouseEnter={() => setHoveredNotification(notification.id)}
+                onMouseLeave={() => setHoveredNotification(null)}
               >
                 <div className="flex items-start gap-2">
                   <span className="text-lg flex-shrink-0">
@@ -107,9 +118,22 @@ function DashboardNotifications() {
                       <p className="text-sm font-medium text-gray-900">
                         {notification.title}
                       </p>
-                      {!notification.isRead && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
-                      )}
+                      <div className="flex items-center gap-2">
+                        {hoveredNotification === notification.id && (
+                          <button
+                            className="text-gray-400 hover:text-red-600 transition-colors"
+                            disabled={deleteNotification.isPending}
+                            onClick={() =>
+                              handleDeleteNotification(notification.id)
+                            }
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                        {!notification.isRead && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
+                        )}
+                      </div>
                     </div>
                     <p className="text-xs text-gray-700 mt-1">
                       {notification.message}

@@ -7,13 +7,13 @@ export default function ActivitiesTable() {
   const { data, isLoading } = useDashboardSummary();
   const activities = data?.recentActivities || [];
 
-  const getActivityColor = (action: string) => {
-    const actionLower = action.toLowerCase();
+  const getActivityColor = (title: string) => {
+    const titleLower = title.toLowerCase();
 
-    if (actionLower.includes("complete")) return "bg-green-500";
-    if (actionLower.includes("create")) return "bg-blue-500";
-    if (actionLower.includes("update")) return "bg-purple-500";
-    if (actionLower.includes("delete")) return "bg-red-500";
+    if (titleLower.includes("complete")) return "bg-green-500";
+    if (titleLower.includes("create")) return "bg-blue-500";
+    if (titleLower.includes("update")) return "bg-purple-500";
+    if (titleLower.includes("delete")) return "bg-red-500";
 
     return "bg-orange-500";
   };
@@ -55,14 +55,16 @@ export default function ActivitiesTable() {
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-2 h-2 ${getActivityColor(activity.action)} rounded-full`}
+                  className={`w-2 h-2 ${getActivityColor(activity.title)} rounded-full`}
                 />
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900">
-                    {activity.action}
+                    {activity.title}
                   </h3>
-                  {activity.details && (
-                    <p className="text-xs text-gray-600">{activity.details}</p>
+                  {activity.description && (
+                    <p className="text-xs text-gray-600">
+                      {activity.description}
+                    </p>
                   )}
                 </div>
               </div>

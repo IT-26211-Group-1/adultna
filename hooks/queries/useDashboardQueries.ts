@@ -48,6 +48,22 @@ const dashboardApi = {
       },
     ),
 
+  deleteNotification: (notificationId: string) =>
+    ApiClient.request<{ success: boolean; message: string }>(
+      `/dashboard/notifications/${notificationId}`,
+      {
+        method: "DELETE",
+      },
+    ),
+
+  deleteAllNotifications: () =>
+    ApiClient.request<{ success: boolean; message: string }>(
+      "/dashboard/notifications",
+      {
+        method: "DELETE",
+      },
+    ),
+
   generateDeadlineReminders: () =>
     ApiClient.request<GenerateRemindersResponse>(
       "/dashboard/reminders/generate",
@@ -129,6 +145,58 @@ export function useMarkAllNotificationsRead() {
       addToast({
         title: "Error",
         description: error.message || "Failed to mark notifications as read",
+        color: "danger",
+      });
+    },
+  });
+}
+
+export function useDeleteNotification() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (notificationId: string) =>
+      dashboardApi.deleteNotification(notificationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard.notifications(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard.summary(),
+      });
+    },
+    onError: (error: Error) => {
+      addToast({
+        title: "Error",
+        description: error.message || "Failed to delete notification",
+        color: "danger",
+      });
+    },
+  });
+}
+
+export function useDeleteAllNotifications() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => dashboardApi.deleteAllNotifications(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard.notifications(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard.summary(),
+      });
+      addToast({
+        title: "Success",
+        description: "All notifications deleted",
+        color: "success",
+      });
+    },
+    onError: (error: Error) => {
+      addToast({
+        title: "Error",
+        description: error.message || "Failed to delete notifications",
         color: "danger",
       });
     },
