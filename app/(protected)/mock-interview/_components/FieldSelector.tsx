@@ -11,7 +11,7 @@ import {
   MessageSquare,
   GraduationCap,
   MapPin,
-  Globe
+  Globe,
 } from "lucide-react";
 
 type Field = {
@@ -21,14 +21,25 @@ type Field = {
 };
 
 // Icon mapping for different fields
-const getFieldIcon = (fieldId: string): React.ComponentType<{ className?: string }> => {
+const getFieldIcon = (
+  fieldId: string,
+): React.ComponentType<{ className?: string }> => {
   const lowerFieldId = fieldId.toLowerCase();
-  if (lowerFieldId.includes('technology') || lowerFieldId.includes('information')) return Code;
-  if (lowerFieldId.includes('arts') || lowerFieldId.includes('design')) return Palette;
-  if (lowerFieldId.includes('business') || lowerFieldId.includes('management')) return Briefcase;
-  if (lowerFieldId.includes('communication')) return MessageSquare;
-  if (lowerFieldId.includes('education')) return GraduationCap;
-  if (lowerFieldId.includes('tourism') || lowerFieldId.includes('hospitality')) return MapPin;
+
+  if (
+    lowerFieldId.includes("technology") ||
+    lowerFieldId.includes("information")
+  )
+    return Code;
+  if (lowerFieldId.includes("arts") || lowerFieldId.includes("design"))
+    return Palette;
+  if (lowerFieldId.includes("business") || lowerFieldId.includes("management"))
+    return Briefcase;
+  if (lowerFieldId.includes("communication")) return MessageSquare;
+  if (lowerFieldId.includes("education")) return GraduationCap;
+  if (lowerFieldId.includes("tourism") || lowerFieldId.includes("hospitality"))
+    return MapPin;
+
   return Globe; // default for General and others
 };
 
@@ -66,7 +77,9 @@ export const FieldSelector = memo(function FieldSelector({
   if (isLoadingIndustries) {
     return (
       <div className="space-y-4 sm:space-y-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Choose a Field</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+          Choose a Field
+        </h2>
         <div className="space-y-2">
           {skeletonItems.map((i) => (
             <Skeleton
@@ -82,7 +95,9 @@ export const FieldSelector = memo(function FieldSelector({
   if (industriesError) {
     return (
       <div className="space-y-4 sm:space-y-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Choose a Field</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+          Choose a Field
+        </h2>
         <div className="text-center py-6">
           <p className="text-red-600 mb-4">
             Failed to load fields. Please try again.
@@ -96,7 +111,9 @@ export const FieldSelector = memo(function FieldSelector({
   if (fields.length === 0) {
     return (
       <div className="space-y-4 sm:space-y-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Choose a Field</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+          Choose a Field
+        </h2>
         <div className="text-center py-6 text-gray-500">
           No fields available at the moment.
         </div>
@@ -106,7 +123,9 @@ export const FieldSelector = memo(function FieldSelector({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Choose a Field</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+        Choose a Field
+      </h2>
       <div className="space-y-3">
         {fields.map((field) => {
           return (

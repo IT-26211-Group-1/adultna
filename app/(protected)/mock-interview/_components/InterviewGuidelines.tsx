@@ -144,10 +144,10 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
                     fill="currentColor"
                   />
                 </svg>
-                I'm Ready!
+                I&apos;m Ready!
               </>
             ) : (
-              "I'm Ready!"
+              "I&apos;m Ready!"
             )}
           </button>
         </div>

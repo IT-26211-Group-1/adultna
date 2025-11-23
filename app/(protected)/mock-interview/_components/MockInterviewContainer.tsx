@@ -29,10 +29,13 @@ const MockInterviewContainerComponent = () => {
     } else if (state.selectedField) {
       items.push({
         label: "Mock Interview",
-        onClick: () => actions.reset()
+        onClick: () => actions.reset(),
       });
 
-      const fieldName = state.selectedField.charAt(0).toUpperCase() + state.selectedField.slice(1).toLowerCase();
+      const fieldName =
+        state.selectedField.charAt(0).toUpperCase() +
+        state.selectedField.slice(1).toLowerCase();
+
       items.push({ label: fieldName, current: true });
     }
 
@@ -40,12 +43,15 @@ const MockInterviewContainerComponent = () => {
   };
 
   return (
-    <div className="bg-white w-full" style={{
-      minHeight: '100vh',
-      WebkitOverflowScrolling: 'touch',
-      touchAction: 'pan-y',
-      overflow: 'visible'
-    }}>
+    <div
+      className="bg-white w-full"
+      style={{
+        minHeight: "100vh",
+        WebkitOverflowScrolling: "touch",
+        touchAction: "pan-y",
+        overflow: "visible",
+      }}
+    >
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumbs */}
@@ -65,10 +71,13 @@ const MockInterviewContainerComponent = () => {
                 <div className="text-center lg:text-left">
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 lg:mb-3 leading-snug">
                     Practice Job Interviews with{" "}
-                    <span className="text-adult-green bg-adult-green/10 px-3 sm:px-6 py-1 rounded-lg">Confidence</span>
+                    <span className="text-adult-green bg-adult-green/10 px-3 sm:px-6 py-1 rounded-lg">
+                      Confidence
+                    </span>
                   </h1>
                   <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                    Your safe space to prepare for job interviews and first impressions.
+                    Your safe space to prepare for job interviews and first
+                    impressions.
                   </p>
                 </div>
 
@@ -78,7 +87,7 @@ const MockInterviewContainerComponent = () => {
               </div>
 
               {/* Vertical Divider */}
-              <div className="hidden lg:block bg-gray-200"></div>
+              <div className="hidden lg:block bg-gray-200" />
 
               {/* Right Column - Field Selection */}
               <div>

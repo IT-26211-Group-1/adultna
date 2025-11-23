@@ -36,10 +36,7 @@ export const HowItWorks = memo(function HowItWorks() {
       <h2 className="text-2xl font-bold text-gray-900">How it Works</h2>
       <div className="space-y-5">
         {STEPS.map((step) => (
-          <div
-            key={step.number}
-            className="flex items-start space-x-4"
-          >
+          <div key={step.number} className="flex items-start space-x-4">
             <div className="flex-shrink-0 w-7 h-7 bg-gradient-to-r from-adult-green to-adult-green/80 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-sm">
               {step.number}
             </div>
@@ -47,7 +44,9 @@ export const HowItWorks = memo(function HowItWorks() {
               <h3 className="text-sm font-bold text-gray-900 mb-2">
                 {step.title}
               </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">{step.description}</p>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {step.description}
+              </p>
             </div>
           </div>
         ))}

@@ -144,6 +144,7 @@ export const useTextToSpeech = (
       // Check if speech synthesis is available and not busy
       if (!window.speechSynthesis) {
         logger.warn("Speech synthesis not available");
+
         return;
       }
 
