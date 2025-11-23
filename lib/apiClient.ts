@@ -384,4 +384,14 @@ export const queryKeys = {
     byCategory: (category: string) =>
       ["roadmap", "byCategory", category] as const,
   },
+
+  // Dashboard queries
+  dashboard: {
+    all: ["dashboard"] as const,
+    summary: () => ["dashboard", "summary"] as const,
+    notifications: (limit?: number) =>
+      limit
+        ? (["dashboard", "notifications", limit] as const)
+        : (["dashboard", "notifications"] as const),
+  },
 } as const;
