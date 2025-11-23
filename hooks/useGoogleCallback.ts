@@ -4,10 +4,13 @@ import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import { logger } from "@/lib/logger";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/apiClient";
 
 export const useGoogleCallback = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -109,6 +112,7 @@ export const useGoogleCallback = () => {
 
       // For login, proceed with authentication
       try {
+        const redirectUri = `${window.location.origin}/auth/google/callback`;
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API}/auth/google/callback?mode=${mode}`,
           {
@@ -120,6 +124,7 @@ export const useGoogleCallback = () => {
             body: JSON.stringify({
               code,
               codeVerifier,
+              redirectUri,
             }),
           },
         );
@@ -133,14 +138,21 @@ export const useGoogleCallback = () => {
             color: "success",
           });
 
-          // Wait longer for cookies to be properly set
-          setTimeout(() => {
-            if (data.isNew) {
-              router.replace("/auth/onboarding");
-            } else {
-              router.replace("/dashboard");
-            }
-          }, 1000);
+          // Invalidate and refetch auth cache to ensure synchronized state
+          await queryClient.invalidateQueries({
+            queryKey: queryKeys.auth.me(),
+          });
+
+          await queryClient.refetchQueries({
+            queryKey: queryKeys.auth.me(),
+          });
+
+          // Navigate after cache is refreshed
+          if (data.isNew) {
+            router.replace("/auth/onboarding");
+          } else {
+            router.replace("/dashboard");
+          }
         } else {
           addToast({
             title: "Authentication Failed",
