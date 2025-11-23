@@ -35,11 +35,10 @@ export const HowItWorks = memo(function HowItWorks() {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">How it Works</h2>
       <div className="space-y-5">
-        {STEPS.map((step, index) => (
+        {STEPS.map((step) => (
           <div
             key={step.number}
-            className="flex items-start space-x-4 animate-in fade-in slide-in-from-left-2 duration-300"
-            style={{ animationDelay: `${index * 100}ms` }}
+            className="flex items-start space-x-4"
           >
             <div className="flex-shrink-0 w-7 h-7 bg-gradient-to-r from-adult-green to-adult-green/80 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-sm">
               {step.number}

@@ -40,7 +40,12 @@ const MockInterviewContainerComponent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="bg-white w-full" style={{
+      minHeight: '100vh',
+      WebkitOverflowScrolling: 'touch',
+      touchAction: 'pan-y',
+      overflow: 'visible'
+    }}>
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumbs */}
@@ -51,18 +56,18 @@ const MockInterviewContainerComponent = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="max-w-5xl w-full mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+        <div className="max-w-5xl w-full mx-auto">
           {state.currentStep === "field" ? (
-            <div className="grid grid-cols-1 lg:grid-cols-[3fr_1px_2fr] lg:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-[3fr_1px_2fr] lg:gap-8 gap-y-8">
               {/* Left Column - Title and How it Works */}
-              <div className="space-y-10 pt-0">
+              <div className="space-y-6 lg:space-y-10 pt-0">
                 <div className="text-center lg:text-left">
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-snug">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 lg:mb-3 leading-snug">
                     Practice Job Interviews with{" "}
-                    <span className="text-adult-green bg-adult-green/10 px-6 py-1 rounded-lg">Confidence</span>
+                    <span className="text-adult-green bg-adult-green/10 px-3 sm:px-6 py-1 rounded-lg">Confidence</span>
                   </h1>
-                  <p className="text-base text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                     Your safe space to prepare for job interviews and first impressions.
                   </p>
                 </div>
@@ -81,7 +86,7 @@ const MockInterviewContainerComponent = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-10 animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-10">
               {state.currentStep === "jobRole" &&
                 state.selectedField &&
                 state.selectedField.toLowerCase() !== "general" && (
