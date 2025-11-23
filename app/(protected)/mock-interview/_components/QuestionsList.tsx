@@ -250,13 +250,9 @@ export const QuestionsList = memo(function QuestionsList({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-3xl mx-auto px-4">
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="h-2 bg-adult-green" />
-
-          <div className="p-8">
+    <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 200px)' }}>
+      <div className="max-w-3xl w-full mx-auto px-4">
+        <div className="p-8">
             <div className="mb-6">
               <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                 <span>
@@ -343,7 +339,7 @@ export const QuestionsList = memo(function QuestionsList({
                   </div>
                 </div>
 
-                <p className="text-xl text-gray-900 leading-relaxed font-medium">
+                <p className="text-xl text-gray-900 leading-relaxed font-medium mb-8">
                   {navigation.currentQuestion.question}
                   <span className="ml-3 inline-block">
                     <AutoPlayToggle
@@ -477,36 +473,24 @@ export const QuestionsList = memo(function QuestionsList({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-6">
-                  <button
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                      navigation.isFirstQuestion || isSubmitting
-                        ? "text-gray-400 cursor-not-allowed"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                    disabled={navigation.isFirstQuestion || isSubmitting}
-                    onClick={navigation.goPrevious}
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                <div className="flex items-center justify-between pt-8">
+                  {/* Previous Button */}
+                  {!navigation.isFirstQuestion && (
+                    <button
+                      className="px-4 py-2 border-2 border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-400 rounded-full font-medium transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isSubmitting}
+                      onClick={navigation.goPrevious}
                     >
-                      <path
-                        d="M15 19l-7-7 7-7"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                    Previous
-                  </button>
+                      Previous
+                    </button>
+                  )}
 
+                  {/* Right Side Actions */}
                   <div className="flex items-center gap-3">
+                    {/* Skip Button */}
                     {!navigation.isLastQuestion && (
                       <button
-                        className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                        className="px-5 py-2 border-2 border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-400 rounded-full transition-all duration-200 font-medium hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={isSubmitting}
                         onClick={navigation.skip}
                       >
@@ -514,16 +498,17 @@ export const QuestionsList = memo(function QuestionsList({
                       </button>
                     )}
 
+                    {/* Primary Action Button - Next/Finish */}
                     {navigation.isLastQuestion ? (
                       <button
-                        className="px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 border-2 border-adult-green text-adult-green rounded-full font-medium transition-all duration-200 flex items-center gap-2 hover:bg-adult-green hover:text-white hover:shadow-md hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={isSubmitting}
                         onClick={handleFinishInterview}
                       >
                         {isSubmitting ? (
                           <>
-                            <Spinner color="white" size="sm" />
-                            Evaluating your answers...
+                            <Spinner color="current" size="sm" />
+                            Evaluating...
                           </>
                         ) : (
                           "Finish Interview"
@@ -531,31 +516,17 @@ export const QuestionsList = memo(function QuestionsList({
                       </button>
                     ) : (
                       <button
-                        className="flex items-center gap-2 px-6 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors font-medium disabled:opacity-50"
+                        className="px-6 py-2 border-2 border-adult-green text-adult-green rounded-full font-medium transition-all duration-200 hover:bg-adult-green hover:text-white hover:shadow-md hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={isSubmitting || isGrading}
                         onClick={navigation.goNext}
                       >
                         Next
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M9 5l7 7-7 7"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                          />
-                        </svg>
                       </button>
                     )}
                   </div>
                 </div>
               </div>
             )}
-          </div>
         </div>
       </div>
 
