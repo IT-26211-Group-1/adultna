@@ -8,6 +8,7 @@ import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
 import YourPathStep from "./YourPathStep";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 type OnboardingModalProps = {
   isOpen: boolean;
@@ -75,10 +76,24 @@ export default function OnboardingModal({
   };
 
   const updateSelectedPriorities = (
-    priorities: { questionId: number; optionId: number }[],
+    priorities:
+      | { questionId: number; optionId: number }[]
+      | ((
+          prevState: { questionId: number; optionId: number }[],
+        ) => { questionId: number; optionId: number }[]),
   ) => {
-    setSelectedPriorities(priorities);
-    setSecureItem("onboarding-priorities", JSON.stringify(priorities), 1440); // 24 hours
+    setSelectedPriorities((prev) => {
+      const newPriorities =
+        typeof priorities === "function" ? priorities(prev) : priorities;
+
+      setSecureItem(
+        "onboarding-priorities",
+        JSON.stringify(newPriorities),
+        1440,
+      ); // 24 hours
+
+      return newPriorities;
+    });
   };
 
   const nextStep = useCallback(() => {
@@ -91,8 +106,26 @@ export default function OnboardingModal({
     nextStep();
   }, [nextStep]);
 
+  const previousStep = useCallback(() => {
+    updateCurrentStep(
+      currentStep > STEPS.INTRODUCTION ? currentStep - 1 : currentStep,
+    );
+  }, [currentStep, updateCurrentStep]);
+
+  const goToStep = useCallback(
+    (step: number) => {
+      if (step <= currentStep) {
+        updateCurrentStep(step);
+      }
+    },
+    [currentStep, updateCurrentStep],
+  );
+
+  const [isCompleting, setIsCompleting] = useState(false);
+
   const handleComplete = useCallback(
     async (data: any) => {
+      setIsCompleting(true);
       await onComplete(data);
 
       // Reset onboarding state after successful submission
@@ -112,6 +145,18 @@ export default function OnboardingModal({
 
   if (!isOpen || !hydrated) return null;
 
+  if (isCompleting) {
+    return (
+      <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-center my-32">
+            <LoadingSpinner fullScreen={false} size="xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const renderCurrentStep = () => {
     switch (currentStep) {
       case STEPS.INTRODUCTION:
@@ -127,6 +172,7 @@ export default function OnboardingModal({
           <LifeStageStep
             selectedLifeStage={selectedLifeStage}
             setSelectedLifeStage={updateSelectedLifeStage}
+            onBack={previousStep}
             onNext={nextStep}
             onSkip={skipStep}
           />
@@ -135,7 +181,8 @@ export default function OnboardingModal({
         return (
           <PrioritiesStep
             selectedPriorities={selectedPriorities}
-            setSelectedPriorities={setSelectedPriorities}
+            setSelectedPriorities={updateSelectedPriorities}
+            onBack={previousStep}
             onNext={nextStep}
             onSkip={skipStep}
           />
@@ -147,6 +194,7 @@ export default function OnboardingModal({
             isSubmitting={isSubmitting}
             lifeStage={selectedLifeStage}
             priorities={selectedPriorities}
+            onBack={previousStep}
             onComplete={handleComplete}
           />
         );
@@ -162,7 +210,7 @@ export default function OnboardingModal({
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-teal-700">AdultNa.</h1>
           </div>
-          <ProgressIndicator currentStep={currentStep} />
+          <ProgressIndicator currentStep={currentStep} onStepClick={goToStep} />
         </div>
         <div className="p-8">{renderCurrentStep()}</div>
       </div>

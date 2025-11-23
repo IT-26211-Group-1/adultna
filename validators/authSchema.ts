@@ -18,7 +18,7 @@ const nameSchema = (field: string) =>
     )
     .max(30, `${field} must be less than 30 characters`)
     .regex(
-      /^[a-zA-Z\s'-]+$/,
+      /^[a-zA-ZÀ-ÿ\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\s'-]+$/,
       `${field} can only contain letters, spaces, hyphens, and apostrophes`,
     );
 

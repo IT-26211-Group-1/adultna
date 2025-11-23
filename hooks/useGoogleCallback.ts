@@ -4,10 +4,13 @@ import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import { logger } from "@/lib/logger";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/apiClient";
 
 export const useGoogleCallback = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -34,7 +37,8 @@ export const useGoogleCallback = () => {
       if (!code) {
         logger.error("❌ No authorization code received");
         addToast({
-          title: "Registration Failed",
+          title: "Authentication Failed",
+          description: "No authorization code received from Google",
           color: "danger",
         });
         router.replace("/auth/login");
@@ -44,11 +48,6 @@ export const useGoogleCallback = () => {
 
       const storedState = sessionStorage.getItem("oauth_state");
       const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
-
-      logger.log("🔍 Retrieved from sessionStorage:", {
-        storedState: storedState ? "exists" : "missing",
-        codeVerifier: codeVerifier ? "exists" : "missing",
-      });
 
       if (!state || state !== storedState) {
         logger.error("❌ State validation failed:", { state, storedState });
@@ -75,7 +74,6 @@ export const useGoogleCallback = () => {
         const stateData = JSON.parse(atob(state));
 
         mode = stateData.mode || "login";
-        logger.log("🔍 OAuth mode extracted from state:", mode);
       } catch (error) {
         logger.error("Failed to parse state:", error);
       }
@@ -95,9 +93,6 @@ export const useGoogleCallback = () => {
 
       // For registration, redirect to authorization page
       if (mode === "register") {
-        logger.log(
-          "✅ Registration mode detected - redirecting to authorize page",
-        );
         // Store OAuth data for authorization page
         sessionStorage.setItem("google_oauth_code", code);
         // Keep codeVerifier in sessionStorage for authorize page to use
@@ -115,10 +110,9 @@ export const useGoogleCallback = () => {
       // For login mode, clear the codeVerifier after we're done with it
       sessionStorage.removeItem("pkce_code_verifier");
 
-      logger.log("ℹ️ Login mode - proceeding with login flow");
-
       // For login, proceed with authentication
       try {
+        const redirectUri = `${window.location.origin}/auth/google/callback`;
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API}/auth/google/callback?mode=${mode}`,
           {
@@ -130,6 +124,7 @@ export const useGoogleCallback = () => {
             body: JSON.stringify({
               code,
               codeVerifier,
+              redirectUri,
             }),
           },
         );
@@ -143,13 +138,21 @@ export const useGoogleCallback = () => {
             color: "success",
           });
 
-          setTimeout(() => {
-            if (data.isNew) {
-              router.replace("/auth/onboarding");
-            } else {
-              router.replace("/dashboard");
-            }
-          }, 300);
+          // Invalidate and refetch auth cache to ensure synchronized state
+          await queryClient.invalidateQueries({
+            queryKey: queryKeys.auth.me(),
+          });
+
+          await queryClient.refetchQueries({
+            queryKey: queryKeys.auth.me(),
+          });
+
+          // Navigate after cache is refreshed
+          if (data.isNew) {
+            router.replace("/auth/onboarding");
+          } else {
+            router.replace("/dashboard");
+          }
         } else {
           addToast({
             title: "Authentication Failed",

@@ -1,64 +1,43 @@
 "use client";
 
-import { useState, useCallback, memo } from "react";
-import { Bell } from "lucide-react";
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  time: string;
-}
+import { memo, useState } from "react";
+import { Bell, X } from "lucide-react";
+import {
+  useDashboardNotifications,
+  useDeleteAllNotifications,
+  useDeleteNotification,
+} from "@/hooks/queries/useDashboardQueries";
+import { formatDistanceToNow } from "date-fns";
+import type { DashboardNotification } from "@/types/dashboard";
 
 function DashboardNotifications() {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      title: "New milestone unlocked!",
-      message: "You completed the Financial Planning module",
-      time: "2 min ago",
-    },
-    {
-      id: 2,
-      title: "Reminder",
-      message: "Tax filing deadline approaching",
-      time: "1 hour ago",
-    },
-    {
-      id: 3,
-      title: "Great job!",
-      message: "You maintained your streak for 12 days",
-      time: "3 hours ago",
-    },
-    {
-      id: 4,
-      title: "Skills Assessment Available",
-      message: "Take the new career readiness quiz",
-      time: "5 hours ago",
-    },
-    {
-      id: 5,
-      title: "Document Updated",
-      message: "Your resume has been reviewed",
-      time: "1 day ago",
-    },
-    {
-      id: 6,
-      title: "New Opportunity",
-      message: "Job posting matches your profile",
-      time: "2 days ago",
-    },
-    {
-      id: 7,
-      title: "Training Reminder",
-      message: "Complete your professional development course",
-      time: "3 days ago",
-    },
-  ]);
+  const { data: notifications = [], isLoading } = useDashboardNotifications(10);
+  const deleteAllNotifications = useDeleteAllNotifications();
+  const deleteNotification = useDeleteNotification();
+  const [hoveredNotification, setHoveredNotification] = useState<string | null>(
+    null,
+  );
 
-  const clearNotifications = useCallback(() => {
-    setNotifications([]);
-  }, []);
+  const handleClearAll = () => {
+    deleteAllNotifications.mutate();
+  };
+
+  const handleDeleteNotification = (notificationId: string) => {
+    deleteNotification.mutate(notificationId);
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "milestone":
+        return "📍";
+      case "achievement":
+        return "🏆";
+      case "reminder":
+        return "⏰";
+      default:
+        return "🔔";
+    }
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -70,9 +49,10 @@ function DashboardNotifications() {
         {notifications.length > 0 && (
           <button
             className="text-xs text-adult-green hover:text-teal-700 font-medium"
-            onClick={clearNotifications}
+            disabled={deleteAllNotifications.isPending}
+            onClick={handleClearAll}
           >
-            Clear All
+            {deleteAllNotifications.isPending ? "Deleting..." : "Delete All"}
           </button>
         )}
       </div>
@@ -106,22 +86,65 @@ function DashboardNotifications() {
           `,
           }}
         />
-        {notifications.length > 0 ? (
+        {isLoading ? (
           <div className="space-y-3 pr-2">
-            {notifications.map((notification) => (
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="p-3 bg-gray-200 rounded-xl animate-pulse"
+                style={{ height: "80px" }}
+              />
+            ))}
+          </div>
+        ) : notifications.length > 0 ? (
+          <div className="space-y-3 pr-2">
+            {notifications.map((notification: DashboardNotification) => (
               <div
                 key={notification.id}
-                className="p-3 bg-white/80 backdrop-blur-md rounded-xl border border-white/30 hover:bg-white/100 transition-all shadow-sm"
+                className={`p-3 rounded-xl border transition-all shadow-sm relative group ${
+                  notification.isRead
+                    ? "bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/100"
+                    : "bg-blue-50/80 backdrop-blur-md border-blue-200/50 hover:bg-blue-50/100"
+                }`}
+                onMouseEnter={() => setHoveredNotification(notification.id)}
+                onMouseLeave={() => setHoveredNotification(null)}
               >
-                <p className="text-sm font-medium text-gray-900">
-                  {notification.title}
-                </p>
-                <p className="text-xs text-gray-700 mt-1">
-                  {notification.message}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {notification.time}
-                </p>
+                <div className="flex items-start gap-2">
+                  <span className="text-lg flex-shrink-0">
+                    {getNotificationIcon(notification.type)}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-gray-900">
+                        {notification.title}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {hoveredNotification === notification.id && (
+                          <button
+                            className="text-gray-400 hover:text-red-600 transition-colors"
+                            disabled={deleteNotification.isPending}
+                            onClick={() =>
+                              handleDeleteNotification(notification.id)
+                            }
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                        {!notification.isRead && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-700 mt-1">
+                      {notification.message}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formatDistanceToNow(new Date(notification.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

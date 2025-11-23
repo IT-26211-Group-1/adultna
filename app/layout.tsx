@@ -1,10 +1,7 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
-
 import { Providers } from "./providers";
-import { PerformanceMonitor } from "@/components/performance/PerformanceMonitor";
-
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 
@@ -54,7 +51,6 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <PerformanceMonitor />
           <div className="relative flex flex-col h-screen">
             <main className="flex flex-col flex-grow w-full h-full pt-0 px-0 m-0">
               {children}
