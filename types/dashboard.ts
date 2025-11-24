@@ -31,6 +31,7 @@ export type DailyStreak = {
 
 export type RoadmapTask = {
   id: string;
+  milestoneId: string;
   title: string;
   description: string;
   priority: TaskPriority;
