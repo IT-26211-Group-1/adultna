@@ -2,8 +2,9 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { Suspense, useState, useCallback } from "react";
+import { Suspense, useState, useCallback, useEffect } from "react";
 import { useDisclosure } from "@heroui/react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { CameraController } from "./CameraController";
 import { RoadmapModel } from "./RoadmapModel";
 import { MilestoneModal } from "./MilestoneModal";
@@ -31,11 +32,14 @@ const CAMERA_ANIMATION: CameraAnimation = {
 
 export function RoadmapClient() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
     null,
   );
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
+  const [hasOpenedFromQuery, setHasOpenedFromQuery] = useState(false);
 
   const {
     data: milestones = [],
@@ -44,26 +48,62 @@ export function RoadmapClient() {
   } = useUserMilestonesWithPolling(true);
 
   // Calculate camera position for milestone zoom
-  const createMilestoneZoom = (milestone: Milestone): CameraAnimation => {
-    const { x, y, z } = milestone.position;
+  const createMilestoneZoom = useCallback(
+    (milestone: Milestone): CameraAnimation => {
+      const { x, y, z } = milestone.position;
 
-    // Calculate optimal camera angle based on milestone position with top-down view
-    const offsetX = x > 0 ? 1.2 : -1.2; // Reduced horizontal offset
-    const offsetZ = z > 0 ? 1.2 : -1.2; // Reduced depth offset
+      // Calculate optimal camera angle based on milestone position with top-down view
+      const offsetX = x > 0 ? 1.2 : -1.2; // Reduced horizontal offset
+      const offsetZ = z > 0 ? 1.2 : -1.2; // Reduced depth offset
 
-    return {
-      from: {
-        position: [5, 8, 5], // Current camera position after initial animation
-        fov: 40,
-      },
-      to: {
-        position: [x + offsetX, y + 3.5, z + offsetZ], // Higher Y for top-down view
-        fov: 30, // Less aggressive zoom
-      },
-      duration: 1200,
-      delay: 0,
-    };
-  };
+      return {
+        from: {
+          position: [5, 8, 5], // Current camera position after initial animation
+          fov: 40,
+        },
+        to: {
+          position: [x + offsetX, y + 3.5, z + offsetZ], // Higher Y for top-down view
+          fov: 30, // Less aggressive zoom
+        },
+        duration: 1200,
+        delay: 0,
+      };
+    },
+    [],
+  );
+
+  // Auto-open milestone modal from query parameter
+  useEffect(() => {
+    const milestoneId = searchParams.get("milestoneId");
+
+    if (
+      !isLoading &&
+      milestones.length > 0 &&
+      milestoneId &&
+      !hasOpenedFromQuery
+    ) {
+      const milestone = milestones.find((m) => m.id === milestoneId);
+
+      if (milestone) {
+        logger.log("🎯 Auto-opening milestone from URL:", milestoneId);
+        setSelectedMilestone(milestone);
+        const zoomAnimation = createMilestoneZoom(milestone);
+
+        setMilestoneAnimation(zoomAnimation);
+        onOpen();
+        setHasOpenedFromQuery(true);
+      } else {
+        logger.log("❌ Milestone not found in list:", milestoneId);
+      }
+    }
+  }, [
+    milestones,
+    isLoading,
+    searchParams,
+    onOpen,
+    hasOpenedFromQuery,
+    createMilestoneZoom,
+  ]);
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
     const milestone = milestones.find((m) => m.id === interaction.milestoneId);
@@ -87,6 +127,13 @@ export function RoadmapClient() {
     setMilestoneAnimation(null);
     setSelectedMilestone(null);
     onClose();
+
+    // Remove milestoneId query parameter when closing modal
+    const milestoneId = searchParams.get("milestoneId");
+
+    if (milestoneId) {
+      router.replace("/roadmap", { scroll: false });
+    }
   };
 
   // Fallback click handler for the Canvas element

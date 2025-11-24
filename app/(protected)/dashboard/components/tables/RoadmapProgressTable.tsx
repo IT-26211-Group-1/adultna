@@ -1,13 +1,19 @@
 "use client";
 
 import { Button } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 import { useDashboardSummary } from "@/hooks/queries/useDashboardQueries";
 
 export default function RoadmapProgressTable() {
+  const router = useRouter();
   const { data, isLoading } = useDashboardSummary();
   const progress = data?.roadmapProgress;
   const percentage = progress?.progressPercentage || 0;
   const nextTasks = progress?.nextTasks || [];
+
+  const handleStartTask = (milestoneId: string) => {
+    router.push(`/roadmap?milestoneId=${milestoneId}`);
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -122,6 +128,7 @@ export default function RoadmapProgressTable() {
                     color={colors.button}
                     size="sm"
                     variant="bordered"
+                    onPress={() => handleStartTask(task.milestoneId)}
                   >
                     Start Now
                   </Button>

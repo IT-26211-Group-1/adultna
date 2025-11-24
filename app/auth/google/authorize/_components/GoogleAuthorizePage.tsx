@@ -56,7 +56,7 @@ export const GoogleAuthorizePage = () => {
             codeVerifier,
             redirectUri,
           }),
-        }
+        },
       );
 
       const data = await response.json();
