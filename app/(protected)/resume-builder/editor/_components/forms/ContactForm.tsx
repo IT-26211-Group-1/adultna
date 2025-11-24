@@ -230,11 +230,19 @@ export default function ContactForm({
                 }
               };
 
+              const today = new Date();
+              const maxDate = new CalendarDate(
+                today.getFullYear(),
+                today.getMonth() + 1,
+                today.getDate(),
+              );
+
               return (
                 <DatePicker
                   errorMessage={fieldState.error?.message as string}
                   isInvalid={!!fieldState.error}
                   label="Birth date"
+                  maxValue={maxDate}
                   value={value}
                   onBlur={field.onBlur}
                   onChange={handleChange}
