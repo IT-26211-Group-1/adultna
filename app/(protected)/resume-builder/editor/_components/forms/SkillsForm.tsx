@@ -222,6 +222,7 @@ export default function SkillsForm({
                     form.formState.errors.skills?.[index]?.skill?.message
                   }
                   isInvalid={!!form.formState.errors.skills?.[index]?.skill}
+                  isRequired
                   label={`Skill ${index + 1}`}
                   placeholder="e.g., JavaScript, React, Python"
                   value={skill.skill}

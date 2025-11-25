@@ -254,6 +254,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
           form.formState.errors.educationItems?.[index]?.schoolName?.message
         }
         isInvalid={!!form.formState.errors.educationItems?.[index]?.schoolName}
+        isRequired
         label="School Name"
         placeholder="University of the Philippines"
       />
@@ -277,6 +278,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
             form.formState.errors.educationItems?.[index]?.degree?.message
           }
           isInvalid={!!form.formState.errors.educationItems?.[index]?.degree}
+          isRequired
           label="Degree"
           placeholder="Bachelor of Science"
         />
@@ -289,6 +291,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
           isInvalid={
             !!form.formState.errors.educationItems?.[index]?.fieldOfStudy
           }
+          isRequired
           label="Field of Study"
           placeholder="Computer Science"
         />
@@ -389,6 +392,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
               <Select
                 errorMessage={fieldState.error?.message}
                 isInvalid={!!fieldState.error}
+                isRequired
                 label="Graduation Year"
                 placeholder="Select year"
                 selectedKeys={selectedYear ? [selectedYear] : []}
