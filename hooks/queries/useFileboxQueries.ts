@@ -27,7 +27,11 @@ const fileboxApi = {
     ApiClient.post("/filebox/upload", request, {}, API_CONFIG.API_URL),
 
   // Upload file to S3
-  uploadToS3: async (uploadUrl: string, file: File): Promise<void> => {
+  uploadToS3: async (
+    uploadUrl: string,
+    file: File,
+    signal?: AbortSignal,
+  ): Promise<void> => {
     const response = await fetch(uploadUrl, {
       method: "PUT",
       body: file,
@@ -35,6 +39,7 @@ const fileboxApi = {
         "Content-Type": file.type,
         "Content-Disposition": "inline",
       },
+      signal,
     });
 
     if (!response.ok) {
@@ -48,6 +53,28 @@ const fileboxApi = {
       );
     }
   },
+
+  // Verify uploaded file MIME type
+  verifyUpload: (fileId: string): Promise<any> =>
+    ApiClient.post(
+      "/filebox/verify-upload",
+      { fileId },
+      {},
+      API_CONFIG.API_URL,
+    ),
+
+  // Toggle file protection
+  toggleProtection: (
+    fileId: string,
+    isSecure: boolean,
+    otp?: string,
+  ): Promise<any> =>
+    ApiClient.put(
+      `/filebox/files/${fileId}/protection`,
+      { isSecure, otp },
+      {},
+      API_CONFIG.API_URL,
+    ),
 
   // Generate pre-signed download URL
   generateDownloadUrl: (fileId: string): Promise<DownloadUrlResponse> =>
@@ -72,12 +99,13 @@ const fileboxApi = {
   renameFile: (
     fileId: string,
     fileName: string,
+    otp?: string,
     replaceDuplicate?: boolean,
     keepBoth?: boolean,
   ): Promise<any> =>
     ApiClient.patch(
       `/filebox/files/${fileId}`,
-      { fileName, replaceDuplicate, keepBoth },
+      { fileName, otp, replaceDuplicate, keepBoth },
       {},
       API_CONFIG.API_URL,
     ),
@@ -188,12 +216,14 @@ export function useFileboxUpload() {
       isSecure,
       replaceDuplicate,
       keepBoth,
+      signal,
     }: {
       file: File;
       category: string;
       isSecure?: boolean;
       replaceDuplicate?: boolean;
       keepBoth?: boolean;
+      signal?: AbortSignal;
     }) => {
       const backendCategory = (Object.entries({
         "Government Documents": "government-id",
@@ -209,6 +239,11 @@ export function useFileboxUpload() {
         | "healthcare"
         | "legal"
         | "other";
+
+      // Check if already aborted
+      if (signal?.aborted) {
+        throw new Error("Upload cancelled");
+      }
 
       // Get pre-signed upload URL
       const uploadUrlResponse = await fileboxApi.generateUploadUrl({
@@ -232,9 +267,39 @@ export function useFileboxUpload() {
         );
       }
 
+      // Check if aborted before upload
+      if (signal?.aborted) {
+        throw new Error("Upload cancelled");
+      }
+
       // Upload file to S3
       if (uploadUrlResponse.data?.uploadUrl) {
-        await fileboxApi.uploadToS3(uploadUrlResponse.data.uploadUrl, file);
+        await fileboxApi.uploadToS3(
+          uploadUrlResponse.data.uploadUrl,
+          file,
+          signal,
+        );
+
+        // Check if aborted before verification
+        if (signal?.aborted) {
+          throw new Error("Upload cancelled");
+        }
+
+        // Verify uploaded file MIME type
+        if (uploadUrlResponse.data?.fileId) {
+          try {
+            await fileboxApi.verifyUpload(uploadUrlResponse.data.fileId);
+          } catch (error) {
+            logger.error("File verification failed:", error);
+            throw new ApiError(
+              error instanceof ApiError
+                ? error.message
+                : "File verification failed. The file may be corrupted or have an invalid type.",
+              400,
+              null,
+            );
+          }
+        }
       }
 
       return uploadUrlResponse;
@@ -392,17 +457,20 @@ export function useFileboxRename() {
     mutationFn: async ({
       fileId,
       fileName,
+      otp,
       replaceDuplicate,
       keepBoth,
     }: {
       fileId: string;
       fileName: string;
+      otp?: string;
       replaceDuplicate?: boolean;
       keepBoth?: boolean;
     }) => {
       const response = await fileboxApi.renameFile(
         fileId,
         fileName,
+        otp,
         replaceDuplicate,
         keepBoth,
       );
@@ -430,7 +498,57 @@ export function useFileboxRename() {
         if (
           error.status === 404 ||
           error.status === 400 ||
+          error.status === 403 ||
           error.status === 409
+        ) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to toggle file protection status
+ */
+export function useToggleFileProtection() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      fileId,
+      isSecure,
+      otp,
+    }: {
+      fileId: string;
+      isSecure: boolean;
+      otp?: string;
+    }) => {
+      const response = await fileboxApi.toggleProtection(fileId, isSecure, otp);
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to toggle file protection",
+          response.statusCode || 400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (
+          error.status === 404 ||
+          error.status === 400 ||
+          error.status === 403
         ) {
           return false;
         }

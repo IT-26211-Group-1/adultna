@@ -15,7 +15,7 @@ import { Edit3 } from "lucide-react";
 type RenameFileModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onRename: (newFileName: string) => void;
+  onRename: (newFileName: string, otp?: string) => void;
   currentFileName: string;
   isLoading?: boolean;
 };

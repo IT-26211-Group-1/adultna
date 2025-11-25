@@ -14,12 +14,21 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { Eye, Download, Trash2, EllipsisVertical, Edit3 } from "lucide-react";
+import {
+  Eye,
+  Download,
+  Trash2,
+  EllipsisVertical,
+  Edit3,
+  Lock,
+  LockOpen,
+} from "lucide-react";
 import { FileItem } from "./FileItem";
 import {
   useFileboxDownload,
   useFileboxDelete,
   useFileboxRename,
+  useToggleFileProtection,
 } from "@/hooks/queries/useFileboxQueries";
 import { addToast } from "@heroui/toast";
 import { ApiError, ApiClient } from "@/lib/apiClient";
@@ -45,6 +54,7 @@ export function FileActions({
   const downloadMutation = useFileboxDownload();
   const deleteMutation = useFileboxDelete();
   const renameMutation = useFileboxRename();
+  const toggleProtectionMutation = useToggleFileProtection();
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
@@ -65,12 +75,24 @@ export function FileActions({
     onOpen: onReplaceOpen,
     onClose: onReplaceClose,
   } = useDisclosure();
+  const {
+    isOpen: isUnprotectConfirmOpen,
+    onOpen: onUnprotectConfirmOpen,
+    onClose: onUnprotectConfirmClose,
+  } = useDisclosure();
+  const {
+    isOpen: isProtectConfirmOpen,
+    onOpen: onProtectConfirmOpen,
+    onClose: onProtectConfirmClose,
+  } = useDisclosure();
 
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [showSecureAccess, setShowSecureAccess] = useState(false);
   const [secureAction, setSecureAction] = useState<OTPAction>("preview");
   const [pendingRename, setPendingRename] = useState<string | null>(null);
+  const [verifiedOtp, setVerifiedOtp] = useState<string | null>(null);
+  const [otpVerifiedAt, setOtpVerifiedAt] = useState<number | null>(null);
 
   const handleView = async () => {
     // Check if file is secure
@@ -198,7 +220,19 @@ export function FileActions({
     onDeleteOpen();
   };
 
-  const handleRename = async (newFileName: string) => {
+  const handleRenameClick = () => {
+    // Check if file is secure
+    if (file.isSecure) {
+      setSecureAction("rename");
+      setShowSecureAccess(true);
+
+      return;
+    }
+
+    onRenameOpen();
+  };
+
+  const handleRename = async (newFileName: string, otp?: string) => {
     if (!fileMetadata) {
       addToast({
         title: "File metadata not available",
@@ -209,9 +243,23 @@ export function FileActions({
     }
 
     try {
+      // Use verifiedOtp if available (from SecureDocument), otherwise use provided otp
+      const otpToUse = verifiedOtp || otp;
+
+      console.log("[FileActions] Renaming file with:", {
+        fileName: newFileName,
+        hasVerifiedOtp: !!verifiedOtp,
+        hasProvidedOtp: !!otp,
+        otpLength: otpToUse?.length,
+        timeSinceVerification: otpVerifiedAt
+          ? Date.now() - otpVerifiedAt
+          : null,
+      });
+
       const response = await renameMutation.mutateAsync({
         fileId: fileMetadata.id,
         fileName: newFileName,
+        otp: otpToUse,
         replaceDuplicate: false,
       });
 
@@ -228,6 +276,7 @@ export function FileActions({
           title: "File renamed successfully",
           color: "success",
         });
+        setVerifiedOtp(null); // Clear the stored OTP
         onRenameClose();
       }
     } catch (error) {
@@ -245,6 +294,62 @@ export function FileActions({
       if (error instanceof ApiError) {
         addToast({
           title: error.message || "Failed to rename file",
+          color: "danger",
+        });
+      }
+    }
+  };
+
+  const handleToggleProtection = async () => {
+    if (!fileMetadata) {
+      addToast({
+        title: "File metadata not available",
+        color: "danger",
+      });
+
+      return;
+    }
+
+    const newSecureState = !file.isSecure;
+
+    // If unprotecting, require OTP
+    if (file.isSecure && !newSecureState) {
+      setSecureAction("unprotect");
+      setShowSecureAccess(true);
+
+      return;
+    }
+
+    // If protecting, show confirmation modal
+    if (!file.isSecure && newSecureState) {
+      onProtectConfirmOpen();
+
+      return;
+    }
+  };
+
+  const handleProtectConfirm = async () => {
+    if (!fileMetadata) {
+      return;
+    }
+
+    try {
+      await toggleProtectionMutation.mutateAsync({
+        fileId: fileMetadata.id,
+        isSecure: true,
+      });
+
+      addToast({
+        title: "File protected successfully",
+        color: "success",
+      });
+      onProtectConfirmClose();
+    } catch (error) {
+      logger.error("Protect file error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to protect file",
           color: "danger",
         });
       }
@@ -313,14 +418,49 @@ export function FileActions({
     }
   };
 
-  const handleSecureSuccess = (downloadUrl: string) => {
+  const handleUnprotectConfirm = async () => {
+    if (!fileMetadata) {
+      return;
+    }
+
+    try {
+      await toggleProtectionMutation.mutateAsync({
+        fileId: fileMetadata.id,
+        isSecure: false,
+      });
+
+      addToast({
+        title: "File unprotected successfully",
+        color: "success",
+      });
+      onUnprotectConfirmClose();
+    } catch (error) {
+      logger.error("Unprotect file error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to unprotect file",
+          color: "danger",
+        });
+      }
+    }
+  };
+
+  const handleSecureSuccess = async (downloadUrlOrOtp: string) => {
     if (secureAction === "preview") {
       // Open preview with the URL
-      setPreviewUrl(downloadUrl);
+      setPreviewUrl(downloadUrlOrOtp);
       onPreviewOpen();
     } else if (secureAction === "delete") {
       // Proceed with delete confirmation
       onDeleteOpen();
+    } else if (secureAction === "rename") {
+      setVerifiedOtp(null); // No OTP needed since it was already verified and consumed
+      setOtpVerifiedAt(Date.now()); // Track when it was verified
+      onRenameOpen();
+    } else if (secureAction === "unprotect") {
+      // OTP verified, show confirmation dialog
+      onUnprotectConfirmOpen();
     }
     // For download, SecureDocument handles it directly
   };
@@ -334,6 +474,7 @@ export function FileActions({
           <SecureDocument
             action={secureAction}
             file={file}
+            fileId={fileMetadata?.id}
             onClose={() => setShowSecureAccess(false)}
             onSuccess={handleSecureSuccess}
           />
@@ -381,9 +522,22 @@ export function FileActions({
               <DropdownItem
                 key="edit"
                 startContent={<Edit3 className="w-4 h-4" />}
-                onPress={onRenameOpen}
+                onPress={handleRenameClick}
               >
                 Rename
+              </DropdownItem>
+              <DropdownItem
+                key="protection"
+                startContent={
+                  file.isSecure ? (
+                    <LockOpen className="w-4 h-4" />
+                  ) : (
+                    <Lock className="w-4 h-4" />
+                  )
+                }
+                onPress={handleToggleProtection}
+              >
+                {file.isSecure ? "Unprotect" : "Protect"}
               </DropdownItem>
               <DropdownItem
                 key="delete"
@@ -460,6 +614,94 @@ export function FileActions({
           onKeepBoth={handleKeepBothConfirm}
           onReplace={handleReplaceConfirm}
         />
+
+        {/* Unprotect Confirmation Modal */}
+        <Modal
+          isOpen={isUnprotectConfirmOpen}
+          onOpenChange={onUnprotectConfirmClose}
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex gap-2 items-center">
+                  <LockOpen className="w-5 h-5 text-warning" />
+                  <span>Unprotect File</span>
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                    Are you sure you want to remove protection from{" "}
+                    <strong>{file.name}</strong>?
+                  </p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    After unprotecting, anyone with access can view, download,
+                    rename, or delete this file without verification.
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="default" variant="light" onPress={onClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    color="warning"
+                    isLoading={toggleProtectionMutation.isPending}
+                    onPress={async () => {
+                      await handleUnprotectConfirm();
+                      onClose();
+                    }}
+                  >
+                    {toggleProtectionMutation.isPending
+                      ? "Unprotecting..."
+                      : "Unprotect"}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+
+        {/* Protect Confirmation Modal */}
+        <Modal
+          isOpen={isProtectConfirmOpen}
+          onOpenChange={onProtectConfirmClose}
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex gap-2 items-center">
+                  <Lock className="w-5 h-5 text-success" />
+                  <span>Protect File</span>
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                    Are you sure you want to protect{" "}
+                    <strong>{file.name}</strong>?
+                  </p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    After protecting, you will need to verify your identity with
+                    an OTP code to view, download, rename, or delete this file.
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="default" variant="light" onPress={onClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    color="success"
+                    isLoading={toggleProtectionMutation.isPending}
+                    onPress={async () => {
+                      await handleProtectConfirm();
+                      onClose();
+                    }}
+                  >
+                    {toggleProtectionMutation.isPending
+                      ? "Protecting..."
+                      : "Protect"}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </>
     );
   }
@@ -472,6 +714,7 @@ export function FileActions({
         <SecureDocument
           action={secureAction}
           file={file}
+          fileId={fileMetadata?.id}
           onClose={() => setShowSecureAccess(false)}
           onSuccess={handleSecureSuccess}
         />
@@ -509,9 +752,22 @@ export function FileActions({
             <DropdownItem
               key="rename"
               startContent={<Edit3 className="w-4 h-4" />}
-              onPress={onRenameOpen}
+              onPress={handleRenameClick}
             >
               Rename
+            </DropdownItem>
+            <DropdownItem
+              key="protection"
+              startContent={
+                file.isSecure ? (
+                  <LockOpen className="w-4 h-4" />
+                ) : (
+                  <Lock className="w-4 h-4" />
+                )
+              }
+              onPress={handleToggleProtection}
+            >
+              {file.isSecure ? "Unprotect" : "Protect"}
             </DropdownItem>
             <DropdownItem
               key="delete"
@@ -588,6 +844,90 @@ export function FileActions({
         onKeepBoth={handleKeepBothConfirm}
         onReplace={handleReplaceConfirm}
       />
+
+      {/* Unprotect Confirmation Modal */}
+      <Modal
+        isOpen={isUnprotectConfirmOpen}
+        onOpenChange={onUnprotectConfirmClose}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex gap-2 items-center">
+                <LockOpen className="w-5 h-5 text-warning" />
+                <span>Unprotect File</span>
+              </ModalHeader>
+              <ModalBody>
+                <p>
+                  Are you sure you want to remove protection from{" "}
+                  <strong>{file.name}</strong>?
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  After unprotecting, anyone with access can view, download,
+                  rename, or delete this file without verification.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color="warning"
+                  isLoading={toggleProtectionMutation.isPending}
+                  onPress={async () => {
+                    await handleUnprotectConfirm();
+                    onClose();
+                  }}
+                >
+                  {toggleProtectionMutation.isPending
+                    ? "Unprotecting..."
+                    : "Unprotect"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Protect Confirmation Modal */}
+      <Modal isOpen={isProtectConfirmOpen} onOpenChange={onProtectConfirmClose}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex gap-2 items-center">
+                <Lock className="w-5 h-5 text-success" />
+                <span>Protect File</span>
+              </ModalHeader>
+              <ModalBody>
+                <p>
+                  Are you sure you want to protect <strong>{file.name}</strong>?
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  After protecting, you will need to verify your identity with
+                  an OTP code to view, download, rename, or delete this file.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color="success"
+                  isLoading={toggleProtectionMutation.isPending}
+                  onPress={async () => {
+                    await handleProtectConfirm();
+                    onClose();
+                  }}
+                >
+                  {toggleProtectionMutation.isPending
+                    ? "Protecting..."
+                    : "Protect"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 }
