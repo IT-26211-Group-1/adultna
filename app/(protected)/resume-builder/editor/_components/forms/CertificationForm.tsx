@@ -227,11 +227,11 @@ function CertificationItem({
 
       <Input
         {...form.register(`certificates.${index}.certificate`)}
+        isRequired
         errorMessage={
           form.formState.errors.certificates?.[index]?.certificate?.message
         }
         isInvalid={!!form.formState.errors.certificates?.[index]?.certificate}
-        isRequired
         label="Certificate Name"
         placeholder="AWS Certified Solutions Architect"
       />

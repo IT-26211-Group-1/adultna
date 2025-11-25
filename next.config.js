@@ -28,6 +28,7 @@ const nextConfig = {
       "lucide-react",
       "@tanstack/react-query",
     ],
+    webpackMemoryOptimizations: true,
   },
 
   // Production optimizations
@@ -44,7 +45,7 @@ const nextConfig = {
   },
 
   // Webpack optimizations
-  webpack: (config, { dev }) => {
+  webpack: (config, { dev, isServer }) => {
     if (!dev) {
       config.optimization = {
         ...config.optimization,
@@ -52,6 +53,39 @@ const nextConfig = {
         runtimeChunk: {
           name: (entrypoint) => `runtime-${entrypoint.name}`,
         },
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            framework: {
+              name: 'framework',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+              priority: 40,
+              enforce: true,
+            },
+            lib: {
+              test: /[\\/]node_modules[\\/]/,
+              name(module) {
+                const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+                return `npm.${packageName.replace('@', '')}`;
+              },
+              priority: 30,
+              minChunks: 1,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      };
+    }
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
       };
     }
 
