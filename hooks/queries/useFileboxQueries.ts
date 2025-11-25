@@ -27,7 +27,11 @@ const fileboxApi = {
     ApiClient.post("/filebox/upload", request, {}, API_CONFIG.API_URL),
 
   // Upload file to S3
-  uploadToS3: async (uploadUrl: string, file: File): Promise<void> => {
+  uploadToS3: async (
+    uploadUrl: string,
+    file: File,
+    signal?: AbortSignal,
+  ): Promise<void> => {
     const response = await fetch(uploadUrl, {
       method: "PUT",
       body: file,
@@ -35,6 +39,7 @@ const fileboxApi = {
         "Content-Type": file.type,
         "Content-Disposition": "inline",
       },
+      signal,
     });
 
     if (!response.ok) {
@@ -211,12 +216,14 @@ export function useFileboxUpload() {
       isSecure,
       replaceDuplicate,
       keepBoth,
+      signal,
     }: {
       file: File;
       category: string;
       isSecure?: boolean;
       replaceDuplicate?: boolean;
       keepBoth?: boolean;
+      signal?: AbortSignal;
     }) => {
       const backendCategory = (Object.entries({
         "Government Documents": "government-id",
@@ -232,6 +239,11 @@ export function useFileboxUpload() {
         | "healthcare"
         | "legal"
         | "other";
+
+      // Check if already aborted
+      if (signal?.aborted) {
+        throw new Error("Upload cancelled");
+      }
 
       // Get pre-signed upload URL
       const uploadUrlResponse = await fileboxApi.generateUploadUrl({
@@ -255,9 +267,23 @@ export function useFileboxUpload() {
         );
       }
 
+      // Check if aborted before upload
+      if (signal?.aborted) {
+        throw new Error("Upload cancelled");
+      }
+
       // Upload file to S3
       if (uploadUrlResponse.data?.uploadUrl) {
-        await fileboxApi.uploadToS3(uploadUrlResponse.data.uploadUrl, file);
+        await fileboxApi.uploadToS3(
+          uploadUrlResponse.data.uploadUrl,
+          file,
+          signal,
+        );
+
+        // Check if aborted before verification
+        if (signal?.aborted) {
+          throw new Error("Upload cancelled");
+        }
 
         // Verify uploaded file MIME type
         if (uploadUrlResponse.data?.fileId) {
