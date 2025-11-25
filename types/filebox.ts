@@ -123,7 +123,12 @@ export type ListFilesRequest = {
 };
 
 // Document OTP types
-export type OTPAction = "preview" | "download" | "delete";
+export type OTPAction =
+  | "preview"
+  | "download"
+  | "delete"
+  | "rename"
+  | "unprotect";
 
 export type RequestDocumentOTPRequest = {
   action?: OTPAction;
