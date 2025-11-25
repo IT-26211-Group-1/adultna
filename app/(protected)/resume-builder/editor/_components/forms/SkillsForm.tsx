@@ -218,11 +218,11 @@ export default function SkillsForm({
             <div key={index} className="flex items-center gap-3">
               <div className="flex-1">
                 <Input
+                  isRequired
                   errorMessage={
                     form.formState.errors.skills?.[index]?.skill?.message
                   }
                   isInvalid={!!form.formState.errors.skills?.[index]?.skill}
-                  isRequired
                   label={`Skill ${index + 1}`}
                   placeholder="e.g., JavaScript, React, Python"
                   value={skill.skill}

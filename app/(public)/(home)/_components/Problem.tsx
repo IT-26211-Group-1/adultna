@@ -3,8 +3,11 @@ import { ProblemSubject } from "./ProblemSubject";
 
 export function Problem() {
   return (
-    <section className="relative z-0 w-full min-h-screen md:min-h-[1200px] py-10 sm:py-16 lg:py-24 flex flex-col justify-center">
-      <div className="absolute inset-0">
+    <section
+      className="relative z-0 w-full min-h-screen md:min-h-[1200px] py-10 sm:py-16 lg:py-24 flex flex-col justify-center"
+      style={{ contain: "layout style paint" }}
+    >
+      <div className="absolute inset-0" style={{ willChange: "transform" }}>
         <svg
           className="w-full h-full"
           preserveAspectRatio="none"
@@ -50,7 +53,10 @@ export function Problem() {
       </div>
 
       {/* Top wave shadow */}
-      <div className="absolute top-0 left-0 w-full overflow-hidden leading-none">
+      <div
+        className="absolute top-0 left-0 w-full overflow-hidden leading-none pointer-events-none"
+        style={{ contain: "layout paint" }}
+      >
         {/* Desktop shadow */}
         <svg
           className="w-full hidden lg:block"
@@ -58,11 +64,30 @@ export function Problem() {
           viewBox="0 0 1440 320"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <defs>
+            <filter
+              height="200%"
+              id="topShadowDesktop"
+              width="200%"
+              x="-50%"
+              y="-50%"
+            >
+              <feGaussianBlur in="SourceAlpha" stdDeviation="8" />
+              <feOffset dx="0" dy="20" result="offsetblur" />
+              <feComponentTransfer>
+                <feFuncA slope="0.15" type="linear" />
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <path
             d="M0,160L34.3,154.7C68.6,149,137,139,206,138.7C274.3,139,343,149,411,144C480,139,549,117,617,101.3C685.7,85,754,75,823,90.7C891.4,107,960,149,1029,144C1097.1,139,1166,85,1234,58.7C1302.9,32,1371,32,1406,32L1440,32L1440,0L1405.7,0C1371.4,0,1303,0,1234,0C1165.7,0,1097,0,1029,0C960,0,891,0,823,0C754.3,0,686,0,617,0C548.6,0,480,0,411,0C342.9,0,274,0,206,0C137.1,0,69,0,34,0L0,0Z"
             fill="transparent"
             fillOpacity={1}
-            style={{ filter: "drop-shadow(0 20px 16px rgba(0,0,0,0.15))" }}
+            filter="url(#topShadowDesktop)"
           />
         </svg>
         {/* Tablet shadow */}
@@ -72,11 +97,30 @@ export function Problem() {
           viewBox="0 0 1440 120"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <defs>
+            <filter
+              height="200%"
+              id="topShadowTablet"
+              width="200%"
+              x="-50%"
+              y="-50%"
+            >
+              <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
+              <feOffset dx="0" dy="15" result="offsetblur" />
+              <feComponentTransfer>
+                <feFuncA slope="0.12" type="linear" />
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <path
             d="M0,80L240,60L480,70L720,55L960,65L1200,50L1440,60L1440,0L0,0Z"
             fill="transparent"
             fillOpacity={1}
-            style={{ filter: "drop-shadow(0 15px 12px rgba(0,0,0,0.12))" }}
+            filter="url(#topShadowTablet)"
           />
         </svg>
         {/* Mobile shadow */}
@@ -86,11 +130,30 @@ export function Problem() {
           viewBox="0 0 1440 80"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <defs>
+            <filter
+              height="200%"
+              id="topShadowMobile"
+              width="200%"
+              x="-50%"
+              y="-50%"
+            >
+              <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
+              <feOffset dx="0" dy="10" result="offsetblur" />
+              <feComponentTransfer>
+                <feFuncA slope="0.1" type="linear" />
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <path
             d="M0,60L360,50L720,55L1080,45L1440,50L1440,0L0,0Z"
             fill="transparent"
             fillOpacity={1}
-            style={{ filter: "drop-shadow(0 10px 8px rgba(0,0,0,0.1))" }}
+            filter="url(#topShadowMobile)"
           />
         </svg>
       </div>
@@ -101,8 +164,12 @@ export function Problem() {
 
       {/* Bottom wave shadow */}
       <div
-        className="absolute bottom-0 left-0 w-full overflow-hidden leading-none"
-        style={{ transform: "translateY(1px)", marginTop: "-1px" }}
+        className="absolute bottom-0 left-0 w-full overflow-hidden leading-none pointer-events-none"
+        style={{
+          transform: "translateY(1px)",
+          marginTop: "-1px",
+          contain: "layout paint",
+        }}
       >
         {/* Desktop shadow */}
         <svg
@@ -111,11 +178,30 @@ export function Problem() {
           viewBox="0 0 1440 320"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <defs>
+            <filter
+              height="200%"
+              id="bottomShadowDesktop"
+              width="200%"
+              x="-50%"
+              y="-50%"
+            >
+              <feGaussianBlur in="SourceAlpha" stdDeviation="8" />
+              <feOffset dx="0" dy="-20" result="offsetblur" />
+              <feComponentTransfer>
+                <feFuncA slope="0.15" type="linear" />
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <path
             d="M0,160L48,176C96,192,192,224,288,250.7C384,277,480,299,576,309.3C672,320,768,320,864,309.3C960,299,1056,277,1152,261.3C1248,245,1344,235,1392,229.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
             fill="transparent"
             fillOpacity={1}
-            style={{ filter: "drop-shadow(0 -20px 16px rgba(0,0,0,0.15))" }}
+            filter="url(#bottomShadowDesktop)"
           />
         </svg>
         {/* Tablet shadow */}
@@ -125,11 +211,30 @@ export function Problem() {
           viewBox="0 0 1440 120"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <defs>
+            <filter
+              height="200%"
+              id="bottomShadowTablet"
+              width="200%"
+              x="-50%"
+              y="-50%"
+            >
+              <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
+              <feOffset dx="0" dy="-15" result="offsetblur" />
+              <feComponentTransfer>
+                <feFuncA slope="0.12" type="linear" />
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <path
             d="M0,40L240,60L480,50L720,65L960,55L1200,70L1440,60L1440,120L0,120Z"
             fill="transparent"
             fillOpacity={1}
-            style={{ filter: "drop-shadow(0 -15px 12px rgba(0,0,0,0.12))" }}
+            filter="url(#bottomShadowTablet)"
           />
         </svg>
         {/* Mobile shadow */}
@@ -139,11 +244,30 @@ export function Problem() {
           viewBox="0 0 1440 80"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <defs>
+            <filter
+              height="200%"
+              id="bottomShadowMobile"
+              width="200%"
+              x="-50%"
+              y="-50%"
+            >
+              <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
+              <feOffset dx="0" dy="-10" result="offsetblur" />
+              <feComponentTransfer>
+                <feFuncA slope="0.1" type="linear" />
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <path
             d="M0,20L360,25L720,20L1080,30L1440,25L1440,80L0,80Z"
             fill="transparent"
             fillOpacity={1}
-            style={{ filter: "drop-shadow(0 -10px 8px rgba(0,0,0,0.1))" }}
+            filter="url(#bottomShadowMobile)"
           />
         </svg>
       </div>

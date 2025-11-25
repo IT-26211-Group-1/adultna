@@ -134,20 +134,20 @@ export default function ContactForm({
         <div className="grid grid-cols-2 gap-3">
           <Input
             {...form.register("firstName")}
+            isRequired
             errorMessage={form.formState.errors.firstName?.message as string}
             isInvalid={!!form.formState.errors.firstName}
             label="First Name"
             placeholder="Enter your First Name"
-            isRequired
           />
 
           <Input
             {...form.register("lastName")}
+            isRequired
             errorMessage={form.formState.errors.lastName?.message as string}
             isInvalid={!!form.formState.errors.lastName}
             label="Last Name"
             placeholder="Enter your Last Name"
-            isRequired
           />
         </div>
 
@@ -181,16 +181,17 @@ export default function ContactForm({
 
         <Input
           {...form.register("email")}
+          isRequired
           errorMessage={form.formState.errors.email?.message as string}
           isInvalid={!!form.formState.errors.email}
           label="Email"
           placeholder="email@email.com"
           type="email"
-          isRequired
         />
 
         <Input
           {...form.register("phone")}
+          isRequired
           errorMessage={form.formState.errors.phone?.message as string}
           isInvalid={!!form.formState.errors.phone}
           label="Phone"
@@ -201,7 +202,6 @@ export default function ContactForm({
             </div>
           }
           type="tel"
-          isRequired
         />
 
         {/* Optional Fields */}

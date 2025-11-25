@@ -100,39 +100,49 @@ export default function ResumeEditor() {
         );
       case "work":
         // Check if there's at least one work experience with required fields filled
-        if (!resumeData.workExperiences || resumeData.workExperiences.length === 0) {
+        if (
+          !resumeData.workExperiences ||
+          resumeData.workExperiences.length === 0
+        ) {
           return false;
         }
+
         return resumeData.workExperiences.some(
           (exp) =>
             exp.jobTitle?.trim() &&
             exp.employer?.trim() &&
             exp.startDate &&
-            exp.description?.trim()
+            exp.description?.trim(),
         );
       case "education":
         // Check if there's at least one education item with required fields filled
-        if (!resumeData.educationItems || resumeData.educationItems.length === 0) {
+        if (
+          !resumeData.educationItems ||
+          resumeData.educationItems.length === 0
+        ) {
           return false;
         }
+
         return resumeData.educationItems.some(
           (edu) =>
             edu.schoolName?.trim() &&
             edu.degree?.trim() &&
             edu.fieldOfStudy?.trim() &&
-            edu.graduationDate
+            edu.graduationDate,
         );
       case "certifications":
         // Check if there's at least one certification with certificate name filled
         if (!resumeData.certificates || resumeData.certificates.length === 0) {
           return false;
         }
+
         return resumeData.certificates.some((cert) => cert.certificate?.trim());
       case "skills":
         // Check if there's at least one skill filled
         if (!resumeData.skills || resumeData.skills.length === 0) {
           return false;
         }
+
         return resumeData.skills.some((skill) => skill.skill?.trim());
       case "summary":
         // Summary is not required

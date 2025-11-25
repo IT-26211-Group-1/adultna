@@ -388,22 +388,22 @@ function WorkExperienceItem({
 
       <Input
         {...form.register(`workExperiences.${index}.jobTitle`)}
+        isRequired
         errorMessage={
           form.formState.errors.workExperiences?.[index]?.jobTitle?.message
         }
         isInvalid={!!form.formState.errors.workExperiences?.[index]?.jobTitle}
-        isRequired
         label="Job Title"
         placeholder="Software Engineer"
       />
 
       <Input
         {...form.register(`workExperiences.${index}.employer`)}
+        isRequired
         errorMessage={
           form.formState.errors.workExperiences?.[index]?.employer?.message
         }
         isInvalid={!!form.formState.errors.workExperiences?.[index]?.employer}
-        isRequired
         label="Employer"
         placeholder="Company Name"
       />
@@ -434,9 +434,9 @@ function WorkExperienceItem({
 
             return (
               <DatePicker
+                isRequired
                 errorMessage={fieldState.error?.message}
                 isInvalid={!!fieldState.error}
-                isRequired
                 label="Start Date"
                 value={value}
                 onBlur={field.onBlur}
