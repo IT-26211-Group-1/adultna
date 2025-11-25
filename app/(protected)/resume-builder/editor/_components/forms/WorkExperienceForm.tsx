@@ -392,6 +392,7 @@ function WorkExperienceItem({
           form.formState.errors.workExperiences?.[index]?.jobTitle?.message
         }
         isInvalid={!!form.formState.errors.workExperiences?.[index]?.jobTitle}
+        isRequired
         label="Job Title"
         placeholder="Software Engineer"
       />
@@ -402,6 +403,7 @@ function WorkExperienceItem({
           form.formState.errors.workExperiences?.[index]?.employer?.message
         }
         isInvalid={!!form.formState.errors.workExperiences?.[index]?.employer}
+        isRequired
         label="Employer"
         placeholder="Company Name"
       />
@@ -434,6 +436,7 @@ function WorkExperienceItem({
               <DatePicker
                 errorMessage={fieldState.error?.message}
                 isInvalid={!!fieldState.error}
+                isRequired
                 label="Start Date"
                 value={value}
                 onBlur={field.onBlur}
@@ -500,7 +503,9 @@ function WorkExperienceItem({
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium">Job Description</span>
+          <span className="text-sm font-medium">
+            Job Description <span className="text-danger">*</span>
+          </span>
           <Button
             color="success"
             isLoading={isGeneratingAI}
