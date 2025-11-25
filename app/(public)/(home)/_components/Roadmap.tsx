@@ -17,12 +17,14 @@ export function Roadmap() {
 
         <div className="max-w-2xl mx-auto">
           <Image
-            alt="AdultNa Roadmap"
+            loading="lazy"
+            alt="AdultNa roadmap showing milestones: education, career, finance, and personal growth"
             className="w-full h-auto rounded-xl"
             height={300}
             sizes="(max-width: 640px) 90vw, (max-width: 1024px) 80vw, 672px"
             src="/roadmap-horizontal.png"
             width={672}
+            quality={85}
           />
         </div>
       </div>
