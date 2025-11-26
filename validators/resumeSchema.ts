@@ -29,7 +29,15 @@ export const contactSchema = z.object({
     .string()
     .max(100, "Region must be less than 100 characters")
     .optional(),
-  birthDate: calendarDateToDate.optional(),
+  birthDate: calendarDateToDate
+    .optional()
+    .refine(
+      (date) => {
+        if (!date) return true;
+        return date <= new Date();
+      },
+      "Birth date cannot be in the future",
+    ),
   linkedin: z
     .string()
     .max(255, "LinkedIn URL must be less than 255 characters")

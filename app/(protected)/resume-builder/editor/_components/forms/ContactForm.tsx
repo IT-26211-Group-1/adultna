@@ -195,6 +195,7 @@ export default function ContactForm({
           errorMessage={form.formState.errors.phone?.message as string}
           isInvalid={!!form.formState.errors.phone}
           label="Phone"
+          maxLength={10}
           placeholder="9XX-XXX-XXXX"
           startContent={
             <div className="pointer-events-none flex items-center">
@@ -202,6 +203,15 @@ export default function ContactForm({
             </div>
           }
           type="tel"
+          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/\D/g, "").slice(0, 10);
+          }}
+          onKeyPress={(e) => {
+            if (!/[0-9]/.test(e.key)) {
+              e.preventDefault();
+            }
+          }}
         />
 
         {/* Optional Fields */}
