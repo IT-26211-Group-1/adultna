@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { SearchIcon, ArrowRightIcon } from "lucide-react";
+import { SearchIcon, ArrowRightIcon, Loader2Icon } from "lucide-react";
 
 interface ChatInputProps {
   onSubmit: (message: string) => void;
   disabled?: boolean;
   placeholder?: string;
   className?: string;
+  isLoading?: boolean;
 }
 
 export function ChatInput({
@@ -16,6 +17,7 @@ export function ChatInput({
   disabled = false,
   placeholder = "Ask whatever you want",
   className,
+  isLoading = false,
 }: ChatInputProps) {
   const [input, setInput] = useState("");
 
@@ -51,7 +53,11 @@ export function ChatInput({
           disabled={!input.trim() || disabled}
           type="submit"
         >
-          <ArrowRightIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          {isLoading ? (
+            <Loader2Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
+          ) : (
+            <ArrowRightIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          )}
         </button>
       </div>
     </form>

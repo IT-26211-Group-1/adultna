@@ -498,6 +498,7 @@ export function ChatContainerOptimized() {
                 <div className="px-2">
                   <ChatInput
                     disabled={isPending}
+                    isLoading={isPending}
                     onSubmit={handleSendMessage}
                   />
                 </div>
@@ -556,7 +557,11 @@ export function ChatContainerOptimized() {
         {messages.length > 0 && (
           <div className="bg-transparent px-4 sm:px-6 py-4 sm:py-6">
             <div className="mx-auto max-w-4xl px-2">
-              <ChatInput disabled={isPending} onSubmit={handleSendMessage} />
+              <ChatInput
+                disabled={isPending}
+                isLoading={isPending}
+                onSubmit={handleSendMessage}
+              />
             </div>
           </div>
         )}
