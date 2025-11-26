@@ -2,7 +2,7 @@ import {
   Fira_Code as FontMono,
   Inter as FontSans,
   Playfair_Display,
-  Song_Myung
+  Song_Myung,
 } from "next/font/google";
 
 export const fontSans = FontSans({

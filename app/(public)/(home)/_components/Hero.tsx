@@ -1,5 +1,22 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import { HeroText } from "./HeroText";
-import { HeroIllustration } from "./HeroIllustrations";
+
+const HeroIllustration = dynamic(
+  () =>
+    import("./HeroIllustrations").then((mod) => ({
+      default: mod.HeroIllustration,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[300px] sm:h-[400px] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-adult-green rounded-full animate-spin" />
+      </div>
+    ),
+  },
+);
 
 export function Hero() {
   return (
