@@ -10,9 +10,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        inter: ["Inter", "sans-serif"],
-        playfair: ["Playfair", "serif"],
-        songmyung: ['"Song Myung"', "serif"],
+        sans: ["var(--font-sans)", "sans-serif"],
+        inter: ["var(--font-sans)", "sans-serif"],
+        playfair: ["var(--font-playfair)", "serif"],
+        songmyung: ["var(--font-songmyung)", "serif"],
       },
       colors: {
         "crayola-orange": "#F16F33",

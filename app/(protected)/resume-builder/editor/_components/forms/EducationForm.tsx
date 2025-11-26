@@ -250,6 +250,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
 
       <Input
         {...form.register(`educationItems.${index}.schoolName`)}
+        isRequired
         errorMessage={
           form.formState.errors.educationItems?.[index]?.schoolName?.message
         }
@@ -273,6 +274,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
       <div className="grid grid-cols-2 gap-3">
         <Input
           {...form.register(`educationItems.${index}.degree`)}
+          isRequired
           errorMessage={
             form.formState.errors.educationItems?.[index]?.degree?.message
           }
@@ -283,6 +285,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
 
         <Input
           {...form.register(`educationItems.${index}.fieldOfStudy`)}
+          isRequired
           errorMessage={
             form.formState.errors.educationItems?.[index]?.fieldOfStudy?.message
           }
@@ -387,6 +390,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
 
             return (
               <Select
+                isRequired
                 errorMessage={fieldState.error?.message}
                 isInvalid={!!fieldState.error}
                 label="Graduation Year"

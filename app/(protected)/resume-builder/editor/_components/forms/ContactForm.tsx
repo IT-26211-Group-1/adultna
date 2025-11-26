@@ -24,9 +24,11 @@ export default function ContactForm({
 
   const form = useForm<any>({
     resolver: zodResolver(contactSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       email: resumeData.email || "",
-      phone: resumeData.phone || "",
+      phone: resumeData.phone ? resumeData.phone.replace(/^\+63/, "") : "",
       firstName: resumeData.firstName || "",
       lastName: resumeData.lastName || "",
       jobPosition: resumeData.jobPosition || "",
@@ -45,12 +47,17 @@ export default function ContactForm({
     },
   });
 
-  const syncFormData = useCallback(async () => {
-    const isValid = await form.trigger();
-
-    if (isValid) {
+  const syncFormData = useCallback(() => {
+    // Only sync if there are no validation errors already present
+    if (Object.keys(form.formState.errors).length === 0) {
       isSyncingRef.current = true;
       const values = form.getValues();
+
+      // Format phone number with +63 prefix if it doesn't already have it
+      if (values.phone && !values.phone.startsWith("+63")) {
+        // Remove leading 0 if present and add +63
+        values.phone = `+63${values.phone.replace(/^0/, "")}`;
+      }
 
       setResumeData({ ...resumeData, ...values });
 
@@ -91,7 +98,7 @@ export default function ContactForm({
       if (previousDataRef.current !== currentData) {
         form.reset({
           email: resumeData.email || "",
-          phone: resumeData.phone || "",
+          phone: resumeData.phone ? resumeData.phone.replace(/^\+63/, "") : "",
           firstName: resumeData.firstName || "",
           lastName: resumeData.lastName || "",
           jobPosition: resumeData.jobPosition || "",
@@ -127,6 +134,7 @@ export default function ContactForm({
         <div className="grid grid-cols-2 gap-3">
           <Input
             {...form.register("firstName")}
+            isRequired
             errorMessage={form.formState.errors.firstName?.message as string}
             isInvalid={!!form.formState.errors.firstName}
             label="First Name"
@@ -135,6 +143,7 @@ export default function ContactForm({
 
           <Input
             {...form.register("lastName")}
+            isRequired
             errorMessage={form.formState.errors.lastName?.message as string}
             isInvalid={!!form.formState.errors.lastName}
             label="Last Name"
@@ -172,6 +181,7 @@ export default function ContactForm({
 
         <Input
           {...form.register("email")}
+          isRequired
           errorMessage={form.formState.errors.email?.message as string}
           isInvalid={!!form.formState.errors.email}
           label="Email"
@@ -181,11 +191,27 @@ export default function ContactForm({
 
         <Input
           {...form.register("phone")}
+          isRequired
           errorMessage={form.formState.errors.phone?.message as string}
           isInvalid={!!form.formState.errors.phone}
           label="Phone"
-          placeholder="09XXXXXXXXX"
+          maxLength={10}
+          placeholder="9XX-XXX-XXXX"
+          startContent={
+            <div className="pointer-events-none flex items-center">
+              <span className="text-default-400 text-small">+63</span>
+            </div>
+          }
           type="tel"
+          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/\D/g, "").slice(0, 10);
+          }}
+          onKeyPress={(e) => {
+            if (!/[0-9]/.test(e.key)) {
+              e.preventDefault();
+            }
+          }}
         />
 
         {/* Optional Fields */}
@@ -214,11 +240,19 @@ export default function ContactForm({
                 }
               };
 
+              const today = new Date();
+              const maxDate = new CalendarDate(
+                today.getFullYear(),
+                today.getMonth() + 1,
+                today.getDate(),
+              );
+
               return (
                 <DatePicker
                   errorMessage={fieldState.error?.message as string}
                   isInvalid={!!fieldState.error}
                   label="Birth date"
+                  maxValue={maxDate}
                   value={value}
                   onBlur={field.onBlur}
                   onChange={handleChange}

@@ -28,6 +28,7 @@ const nextConfig = {
       "lucide-react",
       "@tanstack/react-query",
     ],
+    webpackMemoryOptimizations: true,
   },
 
   // Production optimizations
@@ -44,7 +45,7 @@ const nextConfig = {
   },
 
   // Webpack optimizations
-  webpack: (config, { dev }) => {
+  webpack: (config, { dev, isServer }) => {
     if (!dev) {
       config.optimization = {
         ...config.optimization,
@@ -52,6 +53,56 @@ const nextConfig = {
         runtimeChunk: {
           name: (entrypoint) => `runtime-${entrypoint.name}`,
         },
+        splitChunks: {
+          chunks: (chunk) => {
+            return !/\.css$/.test(chunk.name);
+          },
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            framework: {
+              name: 'framework',
+              chunks: 'all',
+              test: (module) => {
+                return (
+                  module.resource &&
+                  /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource)
+                );
+              },
+              priority: 40,
+              enforce: true,
+            },
+            lib: {
+              test: (module) => {
+                return (
+                  module.resource &&
+                  /[\\/]node_modules[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource)
+                );
+              },
+              name(module) {
+                if (!module.context) return 'vendor';
+                const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
+                if (!match) return 'vendor';
+                const packageName = match[1];
+                return `npm.${packageName.replace('@', '')}`;
+              },
+              priority: 30,
+              minChunks: 1,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      };
+    }
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
       };
     }
 

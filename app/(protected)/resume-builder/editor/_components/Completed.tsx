@@ -91,7 +91,7 @@ export default function Completed({ resumeData }: CompletedProps) {
                   <Button
                     className="w-full py-3 text-base"
                     variant="bordered"
-                    onPress={() => router.push("/cover-letters")}
+                    onPress={() => router.push("/cover-letter")}
                   >
                     Create Cover Letter
                   </Button>

@@ -31,6 +31,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   const [pendingUpload, setPendingUpload] = useState<UploadDocumentForm | null>(
     null,
   );
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null);
   const {
     isOpen: isReplaceOpen,
     onOpen: onReplaceOpen,
@@ -137,6 +139,13 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     onClose?.();
   };
 
+  const handleCancelUpload = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
+  };
+
   const onSubmit = async (data: UploadDocumentForm) => {
     // Final validation before upload
     if (!validateStorageQuota(data.file)) {
@@ -148,12 +157,18 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       return;
     }
 
+    // Create AbortController for this upload
+    const controller = new AbortController();
+
+    setAbortController(controller);
+
     try {
       const result = await uploadMutation.mutateAsync({
         file: data.file,
         category: data.category,
         isSecure: data.isSecure || false,
         replaceDuplicate: false,
+        signal: controller.signal,
       });
 
       if (result.statusCode === 409) {
@@ -180,6 +195,19 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         return;
       }
 
+      // Check if error is due to cancellation
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" || error.message === "Upload cancelled")
+      ) {
+        addToast({
+          title: "Upload cancelled",
+          color: "warning",
+        });
+
+        return;
+      }
+
       logger.error("Upload error:", error);
 
       if (error instanceof ApiError) {
@@ -193,6 +221,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
           color: "danger",
         });
       }
+    } finally {
+      setAbortController(null);
     }
   };
 
@@ -201,6 +231,11 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       return;
     }
 
+    // Create AbortController for this upload
+    const controller = new AbortController();
+
+    setAbortController(controller);
+
     try {
       const result = await uploadMutation.mutateAsync({
         file: pendingUpload.file,
@@ -208,6 +243,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         isSecure: pendingUpload.isSecure || false,
         replaceDuplicate: true,
         keepBoth: false,
+        signal: controller.signal,
       });
 
       if (result.success) {
@@ -221,6 +257,19 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         onClose?.();
       }
     } catch (error) {
+      // Check if error is due to cancellation
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" || error.message === "Upload cancelled")
+      ) {
+        addToast({
+          title: "Upload cancelled",
+          color: "warning",
+        });
+
+        return;
+      }
+
       logger.error("Replace upload error:", error);
 
       if (error instanceof ApiError) {
@@ -229,6 +278,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
           color: "danger",
         });
       }
+    } finally {
+      setAbortController(null);
     }
   };
 
@@ -237,6 +288,11 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       return;
     }
 
+    // Create AbortController for this upload
+    const controller = new AbortController();
+
+    setAbortController(controller);
+
     try {
       const result = await uploadMutation.mutateAsync({
         file: pendingUpload.file,
@@ -244,6 +300,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         isSecure: pendingUpload.isSecure || false,
         replaceDuplicate: false,
         keepBoth: true,
+        signal: controller.signal,
       });
 
       if (result.success) {
@@ -257,6 +314,19 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         onClose?.();
       }
     } catch (error) {
+      // Check if error is due to cancellation
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" || error.message === "Upload cancelled")
+      ) {
+        addToast({
+          title: "Upload cancelled",
+          color: "warning",
+        });
+
+        return;
+      }
+
       logger.error("Keep both upload error:", error);
 
       if (error instanceof ApiError) {
@@ -265,6 +335,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
           color: "danger",
         });
       }
+    } finally {
+      setAbortController(null);
     }
   };
 
@@ -437,25 +509,46 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
           {/* Action Buttons - Right aligned */}
           <div className="flex justify-end gap-3 pt-4">
-            <Button
-              className="px-6"
-              size="md"
-              variant="bordered"
-              onPress={handleCancel}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="bg-adult-green hover:bg-adult-green/90 text-white px-6"
-              isDisabled={
-                !isValid || uploadMutation.isPending || !!storageError
-              }
-              isLoading={uploadMutation.isPending}
-              size="md"
-              type="submit"
-            >
-              {uploadMutation.isPending ? "Uploading..." : "Upload"}
-            </Button>
+            {uploadMutation.isPending ? (
+              <>
+                <Button
+                  className="px-6 text-red-600 border-red-600 hover:bg-red-50"
+                  size="md"
+                  variant="bordered"
+                  onPress={handleCancelUpload}
+                >
+                  Cancel Upload
+                </Button>
+                <Button
+                  isDisabled
+                  isLoading
+                  className="bg-adult-green hover:bg-adult-green/90 text-white px-6"
+                  size="md"
+                  type="button"
+                >
+                  Uploading...
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  className="px-6"
+                  size="md"
+                  variant="bordered"
+                  onPress={handleCancel}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="bg-adult-green hover:bg-adult-green/90 text-white px-6"
+                  isDisabled={!isValid || !!storageError}
+                  size="md"
+                  type="submit"
+                >
+                  Upload
+                </Button>
+              </>
+            )}
           </div>
         </form>
       </Modal>
