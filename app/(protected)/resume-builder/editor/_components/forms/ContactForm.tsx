@@ -205,6 +205,7 @@ export default function ContactForm({
           type="tel"
           onInput={(e) => {
             const target = e.target as HTMLInputElement;
+
             target.value = target.value.replace(/\D/g, "").slice(0, 10);
           }}
           onKeyPress={(e) => {
