@@ -54,19 +54,33 @@ const nextConfig = {
           name: (entrypoint) => `runtime-${entrypoint.name}`,
         },
         splitChunks: {
-          chunks: 'all',
+          chunks: (chunk) => {
+            return !/\.css$/.test(chunk.name);
+          },
           cacheGroups: {
             default: false,
             vendors: false,
             framework: {
               name: 'framework',
               chunks: 'all',
-              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+              test: (module) => {
+                return (
+                  module.resource &&
+                  /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource)
+                );
+              },
               priority: 40,
               enforce: true,
             },
             lib: {
-              test: /[\\/]node_modules[\\/]/,
+              test: (module) => {
+                return (
+                  module.resource &&
+                  /[\\/]node_modules[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource)
+                );
+              },
               name(module) {
                 if (!module.context) return 'vendor';
                 const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
