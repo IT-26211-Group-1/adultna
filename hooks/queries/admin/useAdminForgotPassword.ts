@@ -95,11 +95,25 @@ export function useAdminForgotPasswordFlow() {
       }
     },
     onError: (error: any) => {
+      const errorMessage = error?.message || "Please check your code";
+
       addToast({
         title: "OTP verification failed",
-        description: error?.message || "Please check your code",
+        description: errorMessage,
         color: "danger",
       });
+
+      if (
+        error?.message?.includes("Maximum OTP attempts exceeded") ||
+        error?.status === 403
+      ) {
+        setTimeout(() => {
+          removeSecureItem("adminForgotPasswordToken");
+          removeSecureItem("adminForgotPasswordEmail");
+          removeSecureItem("adminForgotPasswordStep");
+          window.location.href = "/admin/login";
+        }, 2000);
+      }
     },
   });
 

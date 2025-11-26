@@ -102,11 +102,25 @@ export function useForgotPasswordFlow() {
       }
     },
     onError: (error: any) => {
+      const errorMessage = error?.message || "Please check your code";
+
       addToast({
         title: "OTP verification failed",
-        description: error?.message || "Please check your code",
+        description: errorMessage,
         color: "danger",
       });
+
+      if (
+        error?.message?.includes("Maximum OTP attempts exceeded") ||
+        error?.status === 403
+      ) {
+        setTimeout(() => {
+          removeSecureItem("forgotPasswordToken");
+          removeSecureItem("forgotPasswordEmail");
+          removeSecureItem("forgotPasswordStep");
+          window.location.href = "/auth/login";
+        }, 2000);
+      }
     },
   });
 
