@@ -147,7 +147,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
                 I&apos;m Ready!
               </>
             ) : (
-              "I&apos;m Ready!"
+              "I'm Ready!"
             )}
           </button>
         </div>

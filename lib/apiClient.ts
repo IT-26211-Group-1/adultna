@@ -72,7 +72,8 @@ export class ApiClient {
           response.status === 401 &&
           !isRetry &&
           !endpoint.includes("/refresh-token") &&
-          !endpoint.includes("/login")
+          !endpoint.includes("/login") &&
+          !endpoint.includes("/forgot-password")
         ) {
           try {
             const refreshUrl = baseUrl.includes("/admin")
