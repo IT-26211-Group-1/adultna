@@ -525,7 +525,9 @@ export const QuestionsList = memo(function QuestionsList({
                       {isSubmitting || isGradingCurrentQuestion ? (
                         <>
                           <Spinner color="current" size="sm" />
-                          {isGradingCurrentQuestion ? "Grading..." : "Evaluating..."}
+                          {isGradingCurrentQuestion
+                            ? "Grading..."
+                            : "Evaluating..."}
                         </>
                       ) : (
                         "Finish Interview"
