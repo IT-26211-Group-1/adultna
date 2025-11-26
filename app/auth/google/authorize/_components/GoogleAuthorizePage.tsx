@@ -7,9 +7,13 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { UserAuthTitle } from "../../../register/_components/UserAuthTitle";
 import { AuthButton } from "../../../register/_components/AuthButton";
 import { ImageContainer } from "../../../register/_components/ImageContainer";
+import { logger } from "@/lib/logger";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/apiClient";
 
 export const GoogleAuthorizePage = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
@@ -36,6 +40,7 @@ export const GoogleAuthorizePage = () => {
 
     const code = sessionStorage.getItem("google_oauth_code");
     const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
 
     try {
       const response = await fetch(
@@ -49,6 +54,7 @@ export const GoogleAuthorizePage = () => {
           body: JSON.stringify({
             code,
             codeVerifier,
+            redirectUri,
           }),
         },
       );
@@ -59,25 +65,34 @@ export const GoogleAuthorizePage = () => {
       sessionStorage.removeItem("oauth_mode");
 
       if (data.success) {
-        addToast({
-          title: "Account Created",
-          description: "Welcome to AdultNa!",
-          color: "success",
+        const shouldGoToOnboarding =
+          data.user?.onboardingStatus !== "completed";
+
+        // Invalidate and refetch auth cache to ensure synchronized state
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.auth.me(),
         });
 
-        setTimeout(() => {
+        await queryClient.refetchQueries({
+          queryKey: queryKeys.auth.me(),
+        });
+
+        // Navigate after cache is refreshed
+        if (shouldGoToOnboarding) {
           router.replace("/auth/onboarding");
-        }, 300);
+        } else {
+          router.replace("/dashboard");
+        }
       } else {
+        logger.error("❌ Google registration failed:", data.message);
         addToast({
           title: "Registration Failed",
-          description: data.message || "Something went wrong",
           color: "danger",
         });
         router.replace("/auth/register");
       }
     } catch (error) {
-      console.error("Authorization error:", error);
+      logger.error("Authorization error:", error);
       addToast({
         title: "Error",
         description: "Failed to create account",

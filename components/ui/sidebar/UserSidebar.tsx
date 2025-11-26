@@ -7,6 +7,7 @@ import SidebarHeader from "./SidebarHeader";
 import SidebarNavigation from "./SidebarNavigation";
 import SidebarCollapsibleSection from "./SidebarCollapsibleSection";
 import SidebarStorage from "./SidebarStorage";
+import SidebarUserProfile from "./SidebarUserProfile";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -34,10 +35,14 @@ function UserSidebar({
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const pathname = usePathname();
 
-  // Apply olive green background specifically for roadmap page
+  // Apply specific backgrounds for certain pages
   const resolvedBackgroundColor =
     backgroundColor ||
-    (pathname === "/roadmap" ? "rgba(107, 142, 35, 0.1)" : "white");
+    (pathname === "/roadmap"
+      ? "rgba(154,205,50, 0.08)"
+      : pathname === "/find-office"
+        ? "white"
+        : "white");
 
   // Use controlled state if provided, otherwise use internal state
   const isOpen =
@@ -82,6 +87,26 @@ function UserSidebar({
     },
     [isCollapsed, handleCollapse],
   );
+
+  // Don't render sidebar on roadmap page
+  if (pathname.includes("/roadmap")) {
+    return (
+      <div
+        className="min-h-screen relative"
+        style={{
+          backgroundColor: resolvedBackgroundColor,
+        }}
+      >
+        {children && (
+          <div className="relative z-10">
+            {typeof children === "function"
+              ? children({ sidebarCollapsed: false })
+              : children}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -132,6 +157,12 @@ function UserSidebar({
             lg:top-4 lg:left-4 lg:h-[calc(100vh-2rem)] lg:rounded-2xl lg:border-white/30
             bg-white/95
           `}
+          style={{
+            backgroundColor:
+              pathname === "/roadmap"
+                ? "rgba(154,205,50, 0.15)"
+                : "rgba(17,85,63, 0.10)",
+          }}
         >
           {/* Header */}
           <SidebarHeader isCollapsed={isCollapsed} />
@@ -174,13 +205,18 @@ function UserSidebar({
 
           {/* Storage Section */}
           <SidebarStorage isCollapsed={isCollapsed} />
+
+          {/* User Profile Section */}
+          <SidebarUserProfile isCollapsed={isCollapsed} />
         </div>
       </div>
 
       {/* Main Content Wrapper */}
       {children && (
         <div
-          className={`transition-all duration-300 ${isCollapsed ? "lg:ml-24" : "lg:ml-76"} relative z-10 pt-16 lg:pt-0`}
+          className={`transition-all duration-300 ${
+            pathname === "/roadmap" ? "" : isCollapsed ? "lg:ml-24" : "lg:ml-76"
+          } relative z-10 pt-16 lg:pt-0`}
         >
           {typeof children === "function"
             ? children({ sidebarCollapsed: isCollapsed })

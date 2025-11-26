@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { logger } from "@/lib/logger";
 
 type VoiceGender = "female";
 
@@ -138,12 +139,19 @@ export const useTextToSpeech = (
 
   const speak = useCallback(
     (text: string) => {
-      if (!isSupported || !text) return;
+      if (!isSupported || !text || !text.trim()) return;
+
+      // Check if speech synthesis is available and not busy
+      if (!window.speechSynthesis) {
+        logger.warn("Speech synthesis not available");
+
+        return;
+      }
 
       // Stop any ongoing speech
       stop();
 
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance(text.trim());
 
       utterance.rate = rate;
       utterance.pitch = pitch;
@@ -167,7 +175,7 @@ export const useTextToSpeech = (
       utterance.onerror = (event) => {
         // Browsers often block autoplay, which triggers this error silently
         // This is expected behavior and not a real error
-        console.warn("Speech synthesis event:", event.error || "canceled");
+        const errorType = event.error || "canceled";
 
         // Only log detailed errors for actual problems
         if (
@@ -175,10 +183,14 @@ export const useTextToSpeech = (
           event.error !== "canceled" &&
           event.error !== "interrupted"
         ) {
-          console.error("Speech synthesis error details:", {
+          logger.error("Speech synthesis error:", {
             error: event.error,
             type: event.type,
+            text: text.substring(0, 50) + "...",
           });
+        } else {
+          // For expected cancellations, use debug level
+          logger.warn("Speech synthesis canceled:", errorType);
         }
 
         setIsSpeaking(false);

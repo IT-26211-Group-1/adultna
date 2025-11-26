@@ -3,15 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, Card, CardBody } from "@heroui/react";
-import { ArrowLeft } from "lucide-react";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { useGetAnswersByIds } from "@/hooks/queries/useInterviewAnswers";
 import type { InterviewAnswer } from "@/types/interview-answer";
 import ReactMarkdown from "react-markdown";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ResultsLoadingSkeleton } from "./ResultsLoadingSkeleton";
 import { StarMetricCards } from "./StarMetricCards";
 import { QuestionBreakdown } from "./QuestionBreakdown";
 import { useMockInterviewState } from "@/hooks/useMockInterviewState";
+import { logger } from "@/lib/logger";
 
 type SessionResults = {
   jobRole: string;
@@ -59,7 +60,7 @@ export function InterviewResults() {
         timestamp: parsed.timestamp,
       });
     } catch (error) {
-      console.error("Failed to parse results:", error);
+      logger.error("Failed to parse results:", error);
       router.push("/mock-interview");
 
       return;
@@ -173,24 +174,19 @@ export function InterviewResults() {
     router.push("/mock-interview");
   };
 
+  const breadcrumbItems = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Mock Interview", href: "/mock-interview" },
+    { label: sessionMetadata.jobRole, href: "/mock-interview" },
+    { label: "Results", current: true },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
-              onClick={() => router.push("/mock-interview")}
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">{sessionMetadata.jobRole}</span>
-            </button>
-          </div>
-          <div className="text-2xl font-bold text-adult-green">AdultNa.</div>
-          <div className="w-10 h-10 rounded-full bg-adult-green flex items-center justify-center">
-            <span className="text-white text-sm font-semibold">U</span>
-          </div>
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <Breadcrumb items={breadcrumbItems} />
         </div>
       </div>
 

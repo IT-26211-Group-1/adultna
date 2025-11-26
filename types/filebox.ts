@@ -33,7 +33,7 @@ export const DISPLAY_CATEGORY_MAPPING: Record<FileCategory, string> = {
   other: "Personal",
 } as const;
 
-export interface FileMetadata {
+export type FileMetadata = {
   id: string;
   fileName: string;
   category: FileCategory;
@@ -43,9 +43,9 @@ export interface FileMetadata {
   uploadDate: string;
   lastModified: string;
   isSecure: boolean;
-}
+};
 
-export interface UserQuota {
+export type UserQuota = {
   userId: string;
   usedStorageBytes: number;
   usedStorageMB: number;
@@ -56,21 +56,24 @@ export interface UserQuota {
   percentageUsed: number;
   isQuotaExceeded: boolean;
   fileCount: number;
-}
+};
 
 // API Response types
-export interface UploadUrlResponse {
+export type UploadUrlResponse = {
   success: boolean;
   message: string;
-  data: {
+  statusCode?: number;
+  data?: {
     uploadUrl: string;
     fileId: string;
     fileKey: string;
     expiresIn: number;
+    duplicateFileId?: string;
+    duplicateFileName?: string;
   };
-}
+};
 
-export interface DownloadUrlResponse {
+export type DownloadUrlResponse = {
   success: boolean;
   message: string;
   data: {
@@ -80,9 +83,9 @@ export interface DownloadUrlResponse {
     fileSize: number;
     expiresIn: number;
   };
-}
+};
 
-export interface ListFilesResponse {
+export type ListFilesResponse = {
   success: boolean;
   message: string;
   data: {
@@ -91,54 +94,61 @@ export interface ListFilesResponse {
     totalStorageBytes: number;
     totalStorageMB: number;
   };
-}
+};
 
-export interface DeleteFileResponse {
+export type DeleteFileResponse = {
   success: boolean;
   message: string;
-}
+};
 
-export interface QuotaResponse {
+export type QuotaResponse = {
   success: boolean;
   message: string;
   data: UserQuota;
-}
+};
 
 // Request types
-export interface GenerateUploadUrlRequest {
+export type GenerateUploadUrlRequest = {
   fileName: string;
   category: FileCategory;
   contentType: string;
   fileSize: number;
   isSecure?: boolean;
-}
+  replaceDuplicate?: boolean;
+  keepBoth?: boolean;
+};
 
-export interface ListFilesRequest {
+export type ListFilesRequest = {
   category?: FileCategory;
-}
+};
 
 // Document OTP types
-export type OTPAction = "preview" | "download" | "delete";
+export type OTPAction =
+  | "preview"
+  | "download"
+  | "delete"
+  | "rename"
+  | "unprotect";
 
-export interface RequestDocumentOTPRequest {
+export type RequestDocumentOTPRequest = {
   action?: OTPAction;
-}
+};
 
-export interface RequestDocumentOTPResponse {
+export type RequestDocumentOTPResponse = {
   success: boolean;
   message: string;
-}
+};
 
-export interface VerifyDocumentOTPRequest {
+export type VerifyDocumentOTPRequest = {
   otp: string;
   action?: OTPAction;
-}
+};
 
-export interface VerifyDocumentOTPResponse {
+export type VerifyDocumentOTPResponse = {
   success: boolean;
   message: string;
   downloadUrl?: string;
-}
+};
 
 // Helper function to format file size
 export function formatFileSize(bytes: number): string {

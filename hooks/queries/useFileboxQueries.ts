@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, ApiError, queryKeys } from "@/lib/apiClient";
 import { API_CONFIG } from "@/config/api";
+import { logger } from "@/lib/logger";
 import {
   UploadUrlResponse,
   DownloadUrlResponse,
@@ -26,7 +27,11 @@ const fileboxApi = {
     ApiClient.post("/filebox/upload", request, {}, API_CONFIG.API_URL),
 
   // Upload file to S3
-  uploadToS3: async (uploadUrl: string, file: File): Promise<void> => {
+  uploadToS3: async (
+    uploadUrl: string,
+    file: File,
+    signal?: AbortSignal,
+  ): Promise<void> => {
     const response = await fetch(uploadUrl, {
       method: "PUT",
       body: file,
@@ -34,12 +39,13 @@ const fileboxApi = {
         "Content-Type": file.type,
         "Content-Disposition": "inline",
       },
+      signal,
     });
 
     if (!response.ok) {
       const errorText = await response.text();
 
-      console.error("S3 upload error:", errorText);
+      logger.error("S3 upload error:", errorText);
       throw new ApiError(
         "Failed to upload file to storage",
         response.status,
@@ -47,6 +53,28 @@ const fileboxApi = {
       );
     }
   },
+
+  // Verify uploaded file MIME type
+  verifyUpload: (fileId: string): Promise<any> =>
+    ApiClient.post(
+      "/filebox/verify-upload",
+      { fileId },
+      {},
+      API_CONFIG.API_URL,
+    ),
+
+  // Toggle file protection
+  toggleProtection: (
+    fileId: string,
+    isSecure: boolean,
+    otp?: string,
+  ): Promise<any> =>
+    ApiClient.put(
+      `/filebox/files/${fileId}/protection`,
+      { isSecure, otp },
+      {},
+      API_CONFIG.API_URL,
+    ),
 
   // Generate pre-signed download URL
   generateDownloadUrl: (fileId: string): Promise<DownloadUrlResponse> =>
@@ -66,6 +94,21 @@ const fileboxApi = {
   // Delete file
   deleteFile: (fileId: string): Promise<DeleteFileResponse> =>
     ApiClient.delete(`/filebox/files/${fileId}`, {}, API_CONFIG.API_URL),
+
+  // Rename file
+  renameFile: (
+    fileId: string,
+    fileName: string,
+    otp?: string,
+    replaceDuplicate?: boolean,
+    keepBoth?: boolean,
+  ): Promise<any> =>
+    ApiClient.patch(
+      `/filebox/files/${fileId}`,
+      { fileName, otp, replaceDuplicate, keepBoth },
+      {},
+      API_CONFIG.API_URL,
+    ),
 
   // Get user storage limit
   getUserQuota: (): Promise<QuotaResponse> =>
@@ -171,10 +214,16 @@ export function useFileboxUpload() {
       file,
       category,
       isSecure,
+      replaceDuplicate,
+      keepBoth,
+      signal,
     }: {
       file: File;
       category: string;
       isSecure?: boolean;
+      replaceDuplicate?: boolean;
+      keepBoth?: boolean;
+      signal?: AbortSignal;
     }) => {
       const backendCategory = (Object.entries({
         "Government Documents": "government-id",
@@ -191,6 +240,11 @@ export function useFileboxUpload() {
         | "legal"
         | "other";
 
+      // Check if already aborted
+      if (signal?.aborted) {
+        throw new Error("Upload cancelled");
+      }
+
       // Get pre-signed upload URL
       const uploadUrlResponse = await fileboxApi.generateUploadUrl({
         fileName: file.name,
@@ -198,18 +252,55 @@ export function useFileboxUpload() {
         contentType: file.type,
         fileSize: file.size,
         isSecure: isSecure || false,
+        replaceDuplicate: replaceDuplicate || false,
+        keepBoth: keepBoth || false,
       });
 
       if (!uploadUrlResponse.success) {
+        if (uploadUrlResponse.statusCode === 409) {
+          return uploadUrlResponse;
+        }
         throw new ApiError(
           uploadUrlResponse.message || "Failed to generate upload URL",
-          400,
+          uploadUrlResponse.statusCode || 400,
           null,
         );
       }
 
+      // Check if aborted before upload
+      if (signal?.aborted) {
+        throw new Error("Upload cancelled");
+      }
+
       // Upload file to S3
-      await fileboxApi.uploadToS3(uploadUrlResponse.data.uploadUrl, file);
+      if (uploadUrlResponse.data?.uploadUrl) {
+        await fileboxApi.uploadToS3(
+          uploadUrlResponse.data.uploadUrl,
+          file,
+          signal,
+        );
+
+        // Check if aborted before verification
+        if (signal?.aborted) {
+          throw new Error("Upload cancelled");
+        }
+
+        // Verify uploaded file MIME type
+        if (uploadUrlResponse.data?.fileId) {
+          try {
+            await fileboxApi.verifyUpload(uploadUrlResponse.data.fileId);
+          } catch (error) {
+            logger.error("File verification failed:", error);
+            throw new ApiError(
+              error instanceof ApiError
+                ? error.message
+                : "File verification failed. The file may be corrupted or have an invalid type.",
+              400,
+              null,
+            );
+          }
+        }
+      }
 
       return uploadUrlResponse;
     },
@@ -347,6 +438,118 @@ export function useFileboxDelete() {
       if (error instanceof ApiError) {
         // Don't retry not found or validation errors
         if (error.status === 404 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to rename a file
+ */
+export function useFileboxRename() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      fileId,
+      fileName,
+      otp,
+      replaceDuplicate,
+      keepBoth,
+    }: {
+      fileId: string;
+      fileName: string;
+      otp?: string;
+      replaceDuplicate?: boolean;
+      keepBoth?: boolean;
+    }) => {
+      const response = await fileboxApi.renameFile(
+        fileId,
+        fileName,
+        otp,
+        replaceDuplicate,
+        keepBoth,
+      );
+
+      if (!response.success) {
+        if (response.statusCode === 409) {
+          return response;
+        }
+        throw new ApiError(
+          response.message || "Failed to rename file",
+          response.statusCode || 400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (
+          error.status === 404 ||
+          error.status === 400 ||
+          error.status === 403 ||
+          error.status === 409
+        ) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to toggle file protection status
+ */
+export function useToggleFileProtection() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      fileId,
+      isSecure,
+      otp,
+    }: {
+      fileId: string;
+      isSecure: boolean;
+      otp?: string;
+    }) => {
+      const response = await fileboxApi.toggleProtection(fileId, isSecure, otp);
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to toggle file protection",
+          response.statusCode || 400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (
+          error.status === 404 ||
+          error.status === 400 ||
+          error.status === 403
+        ) {
           return false;
         }
       }

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { addToast } from "@heroui/toast";
 import { ApiClient } from "@/lib/apiClient";
 import type {
   ListQuestionsParams,
@@ -19,6 +20,7 @@ import type {
   CreateSessionRequest,
   CreateSessionResponse,
 } from "@/types/interview-question";
+import { logger } from "@/lib/logger";
 
 // API Functions
 const questionApi = {
@@ -436,7 +438,7 @@ export function useSpeechToText(userId: string) {
     (onTranscriptUpdate: (transcript: string) => void) => {
       // Check if running in browser
       if (typeof window === "undefined") {
-        console.warn("Speech recognition only works in browser");
+        logger.warn("Speech recognition only works in browser");
 
         return false;
       }
@@ -447,7 +449,7 @@ export function useSpeechToText(userId: string) {
         (window as any).webkitSpeechRecognition;
 
       if (!SpeechRecognition) {
-        console.warn(
+        logger.warn(
           "Real-time transcription not supported in this browser. Using AWS Transcribe only.",
         );
 
@@ -487,26 +489,29 @@ export function useSpeechToText(userId: string) {
         };
 
         recognition.onerror = (event: any) => {
-          console.error("Speech recognition error:", event.error, event);
+          logger.error("Speech recognition error:", event.error, event);
 
           // Handle specific errors
           if (
             event.error === "not-allowed" ||
             event.error === "permission-denied"
           ) {
-            alert(
-              "Microphone access denied. Please allow microphone access in your browser settings.",
-            );
+            addToast({
+              title: "Microphone access denied",
+              description:
+                "Please allow microphone access in your browser settings.",
+              color: "danger",
+            });
           } else if (event.error === "no-speech") {
-            console.warn("No speech detected. Please try speaking again.");
+            logger.warn("No speech detected. Please try speaking again.");
           } else if (event.error === "network") {
-            console.error(
+            logger.error(
               "Network error. Please check your internet connection.",
             );
           } else if (event.error === "aborted") {
-            console.warn("Speech recognition aborted.");
+            logger.warn("Speech recognition aborted.");
           } else {
-            console.error(`Speech recognition error: ${event.error}`);
+            logger.error(`Speech recognition error: ${event.error}`);
           }
 
           setIsListening(false);
@@ -524,7 +529,7 @@ export function useSpeechToText(userId: string) {
 
         return true;
       } catch (error) {
-        console.error("Failed to start speech recognition:", error);
+        logger.error("Failed to start speech recognition:", error);
 
         return false;
       }
@@ -538,7 +543,7 @@ export function useSpeechToText(userId: string) {
       try {
         recognitionRef.current.stop();
       } catch (error) {
-        console.error("Error stopping recognition:", error);
+        logger.error("Error stopping recognition:", error);
       }
       recognitionRef.current = null;
     }
@@ -575,7 +580,7 @@ export function useSpeechToText(userId: string) {
         ) {
           const backoffDelay = Math.min(10000, 1000 * Math.pow(2, attempt));
 
-          console.warn(`Rate limited, backing off for ${backoffDelay}ms`);
+          logger.warn(`Rate limited, backing off for ${backoffDelay}ms`);
           await new Promise((resolve) => setTimeout(resolve, backoffDelay));
         } else if (attempt === maxAttempts - 1) {
           throw error;

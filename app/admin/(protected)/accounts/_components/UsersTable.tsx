@@ -7,8 +7,9 @@ import { User, UsersTableProps } from "@/types/admin";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
-import { getUsersTableColumns } from "@/constants/adminTables";
-import { formatDate } from "@/constants/formatDate";
+import { getUsersTableColumns } from "@/constants/admin-tables";
+import { formatDate } from "@/constants/format-date";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 // Memoized actions dropdown
 const UserActions = React.memo<{
@@ -17,95 +18,87 @@ const UserActions = React.memo<{
   onResetPassword: (userId: string, email: string) => void;
   onToggleStatus: (userId: string, status: string) => void;
   isUpdating: boolean;
-}>(({ user, onEdit, onResetPassword, onToggleStatus, isUpdating }) => (
-  <DropdownMenu
-    items={[
-      {
-        label: "Edit Account",
-        onClick: () => onEdit(user.id),
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        ),
-      },
-      {
-        label: "Reset Password",
-        onClick: () => onResetPassword(user.id, user.email),
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        ),
-      },
-      {
-        label:
-          user.status === "active" ? "Deactivate Account" : "Activate Account",
-        onClick: () => onToggleStatus(user.id, user.status),
-        destructive: user.status === "active",
-        disabled: isUpdating,
-        icon: (
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            {user.status === "active" ? (
+}>(
+  ({
+    user,
+    onEdit,
+    onResetPassword: _onResetPassword,
+    onToggleStatus,
+    isUpdating,
+  }) => (
+    <DropdownMenu
+      items={[
+        {
+          label: "Edit Account",
+          onClick: () => onEdit(user.id),
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
-                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
               />
-            ) : (
-              <path
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            )}
-          </svg>
-        ),
-      },
-    ]}
-    trigger={
-      <button
-        className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-        disabled={isUpdating}
-      >
-        <svg
-          className="w-5 h-5 text-gray-400"
-          fill="currentColor"
-          viewBox="0 0 20 20"
+            </svg>
+          ),
+        },
+
+        {
+          label:
+            user.status === "active"
+              ? "Deactivate Account"
+              : "Activate Account",
+          onClick: () => onToggleStatus(user.id, user.status),
+          destructive: user.status === "active",
+          disabled: isUpdating,
+          icon: (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {user.status === "active" ? (
+                <path
+                  d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              ) : (
+                <path
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              )}
+            </svg>
+          ),
+        },
+      ]}
+      trigger={
+        <button
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+          disabled={isUpdating}
         >
-          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-        </svg>
-      </button>
-    }
-  />
-));
+          <svg
+            className="w-5 h-5 text-gray-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+          </svg>
+        </button>
+      }
+    />
+  ),
+);
 
 UserActions.displayName = "UserActions";
 
@@ -131,7 +124,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
           id: user.id,
           email: user.email,
           emailVerified: user.emailVerified,
-          status: user.status as "active" | "deactivated",
+          status: user.status as "active" | "deactivated" | "unverified",
           createdAt:
             typeof user.createdAt === "string"
               ? user.createdAt
@@ -181,12 +174,16 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
 
   const handleToggleAccountStatus = useCallback(
     (userId: string, currentStatus: string) => {
+      // If unverified or deactivated, allow activating. If active, allow deactivating
       const newStatus = currentStatus === "active" ? "deactivated" : "active";
       const action = newStatus === "active" ? "activate" : "deactivate";
 
       if (confirm(`Are you sure you want to ${action} this account?`)) {
         updateUserStatus(
-          { userId, status: newStatus as "active" | "deactivated" },
+          {
+            userId,
+            status: newStatus as "active" | "deactivated" | "unverified",
+          },
           {
             onSuccess: (response) => {
               if (response.success) {
@@ -222,7 +219,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         id: user.id,
         email: user.email,
         emailVerified: user.emailVerified,
-        status: user.status as "active" | "deactivated",
+        status: user.status as "active" | "deactivated" | "unverified",
         createdAt:
           typeof user.createdAt === "string"
             ? user.createdAt
@@ -264,13 +261,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
   if (usersError) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Failed to load users. Please try again.</p>
-        <button
-          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-          onClick={() => refetchUsers()}
-        >
-          Retry
-        </button>
+        <p className="text-red-600 mb-4">
+          Failed to load users. Please try again.
+        </p>
+        <RetryButton onRetry={refetchUsers} />
       </div>
     );
   }

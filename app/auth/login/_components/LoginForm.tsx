@@ -8,10 +8,19 @@ import { GoogleSignInButton } from "../../register/_components/GoogleSignInButto
 import { ImageContainer } from "../../register/_components/ImageContainer";
 import { useLogin } from "../hooks/useLogin";
 import { useGoogleAuth } from "../../../../hooks/useGoogleAuth";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
 
 export const LoginForm = () => {
   const { register, errors, loading, onSubmit } = useLogin();
   const { handleGoogleSignIn } = useGoogleAuth();
+  const { removeSecureItem } = useSecureStorage();
+
+  const handleForgotPasswordClick = () => {
+    // Clear forgot password flow data to start fresh
+    removeSecureItem("forgotPasswordEmail");
+    removeSecureItem("forgotPasswordStep");
+    removeSecureItem("forgotPasswordToken");
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -47,6 +56,7 @@ export const LoginForm = () => {
               <Link
                 className="text-sm text-green-700 hover:text-green-800 font-medium"
                 href="/auth/forgot-password"
+                onClick={handleForgotPasswordClick}
               >
                 Forgot Password?
               </Link>

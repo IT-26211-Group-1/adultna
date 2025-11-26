@@ -3,11 +3,11 @@
 import React, { memo, useMemo } from "react";
 import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestionQueries";
 import { Skeleton } from "@/components/ui/Skeletons";
+import { RetryButton } from "@/components/ui/RetryButton";
 
 type JobRoleSelectorProps = {
   selectedIndustry: string;
   onSelectJobRole: (jobRole: string) => void;
-  onBack: () => void;
 };
 
 const SKELETON_COUNT = 4;
@@ -16,7 +16,6 @@ const skeletonItems = Array.from({ length: SKELETON_COUNT }, (_, i) => i);
 export const JobRoleSelector = memo(function JobRoleSelector({
   selectedIndustry,
   onSelectJobRole,
-  onBack,
 }: JobRoleSelectorProps) {
   const { questions, isLoadingQuestions, questionsError, refetchQuestions } =
     useInterviewQuestions({
@@ -40,12 +39,6 @@ export const JobRoleSelector = memo(function JobRoleSelector({
   if (isLoadingQuestions) {
     return (
       <div className="space-y-4">
-        <button
-          className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
-          onClick={onBack}
-        >
-          ← Back to Fields
-        </button>
         <h2 className="text-2xl font-semibold">Choose a Job Role</h2>
         <div className="space-y-2">
           {skeletonItems.map((i) => (
@@ -62,23 +55,12 @@ export const JobRoleSelector = memo(function JobRoleSelector({
   if (questionsError) {
     return (
       <div className="space-y-4">
-        <button
-          className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
-          onClick={onBack}
-        >
-          ← Back to Fields
-        </button>
         <h2 className="text-2xl font-semibold">Choose a Job Role</h2>
         <div className="text-center py-8">
           <p className="text-red-600 mb-4">
             Failed to load job roles. Please try again.
           </p>
-          <button
-            className="px-4 py-2 bg-adult-green text-white rounded-lg hover:bg-adult-green/90 transition-colors"
-            onClick={() => refetchQuestions()}
-          >
-            Retry
-          </button>
+          <RetryButton onRetry={refetchQuestions} />
         </div>
       </div>
     );
@@ -87,12 +69,6 @@ export const JobRoleSelector = memo(function JobRoleSelector({
   if (jobRoles.length === 0) {
     return (
       <div className="space-y-4">
-        <button
-          className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2"
-          onClick={onBack}
-        >
-          ← Back to Fields
-        </button>
         <h2 className="text-2xl font-semibold">Choose a Job Role</h2>
         <div className="text-center py-8 text-gray-500">
           No job roles available for this field yet. Please contact an
@@ -104,12 +80,6 @@ export const JobRoleSelector = memo(function JobRoleSelector({
 
   return (
     <div className="space-y-6">
-      <button
-        className="text-adult-green hover:text-adult-green/80 font-medium flex items-center gap-2 mb-2"
-        onClick={onBack}
-      >
-        ← Back
-      </button>
       <div className="text-center">
         <h2 className="text-2xl font-semibold text-gray-900">
           Select Your Target Job Role

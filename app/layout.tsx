@@ -1,12 +1,9 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
-
 import { Providers } from "./providers";
-import { PerformanceMonitor } from "@/components/performance/PerformanceMonitor";
-
 import { siteConfig } from "@/config/site";
-import { fontSans } from "@/config/fonts";
+import { fontSans, fontPlayfair, fontSongMyung } from "@/config/fonts";
 
 export const metadata: Metadata = {
   title: {
@@ -45,16 +42,23 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           rel="preconnect"
         />
+        <link href="https://prod.spline.design" rel="dns-prefetch" />
+        <link
+          crossOrigin="anonymous"
+          href="https://prod.spline.design"
+          rel="preconnect"
+        />
       </head>
       <body
         suppressHydrationWarning //added so the body will handle browser extension differences while keeping the app function normally
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
           fontSans.variable,
+          fontPlayfair.variable,
+          fontSongMyung.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <PerformanceMonitor />
           <div className="relative flex flex-col h-screen">
             <main className="flex flex-col flex-grow w-full h-full pt-0 px-0 m-0">
               {children}

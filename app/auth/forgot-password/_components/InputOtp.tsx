@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addToast } from "@heroui/toast";
@@ -8,10 +8,14 @@ import { AuthButton } from "../../register/_components/AuthButton";
 import { useForgotPasswordFlow } from "@/hooks/queries/useForgotPasswordQueries";
 import { forgotPasswordOtpSchema } from "@/validators/authSchema";
 import { ResendTimer } from "@/components/ui/ResendTimer";
+import { useRouter } from "next/navigation";
 
 type OtpFormType = { otp: string };
 
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+
 export default function InputOtp() {
+  const router = useRouter();
   const {
     verifyOtp,
     resendOtp,
@@ -19,11 +23,13 @@ export default function InputOtp() {
     isResendingOtp,
     getStoredToken,
     getStoredEmail,
+    clearForgotPasswordData,
   } = useForgotPasswordFlow();
   const [otpValue, setOtpValue] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const initialized = useRef(false);
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
     handleSubmit,
@@ -36,6 +42,44 @@ export default function InputOtp() {
 
   // Split OTP inpuit
   const otpArray = otpValue.padEnd(6, " ").slice(0, 6).split("");
+
+  useEffect(() => {
+    const handleIdleTimeout = () => {
+      addToast({
+        title: "Inactivity timeout",
+        description: "You've been inactive for 10 minutes. Please try again.",
+        color: "warning",
+      });
+
+      clearForgotPasswordData();
+      router.replace("/auth/login");
+    };
+
+    const resetIdleTimer = () => {
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+
+      idleTimerRef.current = setTimeout(handleIdleTimeout, IDLE_TIMEOUT_MS);
+    };
+
+    resetIdleTimer();
+
+    const events = ["mousedown", "keydown", "touchstart", "click"];
+
+    events.forEach((event) => {
+      document.addEventListener(event, resetIdleTimer, { passive: true });
+    });
+
+    return () => {
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+      events.forEach((event) => {
+        document.removeEventListener(event, resetIdleTimer);
+      });
+    };
+  }, [clearForgotPasswordData, router]);
 
   if (!initialized.current && hiddenInputRef.current) {
     initialized.current = true;

@@ -2,6 +2,7 @@
 
 import React, { memo } from "react";
 import { useMockInterviewState } from "@/hooks/useMockInterviewState";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HowItWorks } from "./HowItWorks";
 import { FieldSelector } from "./FieldSelector";
 import { JobRoleSelector } from "./JobRoleSelector";
@@ -11,42 +12,95 @@ import { QuestionsList } from "./QuestionsList";
 const MockInterviewContainerComponent = () => {
   const { state, actions } = useMockInterviewState();
 
+  const getBreadcrumbItems = () => {
+    type BreadcrumbItem = {
+      label: string;
+      href?: string;
+      current?: boolean;
+      onClick?: () => void;
+    };
+
+    const items: BreadcrumbItem[] = [
+      { label: "Dashboard", href: "/dashboard" },
+    ];
+
+    if (state.currentStep === "field") {
+      items.push({ label: "Mock Interview", current: true });
+    } else if (state.selectedField) {
+      items.push({
+        label: "Mock Interview",
+        onClick: () => actions.reset(),
+      });
+
+      const fieldName =
+        state.selectedField.charAt(0).toUpperCase() +
+        state.selectedField.slice(1).toLowerCase();
+
+      items.push({ label: fieldName, current: true });
+    }
+
+    return items;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-900">
-            Practice Job Interviews with{" "}
-            <span className="text-adult-green">Confidence</span>
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            Your safe space to prepare for job interviews and first impressions.
-          </p>
-        </div>
-
-        {/* Main Content */}
-        {state.currentStep === "field" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column - How it Works */}
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <HowItWorks />
-            </div>
-
-            {/* Right Column - Field Selection */}
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <FieldSelector onSelectField={actions.selectField} />
-            </div>
+    <div
+      className="bg-white w-full"
+      style={{
+        minHeight: "100vh",
+        WebkitOverflowScrolling: "touch",
+        touchAction: "pan-y",
+        overflow: "visible",
+      }}
+    >
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Breadcrumbs */}
+          <div className="mb-3">
+            <Breadcrumb items={getBreadcrumbItems()} />
           </div>
-        ) : (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm p-8">
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+        <div className="max-w-5xl w-full mx-auto">
+          {state.currentStep === "field" ? (
+            <div className="grid grid-cols-1 lg:grid-cols-[3fr_1px_2fr] lg:gap-8 gap-y-8">
+              {/* Left Column - Title and How it Works */}
+              <div className="space-y-6 lg:space-y-10 pt-0">
+                <div className="text-center lg:text-left">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 lg:mb-3 leading-snug">
+                    Practice Job Interviews with{" "}
+                    <span className="text-adult-green bg-adult-green/10 px-3 sm:px-6 py-1 rounded-lg">
+                      Confidence
+                    </span>
+                  </h1>
+                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    Your safe space to prepare for job interviews and first
+                    impressions.
+                  </p>
+                </div>
+
+                <div>
+                  <HowItWorks />
+                </div>
+              </div>
+
+              {/* Vertical Divider */}
+              <div className="hidden lg:block bg-gray-200" />
+
+              {/* Right Column - Field Selection */}
+              <div>
+                <FieldSelector onSelectField={actions.selectField} />
+              </div>
+            </div>
+          ) : (
+            <>
               {state.currentStep === "jobRole" &&
                 state.selectedField &&
                 state.selectedField.toLowerCase() !== "general" && (
                   <JobRoleSelector
                     selectedIndustry={state.selectedField}
-                    onBack={actions.goBack}
                     onSelectJobRole={actions.selectJobRole}
                   />
                 )}
@@ -57,7 +111,6 @@ const MockInterviewContainerComponent = () => {
                   <InterviewGuidelines
                     selectedIndustry={state.selectedField}
                     selectedJobRole={state.selectedJobRole}
-                    onBack={actions.goBack}
                     onNext={actions.startQuestions}
                   />
                 )}
@@ -71,12 +124,11 @@ const MockInterviewContainerComponent = () => {
                     selectedJobRole={state.selectedJobRole}
                     sessionId={state.sessionId}
                     sessionQuestions={state.sessionQuestions}
-                    onBack={actions.goBack}
                   />
                 )}
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

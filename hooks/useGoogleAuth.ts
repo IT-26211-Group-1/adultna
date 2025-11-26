@@ -1,3 +1,5 @@
+import { logger } from "@/lib/logger";
+
 const generateCodeVerifier = (): string => {
   const array = new Uint8Array(32);
 
@@ -41,7 +43,7 @@ export const useGoogleAuth = () => {
     const prompt = "consent";
 
     if (!clientId) {
-      console.error("Google Client ID not configured");
+      logger.error("Google Client ID not configured");
 
       return;
     }

@@ -3,10 +3,14 @@
 import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { addToast } from "@heroui/toast";
+import { logger } from "@/lib/logger";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/apiClient";
 
 export const useGoogleCallback = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -19,7 +23,7 @@ export const useGoogleCallback = () => {
       const error = searchParams.get("error");
 
       if (error) {
-        console.error("❌ OAuth error parameter:", error);
+        logger.error("❌ OAuth error parameter:", error);
         addToast({
           title: "Authentication Error",
           description: "Google authentication was cancelled or failed",
@@ -31,10 +35,10 @@ export const useGoogleCallback = () => {
       }
 
       if (!code) {
-        console.error("❌ No authorization code received");
+        logger.error("❌ No authorization code received");
         addToast({
-          title: "Authentication Error",
-          description: "No authorization code received",
+          title: "Authentication Failed",
+          description: "No authorization code received from Google",
           color: "danger",
         });
         router.replace("/auth/login");
@@ -45,20 +49,24 @@ export const useGoogleCallback = () => {
       const storedState = sessionStorage.getItem("oauth_state");
       const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
 
-      sessionStorage.removeItem("oauth_state");
-      sessionStorage.removeItem("pkce_code_verifier");
-
       if (!state || state !== storedState) {
-        console.error("❌ State validation failed:", { state, storedState });
+        logger.error("❌ State validation failed:", { state, storedState });
         addToast({
           title: "Security Error",
           description: "Invalid state parameter",
           color: "danger",
         });
+
+        // Clean up before redirect
+        sessionStorage.removeItem("oauth_state");
+        sessionStorage.removeItem("pkce_code_verifier");
         router.replace("/auth/login");
 
         return;
       }
+
+      // Clear state after validation
+      sessionStorage.removeItem("oauth_state");
 
       let mode: "login" | "register" = "login";
 
@@ -67,15 +75,17 @@ export const useGoogleCallback = () => {
 
         mode = stateData.mode || "login";
       } catch (error) {
-        console.error("Failed to parse state:", error);
+        logger.error("Failed to parse state:", error);
       }
 
       if (!codeVerifier) {
+        logger.error("❌ PKCE verifier not found in sessionStorage");
         addToast({
           title: "Authentication Error",
           description: "PKCE verifier not found",
           color: "danger",
         });
+        sessionStorage.removeItem("pkce_code_verifier");
         router.replace("/auth/login");
 
         return;
@@ -85,6 +95,7 @@ export const useGoogleCallback = () => {
       if (mode === "register") {
         // Store OAuth data for authorization page
         sessionStorage.setItem("google_oauth_code", code);
+        // Keep codeVerifier in sessionStorage for authorize page to use
         sessionStorage.setItem("pkce_code_verifier", codeVerifier);
 
         // Store mode for authorization page
@@ -96,8 +107,12 @@ export const useGoogleCallback = () => {
         return;
       }
 
+      // For login mode, clear the codeVerifier after we're done with it
+      sessionStorage.removeItem("pkce_code_verifier");
+
       // For login, proceed with authentication
       try {
+        const redirectUri = `${window.location.origin}/auth/google/callback`;
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API}/auth/google/callback?mode=${mode}`,
           {
@@ -109,6 +124,7 @@ export const useGoogleCallback = () => {
             body: JSON.stringify({
               code,
               codeVerifier,
+              redirectUri,
             }),
           },
         );
@@ -122,13 +138,21 @@ export const useGoogleCallback = () => {
             color: "success",
           });
 
-          setTimeout(() => {
-            if (data.isNew) {
-              router.replace("/auth/onboarding");
-            } else {
-              router.replace("/dashboard");
-            }
-          }, 300);
+          // Invalidate and refetch auth cache to ensure synchronized state
+          await queryClient.invalidateQueries({
+            queryKey: queryKeys.auth.me(),
+          });
+
+          await queryClient.refetchQueries({
+            queryKey: queryKeys.auth.me(),
+          });
+
+          // Navigate after cache is refreshed
+          if (data.isNew) {
+            router.replace("/auth/onboarding");
+          } else {
+            router.replace("/dashboard");
+          }
         } else {
           addToast({
             title: "Authentication Failed",
@@ -138,7 +162,7 @@ export const useGoogleCallback = () => {
           router.replace("/auth/login");
         }
       } catch (error) {
-        console.error("Google auth error:", error);
+        logger.error("Google auth error:", error);
         addToast({
           title: "Authentication Error",
           description: "Failed to authenticate with Google",

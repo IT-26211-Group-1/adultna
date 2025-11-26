@@ -2,6 +2,7 @@
 
 import { API_CONFIG } from "@/config/api";
 import { PUBLIC_ROUTES } from "@/config/site";
+import { logger } from "@/lib/logger";
 
 export const API_BASE_URL = API_CONFIG.API_URL;
 export const ONBOARDING_API_BASE_URL = API_CONFIG.API_URL;
@@ -71,7 +72,8 @@ export class ApiClient {
           response.status === 401 &&
           !isRetry &&
           !endpoint.includes("/refresh-token") &&
-          !endpoint.includes("/login")
+          !endpoint.includes("/login") &&
+          !endpoint.includes("/forgot-password")
         ) {
           try {
             const refreshUrl = baseUrl.includes("/admin")
@@ -84,7 +86,7 @@ export class ApiClient {
             });
 
             if (!refreshResponse.ok) {
-              console.log(
+              logger.log(
                 "[ApiClient] ❌ Refresh failed - refresh token expired, logging out",
               );
 
@@ -94,7 +96,11 @@ export class ApiClient {
 
                 // Only redirect if not already on a public route
                 if (!isPublicRoute(currentPath)) {
-                  window.location.href = "/auth/login";
+                  const loginPath = currentPath.startsWith("/admin")
+                    ? "/admin/login"
+                    : "/auth/login";
+
+                  window.location.href = loginPath;
                 }
               }
 
@@ -104,7 +110,7 @@ export class ApiClient {
             // Retry the original request once
             return this.request<T>(endpoint, options, baseUrl, true);
           } catch (error) {
-            console.log("[ApiClient] ❌ Token refresh error:", error);
+            logger.log("[ApiClient] ❌ Token refresh error:", error);
 
             // If refresh fails, logout user
             if (typeof window !== "undefined") {
@@ -112,7 +118,11 @@ export class ApiClient {
 
               // Only redirect if not already on a public route
               if (!isPublicRoute(currentPath)) {
-                window.location.href = "/auth/login";
+                const loginPath = currentPath.startsWith("/admin")
+                  ? "/admin/login"
+                  : "/auth/login";
+
+                window.location.href = loginPath;
               }
             }
 
@@ -124,12 +134,12 @@ export class ApiClient {
           }
         }
 
-        throw new ApiError(
-          errorData?.message ||
-            `HTTP ${response.status}: ${response.statusText}`,
-          response.status,
-          errorData,
-        );
+        const errorMessage =
+          typeof errorData?.message === "string"
+            ? errorData.message
+            : `HTTP ${response.status}: ${response.statusText}`;
+
+        throw new ApiError(errorMessage, response.status, errorData);
       }
 
       const contentType = response.headers.get("content-type");
@@ -311,6 +321,18 @@ export const queryKeys = {
       detail: (questionId: number) =>
         ["admin", "onboarding", "detail", questionId] as const,
     },
+    auditLogs: {
+      all: ["admin", "auditLogs"] as const,
+      list: (filters?: {
+        startTime?: Date;
+        endTime?: Date;
+        service?: string;
+        action?: string;
+        userEmail?: string;
+        status?: "success" | "failure";
+        limit?: number;
+      }) => ["admin", "auditLogs", "list", filters] as const,
+    },
   },
 
   // Jobs queries
@@ -334,5 +356,43 @@ export const queryKeys = {
         : (["filebox", "list"] as const),
     detail: (fileId: string) => ["filebox", "detail", fileId] as const,
     quota: () => ["filebox", "quota"] as const,
+  },
+
+  // Resume queries
+  resumes: {
+    all: ["resumes"] as const,
+    list: () => ["resumes", "list"] as const,
+    detail: (resumeId: string) => ["resumes", "detail", resumeId] as const,
+    contactInfo: (resumeId: string) =>
+      ["resumes", "contactInfo", resumeId] as const,
+  },
+
+  // Cover Letter queries
+  coverLetters: {
+    all: ["coverLetters"] as const,
+    list: () => ["coverLetters", "list"] as const,
+    detail: (coverLetterId: string) =>
+      ["coverLetters", "detail", coverLetterId] as const,
+  },
+
+  // Roadmap queries
+  roadmap: {
+    all: ["roadmap"] as const,
+    milestones: () => ["roadmap", "milestones"] as const,
+    milestone: (milestoneId: string) =>
+      ["roadmap", "milestone", milestoneId] as const,
+    byStatus: (status: string) => ["roadmap", "byStatus", status] as const,
+    byCategory: (category: string) =>
+      ["roadmap", "byCategory", category] as const,
+  },
+
+  // Dashboard queries
+  dashboard: {
+    all: ["dashboard"] as const,
+    summary: () => ["dashboard", "summary"] as const,
+    notifications: (limit?: number) =>
+      limit
+        ? (["dashboard", "notifications", limit] as const)
+        : (["dashboard", "notifications"] as const),
   },
 } as const;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { memo } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useLifeStage } from "../hooks/useLifeStage";
 
 type LifeStageStepProps = {
@@ -11,6 +11,7 @@ type LifeStageStepProps = {
   ) => void;
   onNext: () => void;
   onSkip: () => void;
+  onBack?: () => void;
 };
 
 function LifeStageStep({
@@ -18,6 +19,7 @@ function LifeStageStep({
   setSelectedLifeStage,
   onNext,
   onSkip,
+  onBack,
 }: LifeStageStepProps) {
   const { lifeStageQuestion, loading, error, isSelected, createSelectHandler } =
     useLifeStage();
@@ -92,12 +94,22 @@ function LifeStageStep({
         </div>
 
         <div className="flex justify-between">
-          <button
-            className="text-gray-500 hover:text-gray-700 px-6 py-2 font-medium transition-colors"
-            onClick={onSkip}
-          >
-            Skip
-          </button>
+          <div className="flex gap-2">
+            {onBack && (
+              <button
+                className="text-gray-500 hover:text-gray-700 px-6 py-2 font-medium transition-colors inline-flex items-center gap-2"
+                onClick={onBack}
+              >
+                <ChevronLeft size={16} /> Back
+              </button>
+            )}
+            <button
+              className="text-gray-500 hover:text-gray-700 px-6 py-2 font-medium transition-colors"
+              onClick={onSkip}
+            >
+              Skip
+            </button>
+          </div>
           <button
             className="bg-teal-700 hover:bg-teal-800 text-white px-6 py-2 rounded-lg font-medium transition-colors inline-flex items-center gap-2"
             onClick={onNext}

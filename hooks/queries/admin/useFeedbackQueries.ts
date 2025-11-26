@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, queryKeys } from "@/lib/apiClient";
+import { logger } from "@/lib/logger";
 
 // Types
 export type FeedbackStatus = "pending" | "resolved";
@@ -243,7 +244,7 @@ export function useFeedback() {
 
       return validItems;
     } catch (error) {
-      console.error("Error processing feedback data:", error);
+      logger.error("Error processing feedback data:", error);
 
       return [];
     }

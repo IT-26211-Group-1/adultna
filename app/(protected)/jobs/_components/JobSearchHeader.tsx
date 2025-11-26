@@ -174,7 +174,7 @@ export default function JobSearchHeader({
             onClick={handleSearch}
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
             ) : (
               <>
                 <svg
