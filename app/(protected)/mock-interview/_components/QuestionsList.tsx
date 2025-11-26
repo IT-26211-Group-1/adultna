@@ -41,6 +41,8 @@ export const QuestionsList = memo(function QuestionsList({
   const [gradingProgress, setGradingProgress] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
   const [isGrading, setIsGrading] = useState(false);
+  const [isGradingCurrentQuestion, setIsGradingCurrentQuestion] =
+    useState(false);
 
   const {
     answers,
@@ -61,12 +63,18 @@ export const QuestionsList = memo(function QuestionsList({
       saveCurrentAnswer(question.id);
 
       if (currentAnswer.trim() && !submittedAnswerIds.has(question.id)) {
-        submitForGrading(question.id, question.question).catch((error) => {
+        setIsGradingCurrentQuestion(true);
+        try {
+          await submitForGrading(question.id, question.question);
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+        } catch (error) {
           logger.error(
             `[QuestionsList] ❌ Failed to grade answer ${question.id}:`,
             error,
           );
-        });
+        } finally {
+          setIsGradingCurrentQuestion(false);
+        }
       }
     }
     audio.tts.stop();
@@ -169,10 +177,16 @@ export const QuestionsList = memo(function QuestionsList({
         currentAnswer.trim() &&
         !submittedAnswerIds.has(navigation.currentQuestion.id)
       ) {
-        lastAnswerId = await submitForGrading(
-          navigation.currentQuestion.id,
-          navigation.currentQuestion.question,
-        );
+        setIsGradingCurrentQuestion(true);
+        try {
+          lastAnswerId = await submitForGrading(
+            navigation.currentQuestion.id,
+            navigation.currentQuestion.question,
+          );
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+        } finally {
+          setIsGradingCurrentQuestion(false);
+        }
       }
     }
 
@@ -481,7 +495,7 @@ export const QuestionsList = memo(function QuestionsList({
                 {!navigation.isFirstQuestion && (
                   <button
                     className="px-4 py-2 border-2 border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-400 rounded-full font-medium transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isGradingCurrentQuestion}
                     onClick={navigation.goPrevious}
                   >
                     Previous
@@ -494,7 +508,7 @@ export const QuestionsList = memo(function QuestionsList({
                   {!navigation.isLastQuestion && (
                     <button
                       className="px-5 py-2 border-2 border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-400 rounded-full transition-all duration-200 font-medium hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isGradingCurrentQuestion}
                       onClick={navigation.skip}
                     >
                       Skip
@@ -505,13 +519,13 @@ export const QuestionsList = memo(function QuestionsList({
                   {navigation.isLastQuestion ? (
                     <button
                       className="px-6 py-2 border-2 border-adult-green text-adult-green rounded-full font-medium transition-all duration-200 flex items-center gap-2 hover:bg-adult-green hover:text-white hover:shadow-md hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isGradingCurrentQuestion}
                       onClick={handleFinishInterview}
                     >
-                      {isSubmitting ? (
+                      {isSubmitting || isGradingCurrentQuestion ? (
                         <>
                           <Spinner color="current" size="sm" />
-                          Evaluating...
+                          {isGradingCurrentQuestion ? "Grading..." : "Evaluating..."}
                         </>
                       ) : (
                         "Finish Interview"
@@ -519,11 +533,20 @@ export const QuestionsList = memo(function QuestionsList({
                     </button>
                   ) : (
                     <button
-                      className="px-6 py-2 border-2 border-adult-green text-adult-green rounded-full font-medium transition-all duration-200 hover:bg-adult-green hover:text-white hover:shadow-md hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={isSubmitting || isGrading}
+                      className="px-6 py-2 border-2 border-adult-green text-adult-green rounded-full font-medium transition-all duration-200 hover:bg-adult-green hover:text-white hover:shadow-md hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      disabled={
+                        isSubmitting || isGrading || isGradingCurrentQuestion
+                      }
                       onClick={navigation.goNext}
                     >
-                      Next
+                      {isGradingCurrentQuestion ? (
+                        <>
+                          <Spinner color="current" size="sm" />
+                          Grading...
+                        </>
+                      ) : (
+                        "Next"
+                      )}
                     </button>
                   )}
                 </div>
