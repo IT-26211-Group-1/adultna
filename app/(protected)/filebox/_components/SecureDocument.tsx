@@ -43,7 +43,7 @@ export function SecureDocument({
   onClose,
   onSuccess,
 }: SecureDocumentProps) {
-  const { setSecureItem, removeSecureItem } = useSecureStorage();
+  const { setSecureItem, getSecureItem, removeSecureItem } = useSecureStorage();
 
   // Use provided fileId or fall back to file.id
   const actualFileId = fileId || file.id;
@@ -91,6 +91,27 @@ export function SecureDocument({
     initialized.current = true;
     hiddenInputRef.current.focus();
   }
+
+  // Restore cooldown from secure storage on mount
+  useEffect(() => {
+    const storedExpiry = getSecureItem(cooldownKey);
+
+    if (storedExpiry) {
+      const expiryTime = parseInt(storedExpiry, 10);
+      const remainingSeconds = Math.max(
+        0,
+        Math.ceil((expiryTime - Date.now()) / 1000),
+      );
+
+      if (remainingSeconds > 0) {
+        setCooldown(remainingSeconds);
+        setOtpSent(true); // User already requested OTP
+      } else {
+        // Cooldown expired, clean up storage
+        removeSecureItem(cooldownKey);
+      }
+    }
+  }, [cooldownKey, getSecureItem, removeSecureItem]);
 
   // Countdown timer for lockout
   useEffect(() => {
