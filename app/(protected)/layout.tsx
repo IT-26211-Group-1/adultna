@@ -19,7 +19,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   return (
     <ProtectedRoute roles={["user"]}>
       {isAIGabayPage || isMockInterviewPage ? (
-        <div className="w-full h-screen overflow-hidden">{children}</div>
+        <div className="w-full min-h-screen overflow-auto">{children}</div>
       ) : (
         <UserSidebar>{children}</UserSidebar>
       )}

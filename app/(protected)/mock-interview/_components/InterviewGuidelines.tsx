@@ -2,7 +2,7 @@
 
 import React, { memo, useEffect, useState } from "react";
 import { useCreateInterviewSession } from "@/hooks/queries/admin/useInterviewQuestionQueries";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useInterviewAudio } from "@/hooks/useInterviewAudio";
 import { useAuth } from "@/hooks/useAuth";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
 import type { SessionQuestion } from "@/types/interview-question";
@@ -27,34 +27,14 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
   const { createSessionAsync, isCreatingSession, createSessionError } =
     useCreateInterviewSession();
 
-  const { speak, stop, isSpeaking, isReady } = useTextToSpeech();
+  const userId = (user as any)?.userId || "";
+  const audio = useInterviewAudio(speechText, userId, true);
 
-  // Initialize mute state from storage
-  const [isMuted, setIsMuted] = useState(() => {
-    const saved = getSecureItem("interview_tts_muted");
-
-    return saved === "true";
-  });
-
-  // Auto-speak when voice is ready and not muted
+  // Auto-play audio when ready and not muted
   useEffect(() => {
-    if (isReady && !isMuted) {
-      speak(speechText);
-    }
-  }, [isReady, isMuted, speak, speechText]);
-
-  const handleToggleSpeech = () => {
-    const newMuted = !isMuted;
-
-    setIsMuted(newMuted);
-    setSecureItem("interview_tts_muted", String(newMuted), 60 * 24 * 30); // 30 days expiry
-
-    if (newMuted && isSpeaking) {
-      stop();
-    } else if (!newMuted) {
-      speak(speechText);
-    }
-  };
+    // The useInterviewAudio hook handles auto-playing based on mute state
+    // No additional logic needed here
+  }, []);
 
   const handleNextClick = async () => {
     const userId = user?.id;
@@ -92,9 +72,9 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
             <span className="text-adult-green">Interview-Ready</span>
           </h1>
           <AutoPlayToggle
-            isMuted={isMuted}
-            isReady={isReady}
-            onToggle={handleToggleSpeech}
+            isMuted={audio.tts.isMuted}
+            isReady={!audio.tts.isLoadingAudio}
+            onToggle={audio.tts.toggleMute}
           />
         </div>
 
@@ -144,7 +124,7 @@ export const InterviewGuidelines = memo(function InterviewGuidelines({
                     fill="currentColor"
                   />
                 </svg>
-                I&apos;m Ready!
+                I'm Ready!
               </>
             ) : (
               "I'm Ready!"

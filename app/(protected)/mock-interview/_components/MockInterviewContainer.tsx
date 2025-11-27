@@ -43,15 +43,7 @@ const MockInterviewContainerComponent = () => {
   };
 
   return (
-    <div
-      className="bg-white w-full"
-      style={{
-        minHeight: "100vh",
-        WebkitOverflowScrolling: "touch",
-        touchAction: "pan-y",
-        overflow: "visible",
-      }}
-    >
+    <div className="bg-white w-full min-h-screen">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumbs */}
