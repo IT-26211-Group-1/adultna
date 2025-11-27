@@ -7,6 +7,7 @@ import { useSecureStorage } from "@/hooks/useSecureStorage";
 import { useGetAnswersByIds } from "@/hooks/queries/useInterviewAnswers";
 import type { InterviewAnswer } from "@/types/interview-answer";
 import ReactMarkdown from "react-markdown";
+import GaugeComponent from "react-gauge-component";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { ResultsLoadingSkeleton } from "./ResultsLoadingSkeleton";
 import { StarMetricCards } from "./StarMetricCards";
@@ -182,30 +183,32 @@ export function InterviewResults() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header with Breadcrumbs */}
-      <div className="bg-gray-50 border-b border-gray-100">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <Breadcrumb items={breadcrumbItems} />
+    <div className="bg-white w-full min-h-screen">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Breadcrumbs */}
+          <div className="mb-3">
+            <Breadcrumb items={breadcrumbItems} />
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section - Celebration */}
-        <div className="text-center mb-16">
+        <div className="text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium mb-6">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             Interview Complete
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
             You&apos;re One Step Closer
             <br />
             <span className="text-adult-green">to the Real Thing!</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
             You&apos;ve completed {sessionMetadata.answeredQuestions} out of{" "}
             {sessionMetadata.totalQuestions} questions — great job!
             Practicing your answers is a key step toward showing up confident.
@@ -214,69 +217,63 @@ export function InterviewResults() {
 
         {/* Score Section */}
         <div className="mb-16">
-          <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 md:p-12 border border-gray-100">
+          <div className="p-8 md:p-12 border-b border-gray-200">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-8">
                 Your Overall Score
               </h2>
 
-              {/* Enhanced Score Gauge */}
-              <div className="relative w-80 h-40 mx-auto mb-8">
-                <svg className="w-full h-full" viewBox="0 0 320 160">
-                  {/* Background Arc */}
-                  <path
-                    d="M 40 160 A 120 120 0 0 1 280 160"
-                    fill="none"
-                    stroke="#F3F4F6"
-                    strokeLinecap="round"
-                    strokeWidth="24"
-                  />
-                  {/* Colored Arc */}
-                  <path
-                    d="M 40 160 A 120 120 0 0 1 280 160"
-                    fill="none"
-                    stroke="url(#scoreGradient)"
-                    strokeDasharray={`${(scorePercentage / 100) * 377} 377`}
-                    strokeLinecap="round"
-                    strokeWidth="24"
-                    style={{
-                      transition: "stroke-dasharray 1.5s ease-out",
-                    }}
-                  />
-                  <defs>
-                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#10B981" />
-                      <stop offset="100%" stopColor="#059669" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-6xl font-bold text-gray-900 mb-2">
-                    {scorePercentage}%
-                  </div>
-                  <p className="text-xl font-semibold text-adult-green">
+              {/* Professional Gauge Component */}
+              <div className="w-96 h-64 mx-auto mb-8">
+                <GaugeComponent
+                  value={scorePercentage}
+                  type="semicircle"
+                  arc={{
+                    colorArray: ['#EF4444', '#F59E0B', '#10B981'],
+                    padding: 0.02,
+                    subArcs: [
+                      { limit: 40 },
+                      { limit: 70 },
+                      { limit: 100 }
+                    ]
+                  }}
+                  pointer={{
+                    type: "blob",
+                    animationDelay: 0
+                  }}
+                  labels={{
+                    valueLabel: {
+                      formatTextValue: (value: number) => `${value}%`,
+                      style: {
+                        fontSize: '64px',
+                        fontWeight: 'bold',
+                        fill: '#1F2937'
+                      }
+                    }
+                  }}
+                />
+                {/* Score Label Below */}
+                <div className="text-center mt-6">
+                  <p className="text-2xl font-semibold text-adult-green">
                     {scoreLabel}
                   </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <Button
-                  className="flex-1 bg-adult-green text-white hover:bg-adult-green/90 font-semibold text-base py-6"
-                  size="lg"
-                  onPress={handleRetake}
+              <div className="flex flex-col items-center gap-4">
+                <button
+                  className="px-6 py-3 border-2 border-adult-green text-adult-green rounded-full font-medium transition-all duration-200 hover:bg-adult-green hover:text-white hover:shadow-md hover:scale-105 active:scale-95 active:shadow-sm"
+                  onClick={handleRetake}
                 >
                   Practice Again
-                </Button>
-                <Button
-                  className="flex-1 border-2 border-gray-200 bg-white text-gray-700 hover:bg-gray-50 font-semibold text-base py-6"
-                  size="lg"
-                  variant="bordered"
-                  onPress={() => router.push("/dashboard")}
+                </button>
+                <button
+                  className="px-6 py-3 bg-transparent text-gray-600 rounded-full font-medium transition-all duration-200 hover:text-gray-800 hover:scale-105 active:scale-95"
+                  onClick={() => router.push("/dashboard")}
                 >
-                  Dashboard
-                </Button>
+                  Proceed to Dashboard
+                </button>
               </div>
             </div>
           </div>
