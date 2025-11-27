@@ -388,6 +388,7 @@ function WorkExperienceItem({
 
       <Input
         {...form.register(`workExperiences.${index}.jobTitle`)}
+        isRequired
         errorMessage={
           form.formState.errors.workExperiences?.[index]?.jobTitle?.message
         }
@@ -398,6 +399,7 @@ function WorkExperienceItem({
 
       <Input
         {...form.register(`workExperiences.${index}.employer`)}
+        isRequired
         errorMessage={
           form.formState.errors.workExperiences?.[index]?.employer?.message
         }
@@ -432,6 +434,7 @@ function WorkExperienceItem({
 
             return (
               <DatePicker
+                isRequired
                 errorMessage={fieldState.error?.message}
                 isInvalid={!!fieldState.error}
                 label="Start Date"
@@ -500,7 +503,9 @@ function WorkExperienceItem({
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium">Job Description</span>
+          <span className="text-sm font-medium">
+            Job Description <span className="text-danger">*</span>
+          </span>
           <Button
             color="success"
             isLoading={isGeneratingAI}

@@ -36,7 +36,7 @@ export default function SkillBasedTemplate({
 
       {/* Contact Info - Centered, one line */}
       <div className="text-center text-xs text-gray-700">
-        {resumeData.phone && <span>+(0) {resumeData.phone}</span>}
+        {resumeData.phone && <span>{resumeData.phone}</span>}
         {resumeData.phone &&
           (resumeData.city || resumeData.region || resumeData.email) && (
             <span> | </span>

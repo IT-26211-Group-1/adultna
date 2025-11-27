@@ -9,9 +9,11 @@ export function ProblemSubject() {
         style={{ zIndex: 0 }}
       >
         <Image
-          alt="Road"
+          alt="Pathway representing the journey to adulthood"
           className="max-w-screen mr-3 h-auto object-cover opacity-70"
           height={1080}
+          loading="lazy"
+          quality={75}
           src="/Road.png"
           width={1920}
         />
@@ -22,10 +24,11 @@ export function ProblemSubject() {
           <div className="flex items-center justify-center w-50 h-50 mx-auto bg-white border-20 border-crayola-orange rounded-full shadow-inner shadow-gray-600">
             <span className="text-xl font-semibold text-gray-700">
               <Image
-                alt="Step 1"
+                alt="Document processing icon"
                 className="w-500 h-auto ml-1 inline-block"
                 height={1920}
-                src="2 1.svg"
+                loading="lazy"
+                src="/2 1.svg"
                 width={1080}
               />
             </span>
@@ -44,10 +47,11 @@ export function ProblemSubject() {
           <div className="flex items-center justify-center w-50 h-50 mx-auto bg-white border-20 border-peach-yellow rounded-full shadow-inner shadow-gray-600">
             <span className="text-xl font-semibold text-gray-700 ">
               <Image
-                alt="Step 2"
+                alt="Job search icon"
                 className="w-500 h-auto ml-1 inline-block"
                 height={1920}
-                src="5 1.svg"
+                loading="lazy"
+                src="/5 1.svg"
                 width={1080}
               />
             </span>
@@ -67,10 +71,11 @@ export function ProblemSubject() {
           <div className="flex items-center justify-center w-50 h-50 mx-auto bg-white border-20 border-periwinkle rounded-full shadow-inner shadow-gray-600">
             <span className="text-xl font-semibold text-gray-700">
               <Image
-                alt="Step 3"
+                alt="Real world navigation icon"
                 className="w-500 h-auto ml-1 inline-block"
                 height={1920}
-                src="4 1.svg"
+                loading="lazy"
+                src="/4 1.svg"
                 width={1080}
               />
             </span>

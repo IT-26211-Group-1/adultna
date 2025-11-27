@@ -19,17 +19,25 @@ export const contactSchema = z.object({
     .max(100, "Email must be less than 100 characters"),
   phone: z
     .string()
+    .min(1, "Phone number is required")
     .regex(
-      /^(\+?63|0)?9\d{9}$/,
-      "Please enter a valid Philippine mobile number (e.g., 09123456789)",
-    )
-    .or(z.string().regex(/^\d{10,12}$/, "Phone number must be 10-12 digits")),
+      /^(9\d{9}|09\d{9}|\+639\d{9})$/,
+      "Please enter a valid Philippine mobile number (e.g., 9123456789)",
+    ),
   city: z.string().max(50, "City must be less than 50 characters").optional(),
   region: z
     .string()
     .max(100, "Region must be less than 100 characters")
     .optional(),
-  birthDate: calendarDateToDate.optional(),
+  birthDate: calendarDateToDate
+    .optional()
+    .refine(
+      (date) => {
+        if (!date) return true;
+        return date <= new Date();
+      },
+      "Birth date cannot be in the future",
+    ),
   linkedin: z
     .string()
     .max(255, "LinkedIn URL must be less than 255 characters")

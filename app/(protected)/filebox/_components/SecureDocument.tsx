@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import Image from "next/image";
 import {
   Modal,
@@ -26,6 +26,7 @@ type OtpFormType = { otp: string };
 
 interface SecureDocumentProps {
   file: FileItem;
+  fileId?: string; // Optional: use this for OTP operations if provided
   action?: OTPAction;
   isOpen?: boolean;
   onClose?: () => void;
@@ -36,6 +37,7 @@ const COOLDOWN_SECONDS = 120; // 2 minutes cooldown
 
 export function SecureDocument({
   file,
+  fileId,
   action = "preview",
   isOpen = true,
   onClose,
@@ -43,10 +45,13 @@ export function SecureDocument({
 }: SecureDocumentProps) {
   const { setSecureItem, removeSecureItem } = useSecureStorage();
 
+  // Use provided fileId or fall back to file.id
+  const actualFileId = fileId || file.id;
+
   // Memoize the storage key for this file+action combination
   const cooldownKey = useMemo(
-    () => `otp_cooldown_${file.id}_${action}`,
-    [file.id, action],
+    () => `otp_cooldown_${actualFileId}_${action}`,
+    [actualFileId, action],
   );
 
   const [otpValue, setOtpValue] = useState("");
@@ -55,6 +60,11 @@ export function SecureDocument({
   const [successMessage, setSuccessMessage] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<Date | null>(null);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(
+    null,
+  );
 
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const initialized = useRef(false);
@@ -81,6 +91,35 @@ export function SecureDocument({
     initialized.current = true;
     hiddenInputRef.current.focus();
   }
+
+  // Countdown timer for lockout
+  useEffect(() => {
+    if (!lockedUntil) {
+      setLockoutSeconds(0);
+
+      return;
+    }
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      const remaining = Math.max(
+        0,
+        Math.ceil((lockedUntil.getTime() - now) / 1000),
+      );
+
+      setLockoutSeconds(remaining);
+
+      if (remaining === 0) {
+        setLockedUntil(null);
+        setErrorMessage("");
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [lockedUntil]);
 
   const handleOtpChange = (value: string) => {
     // Only allow digits and limit to 6 characters
@@ -132,7 +171,7 @@ export function SecureDocument({
 
     return new Promise((resolve, reject) => {
       requestOTPMutation.mutate(
-        { fileId: file.id, action },
+        { fileId: actualFileId, action },
         {
           onSuccess: (data) => {
             setSuccessMessage(data.message);
@@ -188,15 +227,71 @@ export function SecureDocument({
     setErrorMessage("");
     setSuccessMessage("");
 
+    // If valid, proceed to next step (OTP will be consumed)
+    if (action === "rename" || action === "unprotect") {
+      verifyOTPMutation.mutate(
+        { fileId: actualFileId, otp: data.otp, action },
+        {
+          onSuccess: async () => {
+            // Clear cooldown on successful verification
+            removeSecureItem(cooldownKey);
+            sessionStorage.removeItem(`otpTimer:${actualFileId}`);
+
+            if (action === "rename") {
+              setSuccessMessage("Access granted! You can now rename the file.");
+            } else if (action === "unprotect") {
+              setSuccessMessage(
+                "Access granted! Proceeding to confirmation...",
+              );
+            }
+
+            // OTP is verified and consumed - proceed to next step
+            onSuccess?.("verified"); // Pass flag indicating OTP was verified
+            onClose?.();
+          },
+          onError: (error: any) => {
+            logger.error(
+              `[SecureDocument] OTP verification failed for action: ${action}`,
+              error,
+            );
+
+            // Parse error response - could be in error.data or error.response
+            const errorData =
+              error.data || error.response?.data || error.response || {};
+
+            // Check if error contains lockout information
+            if (errorData.lockedUntil) {
+              const lockoutDate = new Date(errorData.lockedUntil);
+
+              setLockedUntil(lockoutDate);
+              setErrorMessage(
+                `Too many failed attempts. Please wait before trying again.`,
+              );
+            } else if (errorData.remainingAttempts !== undefined) {
+              setRemainingAttempts(errorData.remainingAttempts);
+              setErrorMessage(error.message || "Invalid OTP code.");
+            } else {
+              setErrorMessage(
+                error.message || "Invalid or expired OTP. Please try again.",
+              );
+            }
+          },
+        },
+      );
+
+      return;
+    }
+
+    // For other actions (preview, download, delete), verify OTP here
     verifyOTPMutation.mutate(
-      { fileId: file.id, otp: data.otp, action },
+      { fileId: actualFileId, otp: data.otp, action },
       {
         onSuccess: async (response) => {
           // Clear cooldown on successful verification
           removeSecureItem(cooldownKey);
 
           // Also clear ResendTimer's sessionStorage
-          sessionStorage.removeItem(`otpTimer:${file.id}`);
+          sessionStorage.removeItem(`otpTimer:${actualFileId}`);
 
           if (action === "delete") {
             setSuccessMessage("Access granted! Proceeding to delete...");
@@ -250,9 +345,27 @@ export function SecureDocument({
             `[SecureDocument] OTP verification failed for action: ${action}`,
             error,
           );
-          setErrorMessage(
-            error.message || "Invalid or expired OTP. Please try again.",
-          );
+
+          // Parse error response - could be in error.data or error.response
+          const errorData =
+            error.data || error.response?.data || error.response || {};
+
+          // Check if error contains lockout information
+          if (errorData.lockedUntil) {
+            const lockoutDate = new Date(errorData.lockedUntil);
+
+            setLockedUntil(lockoutDate);
+            setErrorMessage(
+              `Too many failed attempts. Please wait before trying again.`,
+            );
+          } else if (errorData.remainingAttempts !== undefined) {
+            setRemainingAttempts(errorData.remainingAttempts);
+            setErrorMessage(error.message || "Invalid OTP code.");
+          } else {
+            setErrorMessage(
+              error.message || "Invalid or expired OTP. Please try again.",
+            );
+          }
         },
       },
     );
@@ -297,7 +410,8 @@ export function SecureDocument({
                     </h3>
                     <div className="text-sm text-gray-700">
                       <p className="mb-2">
-                        You are requesting to {action} the secure document:
+                        You are requesting to <strong>{action}</strong> the
+                        secure document:
                       </p>
                       <p className="font-semibold text-[#11553F]">
                         {file.name}
@@ -308,7 +422,33 @@ export function SecureDocument({
                   {/* Error Message */}
                   {errorMessage && (
                     <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-                      {errorMessage}
+                      {lockoutSeconds > 0 ? (
+                        <div>
+                          <p>Too many failed attempts.</p>
+                          <p className="mt-2">
+                            Please wait{" "}
+                            <span className="font-semibold text-base">
+                              {lockoutSeconds}
+                            </span>{" "}
+                            {lockoutSeconds === 1 ? "second" : "seconds"} before
+                            trying again.
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          {errorMessage}
+                          {remainingAttempts !== null &&
+                            remainingAttempts > 0 && (
+                              <div className="mt-1 text-xs">
+                                {remainingAttempts}{" "}
+                                {remainingAttempts === 1
+                                  ? "attempt"
+                                  : "attempts"}{" "}
+                                remaining
+                              </div>
+                            )}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -330,8 +470,8 @@ export function SecureDocument({
                     }}
                   >
                     {requestOTPMutation.isPending
-                      ? "Sending Verification Code..."
-                      : "Send Verification Code"}
+                      ? `Sending OTP to ${action.charAt(0).toUpperCase() + action.slice(1)}...`
+                      : `Send OTP to ${action.charAt(0).toUpperCase() + action.slice(1)}`}
                   </Button>
 
                   <p className="text-gray-500 text-xs leading-relaxed">
@@ -355,7 +495,33 @@ export function SecureDocument({
                   {/* Error Message */}
                   {errorMessage && (
                     <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-                      {errorMessage}
+                      {lockoutSeconds > 0 ? (
+                        <div>
+                          <p>Too many failed attempts.</p>
+                          <p className="mt-2">
+                            Please wait{" "}
+                            <span className="font-semibold text-base">
+                              {lockoutSeconds}
+                            </span>{" "}
+                            {lockoutSeconds === 1 ? "second" : "seconds"} before
+                            trying again.
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          {errorMessage}
+                          {remainingAttempts !== null &&
+                            remainingAttempts > 0 && (
+                              <div className="mt-1 text-xs">
+                                {remainingAttempts}{" "}
+                                {remainingAttempts === 1
+                                  ? "attempt"
+                                  : "attempts"}{" "}
+                                remaining
+                              </div>
+                            )}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -433,7 +599,9 @@ export function SecureDocument({
                     <Button
                       className="w-full py-3 bg-[#11553F] hover:bg-[#0d4532] text-white font-medium rounded-lg"
                       isDisabled={
-                        verifyOTPMutation.isPending || otpValue.length !== 6
+                        verifyOTPMutation.isPending ||
+                        otpValue.length !== 6 ||
+                        lockoutSeconds > 0
                       }
                       type="submit"
                       variant="solid"
@@ -452,7 +620,7 @@ export function SecureDocument({
                         cooldown={cooldown}
                         handleResendOtp={handleResendOtp}
                         resending={requestOTPMutation.isPending}
-                        verificationToken={file.id}
+                        verificationToken={actualFileId}
                       />
                       <span className="text-gray-300">|</span>
                       <button
