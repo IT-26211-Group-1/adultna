@@ -48,6 +48,7 @@ export function RoadmapModel({
       {/* The 3D roadmap model */}
       <primitive object={scene} />
 
+
       {/* Invisible clickable hitboxes for each milestone */}
       {milestones.map((milestone) => {
         const position = positionCoordinates[milestone.positionNumber || 1];

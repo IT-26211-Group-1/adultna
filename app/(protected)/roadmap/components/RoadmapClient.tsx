@@ -164,18 +164,28 @@ export function RoadmapClient() {
           camera={{ position: [0, 5, 15], fov: 55 }}
           className="w-full h-full"
           resize={{ scroll: false, debounce: { scroll: 50, resize: 100 } }}
+          // Performance optimizations for mobile devices
+          dpr={Math.min(window.devicePixelRatio, 2)} // Cap pixel ratio to prevent high-DPI lag
+          performance={{ min: 0.5 }} // Auto frame rate adjustment when performance drops
+          gl={{
+            antialias: false, // Disable anti-aliasing for better performance
+            alpha: true, // Enable transparency for proper background rendering
+            powerPreference: "high-performance", // Request dedicated GPU if available
+            stencil: false // Disable stencil buffer (not needed for this scene)
+          }}
           onClick={handleCanvasClick}
         >
           <CameraController
             animation={CAMERA_ANIMATION}
             milestoneAnimation={milestoneAnimation}
           />
+          {/* Lighting setup optimized for performance vs visual quality balance */}
           {/* eslint-disable-next-line react/no-unknown-property */}
-          <ambientLight intensity={1.2} />
+          <ambientLight intensity={1.0} /> {/* Base lighting for overall visibility */}
           {/* eslint-disable-next-line react/no-unknown-property */}
-          <directionalLight intensity={2} position={[10, 15, 10]} />
+          <directionalLight intensity={1.5} position={[10, 15, 10]} /> {/* Main light source */}
           {/* eslint-disable-next-line react/no-unknown-property */}
-          <pointLight intensity={1.5} position={[0, 20, 0]} />
+          <hemisphereLight intensity={0.4} groundColor="#444444" /> {/* Soft ground reflection */}
           <Suspense fallback={null}>
             <RoadmapModel
               milestones={milestones}
