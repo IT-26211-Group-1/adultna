@@ -41,6 +41,7 @@ import AISuggestions from "../AISuggestions";
 export default function WorkExperienceForm({
   resumeData,
   setResumeData,
+  onValidationChange,
 }: EditorFormProps) {
   const isSyncingRef = useRef(false);
   const previousDataRef = useRef<string>("");
@@ -117,6 +118,26 @@ export default function WorkExperienceForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (onValidationChange) {
+      const values = form.getValues();
+      const hasAtLeastOneValidExperience = !!(
+        values.workExperiences &&
+        values.workExperiences.some(
+          (exp) =>
+            exp.jobTitle?.trim() &&
+            exp.employer?.trim() &&
+            exp.startDate &&
+            exp.description?.trim(),
+        )
+      );
+      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+      const isValid = hasAtLeastOneValidExperience && hasNoErrors;
+
+      onValidationChange(isValid);
+    }
+  }, [form.formState.errors, form, onValidationChange]);
 
   useEffect(() => {
     if (

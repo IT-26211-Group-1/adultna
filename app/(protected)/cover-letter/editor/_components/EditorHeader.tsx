@@ -4,6 +4,7 @@ import { Button } from "@heroui/react";
 import { Download } from "lucide-react";
 import InlineEditableTitle from "./InlineEditableTitle";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
+import { BackButton } from "@/components/ui/BackButton";
 
 type EditorHeaderProps = {
   coverLetterId: string;
@@ -14,6 +15,7 @@ type EditorHeaderProps = {
   onTitleChange: (newTitle: string) => void;
   onExport: () => void;
   isExporting: boolean;
+  onBack: () => void;
 };
 
 export default function EditorHeader({
@@ -25,11 +27,13 @@ export default function EditorHeader({
   onTitleChange,
   onExport,
   isExporting,
+  onBack,
 }: EditorHeaderProps) {
   return (
     <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          <BackButton label="Cover Letters" onClick={onBack} />
           <InlineEditableTitle
             coverLetterId={coverLetterId}
             currentTitle={title}

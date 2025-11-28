@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 export default function CertificationForm({
   resumeData,
   setResumeData,
+  onValidationChange,
 }: EditorFormProps) {
   const previousDataRef = useRef<string>("");
 
@@ -100,6 +101,20 @@ export default function CertificationForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (onValidationChange) {
+      const values = form.getValues();
+      const hasAtLeastOneValidCertificate = !!(
+        values.certificates &&
+        values.certificates.some((cert) => cert.certificate?.trim())
+      );
+      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+      const isValid = hasAtLeastOneValidCertificate && hasNoErrors;
+
+      onValidationChange(isValid);
+    }
+  }, [form.formState.errors, form, onValidationChange]);
 
   useEffect(() => {
     if (resumeData.certificates && resumeData.certificates.length > 0) {

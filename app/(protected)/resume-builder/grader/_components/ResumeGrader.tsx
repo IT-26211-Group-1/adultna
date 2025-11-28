@@ -288,7 +288,7 @@ export default function ResumeGrader() {
                       variant="solid"
                       onPress={handleGradeResume}
                     >
-                      {isProcessing ? "Analyzing..." : "Grade My Resume"}
+                      Grade My Resume
                     </Button>
                     <Button
                       color="default"
