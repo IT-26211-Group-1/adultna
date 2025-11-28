@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
-import bundleAnalyzer from '@next/bundle-analyzer';
-import Critters from 'critters';
+import bundleAnalyzer from "@next/bundle-analyzer";
+import Critters from "critters";
 
 const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
+  enabled: process.env.ANALYZE === "true",
 });
 
 const nextConfig = {
@@ -45,8 +45,6 @@ const nextConfig = {
 
   // Production optimizations
   productionBrowserSourceMaps: false,
-  poweredByHeader: false,
-  reactStrictMode: true,
 
   // Compiler optimizations
   compiler: {
@@ -64,45 +62,52 @@ const nextConfig = {
       // Add Critters plugin for critical CSS inlining
       const CrittersPlugin = class {
         apply(compiler) {
-          compiler.hooks.compilation.tap('CrittersPlugin', (compilation) => {
+          compiler.hooks.compilation.tap("CrittersPlugin", (compilation) => {
             compilation.hooks.processAssets.tapAsync(
               {
-                name: 'CrittersPlugin',
+                name: "CrittersPlugin",
                 stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_SIZE,
               },
               async (assets, callback) => {
                 const critters = new Critters({
                   path: compilation.options.output.path,
-                  publicPath: '',
+                  publicPath: "",
                   external: true,
                   inlineThreshold: 0,
                   minimumExternalSize: 0,
                   pruneSource: false,
                   mergeStylesheets: true,
                   additionalStylesheets: [],
-                  preload: 'media',
+                  preload: "media",
                   noscriptFallback: true,
                   inlineFonts: false,
                   preloadFonts: true,
                   fonts: false,
-                  keyframes: 'critical',
+                  keyframes: "critical",
                   compress: true,
-                  logLevel: 'info',
+                  logLevel: "info",
                 });
 
-                const htmlAssets = Object.keys(assets).filter(
-                  (filename) => filename.endsWith('.html')
+                const htmlAssets = Object.keys(assets).filter((filename) =>
+                  filename.endsWith(".html")
                 );
 
                 for (const filename of htmlAssets) {
                   try {
                     const source = assets[filename].source();
-                    const html = typeof source === 'string' ? source : source.toString();
+                    const html =
+                      typeof source === "string" ? source : source.toString();
                     const inlined = await critters.process(html);
 
-                    compilation.updateAsset(filename, new webpack.sources.RawSource(inlined));
+                    compilation.updateAsset(
+                      filename,
+                      new webpack.sources.RawSource(inlined)
+                    );
                   } catch (error) {
-                    console.warn(`Critters warning for ${filename}:`, error.message);
+                    console.warn(
+                      `Critters warning for ${filename}:`,
+                      error.message
+                    );
                   }
                 }
 
@@ -124,26 +129,29 @@ const nextConfig = {
           name: (entrypoint) => `runtime-${entrypoint.name}`,
         },
         splitChunks: {
-          chunks: 'all',
+          chunks: "all",
           maxInitialRequests: 25,
           minSize: 20000,
           cacheGroups: {
             // Ensure styles are handled separately - merge all CSS into one file
             styles: {
-              name: 'styles',
+              name: "styles",
               test: /\.css$/,
-              chunks: 'all',
+              chunks: "all",
               enforce: true,
               priority: 100,
             },
 
             // Framework essentials (React, Next.js) - load everywhere
             framework: {
-              name: 'framework',
+              name: "framework",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/.test(
+                    module.resource
+                  ) && !/\.css$/.test(module.resource)
+                );
               },
               priority: 50,
               enforce: true,
@@ -152,11 +160,14 @@ const nextConfig = {
 
             // 3D/Graphics libraries - ONLY for roadmap route
             graphics3d: {
-              name: 'graphics3d',
+              name: "graphics3d",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/](@splinetool|three|@react-three|@react-spring\/three)[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/](@splinetool|three|@react-three|@react-spring\/three)[\\/]/.test(
+                    module.resource
+                  ) && !/\.css$/.test(module.resource)
+                );
               },
               priority: 40,
               enforce: true,
@@ -165,11 +176,14 @@ const nextConfig = {
 
             // Markdown libraries - ONLY for AI Gabay route
             markdown: {
-              name: 'markdown',
+              name: "markdown",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/](react-markdown|remark-gfm|remark|unified|micromark)[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/](react-markdown|remark-gfm|remark|unified|micromark)[\\/]/.test(
+                    module.resource
+                  ) && !/\.css$/.test(module.resource)
+                );
               },
               priority: 40,
               enforce: true,
@@ -178,11 +192,14 @@ const nextConfig = {
 
             // PDF libraries - ONLY for filebox/resume routes
             pdfLibs: {
-              name: 'pdf-libs',
+              name: "pdf-libs",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/](pdfjs-dist|react-pdf)[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/](pdfjs-dist|react-pdf)[\\/]/.test(
+                    module.resource
+                  ) && !/\.css$/.test(module.resource)
+                );
               },
               priority: 40,
               enforce: true,
@@ -191,11 +208,14 @@ const nextConfig = {
 
             // Animation libraries - route-specific
             animations: {
-              name: 'animations',
+              name: "animations",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/](framer-motion|gsap|lottie-react)[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/](framer-motion|gsap|lottie-react)[\\/]/.test(
+                    module.resource
+                  ) && !/\.css$/.test(module.resource)
+                );
               },
               priority: 40,
               enforce: true,
@@ -204,11 +224,13 @@ const nextConfig = {
 
             // AWS SDK - ONLY for features using it
             aws: {
-              name: 'aws-sdk',
+              name: "aws-sdk",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/]@aws-sdk[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/]@aws-sdk[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource)
+                );
               },
               priority: 40,
               enforce: true,
@@ -217,11 +239,14 @@ const nextConfig = {
 
             // UI library (HeroUI, NextUI)
             uiFramework: {
-              name: 'ui-framework',
+              name: "ui-framework",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/](@heroui|@nextui-org)[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/](@heroui|@nextui-org)[\\/]/.test(
+                    module.resource
+                  ) && !/\.css$/.test(module.resource)
+                );
               },
               priority: 35,
               enforce: true,
@@ -230,11 +255,14 @@ const nextConfig = {
 
             // TanStack Query - used globally
             reactQuery: {
-              name: 'react-query',
+              name: "react-query",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/]@tanstack[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/]@tanstack[\\/]/.test(
+                    module.resource
+                  ) && !/\.css$/.test(module.resource)
+                );
               },
               priority: 35,
               enforce: true,
@@ -243,11 +271,13 @@ const nextConfig = {
 
             // Everything else - common vendor code
             commons: {
-              name: 'commons',
+              name: "commons",
               test: (module) => {
                 if (!module.resource) return false;
-                return /[\\/]node_modules[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource);
+                return (
+                  /[\\/]node_modules[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource)
+                );
               },
               priority: 20,
               minChunks: 2,
@@ -265,59 +295,6 @@ const nextConfig = {
         net: false,
         tls: false,
       };
-    }
-
-    // Production optimizations for reducing bundle size
-    if (!dev && !isServer) {
-      // Remove polyfills for modern browsers
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        // Prevent bundling of polyfills
-        'regenerator-runtime': false,
-        'core-js': false,
-      };
-
-      // Enable tree shaking and dead code elimination
-      config.optimization = {
-        ...config.optimization,
-        usedExports: true,
-        sideEffects: true,
-        providedExports: true,
-        innerGraph: true,
-        concatenateModules: true,
-      };
-
-      // Optimize TerserPlugin for modern browsers
-      if (config.optimization.minimizer) {
-        config.optimization.minimizer.forEach((plugin) => {
-          if (plugin.constructor.name === 'TerserPlugin') {
-            plugin.options = {
-              ...plugin.options,
-              terserOptions: {
-                ...plugin.options.terserOptions,
-                compress: {
-                  ...plugin.options.terserOptions?.compress,
-                  drop_console: true,
-                  drop_debugger: true,
-                  pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
-                  passes: 2,
-                  unsafe: true,
-                  unsafe_arrows: true,
-                  unsafe_methods: true,
-                  unsafe_proto: true,
-                },
-                mangle: {
-                  safari10: false, // No need for Safari 10 support
-                },
-                format: {
-                  comments: false,
-                },
-              },
-              extractComments: false,
-            };
-          }
-        });
-      }
     }
 
     return config;
