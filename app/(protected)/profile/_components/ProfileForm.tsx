@@ -23,7 +23,11 @@ import { useAuth } from "@/hooks/queries/useAuthQueries";
 import { useUpdateProfile } from "@/hooks/queries/useProfileQueries";
 
 export function ProfileForm() {
-  const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
+  const {
+    isOpen: isConfirmOpen,
+    onOpen: onConfirmOpen,
+    onClose: onConfirmClose,
+  } = useDisclosure();
   const [isSaving, setIsSaving] = useState(false);
   const [showRefreshModal, setShowRefreshModal] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -121,7 +125,6 @@ export function ProfileForm() {
     }
   };
 
-
   const handleProfilePictureChange = useCallback(() => {
     setProfilePictureChanged(true);
   }, []);
@@ -186,8 +189,8 @@ export function ProfileForm() {
               ? "bg-adult-green hover:bg-adult-green/90 text-white border-adult-green hover:border-adult-green/90 hover:scale-[1.02]"
               : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
           }`}
-          size="md"
           isDisabled={!hasUnsavedChanges}
+          size="md"
           onPress={handleSaveClick}
         >
           Save Changes
@@ -230,19 +233,29 @@ export function ProfileForm() {
                     {/* Profile Picture Change */}
                     {profilePictureChanged && (
                       <div className="bg-white/60 rounded-lg p-3 border border-blue-200">
-                        <p className="text-xs font-medium text-blue-700 mb-1">Profile Picture</p>
-                        <p className="text-sm text-gray-700">New profile picture will be saved</p>
+                        <p className="text-xs font-medium text-blue-700 mb-1">
+                          Profile Picture
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          New profile picture will be saved
+                        </p>
                       </div>
                     )}
 
                     {/* Display Name */}
                     {dirtyFields.displayName && (
                       <div className="bg-white/60 rounded-lg p-3 border border-blue-200">
-                        <p className="text-xs font-medium text-blue-700 mb-1">Display Name</p>
+                        <p className="text-xs font-medium text-blue-700 mb-1">
+                          Display Name
+                        </p>
                         <div className="flex items-center gap-2 text-sm">
-                          <span className="text-gray-500">{user?.displayName || '(empty)'}</span>
+                          <span className="text-gray-500">
+                            {user?.displayName || "(empty)"}
+                          </span>
                           <span className="text-gray-400">→</span>
-                          <span className="text-gray-900 font-medium">{getValues('displayName') || '(empty)'}</span>
+                          <span className="text-gray-900 font-medium">
+                            {getValues("displayName") || "(empty)"}
+                          </span>
                         </div>
                       </div>
                     )}
@@ -250,11 +263,17 @@ export function ProfileForm() {
                     {/* First Name */}
                     {dirtyFields.firstName && (
                       <div className="bg-white/60 rounded-lg p-3 border border-blue-200">
-                        <p className="text-xs font-medium text-blue-700 mb-1">First Name</p>
+                        <p className="text-xs font-medium text-blue-700 mb-1">
+                          First Name
+                        </p>
                         <div className="flex items-center gap-2 text-sm">
-                          <span className="text-gray-500">{user?.firstName || '(empty)'}</span>
+                          <span className="text-gray-500">
+                            {user?.firstName || "(empty)"}
+                          </span>
                           <span className="text-gray-400">→</span>
-                          <span className="text-gray-900 font-medium">{getValues('firstName') || '(empty)'}</span>
+                          <span className="text-gray-900 font-medium">
+                            {getValues("firstName") || "(empty)"}
+                          </span>
                         </div>
                       </div>
                     )}
@@ -262,11 +281,17 @@ export function ProfileForm() {
                     {/* Last Name */}
                     {dirtyFields.lastName && (
                       <div className="bg-white/60 rounded-lg p-3 border border-blue-200">
-                        <p className="text-xs font-medium text-blue-700 mb-1">Last Name</p>
+                        <p className="text-xs font-medium text-blue-700 mb-1">
+                          Last Name
+                        </p>
                         <div className="flex items-center gap-2 text-sm">
-                          <span className="text-gray-500">{user?.lastName || '(empty)'}</span>
+                          <span className="text-gray-500">
+                            {user?.lastName || "(empty)"}
+                          </span>
                           <span className="text-gray-400">→</span>
-                          <span className="text-gray-900 font-medium">{getValues('lastName') || '(empty)'}</span>
+                          <span className="text-gray-900 font-medium">
+                            {getValues("lastName") || "(empty)"}
+                          </span>
                         </div>
                       </div>
                     )}

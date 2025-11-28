@@ -44,7 +44,9 @@ function DashboardNotifications() {
       <div className="flex items-center justify-between mb-3 lg:mb-3 flex-shrink-0 px-1">
         <div className="flex items-center space-x-2">
           <Bell className="text-gray-600" size={16} />
-          <h4 className="font-semibold text-gray-900 text-sm lg:text-base">My Notifications</h4>
+          <h4 className="font-semibold text-gray-900 text-sm lg:text-base">
+            My Notifications
+          </h4>
         </div>
         {notifications.length > 0 && (
           <button

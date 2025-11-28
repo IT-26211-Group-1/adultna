@@ -11,13 +11,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { addToast } from "@heroui/toast";
 import { logger } from "@/lib/logger";
 
-const DashboardWithSidebar = dynamic(
-  () => import("./DashboardBackground"),
-  {
-    ssr: false,
-    loading: () => <div className="min-h-screen bg-gray-100 animate-pulse" />,
-  }
-);
+const DashboardWithSidebar = dynamic(() => import("./DashboardBackground"), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-gray-100 animate-pulse" />,
+});
 
 const OnboardingModal = dynamic(() => import("./OnboardingModal"), {
   ssr: false,

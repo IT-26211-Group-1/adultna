@@ -30,11 +30,13 @@ export function DeleteAccountSection() {
   const handleConfirmDelete = async () => {
     if (!password) {
       setPasswordError("Password is required");
+
       return;
     }
 
     if (password.length < 8) {
       setPasswordError("Password must be at least 8 characters");
+
       return;
     }
 
@@ -47,8 +49,10 @@ export function DeleteAccountSection() {
       if (error.status === 401) {
         setPasswordError("Incorrect password. Please try again.");
       } else if (error.status === 500) {
-        setPasswordError("Server error occurred. Please try again later or contact support.");
-      } else if (error.message?.toLowerCase().includes('password')) {
+        setPasswordError(
+          "Server error occurred. Please try again later or contact support.",
+        );
+      } else if (error.message?.toLowerCase().includes("password")) {
         setPasswordError(error.message);
       } else {
         setPasswordError("An unexpected error occurred. Please try again.");
@@ -119,7 +123,11 @@ export function DeleteAccountSection() {
             {/* Warning Section */}
             <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
               <p className="text-sm text-red-800">
-                <span className="font-semibold">Warning:</span> This action <span className="font-semibold">cannot be undone</span>. Deleting your account will remove all your associated data. Any profile information, documents, settings, and more will be <span className="font-semibold">permanently lost</span>.
+                <span className="font-semibold">Warning:</span> This action{" "}
+                <span className="font-semibold">cannot be undone</span>.
+                Deleting your account will remove all your associated data. Any
+                profile information, documents, settings, and more will be{" "}
+                <span className="font-semibold">permanently lost</span>.
               </p>
             </div>
 
@@ -129,22 +137,17 @@ export function DeleteAccountSection() {
                 To delete, type your password below
               </p>
               <Input
-                errorMessage={passwordError}
-                id="delete-password"
-                isInvalid={!!passwordError}
-                placeholder="Enter your password"
-                autoComplete="current-password"
                 disableAutosize
+                autoComplete="current-password"
                 classNames={{
                   input: "bg-transparent",
                   inputWrapper: "bg-default-100",
                 }}
-                startContent={<Lock className="w-4 h-4 text-gray-400" />}
                 endContent={
                   <button
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -153,6 +156,11 @@ export function DeleteAccountSection() {
                     )}
                   </button>
                 }
+                errorMessage={passwordError}
+                id="delete-password"
+                isInvalid={!!passwordError}
+                placeholder="Enter your password"
+                startContent={<Lock className="w-4 h-4 text-gray-400" />}
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => {

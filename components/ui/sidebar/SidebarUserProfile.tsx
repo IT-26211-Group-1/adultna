@@ -131,7 +131,9 @@ export default function SidebarUserProfile({
                 <LoadingSpinner fullScreen={false} size="sm" />
               )}
             </div>
-            <p className="text-xs text-gray-500 truncate">{user?.email || ""}</p>
+            <p className="text-xs text-gray-500 truncate">
+              {user?.email || ""}
+            </p>
           </div>
           <ChevronUp
             className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${

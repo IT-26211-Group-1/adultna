@@ -18,7 +18,9 @@ interface NotificationsModalProps {
 function NotificationsContent() {
   const { data: notifications = [], isLoading } = useDashboardNotifications(10);
   const deleteNotification = useDeleteNotification();
-  const [hoveredNotification, setHoveredNotification] = useState<string | null>(null);
+  const [hoveredNotification, setHoveredNotification] = useState<string | null>(
+    null,
+  );
 
   const handleDeleteNotification = (notificationId: string) => {
     deleteNotification.mutate(notificationId);
@@ -119,8 +121,12 @@ function NotificationsModal({ isOpen, onClose }: NotificationsModalProps) {
     <>
       {/* Backdrop - for mobile only to close dropdown */}
       <div
+        aria-label="Close notifications"
         className="lg:hidden fixed inset-0 z-40"
+        role="button"
+        tabIndex={0}
         onClick={onClose}
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
       />
 
       {/* Dropdown positioned under notification icon */}
@@ -129,12 +135,14 @@ function NotificationsModal({ isOpen, onClose }: NotificationsModalProps) {
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <Bell className="text-gray-600" size={16} />
-            <h3 className="font-semibold text-gray-900 text-sm">Notifications</h3>
+            <h3 className="font-semibold text-gray-900 text-sm">
+              Notifications
+            </h3>
           </div>
           <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Close notifications"
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            onClick={onClose}
           >
             <X className="text-gray-500" size={16} />
           </button>

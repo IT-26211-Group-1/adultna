@@ -31,8 +31,8 @@ export const LoginForm = () => {
           {/* Back Button */}
           <div className="mb-6">
             <Link
-              href="/"
               className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-green-700 transition-colors duration-200 group"
+              href="/"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
               Back to Home

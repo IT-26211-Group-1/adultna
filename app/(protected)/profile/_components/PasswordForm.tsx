@@ -21,7 +21,11 @@ import { useState, useEffect, useCallback } from "react";
 import { useUpdatePassword } from "@/hooks/queries/useProfileQueries";
 
 export function PasswordForm() {
-  const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
+  const {
+    isOpen: isConfirmOpen,
+    onOpen: onConfirmOpen,
+    onClose: onConfirmClose,
+  } = useDisclosure();
   const [isSaving, setIsSaving] = useState(false);
   const [showRefreshModal, setShowRefreshModal] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -162,8 +166,8 @@ export function PasswordForm() {
               ? "bg-adult-green hover:bg-adult-green/90 text-white border-adult-green hover:border-adult-green/90 hover:scale-[1.02]"
               : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
           }`}
-          size="md"
           isDisabled={!hasUnsavedChanges}
+          size="md"
           onPress={handleSaveClick}
         >
           Save Changes
@@ -196,7 +200,9 @@ export function PasswordForm() {
 
             <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
               <p className="text-sm text-amber-800">
-                <span className="font-semibold">Important:</span> You will need to use the new password for all future logins. Make sure you remember or save your new password securely.
+                <span className="font-semibold">Important:</span> You will need
+                to use the new password for all future logins. Make sure you
+                remember or save your new password securely.
               </p>
             </div>
           </ModalBody>

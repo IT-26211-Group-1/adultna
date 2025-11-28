@@ -1,4 +1,3 @@
-
 import DailyStreakCard from "./cards/DailyStreakCard";
 import RoadmapProgressCard from "./cards/RoadmapProgressCard";
 import RecentActivitiesCard from "./cards/RecentActivitiesCard";

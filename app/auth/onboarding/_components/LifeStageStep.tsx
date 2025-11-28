@@ -64,11 +64,7 @@ function LifeStageStep({
             <button
               key={option.id}
               className={`group inline-flex items-center justify-center min-h-[44px] py-3 px-6 border rounded-full font-semibold transition-all duration-200 focus:outline-none ${
-                isSelected(
-                  option.id,
-                  lifeStageQuestion.id,
-                  selectedLifeStage,
-                )
+                isSelected(option.id, lifeStageQuestion.id, selectedLifeStage)
                   ? "border-teal-600 bg-teal-50 text-teal-700 hover:bg-teal-100"
                   : "border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900"
               }`}

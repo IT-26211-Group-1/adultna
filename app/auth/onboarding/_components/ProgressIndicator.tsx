@@ -33,7 +33,9 @@ const ProgressIndicator = React.memo(
               >
                 {step.number}
               </button>
-              <span className="text-xs mt-1 sm:mt-2 text-gray-600 text-center min-h-[2rem] sm:min-h-[2.5rem] w-12 sm:w-16 leading-tight">{step.label}</span>
+              <span className="text-xs mt-1 sm:mt-2 text-gray-600 text-center min-h-[2rem] sm:min-h-[2.5rem] w-12 sm:w-16 leading-tight">
+                {step.label}
+              </span>
             </div>
             {index < steps.length - 1 && (
               <div className="w-8 sm:w-16 h-0.5 bg-gray-300 mx-2 sm:mx-4 mt-3 sm:mt-5" />

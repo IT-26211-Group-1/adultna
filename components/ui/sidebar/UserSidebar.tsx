@@ -65,10 +65,11 @@ function UserSidebar({
   const toggleSection = useCallback(
     (sectionId: string) => {
       if (isCollapsed) return; // Don't allow expansion when collapsed
-      setExpandedSections((prev) =>
-        prev.includes(sectionId)
-          ? [] // Close the currently open section
-          : [sectionId], // Open only the new section, close all others
+      setExpandedSections(
+        (prev) =>
+          prev.includes(sectionId)
+            ? [] // Close the currently open section
+            : [sectionId], // Open only the new section, close all others
       );
     },
     [isCollapsed],
@@ -122,7 +123,7 @@ function UserSidebar({
           <div
             aria-label="Close sidebar"
             className={`fixed inset-0 z-40 xl:hidden transition-all duration-300 ease-in-out ${
-              isOpen ? 'bg-black/20 backdrop-blur-sm' : 'bg-transparent'
+              isOpen ? "bg-black/20 backdrop-blur-sm" : "bg-transparent"
             }`}
             role="button"
             tabIndex={0}
@@ -143,16 +144,20 @@ function UserSidebar({
         >
           <div className="relative w-[22px] h-[22px]">
             <Menu
-              size={22}
               className={`absolute top-0 left-0 text-gray-700 transition-all duration-300 ease-in-out ${
-                isOpen ? 'opacity-0 rotate-45 scale-75' : 'opacity-100 rotate-0 scale-100'
+                isOpen
+                  ? "opacity-0 rotate-45 scale-75"
+                  : "opacity-100 rotate-0 scale-100"
               }`}
+              size={22}
             />
             <X
-              size={22}
               className={`absolute top-0 left-0 text-gray-700 transition-all duration-300 ease-in-out ${
-                isOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-45 scale-75'
+                isOpen
+                  ? "opacity-100 rotate-0 scale-100"
+                  : "opacity-0 -rotate-45 scale-75"
               }`}
+              size={22}
             />
           </div>
         </button>
@@ -183,7 +188,6 @@ function UserSidebar({
           {/* Header */}
           <SidebarHeader isCollapsed={isCollapsed} />
 
-
           {/* Collapse/Expand Button - Desktop only */}
           <button
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -202,13 +206,16 @@ function UserSidebar({
             {/* Main Section */}
             <div className="mb-6">
               <ul className="space-y-2">
-                <SidebarNavigation isCollapsed={isCollapsed} onCloseSidebar={handleToggle} />
+                <SidebarNavigation
+                  isCollapsed={isCollapsed}
+                  onCloseSidebar={handleToggle}
+                />
                 <SidebarCollapsibleSection
                   expandedSections={expandedSections}
                   isCollapsed={isCollapsed}
+                  onCloseSidebar={handleToggle}
                   onExpandSidebar={handleExpandSidebar}
                   onToggleSection={toggleSection}
-                  onCloseSidebar={handleToggle}
                 />
               </ul>
             </div>

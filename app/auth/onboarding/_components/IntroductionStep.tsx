@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useState } from "react";
-import { ChevronRight } from "lucide-react";
 import { IntroductionStepProps } from "@/types/onboarding";
 
 function IntroductionStep({
@@ -23,6 +22,7 @@ function IntroductionStep({
 
     // Only allow letters, numbers, and spaces
     const validPattern = /^[a-zA-Z0-9\s]+$/;
+
     if (!validPattern.test(name)) {
       return "Display name can only contain letters, numbers, and spaces";
     }
@@ -32,6 +32,7 @@ function IntroductionStep({
 
   const handleSubmit = useCallback(() => {
     const error = validateDisplayName(displayName);
+
     if (!error) {
       setShowError(false);
       setErrorMessage("");
@@ -42,25 +43,30 @@ function IntroductionStep({
     }
   }, [displayName, onNext, validateDisplayName]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setDisplayName(value);
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
 
-    if (showError) {
-      const error = validateDisplayName(value);
-      if (!error) {
-        setShowError(false);
-        setErrorMessage("");
-      } else {
-        setErrorMessage(error);
+      setDisplayName(value);
+
+      if (showError) {
+        const error = validateDisplayName(value);
+
+        if (!error) {
+          setShowError(false);
+          setErrorMessage("");
+        } else {
+          setErrorMessage(error);
+        }
       }
-    }
-  }, [setDisplayName, showError, validateDisplayName]);
+    },
+    [setDisplayName, showError, validateDisplayName],
+  );
 
   return (
     <div className="text-center">
       <h2 className="text-2xl font-bold text-gray-900 mb-2">
-        Let's get started!
+        Let&apos;s get started!
       </h2>
       <p className="text-gray-600 mb-8">What should we call you?</p>
 
@@ -72,10 +78,10 @@ function IntroductionStep({
                 ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                 : "border-gray-300 focus:ring-teal-500 focus:border-teal-500"
             }`}
+            maxLength={MAX_DISPLAY_NAME_LENGTH}
             placeholder="Enter your display name"
             type="text"
             value={displayName}
-            maxLength={MAX_DISPLAY_NAME_LENGTH}
             onChange={handleInputChange}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           />
@@ -84,11 +90,13 @@ function IntroductionStep({
         {/* Character counter */}
         <div className="flex justify-center">
           <div className="w-full max-w-md flex justify-end">
-            <p className={`text-xs ${
-              displayName.length > MAX_DISPLAY_NAME_LENGTH * 0.8
-                ? "text-orange-500"
-                : "text-gray-400"
-            }`}>
+            <p
+              className={`text-xs ${
+                displayName.length > MAX_DISPLAY_NAME_LENGTH * 0.8
+                  ? "text-orange-500"
+                  : "text-gray-400"
+              }`}
+            >
               {displayName.length}/{MAX_DISPLAY_NAME_LENGTH}
             </p>
           </div>
@@ -96,9 +104,7 @@ function IntroductionStep({
 
         {showError && (
           <div className="flex justify-center">
-            <p className="text-red-500 text-sm max-w-md">
-              {errorMessage}
-            </p>
+            <p className="text-red-500 text-sm max-w-md">{errorMessage}</p>
           </div>
         )}
       </div>
