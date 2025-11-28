@@ -165,6 +165,7 @@ export default function ResumeEditor() {
           if (onSuccessCallback) {
             onSuccessCallback();
           }
+
           return;
         }
 
@@ -216,9 +217,13 @@ export default function ResumeEditor() {
       } else {
         // Log when we skip save to help debug issues
         if (!currentResumeId && !templateId) {
-          console.warn('[ResumeEditor] Skipping save: no resumeId and no templateId');
+          console.warn(
+            "[ResumeEditor] Skipping save: no resumeId and no templateId",
+          );
         } else if (currentResumeId && !dataToSave.firstName) {
-          console.warn('[ResumeEditor] Skipping save: missing required firstName');
+          console.warn(
+            "[ResumeEditor] Skipping save: missing required firstName",
+          );
         }
 
         if (onSuccessCallback) {
@@ -244,7 +249,7 @@ export default function ResumeEditor() {
       if (!isInitialMount.current) {
         handleSave();
       }
-    }, 1000)
+    }, 1000),
   );
 
   // Update debounced function when handleSave changes to prevent stale closures
