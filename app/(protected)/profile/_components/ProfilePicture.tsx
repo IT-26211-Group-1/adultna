@@ -6,8 +6,6 @@ import { useAuth } from "@/hooks/queries/useAuthQueries";
 import { useUploadProfilePicture } from "@/hooks/queries/useProfileQueries";
 import { addToast } from "@heroui/toast";
 
-import { OptimizedImage } from "@/components/ui/OptimizedImage";
-
 type ProfilePictureProps = {
   onImageChange?: () => void;
 };
@@ -109,13 +107,10 @@ export function ProfilePicture({ onImageChange }: ProfilePictureProps) {
       <div ref={menuRef} className="relative">
         <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
           {imagePreview ? (
-            <OptimizedImage
+            <img
               alt="Profile"
               className="w-full h-full object-cover"
-              height={80}
-              sizes="80px"
               src={imagePreview}
-              width={80}
             />
           ) : (
             <span className="text-2xl text-gray-400 font-semibold" />
