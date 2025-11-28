@@ -24,7 +24,7 @@ export default function DashboardCards({ activeTab }: DashboardCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
       <DailyStreakCard />
       <RoadmapProgressCard />
       <RecentActivitiesCard />

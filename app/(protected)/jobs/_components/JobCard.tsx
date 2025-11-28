@@ -63,7 +63,10 @@ const JobCard = memo(({ job, index }: JobCardProps & { index?: number }) => {
     <>
       <div
         className={`bg-gradient-to-br ${cardColor} border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 h-full flex flex-col min-h-[380px]`}
-        style={{ contentVisibility: "auto", containIntrinsicSize: "auto 380px" }}
+        style={{
+          contentVisibility: "auto",
+          containIntrinsicSize: "auto 380px",
+        }}
       >
         {/* Header Section */}
         <div className="p-5 flex-grow">

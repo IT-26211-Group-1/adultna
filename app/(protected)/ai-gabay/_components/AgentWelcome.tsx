@@ -18,7 +18,10 @@ export function AgentWelcome({ className }: AgentWelcomeProps) {
         to navigating adulthood.
       </div>
 
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-adult-green min-h-[40px]" style={{ containIntrinsicSize: "auto 40px" }}>
+      <h1
+        className="text-2xl sm:text-3xl lg:text-4xl font-bold text-adult-green min-h-[40px]"
+        style={{ containIntrinsicSize: "auto 40px" }}
+      >
         What can I help you with today?
       </h1>
 
