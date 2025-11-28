@@ -8,7 +8,9 @@ import { logger } from "@/lib/logger";
 // Lazy load Lottie
 const Lottie = dynamic(() => import("lottie-react"), {
   ssr: false,
-  loading: () => <div className="w-48 h-48 animate-pulse bg-gray-200 rounded-lg" />,
+  loading: () => (
+    <div className="w-48 h-48 animate-pulse bg-gray-200 rounded-lg" />
+  ),
 });
 
 type LoadingScreenProps = {

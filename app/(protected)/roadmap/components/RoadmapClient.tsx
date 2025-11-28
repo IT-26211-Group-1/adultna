@@ -26,13 +26,14 @@ const Canvas = dynamic(
         <LoadingSpinner fullScreen={false} size="xl" variant="default" />
       </div>
     ),
-  }
+  },
 );
 
 // Lazy load OrbitControls
 const OrbitControls = dynamic(
-  () => import("@react-three/drei").then((mod) => ({ default: mod.OrbitControls })),
-  { ssr: false }
+  () =>
+    import("@react-three/drei").then((mod) => ({ default: mod.OrbitControls })),
+  { ssr: false },
 );
 
 const CAMERA_ANIMATION: CameraAnimation = {
