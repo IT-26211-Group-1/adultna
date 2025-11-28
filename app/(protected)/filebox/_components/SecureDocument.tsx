@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useMemo, useEffect } from "react";
-import Image from "next/image";
 import {
   Modal,
   ModalContent,
@@ -9,6 +8,8 @@ import {
   ModalBody,
   Button,
 } from "@heroui/react";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { secureDocumentAccessOtpSchema } from "@/validators/fileBoxSchema";
@@ -410,10 +411,11 @@ export function SecureDocument({
           <ModalHeader className="flex flex-col items-center px-6 pt-8 pb-0 text-center">
             {/* Icon at the top */}
             <div className="mb-6">
-              <Image
+              <OptimizedImage
                 alt="Security lock icon"
                 className="w-28 h-28"
                 height={112}
+                sizes="112px"
                 src="/filebox-lock.png"
                 width={112}
               />

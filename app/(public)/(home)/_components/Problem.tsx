@@ -3,11 +3,8 @@ import { ProblemSubject } from "./ProblemSubject";
 
 export function Problem() {
   return (
-    <section
-      className="relative z-0 w-full min-h-screen md:min-h-[1200px] py-10 sm:py-16 lg:py-24 flex flex-col justify-center"
-      style={{ contain: "layout style paint" }}
-    >
-      <div className="absolute inset-0" style={{ willChange: "transform" }}>
+    <section className="relative z-0 w-full min-h-screen md:min-h-[1200px] py-10 sm:py-16 lg:py-24 flex flex-col justify-center overflow-hidden">
+      <div className="absolute inset-0">
         <svg
           className="w-full h-full"
           preserveAspectRatio="none"
@@ -158,7 +155,9 @@ export function Problem() {
         </svg>
       </div>
       <main className="relative z-10 px-2 sm:px-4 lg:px-8 w-full">
-        <ProblemText />
+        <div className="min-h-[280px] sm:min-h-[260px] md:min-h-[240px] lg:min-h-[220px] flex items-start justify-center pt-8 sm:pt-12 md:pt-16 mb-8 sm:mb-12 md:mb-16">
+          <ProblemText />
+        </div>
         <ProblemSubject />
       </main>
 

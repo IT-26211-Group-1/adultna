@@ -126,14 +126,28 @@ export function useDeleteAccount() {
 
   return useMutation({
     mutationFn: profileApi.deleteAccount,
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       addToast({
-        title: response.message || "Account deleted successfully",
+        title: response.message || "Account deactivated successfully",
         color: "success",
       });
+
+      // Call logout to clear HTTP-only cookies
+      try {
+        await ApiClient.post("/auth/logout");
+      } catch (error) {
+        console.error("Logout call failed:", error);
+      }
+
+      // Clear all local data
       queryClient.clear();
       localStorage.clear();
       sessionStorage.clear();
+
+      // Broadcast logout to other tabs
+      import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
+        broadcastLogout();
+      });
 
       // Redirect to appropriate login page based on current path
       const isAdmin = window.location.pathname.startsWith("/admin");
@@ -142,7 +156,7 @@ export function useDeleteAccount() {
     },
     onError: (error: any) => {
       addToast({
-        title: error.message || "Failed to delete account",
+        title: error.message || "Failed to deactivate account",
         color: "danger",
       });
     },

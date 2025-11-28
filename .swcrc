@@ -1,0 +1,28 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true,
+      "decorators": false,
+      "dynamicImport": true
+    },
+    "transform": {
+      "react": {
+        "runtime": "automatic"
+      }
+    },
+    "target": "es2022",
+    "loose": false,
+    "externalHelpers": false,
+    "keepClassNames": false
+  },
+  "env": {
+    "targets": {
+      "chrome": "120",
+      "firefox": "120",
+      "safari": "16.4",
+      "edge": "120"
+    }
+  },
+  "minify": true
+}

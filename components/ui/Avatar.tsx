@@ -1,6 +1,7 @@
 import React from "react";
 import { AvatarProps } from "@/types/table";
-import Image from "next/image";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 const Avatar: React.FC<AvatarProps> = ({
   src,
@@ -31,20 +32,13 @@ const Avatar: React.FC<AvatarProps> = ({
 
   if (src) {
     return (
-      <Image
+      <OptimizedImage
         alt={alt}
         className={`${baseClasses} object-cover`}
         height={50}
+        sizes="50px"
         src={src}
         width={50}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-
-          target.style.display = "none";
-          if (target.nextSibling) {
-            (target.nextSibling as HTMLElement).style.display = "flex";
-          }
-        }}
       />
     );
   }
