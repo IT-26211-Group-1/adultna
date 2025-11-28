@@ -26,7 +26,8 @@ export async function authMeRequest(): Promise<AuthMeResponse> {
       if (errorMessage.includes("deactivated")) {
         return {
           success: false,
-          message: "Your account is deactivated. Please contact support to re-activate your account.",
+          message:
+            "Your account is deactivated. Please contact support to re-activate your account.",
         };
       }
 

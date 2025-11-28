@@ -91,8 +91,11 @@ export class ApiClient {
               );
 
               // Check if account was deactivated
-              const refreshErrorData = await refreshResponse.json().catch(() => ({}));
-              const isDeactivated = refreshErrorData?.message?.includes("deactivated");
+              const refreshErrorData = await refreshResponse
+                .json()
+                .catch(() => ({}));
+              const isDeactivated =
+                refreshErrorData?.message?.includes("deactivated");
 
               // Refresh token expired, logout user
               if (typeof window !== "undefined") {
