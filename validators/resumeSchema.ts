@@ -6,28 +6,59 @@ const calendarDateToDate = z
   .transform((val) => convertCalendarDateToDate(val));
 
 export const contactSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  firstName: z
+    .string()
+    .min(1, "First name is required")
+    .refine((val) => val.trim() === val && val.trim().length > 0, {
+      message: "First name cannot have leading or trailing spaces",
+    })
+    .refine((val) => /^[A-Za-z\s]+$/.test(val), {
+      message: "First name must contain only alphabetical characters",
+    }),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .refine((val) => val.trim() === val && val.trim().length > 0, {
+      message: "Last name cannot have leading or trailing spaces",
+    })
+    .refine((val) => /^[A-Za-z\s]+$/.test(val), {
+      message: "Last name must contain only alphabetical characters",
+    }),
   jobPosition: z
     .string()
     .max(100, "Job position must be less than 100 characters")
+    .refine((val) => !val || (val.trim() === val && val.trim().length > 0), {
+      message: "Job position cannot have leading or trailing spaces",
+    })
     .optional(),
   email: z
     .string()
     .email("Please enter a valid email address")
     .min(1, "Email is required")
-    .max(100, "Email must be less than 100 characters"),
+    .max(100, "Email must be less than 100 characters")
+    .refine((val) => val.trim() === val, {
+      message: "Email cannot have leading or trailing spaces",
+    }),
   phone: z
     .string()
     .min(1, "Phone number is required")
-    .regex(
-      /^(9\d{9}|09\d{9}|\+639\d{9})$/,
-      "Please enter a valid Philippine mobile number (e.g., 9123456789)",
-    ),
-  city: z.string().max(50, "City must be less than 50 characters").optional(),
+    .regex(/^\d{10}$/, "Phone number must be exactly 10 digits")
+    .refine((val) => /^9\d{9}$/.test(val), {
+      message: "Phone number must start with 9 (e.g., 9XXXXXXXXX)",
+    }),
+  city: z
+    .string()
+    .max(50, "City must be less than 50 characters")
+    .refine((val) => !val || (val.trim() === val && val.trim().length > 0), {
+      message: "City cannot have leading or trailing spaces",
+    })
+    .optional(),
   region: z
     .string()
     .max(100, "Region must be less than 100 characters")
+    .refine((val) => !val || (val.trim() === val && val.trim().length > 0), {
+      message: "Region cannot have leading or trailing spaces",
+    })
     .optional(),
   birthDate: calendarDateToDate.optional().refine((date) => {
     if (!date) return true;
@@ -38,6 +69,9 @@ export const contactSchema = z.object({
     .string()
     .max(255, "LinkedIn URL must be less than 255 characters")
     .optional()
+    .refine((val) => !val || (val.trim() === val && val.trim().length > 0), {
+      message: "LinkedIn URL cannot have leading or trailing spaces",
+    })
     .refine((val) => {
       if (!val || val === "") return true;
       try {
@@ -52,6 +86,9 @@ export const contactSchema = z.object({
     .string()
     .max(255, "Portfolio URL must be less than 255 characters")
     .optional()
+    .refine((val) => !val || (val.trim() === val && val.trim().length > 0), {
+      message: "Portfolio URL cannot have leading or trailing spaces",
+    })
     .refine((val) => {
       if (!val || val === "") return true;
       try {
@@ -68,28 +105,49 @@ export type ContactFormData = z.infer<typeof contactSchema>;
 export const workSchema = z.object({
   workExperiences: z
     .array(
-      z.object({
-        jobTitle: z
-          .string()
-          .max(100, "Job title must be less than 100 characters")
-          .optional(),
-        employer: z
-          .string()
-          .max(100, "Employer must be less than 100 characters")
-          .optional(),
-        startDate: calendarDateToDate.optional(),
-        endDate: calendarDateToDate.optional(),
-        isCurrentlyWorkingHere: z.boolean().optional(),
-        description: z
-          .string()
-          .optional()
-          .refine((value) => {
-            if (!value) return true;
-            const wordCount = value.trim().split(/\s+/).length;
+      z
+        .object({
+          jobTitle: z
+            .string()
+            .max(100, "Job title must be less than 100 characters")
+            .optional()
+            .refine(
+              (val) => !val || /^[A-Za-z\s]+$/.test(val),
+              "Job title must contain only alphabetical characters"
+            ),
+          employer: z
+            .string()
+            .max(100, "Employer must be less than 100 characters")
+            .optional(),
+          startDate: calendarDateToDate.optional(),
+          endDate: calendarDateToDate.optional(),
+          isCurrentlyWorkingHere: z.boolean().optional(),
+          description: z
+            .string()
+            .optional()
+            .refine((value) => {
+              if (!value) return true;
+              const wordCount = value.trim().split(/\s+/).length;
 
-            return wordCount <= 100;
-          }, "Summary must be less than 100 words"),
-      }),
+              return wordCount <= 100;
+            }, "Summary must be less than 100 words"),
+        })
+        .refine(
+          (data) => {
+            if (
+              !data.startDate ||
+              !data.endDate ||
+              data.isCurrentlyWorkingHere
+            ) {
+              return true;
+            }
+            return data.endDate >= data.startDate;
+          },
+          {
+            message: "End date cannot be earlier than start date",
+            path: ["endDate"],
+          }
+        )
     )
     .optional(),
 });
@@ -102,11 +160,19 @@ export const educationSchema = z.object({
         schoolName: z
           .string()
           .max(100, "School name must be less than 100 characters")
-          .optional(),
+          .optional()
+          .refine(
+            (val) => !val || /^[A-Za-z\s]+$/.test(val),
+            "School name must contain only alphabetical characters"
+          ),
         schoolLocation: z
           .string()
           .max(100, "School location must be less than 100 characters")
-          .optional(),
+          .optional()
+          .refine(
+            (val) => !val || /^[A-Za-z0-9\s,.\-()]+$/.test(val),
+            "School location must contain only alphabetical characters and basic punctuation"
+          ),
         degree: z
           .string()
           .max(100, "Degree must be less than 100 characters")
@@ -116,7 +182,7 @@ export const educationSchema = z.object({
           .max(100, "Field of study must be less than 100 characters")
           .optional(),
         graduationDate: calendarDateToDate.optional(),
-      }),
+      })
     )
     .optional(),
 });
@@ -134,7 +200,7 @@ export const certificationSchema = z.object({
           .string()
           .max(100, "Issuing organization must be less than 100 characters")
           .optional(),
-      }),
+      })
     )
     .optional(),
 });
@@ -152,7 +218,7 @@ export const skillSchema = z.object({
           .max(5, "Proficiency must be at most 5")
           .optional(),
         order: z.number().optional(),
-      }),
+      })
     )
     .optional(),
 });

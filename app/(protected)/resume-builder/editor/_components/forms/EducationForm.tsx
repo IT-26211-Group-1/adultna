@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 export default function EducationForm({
   resumeData,
   setResumeData,
+  onValidationChange,
 }: EditorFormProps) {
   const isSyncingRef = useRef(false);
   const previousDataRef = useRef<string>("");
@@ -111,6 +112,26 @@ export default function EducationForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (onValidationChange) {
+      const values = form.getValues();
+      const hasAtLeastOneValidEducation = !!(
+        values.educationItems &&
+        values.educationItems.some(
+          (edu) =>
+            edu.schoolName?.trim() &&
+            edu.degree?.trim() &&
+            edu.fieldOfStudy?.trim() &&
+            edu.graduationDate
+        )
+      );
+      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+      const isValid = hasAtLeastOneValidEducation && hasNoErrors;
+
+      onValidationChange(isValid);
+    }
+  }, [form.formState.errors, form, onValidationChange]);
 
   useEffect(() => {
     if (
@@ -382,10 +403,9 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
               field.onChange(new CalendarDate(parseInt(year), month, 1));
             };
 
-            const currentYear = new Date().getFullYear();
             const years = Array.from(
-              { length: currentYear + 10 - 1950 + 1 },
-              (_, i) => 1950 + i,
+              { length: 2035 - 1980 + 1 },
+              (_, i) => 1980 + i,
             ).reverse();
 
             return (

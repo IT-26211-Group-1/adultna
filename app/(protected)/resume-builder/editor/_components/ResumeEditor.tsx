@@ -51,6 +51,7 @@ export default function ResumeEditor() {
   const isInitialMount = useRef(true);
 
   const [resumeData, setResumeData] = useState<ResumeData>({} as ResumeData);
+  const [isCurrentFormValid, setIsCurrentFormValid] = useState(true);
 
   useEffect(() => {
     if (existingResume && existingResume.id !== loadedResumeId) {
@@ -64,8 +65,12 @@ export default function ResumeEditor() {
   const previousStepRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (currentStep !== previousStepRef.current && isCompleted) {
-      setIsCompleted(false);
+    if (currentStep !== previousStepRef.current) {
+      if (isCompleted) {
+        setIsCompleted(false);
+      }
+      // Reset validation state when changing steps
+      setIsCurrentFormValid(true);
     }
     previousStepRef.current = currentStep;
   }, [currentStep, isCompleted]);
@@ -151,6 +156,10 @@ export default function ResumeEditor() {
         return true;
     }
   }, [resumeData, currentStep]);
+
+  const handleValidationChange = useCallback((isValid: boolean) => {
+    setIsCurrentFormValid(isValid);
+  }, []);
 
   const searchParamsRef = useRef(searchParams);
   const routerRef = useRef(router);
@@ -489,6 +498,7 @@ export default function ResumeEditor() {
                   key={currentResumeId || "new-resume"}
                   resumeData={resumeData}
                   setResumeData={setResumeData}
+                  onValidationChange={handleValidationChange}
                 />
               )}
             </div>
@@ -501,7 +511,7 @@ export default function ResumeEditor() {
                 )}
                 <LoadingButton
                   className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!isFormValid}
+                  disabled={!isFormValid || !isCurrentFormValid}
                   onClick={handleContinue}
                 >
                   {isLastStep ? "Complete" : "Continue"}

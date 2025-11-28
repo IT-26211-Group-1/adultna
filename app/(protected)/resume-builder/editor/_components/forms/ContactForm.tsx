@@ -12,6 +12,7 @@ import { debounce } from "@/lib/utils/debounce";
 export default function ContactForm({
   resumeData,
   setResumeData,
+  onValidationChange,
 }: EditorFormProps) {
   const isSyncingRef = useRef(false);
   const previousDataRef = useRef<string>("");
@@ -79,6 +80,22 @@ export default function ContactForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (onValidationChange) {
+      const values = form.getValues();
+      const hasRequiredFields = !!(
+        values.firstName &&
+        values.lastName &&
+        values.email &&
+        values.phone
+      );
+      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+      const isValid = hasRequiredFields && hasNoErrors;
+
+      onValidationChange(isValid);
+    }
+  }, [form.formState.errors, form, onValidationChange]);
 
   useEffect(() => {
     if (!isSyncingRef.current) {
