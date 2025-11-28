@@ -1,9 +1,17 @@
 "use client";
 
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { Progress } from "@heroui/react";
 import { logger } from "@/lib/logger";
+
+// Lazy load Lottie
+const Lottie = dynamic(() => import("lottie-react"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-48 h-48 animate-pulse bg-gray-200 rounded-lg" />
+  ),
+});
 
 type LoadingScreenProps = {
   isVisible: boolean;

@@ -22,9 +22,7 @@
       "firefox": "120",
       "safari": "16.4",
       "edge": "120"
-    },
-    "mode": "usage",
-    "coreJs": "3"
+    }
   },
   "minify": true
 }

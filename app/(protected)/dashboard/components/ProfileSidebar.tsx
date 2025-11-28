@@ -30,21 +30,14 @@ function ProfileSidebar() {
             <div className="w-30 h-30 bg-white/40 rounded-full flex items-center justify-center mb-3 p-1">
               <div className="w-full h-full rounded-full overflow-hidden bg-gray-200 relative">
                 {user?.profilePictureUrl ? (
-                  isDataUrl ? (
-                    <img
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                      src={user.profilePictureUrl}
-                    />
-                  ) : (
-                    <Image
-                      fill
-                      alt="Profile"
-                      className="object-cover"
-                      sizes="120px"
-                      src={user.profilePictureUrl}
-                    />
-                  )
+                  <Image
+                    fill
+                    alt="Profile"
+                    className="object-cover"
+                    sizes="120px"
+                    src={user.profilePictureUrl}
+                    unoptimized={isDataUrl}
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <UserIcon className="w-10 h-10 text-gray-400" />

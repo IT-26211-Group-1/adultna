@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 const nextConfig = {
   // Static export for S3 hosting
   output: "export",
@@ -27,9 +33,12 @@ const nextConfig = {
       "@heroui/toast",
       "lucide-react",
       "@tanstack/react-query",
+      "framer-motion",
+      "react-pdf",
+      "date-fns",
+      "@googlemaps/js-api-loader",
     ],
     webpackMemoryOptimizations: true,
-    cssChunking: "loose",
   },
 
   // Production optimizations
@@ -45,9 +54,6 @@ const nextConfig = {
         : false,
   },
 
-  // SWC minification for modern browsers
-  swcMinify: true,
-
   // Webpack optimizations
   webpack: (config, { dev, isServer }) => {
     if (!dev) {
@@ -58,42 +64,77 @@ const nextConfig = {
           name: (entrypoint) => `runtime-${entrypoint.name}`,
         },
         splitChunks: {
-          chunks: (chunk) => {
-            return !/\.css$/.test(chunk.name);
-          },
+          chunks: 'all',
           cacheGroups: {
-            default: false,
-            vendors: false,
+            // Framework essentials (React, Next.js) - load everywhere
             framework: {
               name: 'framework',
-              chunks: 'all',
-              test: (module) => {
-                return (
-                  module.resource &&
-                  /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+              priority: 50,
+              enforce: true,
+              reuseExistingChunk: true,
+            },
+
+            // 3D/Graphics libraries - ONLY for roadmap route
+            graphics3d: {
+              name: 'graphics3d',
+              test: /[\\/]node_modules[\\/](@splinetool|three|@react-three|@react-spring\/three)[\\/]/,
               priority: 40,
               enforce: true,
+              reuseExistingChunk: true,
             },
-            lib: {
-              test: (module) => {
-                return (
-                  module.resource &&
-                  /[\\/]node_modules[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource)
-                );
-              },
-              name(module) {
-                if (!module.context) return 'vendor';
-                const match = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
-                if (!match) return 'vendor';
-                const packageName = match[1];
-                return `npm.${packageName.replace('@', '')}`;
-              },
-              priority: 30,
-              minChunks: 1,
+
+            // PDF libraries - ONLY for filebox/resume routes
+            pdfLibs: {
+              name: 'pdf-libs',
+              test: /[\\/]node_modules[\\/](pdfjs-dist|react-pdf)[\\/]/,
+              priority: 40,
+              enforce: true,
+              reuseExistingChunk: true,
+            },
+
+            // Animation libraries - route-specific
+            animations: {
+              name: 'animations',
+              test: /[\\/]node_modules[\\/](framer-motion|gsap|lottie-react)[\\/]/,
+              priority: 40,
+              enforce: true,
+              reuseExistingChunk: true,
+            },
+
+            // AWS SDK - ONLY for features using it
+            aws: {
+              name: 'aws-sdk',
+              test: /[\\/]node_modules[\\/]@aws-sdk[\\/]/,
+              priority: 40,
+              enforce: true,
+              reuseExistingChunk: true,
+            },
+
+            // UI library (HeroUI, NextUI)
+            uiFramework: {
+              name: 'ui-framework',
+              test: /[\\/]node_modules[\\/](@heroui|@nextui-org)[\\/]/,
+              priority: 35,
+              enforce: true,
+              reuseExistingChunk: true,
+            },
+
+            // TanStack Query - used globally
+            reactQuery: {
+              name: 'react-query',
+              test: /[\\/]node_modules[\\/]@tanstack[\\/]/,
+              priority: 35,
+              enforce: true,
+              reuseExistingChunk: true,
+            },
+
+            // Everything else - common vendor code
+            commons: {
+              name: 'commons',
+              test: /[\\/]node_modules[\\/]/,
+              priority: 20,
+              minChunks: 2,
               reuseExistingChunk: true,
             },
           },
@@ -138,4 +179,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

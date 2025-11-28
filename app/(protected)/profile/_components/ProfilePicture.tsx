@@ -109,9 +109,9 @@ export function ProfilePicture({ onImageChange }: ProfilePictureProps) {
         <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center relative">
           {imagePreview ? (
             <Image
+              fill
               alt="Profile"
               className="object-cover"
-              fill
               sizes="80px"
               src={imagePreview}
             />
