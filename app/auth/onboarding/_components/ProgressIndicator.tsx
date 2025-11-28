@@ -15,7 +15,7 @@ const steps = [
 const ProgressIndicator = React.memo(
   ({ currentStep, onStepClick }: ProgressIndicatorProps) => {
     return (
-      <div className="flex items-center justify-center mb-8">
+      <div className="flex items-start justify-center mb-8 mx-8 mt-4">
         {steps.map((step, index) => (
           <React.Fragment key={step.number}>
             <div className="flex flex-col items-center">
@@ -33,10 +33,10 @@ const ProgressIndicator = React.memo(
               >
                 {step.number}
               </button>
-              <span className="text-xs mt-2 text-gray-600">{step.label}</span>
+              <span className="text-xs mt-2 text-gray-600 text-center min-h-[2.5rem] w-16 leading-tight">{step.label}</span>
             </div>
             {index < steps.length - 1 && (
-              <div className="w-16 h-0.5 bg-gray-300 mx-4 mt-[-20px]" />
+              <div className="w-16 h-0.5 bg-gray-300 mx-4 mt-5" />
             )}
           </React.Fragment>
         ))}
