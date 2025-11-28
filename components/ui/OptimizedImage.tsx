@@ -21,8 +21,8 @@ export function OptimizedImage({
   fill = false,
   sizes = "100vw",
 }: OptimizedImageProps) {
-  const basePath = src.replace(/\.(png|jpg|jpeg)$/i, "");
-  const ext = src.match(/\.(png|jpg|jpeg)$/i)?.[0] || ".png";
+  const basePath = src.replace(/\.(png|jpg|jpeg|svg)$/i, "");
+  const ext = src.match(/\.(png|jpg|jpeg|svg)$/i)?.[0] || ".png";
 
   const widths = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
   const avifSrcSet = widths
