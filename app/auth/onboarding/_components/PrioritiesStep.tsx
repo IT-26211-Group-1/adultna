@@ -61,39 +61,32 @@ function PrioritiesStep({
       <h2 className="text-2xl font-bold text-gray-900 mb-2">
         {prioritiesQuestion.question}
       </h2>
-      <p className="text-gray-600 mb-8">
+      <p className="text-sm italic text-gray-600 mb-8">
         Select all that apply (you can change these later)
       </p>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
           {options.map((option) => (
-            <label
+            <button
               key={option.id}
-              className={`inline-flex items-center px-4 py-3 border rounded-md cursor-pointer transition-colors ${
+              className={`group inline-flex items-center justify-center min-h-[44px] py-3 px-6 border rounded-full font-semibold transition-all duration-200 focus:outline-none ${
                 selectedPriorities.some(
                   (p) =>
                     p.questionId === prioritiesQuestion.id &&
                     p.optionId === option.id,
                 )
-                  ? "border-teal-500 bg-teal-50"
-                  : "border-gray-300 hover:bg-gray-50"
+                  ? "border-teal-600 bg-teal-50 text-teal-700 hover:bg-teal-100"
+                  : "border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900"
               }`}
+              onClick={() =>
+                handleTogglePriority(prioritiesQuestion.id, option.id)
+              }
             >
-              <input
-                checked={selectedPriorities.some(
-                  (p) =>
-                    p.questionId === prioritiesQuestion.id &&
-                    p.optionId === option.id,
-                )}
-                className="mr-3 text-teal-600"
-                type="checkbox"
-                onChange={() =>
-                  handleTogglePriority(prioritiesQuestion.id, option.id)
-                }
-              />
-              <span className="text-gray-900 text-sm">{option.optionText}</span>
-            </label>
+              <span className="text-sm font-semibold transition-colors duration-200 inline-flex items-center justify-center">
+                {option.optionText}
+              </span>
+            </button>
           ))}
         </div>
       </div>

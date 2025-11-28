@@ -54,7 +54,7 @@ function LifeStageStep({
       <h2 className="text-2xl font-bold text-gray-900 mb-2">
         {lifeStageQuestion.question}
       </h2>
-      <p className="text-gray-600 mb-8">
+      <p className="text-sm italic text-gray-600 mb-8">
         This helps us personalize your experience
       </p>
 
@@ -63,14 +63,14 @@ function LifeStageStep({
           {options.map((option) => (
             <button
               key={option.id}
-              className={`group inline-flex items-center justify-center min-h-[44px] py-3 px-6 border rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              className={`group inline-flex items-center justify-center min-h-[44px] py-3 px-6 border rounded-full font-semibold transition-all duration-200 focus:outline-none ${
                 isSelected(
                   option.id,
                   lifeStageQuestion.id,
                   selectedLifeStage,
                 )
-                  ? "border-teal-600 bg-teal-50 text-teal-700 hover:bg-teal-100 focus:ring-teal-500"
-                  : "border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900 focus:ring-gray-400"
+                  ? "border-teal-600 bg-teal-50 text-teal-700 hover:bg-teal-100"
+                  : "border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900"
               }`}
               onClick={() =>
                 setSelectedLifeStage(

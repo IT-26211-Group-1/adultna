@@ -336,7 +336,7 @@ export default function OnboardingModal({
               <div className="flex gap-2">
                 {currentStep > STEPS.INTRODUCTION && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 border border-gray-400 hover:border-gray-500 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                    className="group min-h-[44px] py-3 px-6 border border-gray-400 hover:border-gray-500 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 rounded-full font-semibold transition-all duration-200 focus:outline-none"
                     onClick={previousStep}
                   >
                     <span className="text-sm font-semibold transition-colors duration-200 inline-flex items-center justify-center gap-2">
@@ -357,7 +357,7 @@ export default function OnboardingModal({
               <div>
                 {currentStep === STEPS.INTRODUCTION && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50"
+                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none  disabled:opacity-50"
                     onClick={nextStep}
                     disabled={!displayName.trim()}
                   >
@@ -369,7 +369,7 @@ export default function OnboardingModal({
 
                 {currentStep === STEPS.LIFE_STAGE && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50"
+                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none  disabled:opacity-50"
                     onClick={nextStep}
                     disabled={!selectedLifeStage}
                   >
@@ -381,7 +381,7 @@ export default function OnboardingModal({
 
                 {currentStep === STEPS.PRIORITIES && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none "
                     onClick={nextStep}
                   >
                     <span className="text-sm font-semibold text-white transition-colors duration-200 inline-flex items-center justify-center gap-2">
@@ -392,7 +392,7 @@ export default function OnboardingModal({
 
                 {currentStep === STEPS.YOUR_PATH && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none "
                     onClick={() => handleComplete({
                       displayName: displayName || undefined,
                       ...(selectedLifeStage
