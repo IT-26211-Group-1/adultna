@@ -90,12 +90,23 @@ export class ApiClient {
                 "[ApiClient] ❌ Refresh failed - refresh token expired, logging out",
               );
 
+              // Check if account was deactivated
+              const refreshErrorData = await refreshResponse.json().catch(() => ({}));
+              const isDeactivated = refreshErrorData?.message?.includes("deactivated");
+
               // Refresh token expired, logout user
               if (typeof window !== "undefined") {
                 const currentPath = window.location.pathname;
 
                 // Only redirect if not already on a public route
                 if (!isPublicRoute(currentPath)) {
+                  // Show deactivation message if account was deactivated
+                  if (isDeactivated) {
+                    alert(
+                      "Your session has ended because your account has been deactivated. Please contact support to reactivate your account.",
+                    );
+                  }
+
                   const loginPath = currentPath.startsWith("/admin")
                     ? "/admin/login"
                     : "/auth/login";
@@ -112,12 +123,24 @@ export class ApiClient {
           } catch (error) {
             logger.log("[ApiClient] ❌ Token refresh error:", error);
 
+            // Check if the original error was due to account deactivation
+            const isDeactivated =
+              typeof errorData === "object" &&
+              errorData?.message?.includes("deactivated");
+
             // If refresh fails, logout user
             if (typeof window !== "undefined") {
               const currentPath = window.location.pathname;
 
               // Only redirect if not already on a public route
               if (!isPublicRoute(currentPath)) {
+                // Show deactivation message if account was deactivated
+                if (isDeactivated) {
+                  alert(
+                    "Your session has ended because your account has been deactivated. Please contact support to reactivate your account.",
+                  );
+                }
+
                 const loginPath = currentPath.startsWith("/admin")
                   ? "/admin/login"
                   : "/auth/login";
