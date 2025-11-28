@@ -40,7 +40,8 @@ const nextConfig = {
       "@googlemaps/js-api-loader",
     ],
     webpackMemoryOptimizations: true,
-    cssChunking: "strict", // Use strict chunking for better CSS optimization
+    cssChunking: "strict",
+    optimisticClientCache: true,
   },
 
   // Production optimizations
@@ -48,11 +49,12 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
 
-  // Compiler optimizations
+  // Compiler optimizations for modern browsers
   compiler: {
     removeConsole: {
       exclude: ["error", "warn"],
     },
+    target: "es2020",
   },
 
   // SWC configuration for modern JavaScript
@@ -84,18 +86,18 @@ const nextConfig = {
                   publicPath: "",
                   external: true,
                   inlineThreshold: 0,
-                  minimumExternalSize: 0,
+                  minimumExternalSize: 15000,
                   pruneSource: true,
                   mergeStylesheets: true,
                   additionalStylesheets: [],
-                  preload: "swap",
+                  preload: "js-lazy",
                   noscriptFallback: true,
                   inlineFonts: false,
-                  preloadFonts: true,
+                  preloadFonts: false,
                   fonts: false,
                   keyframes: "critical",
                   compress: true,
-                  logLevel: "info",
+                  logLevel: "warn",
                 });
 
                 const htmlAssets = Object.keys(assets).filter((filename) =>
@@ -140,7 +142,8 @@ const nextConfig = {
         },
         splitChunks: {
           chunks: "all",
-          maxInitialRequests: 25,
+          maxInitialRequests: 10,
+          maxAsyncRequests: 10,
           minSize: 20000,
           cacheGroups: {
             // Ensure styles are handled separately - merge all CSS into one file
@@ -179,8 +182,8 @@ const nextConfig = {
                   ) && !/\.css$/.test(module.resource)
                 );
               },
+              chunks: "async",
               priority: 40,
-              enforce: true,
               reuseExistingChunk: true,
             },
 
@@ -195,8 +198,8 @@ const nextConfig = {
                   ) && !/\.css$/.test(module.resource)
                 );
               },
+              chunks: "async",
               priority: 40,
-              enforce: true,
               reuseExistingChunk: true,
             },
 
@@ -211,8 +214,8 @@ const nextConfig = {
                   ) && !/\.css$/.test(module.resource)
                 );
               },
+              chunks: "async",
               priority: 40,
-              enforce: true,
               reuseExistingChunk: true,
             },
 
@@ -227,8 +230,8 @@ const nextConfig = {
                   ) && !/\.css$/.test(module.resource)
                 );
               },
+              chunks: "async",
               priority: 40,
-              enforce: true,
               reuseExistingChunk: true,
             },
 
@@ -242,8 +245,8 @@ const nextConfig = {
                   !/\.css$/.test(module.resource)
                 );
               },
+              chunks: "async",
               priority: 40,
-              enforce: true,
               reuseExistingChunk: true,
             },
 
@@ -279,7 +282,7 @@ const nextConfig = {
               reuseExistingChunk: true,
             },
 
-            // Everything else - common vendor code
+            // Everything else - common vendor code (only if used in 3+ chunks)
             commons: {
               name: "commons",
               test: (module) => {
@@ -290,7 +293,8 @@ const nextConfig = {
                 );
               },
               priority: 20,
-              minChunks: 2,
+              minChunks: 3,
+              minSize: 30000,
               reuseExistingChunk: true,
             },
           },
