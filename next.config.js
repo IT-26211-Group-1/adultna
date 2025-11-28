@@ -29,6 +29,7 @@ const nextConfig = {
       "@tanstack/react-query",
     ],
     webpackMemoryOptimizations: true,
+    cssChunking: "loose",
   },
 
   // Production optimizations
@@ -43,6 +44,9 @@ const nextConfig = {
           }
         : false,
   },
+
+  // SWC minification for modern browsers
+  swcMinify: true,
 
   // Webpack optimizations
   webpack: (config, { dev, isServer }) => {
