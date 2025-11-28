@@ -129,7 +129,7 @@ export default function WorkExperienceForm({
             exp.jobTitle?.trim() &&
             exp.employer?.trim() &&
             exp.startDate &&
-            exp.description?.trim()
+            exp.description?.trim(),
         )
       );
       const hasNoErrors = Object.keys(form.formState.errors).length === 0;

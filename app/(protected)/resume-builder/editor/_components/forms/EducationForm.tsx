@@ -123,7 +123,7 @@ export default function EducationForm({
             edu.schoolName?.trim() &&
             edu.degree?.trim() &&
             edu.fieldOfStudy?.trim() &&
-            edu.graduationDate
+            edu.graduationDate,
         )
       );
       const hasNoErrors = Object.keys(form.formState.errors).length === 0;

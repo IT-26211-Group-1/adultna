@@ -113,7 +113,7 @@ export const workSchema = z.object({
             .optional()
             .refine(
               (val) => !val || /^[A-Za-z\s]+$/.test(val),
-              "Job title must contain only alphabetical characters"
+              "Job title must contain only alphabetical characters",
             ),
           employer: z
             .string()
@@ -141,13 +141,14 @@ export const workSchema = z.object({
             ) {
               return true;
             }
+
             return data.endDate >= data.startDate;
           },
           {
             message: "End date cannot be earlier than start date",
             path: ["endDate"],
-          }
-        )
+          },
+        ),
     )
     .optional(),
 });
@@ -163,7 +164,7 @@ export const educationSchema = z.object({
           .optional()
           .refine(
             (val) => !val || /^[A-Za-z\s]+$/.test(val),
-            "School name must contain only alphabetical characters"
+            "School name must contain only alphabetical characters",
           ),
         schoolLocation: z
           .string()
@@ -171,7 +172,7 @@ export const educationSchema = z.object({
           .optional()
           .refine(
             (val) => !val || /^[A-Za-z0-9\s,.\-()]+$/.test(val),
-            "School location must contain only alphabetical characters and basic punctuation"
+            "School location must contain only alphabetical characters and basic punctuation",
           ),
         degree: z
           .string()
@@ -182,7 +183,7 @@ export const educationSchema = z.object({
           .max(100, "Field of study must be less than 100 characters")
           .optional(),
         graduationDate: calendarDateToDate.optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -200,7 +201,7 @@ export const certificationSchema = z.object({
           .string()
           .max(100, "Issuing organization must be less than 100 characters")
           .optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -218,7 +219,7 @@ export const skillSchema = z.object({
           .max(5, "Proficiency must be at most 5")
           .optional(),
         order: z.number().optional(),
-      })
+      }),
     )
     .optional(),
 });
