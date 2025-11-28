@@ -5,8 +5,9 @@ import { Edit2, User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import DashboardCalendar from "./DashboardCalendar";
 import DashboardNotifications from "./DashboardNotifications";
-import Image from "next/image";
 import { useAuth } from "@/hooks/queries/useAuthQueries";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 function ProfileSidebar() {
   const router = useRouter();
@@ -28,10 +29,11 @@ function ProfileSidebar() {
             <div className="w-30 h-30 bg-white/40 rounded-full flex items-center justify-center mb-3 p-1">
               <div className="w-full h-full rounded-full overflow-hidden bg-gray-200">
                 {user?.profilePictureUrl ? (
-                  <Image
+                  <OptimizedImage
                     alt="Profile Image"
                     className="w-full h-full object-cover"
                     height={80}
+                    sizes="80px"
                     src={user.profilePictureUrl}
                     width={80}
                   />

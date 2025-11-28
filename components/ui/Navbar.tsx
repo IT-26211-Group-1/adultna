@@ -10,9 +10,10 @@ import {
 } from "@heroui/navbar";
 import NextLink from "next/link";
 import clsx from "clsx";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 import { siteConfig } from "@/config/site";
 
@@ -34,7 +35,14 @@ export const Navbar = () => {
             className="flex justify-start items-center gap-2 stroke-background"
             href="/"
           >
-            <Image alt="Logo" height={102} src="/Logo.png" width={130} />
+            <OptimizedImage
+              priority
+              alt="Logo"
+              height={102}
+              sizes="130px"
+              src="/Logo.png"
+              width={130}
+            />
           </NextLink>
         </NavbarBrand>
       </NavbarContent>

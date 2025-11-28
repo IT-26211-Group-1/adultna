@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Camera, Loader2, Upload, Trash2 } from "lucide-react";
-import Image from "next/image";
 import { useAuth } from "@/hooks/queries/useAuthQueries";
 import { useUploadProfilePicture } from "@/hooks/queries/useProfileQueries";
 import { addToast } from "@heroui/toast";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 type ProfilePictureProps = {
   onImageChange?: () => void;
@@ -108,10 +109,11 @@ export function ProfilePicture({ onImageChange }: ProfilePictureProps) {
       <div ref={menuRef} className="relative">
         <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
           {imagePreview ? (
-            <Image
+            <OptimizedImage
               alt="Profile"
               className="w-full h-full object-cover"
               height={80}
+              sizes="80px"
               src={imagePreview}
               width={80}
             />

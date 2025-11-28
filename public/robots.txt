@@ -1,0 +1,30 @@
+# AdultNa - Robots.txt
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /features
+Allow: /about
+Allow: /faq
+Allow: /terms
+Allow: /privacy
+Allow: /cookies
+
+# Disallow authentication pages
+Disallow: /auth/
+
+# Disallow protected user areas
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /roadmap
+Disallow: /ai-gabay
+Disallow: /filebox
+Disallow: /interview
+Disallow: /resume
+Disallow: /job-board
+
+# Disallow API routes (if any)
+Disallow: /api/
+
+# Sitemap location (create this later if needed)
+# Sitemap: https://adultna.com/sitemap.xml

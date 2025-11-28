@@ -2,8 +2,9 @@
 
 import { ChevronRight, Plus, Home } from "lucide-react";
 import { Button } from "@heroui/react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 interface RoadmapNavigationProps {
   onAddMilestone?: () => void;
@@ -29,10 +30,12 @@ export function RoadmapNavigation({ onAddMilestone }: RoadmapNavigationProps) {
           <div className="flex items-center space-x-4">
             {/* Logo */}
             <div className="flex items-center">
-              <Image
+              <OptimizedImage
+                priority
                 alt="AdultNa Logo"
                 className="object-contain"
                 height={32}
+                sizes="32px"
                 src="/AdultNa-Logo-Icon.png"
                 width={32}
               />
