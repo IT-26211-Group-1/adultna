@@ -171,7 +171,7 @@ async function processDirectory(dirPath) {
 
     if (stats.isFile()) {
       const ext = parse(file).ext.toLowerCase();
-      if (['.png', '.jpg', '.jpeg', '.svg'].includes(ext)) {
+      if (['.png', '.jpg', '.jpeg'].includes(ext)) {
         await convertImage(filepath);
       }
     }

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export function ProblemSubject() {
@@ -22,11 +24,11 @@ export function ProblemSubject() {
         <div>
           <div className="flex items-center justify-center w-50 h-50 mx-auto bg-white border-20 border-crayola-orange rounded-full shadow-inner shadow-gray-600">
             <span className="text-xl font-semibold text-gray-700">
-              <OptimizedImage
+              <Image
                 alt="Document processing icon"
                 className="w-500 h-auto ml-1 inline-block"
                 height={1920}
-                sizes="(max-width: 768px) 100vw, 400px"
+                loading="lazy"
                 src="/2 1.svg"
                 width={1080}
               />
@@ -45,11 +47,11 @@ export function ProblemSubject() {
         <div>
           <div className="flex items-center justify-center w-50 h-50 mx-auto bg-white border-20 border-peach-yellow rounded-full shadow-inner shadow-gray-600">
             <span className="text-xl font-semibold text-gray-700 ">
-              <OptimizedImage
+              <Image
                 alt="Job search icon"
                 className="w-500 h-auto ml-1 inline-block"
                 height={1920}
-                sizes="(max-width: 768px) 100vw, 400px"
+                loading="lazy"
                 src="/5 1.svg"
                 width={1080}
               />
@@ -69,11 +71,11 @@ export function ProblemSubject() {
         <div>
           <div className="flex items-center justify-center w-50 h-50 mx-auto bg-white border-20 border-periwinkle rounded-full shadow-inner shadow-gray-600">
             <span className="text-xl font-semibold text-gray-700">
-              <OptimizedImage
+              <Image
                 alt="Real world navigation icon"
                 className="w-500 h-auto ml-1 inline-block"
                 height={1920}
-                sizes="(max-width: 768px) 100vw, 400px"
+                loading="lazy"
                 src="/4 1.svg"
                 width={1080}
               />
