@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 import { STEPS } from "@/constants/onboarding";
 import IntroductionStep from "./IntroductionStep";
@@ -9,7 +9,8 @@ import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
 import YourPathStep from "./YourPathStep";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import Lottie from "lottie-react";
+import roadmapLoadingAnimation from "../../../../public/roadmap-loading.json";
 
 type OnboardingModalProps = {
   isOpen: boolean;
@@ -152,7 +153,22 @@ export default function OnboardingModal({
         <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden">
           <div className="flex items-center justify-center min-h-[700px]">
             <div className="text-center">
-              <LoadingSpinner fullScreen={false} size="xl" />
+              <div className="w-64 h-64 mx-auto mb-4 flex items-center justify-center">
+                <Suspense fallback={
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600"></div>
+                }>
+                  <Lottie
+                    animationData={roadmapLoadingAnimation}
+                    loop={true}
+                    autoplay={true}
+                    style={{ width: '100%', height: '100%' }}
+                    onDOMLoaded={() => console.log('Animation loaded successfully')}
+                    rendererSettings={{
+                      preserveAspectRatio: 'xMidYMid slice'
+                    }}
+                  />
+                </Suspense>
+              </div>
               <p className="mt-6 text-lg font-medium text-gray-700">
                 Creating your personalized roadmap...
               </p>
@@ -191,26 +207,110 @@ export default function OnboardingModal({
           />
         );
       case STEPS.YOUR_PATH:
-        return (
-          <YourPathStep
-            displayName={displayName}
-            isSubmitting={isSubmitting}
-            lifeStage={selectedLifeStage}
-            priorities={selectedPriorities}
-            onComplete={handleComplete}
-          />
-        );
+        return <YourPathStep />;
       default:
         return null;
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-6 z-50">
+  // Mobile Layout (screens < 640px)
+  const renderMobileLayout = () => (
+    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-h-[95vh] overflow-hidden flex flex-col h-full max-w-md">
+      {/* Mobile Content */}
+      <div className="flex-1 flex flex-col p-4 overflow-y-auto">
+        {/* Progress Indicator */}
+        <div className="mb-4 mt-2">
+          <ProgressIndicator currentStep={currentStep} onStepClick={goToStep} />
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="w-full max-w-sm">
+            {renderCurrentStep()}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Footer Navigation */}
+      <div className="flex justify-between p-4 bg-white border-t border-gray-100">
+        <div className="flex gap-2">
+          {currentStep > STEPS.INTRODUCTION && (
+            <button
+              className="min-h-[44px] py-2 px-4 border border-gray-400 hover:border-gray-500 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 rounded-full font-semibold transition-all duration-200 focus:outline-none text-sm"
+              onClick={previousStep}
+            >
+              ← Back
+            </button>
+          )}
+          {currentStep === STEPS.PRIORITIES && (
+            <button
+              className="text-gray-500 hover:text-gray-700 px-4 py-2 font-medium transition-colors rounded-full text-sm"
+              onClick={skipStep}
+            >
+              Skip
+            </button>
+          )}
+        </div>
+
+        <div>
+          {currentStep === STEPS.INTRODUCTION && (
+            <button
+              className="min-h-[44px] py-2 px-4 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none disabled:opacity-50 text-sm"
+              onClick={nextStep}
+              disabled={!displayName.trim()}
+            >
+              <span className="font-semibold text-white">Next →</span>
+            </button>
+          )}
+
+          {currentStep === STEPS.LIFE_STAGE && (
+            <button
+              className="min-h-[44px] py-2 px-4 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none disabled:opacity-50 text-sm"
+              onClick={nextStep}
+              disabled={!selectedLifeStage}
+            >
+              <span className="font-semibold text-white">Next →</span>
+            </button>
+          )}
+
+          {currentStep === STEPS.PRIORITIES && (
+            <button
+              className="min-h-[44px] py-2 px-4 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none disabled:opacity-50 text-sm"
+              onClick={nextStep}
+              disabled={selectedPriorities.length === 0}
+            >
+              <span className="font-semibold text-white">Next →</span>
+            </button>
+          )}
+
+          {currentStep === STEPS.YOUR_PATH && (
+            <button
+              className="min-h-[44px] py-2 px-4 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none text-sm"
+              onClick={() => handleComplete({
+                displayName: displayName || undefined,
+                ...(selectedLifeStage
+                  ? { questionId: selectedLifeStage.questionId, optionId: selectedLifeStage.optionId }
+                  : {}),
+                priorities: selectedPriorities,
+              })}
+            >
+              <span className="font-semibold text-white">Get Started</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+    </div>
+  );
+
+  // Desktop/Tablet Layout (screens >= 640px)
+  const renderDesktopLayout = () => (
+    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 lg:p-6 z-50">
       <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden">
         <div className="flex flex-col lg:flex-row h-full min-h-[700px]">
           {/* Left Panel - Visual Storytelling */}
-          <div className="lg:w-1/2 bg-gradient-to-br from-yellow-50 via-teal-50 to-blue-50 p-8 lg:p-12 flex flex-col justify-center relative overflow-hidden">
+          <div className="hidden sm:flex lg:w-1/2 bg-gradient-to-br from-yellow-50 via-teal-50 to-blue-50 p-6 sm:p-8 lg:p-12 flex-col justify-center relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-teal-200/30 rounded-full blur-xl" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200/30 rounded-full blur-xl" />
@@ -315,12 +415,12 @@ export default function OnboardingModal({
           </div>
 
           {/* Right Panel - Interactive Content */}
-          <div className="lg:w-1/2 flex flex-col p-8 lg:p-12">
+          <div className="w-full lg:w-1/2 flex flex-col p-4 sm:p-6 lg:p-8 xl:p-12 overflow-y-auto">
             {/* Content Area */}
-            <div className="flex-1 flex flex-col items-center pt-16">
-              <div className="w-full max-w-md">
+            <div className="flex-1 flex flex-col items-center pt-4 sm:pt-8 lg:pt-16">
+              <div className="w-full max-w-md px-4 sm:px-0">
                 {/* Progress Indicator */}
-                <div className="mb-12">
+                <div className="mb-6">
                   <ProgressIndicator currentStep={currentStep} onStepClick={goToStep} />
                 </div>
 
@@ -332,11 +432,11 @@ export default function OnboardingModal({
             </div>
 
             {/* Footer Navigation */}
-            <div className="flex justify-between pt-6">
-              <div className="flex gap-2">
+            <div className="flex justify-between pt-4 sm:pt-6 px-4 sm:px-0 pb-4 sm:pb-0 bg-white mt-auto">
+              <div className="flex gap-2 flex-shrink-0">
                 {currentStep > STEPS.INTRODUCTION && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 border border-gray-400 hover:border-gray-500 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 rounded-full font-semibold transition-all duration-200 focus:outline-none"
+                    className="group min-h-[44px] py-2 sm:py-3 px-4 sm:px-6 border border-gray-400 hover:border-gray-500 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 rounded-full font-semibold transition-all duration-200 focus:outline-none text-sm sm:text-base"
                     onClick={previousStep}
                   >
                     <span className="text-sm font-semibold transition-colors duration-200 inline-flex items-center justify-center gap-2">
@@ -344,9 +444,9 @@ export default function OnboardingModal({
                     </span>
                   </button>
                 )}
-                {currentStep > STEPS.INTRODUCTION && currentStep < STEPS.YOUR_PATH && (
+                {currentStep === STEPS.PRIORITIES && (
                   <button
-                    className="text-gray-500 hover:text-gray-700 px-6 py-3 font-medium transition-colors rounded-full"
+                    className="text-gray-500 hover:text-gray-700 px-4 sm:px-6 py-2 sm:py-3 font-medium transition-colors rounded-full text-sm sm:text-base"
                     onClick={skipStep}
                   >
                     Skip
@@ -357,7 +457,7 @@ export default function OnboardingModal({
               <div>
                 {currentStep === STEPS.INTRODUCTION && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none  disabled:opacity-50"
+                    className="group min-h-[44px] py-2 sm:py-3 px-4 sm:px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none  disabled:opacity-50 text-sm sm:text-base"
                     onClick={nextStep}
                     disabled={!displayName.trim()}
                   >
@@ -369,7 +469,7 @@ export default function OnboardingModal({
 
                 {currentStep === STEPS.LIFE_STAGE && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none  disabled:opacity-50"
+                    className="group min-h-[44px] py-2 sm:py-3 px-4 sm:px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none  disabled:opacity-50 text-sm sm:text-base"
                     onClick={nextStep}
                     disabled={!selectedLifeStage}
                   >
@@ -381,8 +481,9 @@ export default function OnboardingModal({
 
                 {currentStep === STEPS.PRIORITIES && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none "
+                    className="group min-h-[44px] py-2 sm:py-3 px-4 sm:px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none  disabled:opacity-50 text-sm sm:text-base"
                     onClick={nextStep}
+                    disabled={selectedPriorities.length === 0}
                   >
                     <span className="text-sm font-semibold text-white transition-colors duration-200 inline-flex items-center justify-center gap-2">
                       Next →
@@ -392,7 +493,7 @@ export default function OnboardingModal({
 
                 {currentStep === STEPS.YOUR_PATH && (
                   <button
-                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none "
+                    className="group min-h-[44px] py-2 sm:py-3 px-4 sm:px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none text-sm sm:text-base"
                     onClick={() => handleComplete({
                       displayName: displayName || undefined,
                       ...(selectedLifeStage
@@ -412,5 +513,19 @@ export default function OnboardingModal({
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Layout */}
+      <div className="sm:hidden">
+        {renderMobileLayout()}
+      </div>
+
+      {/* Desktop/Tablet Layout */}
+      <div className="hidden sm:block">
+        {renderDesktopLayout()}
+      </div>
+    </>
   );
 }
