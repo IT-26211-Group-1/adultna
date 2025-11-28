@@ -45,15 +45,14 @@ const nextConfig = {
 
   // Production optimizations
   productionBrowserSourceMaps: false,
+  poweredByHeader: false,
+  reactStrictMode: true,
 
   // Compiler optimizations
   compiler: {
-    removeConsole:
-      process.env.NODE_ENV === "production"
-        ? {
-            exclude: ["error", "warn"],
-          }
-        : false,
+    removeConsole: {
+      exclude: ["error", "warn"],
+    },
   },
 
   // Webpack optimizations
@@ -295,6 +294,90 @@ const nextConfig = {
         net: false,
         tls: false,
       };
+    }
+
+    // Production-only optimizations for bundle size reduction
+    if (!dev && !isServer) {
+      // Enable advanced tree shaking
+      config.optimization = {
+        ...config.optimization,
+        usedExports: true,
+        sideEffects: true,
+        providedExports: true,
+        innerGraph: true,
+        concatenateModules: true,
+        minimize: true,
+      };
+
+      // Optimize Terser for aggressive minification
+      if (config.optimization.minimizer) {
+        config.optimization.minimizer = config.optimization.minimizer.map((plugin) => {
+          if (plugin.constructor.name === 'TerserPlugin') {
+            plugin.options = {
+              ...plugin.options,
+              terserOptions: {
+                ...plugin.options.terserOptions,
+                compress: {
+                  ...plugin.options.terserOptions?.compress,
+                  // Remove console and debugger
+                  drop_console: true,
+                  drop_debugger: true,
+                  // Mark console functions as pure for removal
+                  pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
+                  // Run compression multiple times
+                  passes: 3,
+                  // Dead code elimination
+                  dead_code: true,
+                  unused: true,
+                  // More aggressive optimizations for modern browsers
+                  arrows: true,
+                  collapse_vars: true,
+                  comparisons: true,
+                  computed_props: true,
+                  conditionals: true,
+                  evaluate: true,
+                  hoist_funs: true,
+                  hoist_props: true,
+                  if_return: true,
+                  inline: 3,
+                  join_vars: true,
+                  keep_infinity: true,
+                  loops: true,
+                  negate_iife: true,
+                  properties: true,
+                  reduce_funcs: true,
+                  reduce_vars: true,
+                  sequences: true,
+                  side_effects: true,
+                  switches: true,
+                  typeofs: true,
+                  // Unsafe optimizations for modern browsers
+                  unsafe_arrows: true,
+                  unsafe_comps: true,
+                  unsafe_Function: true,
+                  unsafe_math: true,
+                  unsafe_symbols: true,
+                  unsafe_methods: true,
+                  unsafe_proto: true,
+                  unsafe_regexp: true,
+                  unsafe_undefined: true,
+                },
+                mangle: {
+                  safari10: false,
+                  toplevel: true,
+                },
+                format: {
+                  comments: false,
+                  ecma: 2020,
+                },
+                ecma: 2020,
+              },
+              extractComments: false,
+            };
+          }
+          return plugin;
+        });
+      }
     }
 
     return config;
