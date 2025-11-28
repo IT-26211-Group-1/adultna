@@ -17,6 +17,8 @@ import { Plus, X } from "lucide-react";
 import { useCreateMilestone } from "@/hooks/queries/useRoadmapQueries";
 import { CreateMilestonePayload } from "@/types/roadmap";
 import { logger } from "@/lib/logger";
+import { createMilestoneSchema } from "@/validators/roadmapSchema";
+import { ZodError } from "zod";
 
 interface AddMilestoneModalProps {
   isOpen: boolean;
@@ -47,15 +49,16 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
     tasks: [],
   });
   const [taskInput, setTaskInput] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const createMilestone = useCreateMilestone();
 
+  const today = new Date();
+  const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.title || !formData.category) {
-      return;
-    }
+    setErrors({});
 
     // Add any pending task in the input field
     const finalTasks = [...(formData.tasks || [])];
@@ -64,14 +67,29 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
       finalTasks.push({ title: taskInput.trim() });
     }
 
+    const dataToValidate = {
+      ...formData,
+      tasks: finalTasks,
+    };
+
     try {
-      await createMilestone.mutateAsync({
-        ...formData,
-        tasks: finalTasks,
-      });
+      createMilestoneSchema.parse(dataToValidate);
+
+      await createMilestone.mutateAsync(dataToValidate);
       handleClose();
     } catch (error) {
-      logger.error("Failed to create milestone:", error);
+      if (error instanceof ZodError) {
+        const fieldErrors: Record<string, string> = {};
+
+        error.issues.forEach((issue) => {
+          const path = issue.path.join(".");
+
+          fieldErrors[path] = issue.message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        logger.error("Failed to create milestone:", error);
+      }
     }
   };
 
@@ -101,6 +119,7 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
       tasks: [],
     });
     setTaskInput("");
+    setErrors({});
     onClose();
   };
 
@@ -122,6 +141,8 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
               <div className="flex flex-col gap-4">
                 <Input
                   isRequired
+                  errorMessage={errors.title}
+                  isInvalid={!!errors.title}
                   label="Title"
                   placeholder="Enter milestone title"
                   value={formData.title}
@@ -132,6 +153,8 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
                 />
 
                 <Textarea
+                  errorMessage={errors.description}
+                  isInvalid={!!errors.description}
                   label="Description"
                   minRows={3}
                   placeholder="Enter milestone description"
@@ -174,7 +197,10 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
                 </Select>
 
                 <Input
+                  errorMessage={errors.deadline}
+                  isInvalid={!!errors.deadline}
                   label="Deadline (Optional)"
+                  min={minDate}
                   type="date"
                   value={formData.deadline || ""}
                   variant="bordered"
@@ -185,8 +211,12 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
 
                 <div className="space-y-2">
                   <div className="text-sm font-medium">Tasks (Optional)</div>
+                  {errors.tasks && (
+                    <div className="text-sm text-danger">{errors.tasks}</div>
+                  )}
                   <div className="flex gap-2">
                     <Input
+                      isDisabled={formData.tasks && formData.tasks.length >= 5}
                       placeholder="Add a task"
                       size="sm"
                       value={taskInput}
@@ -240,7 +270,7 @@ export function AddMilestoneModal({ isOpen, onClose }: AddMilestoneModalProps) {
                 Cancel
               </Button>
               <Button
-                color="primary"
+                className="bg-green-600 hover:bg-green-700 text-white"
                 isDisabled={!formData.title || !formData.category}
                 isLoading={createMilestone.isPending}
                 type="submit"
