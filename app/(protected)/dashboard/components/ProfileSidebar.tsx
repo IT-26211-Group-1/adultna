@@ -3,9 +3,9 @@
 import { useCallback, memo } from "react";
 import { Edit2, User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import DashboardCalendar from "./DashboardCalendar";
 import DashboardNotifications from "./DashboardNotifications";
-import Image from "next/image";
 import { useAuth } from "@/hooks/queries/useAuthQueries";
 
 function ProfileSidebar() {
@@ -15,6 +15,8 @@ function ProfileSidebar() {
   const handleProfileClick = useCallback(() => {
     router.push("/profile");
   }, [router]);
+
+  const isDataUrl = user?.profilePictureUrl?.startsWith("data:");
 
   return (
     <div className="transition-all duration-300 flex-shrink-0 w-80">
@@ -26,14 +28,15 @@ function ProfileSidebar() {
         <div className="bg-transparent text-gray-900 p-2 pt-15 relative">
           <div className="flex flex-col items-center text-center">
             <div className="w-30 h-30 bg-white/40 rounded-full flex items-center justify-center mb-3 p-1">
-              <div className="w-full h-full rounded-full overflow-hidden bg-gray-200">
+              <div className="w-full h-full rounded-full overflow-hidden bg-gray-200 relative">
                 {user?.profilePictureUrl ? (
                   <Image
-                    alt="Profile Image"
-                    className="w-full h-full object-cover"
-                    height={80}
+                    fill
+                    alt="Profile"
+                    className="object-cover"
+                    sizes="120px"
                     src={user.profilePictureUrl}
-                    width={80}
+                    unoptimized={isDataUrl}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

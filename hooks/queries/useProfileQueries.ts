@@ -47,22 +47,22 @@ export type UploadProfilePictureResponse = {
 
 const profileApi = {
   updateProfile: (
-    data: UpdateProfileRequest,
+    data: UpdateProfileRequest
   ): Promise<{ success: boolean; message: string; data: Profile }> =>
     ApiClient.patch("/profile", data),
 
   updatePassword: (
-    data: UpdatePasswordRequest,
+    data: UpdatePasswordRequest
   ): Promise<{ success: boolean; message: string }> =>
     ApiClient.patch("/profile/password", data),
 
   deleteAccount: (
-    data: DeleteAccountRequest,
+    data: DeleteAccountRequest
   ): Promise<{ success: boolean; message: string }> =>
     ApiClient.delete("/profile/account", { body: JSON.stringify(data) }),
 
   uploadProfilePicture: (
-    data: UploadProfilePictureRequest,
+    data: UploadProfilePictureRequest
   ): Promise<UploadProfilePictureResponse> =>
     ApiClient.post("/profile/picture/upload", data),
 };
@@ -126,14 +126,28 @@ export function useDeleteAccount() {
 
   return useMutation({
     mutationFn: profileApi.deleteAccount,
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       addToast({
-        title: response.message || "Account deleted successfully",
+        title: response.message || "Account deactivated successfully",
         color: "success",
       });
+
+      // Call logout to clear HTTP-only cookies
+      try {
+        await ApiClient.post("/auth/logout");
+      } catch (error) {
+        console.error("Logout call failed:", error);
+      }
+
+      // Clear all local data
       queryClient.clear();
       localStorage.clear();
       sessionStorage.clear();
+
+      // Broadcast logout to other tabs
+      import("@/hooks/useAuthSync").then(({ broadcastLogout }) => {
+        broadcastLogout();
+      });
 
       // Redirect to appropriate login page based on current path
       const isAdmin = window.location.pathname.startsWith("/admin");
@@ -144,9 +158,11 @@ export function useDeleteAccount() {
       let errorMessage = "Failed to delete account";
 
       if (error.status === 500) {
-        errorMessage = "Server error occurred. Please try again later or contact support if the problem persists.";
+        errorMessage =
+          "Server error occurred. Please try again later or contact support if the problem persists.";
       } else if (error.status === 401) {
-        errorMessage = "Authentication failed. Please check your password and try again.";
+        errorMessage =
+          "Authentication failed. Please check your password and try again.";
       } else if (error.status === 403) {
         errorMessage = "You don't have permission to delete this account.";
       } else if (error.message) {
@@ -154,8 +170,7 @@ export function useDeleteAccount() {
       }
 
       addToast({
-        title: "Account Deletion Failed",
-        description: errorMessage,
+        title: error.message || "Failed to deactivate account",
         color: "danger",
         timeout: 8000,
       });
