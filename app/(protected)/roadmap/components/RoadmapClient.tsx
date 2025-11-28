@@ -1,7 +1,6 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import dynamic from "next/dynamic";
 import { Suspense, useState, useCallback, useEffect } from "react";
 import { useDisclosure } from "@heroui/react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -16,6 +15,25 @@ import {
 } from "../../../../types/roadmap";
 import { logger } from "@/lib/logger";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+
+// Lazy load Three.js Canvas component
+const Canvas = dynamic(
+  () => import("@react-three/fiber").then((mod) => ({ default: mod.Canvas })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <LoadingSpinner fullScreen={false} size="xl" variant="default" />
+      </div>
+    ),
+  }
+);
+
+// Lazy load OrbitControls
+const OrbitControls = dynamic(
+  () => import("@react-three/drei").then((mod) => ({ default: mod.OrbitControls })),
+  { ssr: false }
+);
 
 const CAMERA_ANIMATION: CameraAnimation = {
   from: {

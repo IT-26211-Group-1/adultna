@@ -3,7 +3,7 @@ import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
-import { fontSans, fontPlayfair, fontSongMyung } from "@/config/fonts";
+import { fontSans, fontPlayfair } from "@/config/fonts";
 
 export const metadata: Metadata = {
   title: {
@@ -55,7 +55,6 @@ export default function RootLayout({
           "min-h-screen text-foreground bg-background font-sans antialiased",
           fontSans.variable,
           fontPlayfair.variable,
-          fontSongMyung.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
