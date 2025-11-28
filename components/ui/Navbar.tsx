@@ -12,16 +12,20 @@ import NextLink from "next/link";
 import clsx from "clsx";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import { siteConfig } from "@/config/site";
 
 export const Navbar = () => {
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <HeroUINavbar
       className="z-50 fixed top-3 left-1/2 -translate-x-1/2 w-full max-w-6xl mx-auto px-4 rounded-2xl"
+      isMenuOpen={isMenuOpen}
       maxWidth="full"
+      onMenuOpenChange={setIsMenuOpen}
     >
       {/* Left side (logo) */}
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -117,6 +121,7 @@ export const Navbar = () => {
                       : "text-gray-700 hover:text-adult-green hover:bg-adult-green/5",
                   )}
                   href={item.href}
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </NextLink>
@@ -128,6 +133,7 @@ export const Navbar = () => {
             <NextLink
               className="block w-full px-4 py-3 text-base font-medium text-gray-700 hover:text-adult-green hover:bg-adult-green/10 transition-all duration-300 ease-in-out text-center rounded-lg transform hover:scale-[1.02]"
               href="/auth/register"
+              onClick={() => setIsMenuOpen(false)}
             >
               Sign Up
             </NextLink>
@@ -137,6 +143,7 @@ export const Navbar = () => {
             <NextLink
               className="relative block w-full px-5 py-3 rounded-xl text-base font-semibold bg-adult-green text-white hover:bg-adult-green/90 transition-all duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl shadow-adult-green/25 text-center overflow-hidden group"
               href="/auth/login"
+              onClick={() => setIsMenuOpen(false)}
             >
               <span className="relative z-10">Login</span>
               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

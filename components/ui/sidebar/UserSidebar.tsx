@@ -123,7 +123,7 @@ function UserSidebar({
         {isOpen && (
           <div
             aria-label="Close sidebar"
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 backdrop-blur-sm z-40 lg:hidden"
             role="button"
             tabIndex={0}
             onClick={handleToggle}
@@ -147,12 +147,15 @@ function UserSidebar({
         {/* Sidebar */}
         <div
           className={`
-            fixed top-4 left-4 h-[calc(100vh-2rem)] backdrop-blur-md border border-white/30 rounded-2xl shadow-lg z-[100]
+            fixed backdrop-blur-md border shadow-lg z-[100]
             transform transition-all duration-300 ease-in-out
             ${isOpen ? "translate-x-0" : "-translate-x-full"}
             lg:translate-x-0
             ${isCollapsed ? "lg:w-20" : "lg:w-64"}
             w-64 flex flex-col
+            top-0 left-0 h-screen
+            lg:top-4 lg:left-4 lg:h-[calc(100vh-2rem)] lg:rounded-2xl lg:border-white/30
+            bg-white/95
           `}
           style={{
             backgroundColor:
@@ -167,8 +170,15 @@ function UserSidebar({
           {/* Collapse/Expand Button - Desktop only */}
           <button
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden lg:flex absolute -right-3 top-20 bg-white/70 border border-gray-200 rounded-xl p-1.5 shadow-md hover:shadow-lg transition-all duration-200 hover:bg-gray-50 z-10"
-            onClick={handleCollapse}
+            className="absolute -right-3 top-20 bg-white/70 border border-gray-200 rounded-xl p-1.5 shadow-md hover:shadow-lg transition-all duration-200 hover:bg-gray-50 z-10"
+            onClick={() => {
+              // On mobile, close the sidebar. On desktop, collapse it.
+              if (window.innerWidth < 1024) {
+                handleToggle();
+              } else {
+                handleCollapse();
+              }
+            }}
           >
             {isCollapsed ? (
               <ChevronRight className="text-gray-600" size={16} />
@@ -206,7 +216,7 @@ function UserSidebar({
         <div
           className={`transition-all duration-300 ${
             pathname === "/roadmap" ? "" : isCollapsed ? "lg:ml-24" : "lg:ml-76"
-          } relative z-10`}
+          } relative z-10 pt-16 lg:pt-0`}
         >
           {typeof children === "function"
             ? children({ sidebarCollapsed: isCollapsed })

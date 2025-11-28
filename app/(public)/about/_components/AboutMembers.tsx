@@ -6,7 +6,7 @@ export function AboutMembers() {
       <h2 className="text-3xl md:text-4xl lg:text-5xl text-ultra-violet leading-tight font-playfair text-center ">
         The <span className="text-crayola-orange">Team</span> Behind The Dream
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <MemberCard
           bg="bg-olivine/50"
           description="Member Description"
@@ -34,6 +34,13 @@ export function AboutMembers() {
           github="https://github.com/"
           linkedin="https://linkedin.com/"
           name="Adrian Dale Relevo"
+        />
+        <MemberCard
+          bg="bg-periwinkle"
+          description="Member Description"
+          github="https://github.com/"
+          linkedin="https://linkedin.com/"
+          name="John Matthew C. Domantay"
         />
       </div>
     </section>
