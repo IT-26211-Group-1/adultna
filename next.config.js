@@ -45,6 +45,8 @@ const nextConfig = {
 
   // Production optimizations
   productionBrowserSourceMaps: false,
+  poweredByHeader: false,
+  reactStrictMode: true,
 
   // Compiler optimizations
   compiler: {
@@ -263,6 +265,59 @@ const nextConfig = {
         net: false,
         tls: false,
       };
+    }
+
+    // Production optimizations for reducing bundle size
+    if (!dev && !isServer) {
+      // Remove polyfills for modern browsers
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Prevent bundling of polyfills
+        'regenerator-runtime': false,
+        'core-js': false,
+      };
+
+      // Enable tree shaking and dead code elimination
+      config.optimization = {
+        ...config.optimization,
+        usedExports: true,
+        sideEffects: true,
+        providedExports: true,
+        innerGraph: true,
+        concatenateModules: true,
+      };
+
+      // Optimize TerserPlugin for modern browsers
+      if (config.optimization.minimizer) {
+        config.optimization.minimizer.forEach((plugin) => {
+          if (plugin.constructor.name === 'TerserPlugin') {
+            plugin.options = {
+              ...plugin.options,
+              terserOptions: {
+                ...plugin.options.terserOptions,
+                compress: {
+                  ...plugin.options.terserOptions?.compress,
+                  drop_console: true,
+                  drop_debugger: true,
+                  pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
+                  passes: 2,
+                  unsafe: true,
+                  unsafe_arrows: true,
+                  unsafe_methods: true,
+                  unsafe_proto: true,
+                },
+                mangle: {
+                  safari10: false, // No need for Safari 10 support
+                },
+                format: {
+                  comments: false,
+                },
+              },
+              extractComments: false,
+            };
+          }
+        });
+      }
     }
 
     return config;
