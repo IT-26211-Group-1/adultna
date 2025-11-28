@@ -28,7 +28,7 @@ function DashboardTabs({ activeTab, onTabChange }: DashboardTabsProps) {
   );
 
   return (
-    <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 mb-4 sm:mb-6 lg:mb-8 overflow-x-auto">
+    <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 mb-6 sm:mb-8 lg:mb-8 overflow-x-auto">
       {tabs.map((tab) => (
         <button
           key={tab.id}

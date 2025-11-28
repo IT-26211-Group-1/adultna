@@ -41,18 +41,18 @@ function DashboardNotifications() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-3 flex-shrink-0">
+      <div className="flex items-center justify-between mb-3 lg:mb-3 flex-shrink-0 px-1">
         <div className="flex items-center space-x-2">
           <Bell className="text-gray-600" size={16} />
-          <h4 className="font-semibold text-gray-900">My Notifications</h4>
+          <h4 className="font-semibold text-gray-900 text-sm lg:text-base">My Notifications</h4>
         </div>
         {notifications.length > 0 && (
           <button
-            className="text-xs text-adult-green hover:text-teal-700 font-medium"
+            className="text-xs text-adult-green hover:text-teal-700 font-medium whitespace-nowrap"
             disabled={deleteAllNotifications.isPending}
             onClick={handleClearAll}
           >
-            {deleteAllNotifications.isPending ? "Deleting..." : "Delete All"}
+            {deleteAllNotifications.isPending ? "Deleting..." : "Clear All"}
           </button>
         )}
       </div>
@@ -97,11 +97,11 @@ function DashboardNotifications() {
             ))}
           </div>
         ) : notifications.length > 0 ? (
-          <div className="space-y-3 pr-2">
+          <div className="space-y-2 lg:space-y-3 pr-1 lg:pr-2">
             {notifications.map((notification: DashboardNotification) => (
               <div
                 key={notification.id}
-                className={`p-3 rounded-xl border transition-all shadow-sm relative group ${
+                className={`p-3 lg:p-3 rounded-lg lg:rounded-xl border transition-all shadow-sm relative group ${
                   notification.isRead
                     ? "bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/100"
                     : "bg-blue-50/80 backdrop-blur-md border-blue-200/50 hover:bg-blue-50/100"
@@ -109,19 +109,19 @@ function DashboardNotifications() {
                 onMouseEnter={() => setHoveredNotification(notification.id)}
                 onMouseLeave={() => setHoveredNotification(null)}
               >
-                <div className="flex items-start gap-2">
-                  <span className="text-lg flex-shrink-0">
+                <div className="flex items-start gap-2 lg:gap-2">
+                  <span className="text-base lg:text-lg flex-shrink-0 mt-0.5">
                     {getNotificationIcon(notification.type)}
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 leading-tight">
                         {notification.title}
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 lg:gap-2">
                         {hoveredNotification === notification.id && (
                           <button
-                            className="text-gray-400 hover:text-red-600 transition-colors"
+                            className="text-gray-400 hover:text-red-600 transition-colors lg:block hidden"
                             disabled={deleteNotification.isPending}
                             onClick={() =>
                               handleDeleteNotification(notification.id)
@@ -131,11 +131,11 @@ function DashboardNotifications() {
                           </button>
                         )}
                         {!notification.isRead && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
+                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" />
                         )}
                       </div>
                     </div>
-                    <p className="text-xs text-gray-700 mt-1">
+                    <p className="text-xs text-gray-700 mt-1 leading-relaxed">
                       {notification.message}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">

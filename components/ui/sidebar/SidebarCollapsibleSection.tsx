@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, memo } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { FolderOpen, Briefcase, Settings, ChevronDown, ChevronRight, User, LogOut, HardDrive } from "lucide-react";
@@ -20,6 +20,7 @@ interface SidebarCollapsibleSectionProps {
   expandedSections: string[];
   onToggleSection: (sectionId: string) => void;
   onExpandSidebar?: (sectionId: string) => void;
+  onCloseSidebar?: () => void;
 }
 
 const adultingToolkitItems: SectionItem[] = [
@@ -63,9 +64,9 @@ function SidebarCollapsibleSection({
   expandedSections,
   onToggleSection,
   onExpandSidebar,
+  onCloseSidebar,
 }: SidebarCollapsibleSectionProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { logout } = useAuth();
 
   const settingsItems: SectionItem[] = [
@@ -109,7 +110,80 @@ function SidebarCollapsibleSection({
 
       return (
         <li key={sectionId}>
-          {!isCollapsed ? (
+          <div className="xl:hidden">
+            {/* Mobile: Always show expanded view */}
+            <button
+              aria-expanded={isExpanded}
+              className="flex items-center justify-between w-full px-3 py-3 rounded-xl text-gray-700 hover:bg-white/50 transition-colors duration-200"
+              onClick={() => onToggleSection(sectionId)}
+            >
+              <div className="flex items-center gap-3">
+                <Icon className="text-adult-green flex-shrink-0" size={20} />
+                <span className="font-medium text-sm">{label}</span>
+              </div>
+              {isExpanded ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              )}
+            </button>
+
+            {isExpanded && (
+              <ul className="ml-8 space-y-2 mt-2">
+                {items.map((item) => {
+                  const isActive = item.href ? isActiveRoute(item.href) : false;
+                  const ItemIcon = item.icon;
+
+                  return (
+                    <li key={item.id}>
+                      {item.isAction || item.onClick ? (
+                        <button
+                          className={`flex items-center gap-3 w-full px-3 py-2 rounded-xl transition-colors duration-200 text-sm ${
+                            item.id === "logout"
+                              ? "text-red-600 hover:bg-red-50"
+                              : "text-gray-600 hover:bg-white/50"
+                          }`}
+                          onClick={() => {
+                            item.onClick?.();
+                            // Close sidebar on mobile after action
+                            if (window.innerWidth < 1280) {
+                              onCloseSidebar?.();
+                            }
+                          }}
+                        >
+                          {ItemIcon && <ItemIcon size={16} />}
+                          {item.label}
+                        </button>
+                      ) : (
+                        <Link
+                          aria-current={isActive ? "page" : undefined}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-colors duration-200 text-sm ${
+                            isActive
+                              ? "bg-adult-green text-white shadow-md"
+                              : "text-gray-600 hover:bg-white/50"
+                          }`}
+                          href={item.href!}
+                          onClick={() => {
+                            // Close sidebar on mobile after navigation
+                            if (window.innerWidth < 1280) {
+                              onCloseSidebar?.();
+                            }
+                          }}
+                        >
+                          {ItemIcon && <ItemIcon size={16} />}
+                          {item.label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          <div className="hidden xl:block">
+            {/* Desktop: Respect collapsed state */}
+            {!isCollapsed ? (
             <>
               <button
                 aria-expanded={isExpanded}
@@ -142,7 +216,13 @@ function SidebarCollapsibleSection({
                                 ? "text-red-600 hover:bg-red-50"
                                 : "text-gray-600 hover:bg-white/50"
                             }`}
-                            onClick={item.onClick}
+                            onClick={() => {
+                              item.onClick?.();
+                              // Close sidebar on mobile after action
+                              if (window.innerWidth < 1280) {
+                                onCloseSidebar?.();
+                              }
+                            }}
                           >
                             {ItemIcon && <ItemIcon size={16} />}
                             {item.label}
@@ -156,6 +236,12 @@ function SidebarCollapsibleSection({
                                 : "text-gray-600 hover:bg-white/50"
                             }`}
                             href={item.href!}
+                            onClick={() => {
+                              // Close sidebar on mobile after navigation
+                              if (window.innerWidth < 1280) {
+                                onCloseSidebar?.();
+                              }
+                            }}
                           >
                             {ItemIcon && <ItemIcon size={16} />}
                             {item.label}
@@ -177,6 +263,7 @@ function SidebarCollapsibleSection({
               <Icon className="text-adult-green flex-shrink-0" size={20} />
             </button>
           )}
+          </div>
         </li>
       );
     },
@@ -203,12 +290,10 @@ function SidebarCollapsibleSection({
         Briefcase,
         careerCenterItems,
       )}
-      {renderSection(
-        "settings",
-        "Settings",
-        Settings,
-        settingsItems,
-      )}
+      {/* Settings - Mobile Only */}
+      <div className="xl:hidden">
+        {renderSection("settings", "Settings", Settings, settingsItems)}
+      </div>
     </>
   );
 }

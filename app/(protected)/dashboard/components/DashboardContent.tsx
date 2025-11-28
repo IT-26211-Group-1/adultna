@@ -16,8 +16,13 @@ export default function DashboardContent() {
         {/* Header */}
         <DashboardHeader />
 
+        {/* Mobile: Profile Container After Header */}
+        <div className="lg:hidden mb-8 sm:mb-10">
+          <ProfileSidebar />
+        </div>
+
         {/* Bottom Content Area */}
-        <div className="flex-1 flex flex-col justify-end space-y-4 sm:space-y-6">
+        <div className="flex-1 flex flex-col justify-end space-y-4 sm:space-y-6 pb-6 lg:pb-0">
           {/* Category Tabs */}
           <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -26,8 +31,10 @@ export default function DashboardContent() {
         </div>
       </div>
 
-      {/* Profile Sidebar */}
-      <ProfileSidebar />
+      {/* Desktop: Profile Sidebar */}
+      <div className="hidden lg:block">
+        <ProfileSidebar />
+      </div>
     </div>
   );
 }

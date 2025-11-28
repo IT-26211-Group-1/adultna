@@ -164,8 +164,7 @@ function UserSidebar({
             transform transition-all duration-400 ease-in-out
             ${isOpen ? "translate-y-0" : "-translate-y-full"}
             xl:translate-x-0 xl:translate-y-0
-            ${isCollapsed ? "xl:w-20" : "xl:w-64"}
-            w-full xl:w-64 flex flex-col
+            w-full ${isCollapsed ? "xl:w-20" : "xl:w-64"} flex flex-col
             top-0 left-0 xl:left-4 xl:top-4
             h-auto max-h-[75vh] xl:h-[calc(100vh-2rem)] xl:max-h-none
             rounded-b-2xl xl:rounded-2xl
@@ -189,14 +188,7 @@ function UserSidebar({
           <button
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             className="hidden xl:block absolute -right-3 top-20 bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white hover:scale-105 z-10"
-            onClick={() => {
-              // On mobile, close the sidebar. On desktop, collapse it.
-              if (window.innerWidth < 1280) {
-                handleToggle();
-              } else {
-                handleCollapse();
-              }
-            }}
+            onClick={handleCollapse}
           >
             {isCollapsed ? (
               <ChevronRight className="text-gray-700" size={16} />
@@ -210,12 +202,13 @@ function UserSidebar({
             {/* Main Section */}
             <div className="mb-6">
               <ul className="space-y-2">
-                <SidebarNavigation isCollapsed={isCollapsed} />
+                <SidebarNavigation isCollapsed={isCollapsed} onCloseSidebar={handleToggle} />
                 <SidebarCollapsibleSection
                   expandedSections={expandedSections}
                   isCollapsed={isCollapsed}
                   onExpandSidebar={handleExpandSidebar}
                   onToggleSection={toggleSection}
+                  onCloseSidebar={handleToggle}
                 />
               </ul>
             </div>
