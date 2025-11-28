@@ -26,13 +26,13 @@ export function OptimizedImage({
 
   const widths = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
   const avifSrcSet = widths
-    .map((w) => `${encodeURI(basePath)}-${w}w.avif ${w}w`)
+    .map((w) => `${basePath}-${w}w.avif ${w}w`)
     .join(", ");
   const webpSrcSet = widths
-    .map((w) => `${encodeURI(basePath)}-${w}w.webp ${w}w`)
+    .map((w) => `${basePath}-${w}w.webp ${w}w`)
     .join(", ");
   const fallbackSrcSet = widths
-    .map((w) => `${encodeURI(basePath)}-${w}w${ext} ${w}w`)
+    .map((w) => `${basePath}-${w}w${ext} ${w}w`)
     .join(", ");
 
   if (fill) {
