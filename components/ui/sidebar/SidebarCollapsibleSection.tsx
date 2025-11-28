@@ -1,14 +1,18 @@
 "use client";
 
 import { useCallback, memo } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { FolderOpen, Briefcase, ChevronDown, ChevronRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { FolderOpen, Briefcase, Settings, ChevronDown, ChevronRight, User, LogOut, HardDrive } from "lucide-react";
 
 interface SectionItem {
   id: string;
   label: string;
-  href: string;
+  href?: string;
+  onClick?: () => void;
+  icon?: React.ComponentType<any>;
+  isAction?: boolean;
 }
 
 interface SidebarCollapsibleSectionProps {
@@ -61,6 +65,32 @@ function SidebarCollapsibleSection({
   onExpandSidebar,
 }: SidebarCollapsibleSectionProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuth();
+
+  const settingsItems: SectionItem[] = [
+    {
+      id: "profile-settings",
+      label: "Profile Settings",
+      href: "/profile",
+      icon: User,
+      isAction: false,
+    },
+    {
+      id: "storage",
+      label: "Storage",
+      href: "/filebox",
+      icon: HardDrive,
+      isAction: false,
+    },
+    {
+      id: "logout",
+      label: "Logout",
+      onClick: () => logout(),
+      icon: LogOut,
+      isAction: true,
+    },
+  ];
 
   const isActiveRoute = useCallback(
     (href: string) => pathname === href,
@@ -100,21 +130,37 @@ function SidebarCollapsibleSection({
               {isExpanded && (
                 <ul className="ml-8 space-y-2 mt-2">
                   {items.map((item) => {
-                    const isActive = isActiveRoute(item.href);
+                    const isActive = item.href ? isActiveRoute(item.href) : false;
+                    const ItemIcon = item.icon;
 
                     return (
                       <li key={item.id}>
-                        <Link
-                          aria-current={isActive ? "page" : undefined}
-                          className={`block px-3 py-2 rounded-xl transition-colors duration-200 text-sm ${
-                            isActive
-                              ? "bg-adult-green text-white shadow-md"
-                              : "text-gray-600 hover:bg-white/50"
-                          }`}
-                          href={item.href}
-                        >
-                          {item.label}
-                        </Link>
+                        {item.isAction || item.onClick ? (
+                          <button
+                            className={`flex items-center gap-3 w-full px-3 py-2 rounded-xl transition-colors duration-200 text-sm ${
+                              item.id === "logout"
+                                ? "text-red-600 hover:bg-red-50"
+                                : "text-gray-600 hover:bg-white/50"
+                            }`}
+                            onClick={item.onClick}
+                          >
+                            {ItemIcon && <ItemIcon size={16} />}
+                            {item.label}
+                          </button>
+                        ) : (
+                          <Link
+                            aria-current={isActive ? "page" : undefined}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-colors duration-200 text-sm ${
+                              isActive
+                                ? "bg-adult-green text-white shadow-md"
+                                : "text-gray-600 hover:bg-white/50"
+                            }`}
+                            href={item.href!}
+                          >
+                            {ItemIcon && <ItemIcon size={16} />}
+                            {item.label}
+                          </Link>
+                        )}
                       </li>
                     );
                   })}
@@ -156,6 +202,12 @@ function SidebarCollapsibleSection({
         "Career Center",
         Briefcase,
         careerCenterItems,
+      )}
+      {renderSection(
+        "settings",
+        "Settings",
+        Settings,
+        settingsItems,
       )}
     </>
   );

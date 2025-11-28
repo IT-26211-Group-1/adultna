@@ -29,8 +29,8 @@ export default function DeadlinesTable() {
 
   return (
     <div
-      className="backdrop-blur-md border border-white/40 rounded-3xl p-6 relative overflow-hidden"
-      style={{ backgroundColor: "rgba(172, 189, 111, 0.10)" }}
+      className="backdrop-blur-md border border-white/40 rounded-3xl p-6 relative overflow-x-hidden overflow-y-auto"
+      style={{ backgroundColor: "rgba(172, 189, 111, 0.10)", height: "408px" }}
     >
       <div className="absolute -bottom-4 -right-4 text-6xl opacity-5 pointer-events-none">
         ⏰

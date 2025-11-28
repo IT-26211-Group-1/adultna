@@ -19,7 +19,7 @@ function ProfileSidebar() {
   const isDataUrl = user?.profilePictureUrl?.startsWith("data:");
 
   return (
-    <div className="transition-all duration-300 flex-shrink-0 w-80">
+    <div className="transition-all duration-300 flex-shrink-0 w-full lg:w-80">
       <div
         className="h-[calc(100vh-3rem)] backdrop-blur-md border border-white/30 rounded-3xl relative overflow-hidden transition-all duration-300"
         style={{ backgroundColor: "rgba(17,85,63, 0.10)" }}

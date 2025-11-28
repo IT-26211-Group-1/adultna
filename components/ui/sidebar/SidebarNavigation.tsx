@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { LayoutGrid, Map, Bot } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -50,7 +51,7 @@ export default function SidebarNavigation({
 
         return (
           <li key={item.id}>
-            <a
+            <Link
               className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-colors duration-200 ${
                 isCollapsed ? "justify-center" : ""
               } ${
@@ -76,7 +77,7 @@ export default function SidebarNavigation({
                   {item.label}
                 </span>
               )}
-            </a>
+            </Link>
           </li>
         );
       })}
