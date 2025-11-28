@@ -16,6 +16,52 @@ interface ChatMutationVariables {
   sessionId?: string;
 }
 
+interface UseRenameConversationOptions {
+  onSuccess?: (sessionId: string, newTopic: string) => void;
+  onError?: (error: Error) => void;
+}
+
+interface RenameConversationVariables {
+  sessionId: string;
+  newTopic: string;
+}
+
+/**
+ * Hook for renaming a Gabay conversation
+ */
+export function useRenameConversation(options?: UseRenameConversationOptions) {
+  const renameMutation = useMutation({
+    mutationKey: queryKeys.gabay.rename(),
+    mutationFn: async ({
+      sessionId,
+      newTopic,
+    }: RenameConversationVariables) => {
+      return gabayApi.renameConversation(sessionId, newTopic);
+    },
+    onSuccess: (_data, variables) => {
+      if (options?.onSuccess) {
+        options.onSuccess(variables.sessionId, variables.newTopic);
+      }
+    },
+    onError: (error: Error) => {
+      logger.error("[GABAY] Rename conversation error:", error);
+      if (options?.onError) {
+        options.onError(error);
+      }
+    },
+  });
+
+  return {
+    renameConversation: renameMutation.mutate,
+    renameConversationAsync: renameMutation.mutateAsync,
+    isPending: renameMutation.isPending,
+    isError: renameMutation.isError,
+    isSuccess: renameMutation.isSuccess,
+    error: renameMutation.error,
+    reset: renameMutation.reset,
+  };
+}
+
 /**
  * Hook for sending chat messages to the Gabay AI agent
  * Backend loads conversation history from S3 using sessionId
