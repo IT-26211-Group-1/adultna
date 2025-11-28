@@ -30,10 +30,12 @@ export const createMilestoneSchema = z.object({
         if (!date) return true;
         const selectedDate = new Date(date);
         const today = new Date();
+
         today.setHours(0, 0, 0, 0);
+
         return selectedDate >= today;
       },
-      { message: "The deadline must be set to a future date." }
+      { message: "The deadline must be set to a future date." },
     ),
   tasks: z
     .array(taskSchema)
@@ -64,10 +66,12 @@ export const updateMilestoneSchema = z.object({
         if (!date) return true;
         const selectedDate = new Date(date);
         const today = new Date();
+
         today.setHours(0, 0, 0, 0);
+
         return selectedDate >= today;
       },
-      { message: "Deadline cannot be in the past" }
+      { message: "Deadline cannot be in the past" },
     ),
   status: z.enum(["pending", "in_progress", "done", "cancelled"]).optional(),
 });
