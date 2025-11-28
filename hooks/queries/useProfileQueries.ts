@@ -141,9 +141,23 @@ export function useDeleteAccount() {
       window.location.href = isAdmin ? "/admin/login" : "/auth/login";
     },
     onError: (error: any) => {
+      let errorMessage = "Failed to delete account";
+
+      if (error.status === 500) {
+        errorMessage = "Server error occurred. Please try again later or contact support if the problem persists.";
+      } else if (error.status === 401) {
+        errorMessage = "Authentication failed. Please check your password and try again.";
+      } else if (error.status === 403) {
+        errorMessage = "You don't have permission to delete this account.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       addToast({
-        title: error.message || "Failed to delete account",
+        title: "Account Deletion Failed",
+        description: errorMessage,
         color: "danger",
+        timeout: 8000,
       });
     },
   });

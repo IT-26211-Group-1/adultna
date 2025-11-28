@@ -20,7 +20,8 @@ export function useLogin() {
     formState: { errors },
   } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    mode: "onBlur",
+    mode: "onTouched",
+    reValidateMode: "onChange",
   });
 
   const onSubmit = handleSubmit(async (data: z.infer<typeof loginSchema>) => {

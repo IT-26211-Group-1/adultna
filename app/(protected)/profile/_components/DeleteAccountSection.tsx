@@ -2,19 +2,27 @@
 
 import { useState } from "react";
 import { Button, Input } from "@heroui/react";
-import { ConfirmationModal } from "./ConfirmationModal";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/modal";
 import { useDeleteAccount } from "@/hooks/queries/useProfileQueries";
-import { Trash2 } from "lucide-react";
+import { Trash2, Lock, Eye, EyeOff } from "lucide-react";
 
 export function DeleteAccountSection() {
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const deleteAccount = useDeleteAccount();
 
   const handleDeleteClick = () => {
-    setShowConfirmModal(true);
+    onOpen();
     setPassword("");
     setPasswordError("");
   };
@@ -22,26 +30,35 @@ export function DeleteAccountSection() {
   const handleConfirmDelete = async () => {
     if (!password) {
       setPasswordError("Password is required");
-
       return;
     }
 
     if (password.length < 8) {
       setPasswordError("Password must be at least 8 characters");
-
       return;
     }
 
     try {
       await deleteAccount.mutateAsync({ password });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to delete account:", error);
+
+      // Handle specific error cases
+      if (error.status === 401) {
+        setPasswordError("Incorrect password. Please try again.");
+      } else if (error.status === 500) {
+        setPasswordError("Server error occurred. Please try again later or contact support.");
+      } else if (error.message?.toLowerCase().includes('password')) {
+        setPasswordError(error.message);
+      } else {
+        setPasswordError("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
   const handleCloseModal = () => {
     if (!deleteAccount.isPending) {
-      setShowConfirmModal(false);
+      onClose();
       setPassword("");
       setPasswordError("");
     }
@@ -76,55 +93,96 @@ export function DeleteAccountSection() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        cancelText="Cancel"
-        confirmText="Delete Account"
-        isLoading={deleteAccount.isPending}
-        open={showConfirmModal}
-        title="Delete Account"
+      <Modal
+        backdrop="blur"
+        classNames={{
+          wrapper: "z-[200]",
+          backdrop: "z-[150]",
+        }}
+        isOpen={isOpen}
+        placement="center"
+        size="md"
         onClose={handleCloseModal}
-        onConfirm={handleConfirmDelete}
       >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            This action cannot be undone. This will permanently delete your
-            account and remove all your data from our servers.
-          </p>
+        <ModalContent className="max-w-lg">
+          <ModalHeader className="pb-1">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Delete Account
+            </h3>
+          </ModalHeader>
 
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-2"
-              htmlFor="delete-password"
-            >
-              Please enter your password to confirm:
-            </label>
-            <Input
-              errorMessage={passwordError}
-              id="delete-password"
-              isInvalid={!!passwordError}
-              placeholder="Enter your password"
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setPasswordError("");
-              }}
-            />
-          </div>
-
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm font-semibold text-red-900 mb-2">
-              Warning: This will delete:
+          <ModalBody className="space-y-6 pt-1">
+            <p className="text-gray-600">
+              Are you sure you want to delete your account?
             </p>
-            <ul className="text-sm text-red-800 space-y-1 list-disc list-inside">
-              <li>Your profile information</li>
-              <li>All your uploaded documents</li>
-              <li>Your account settings and preferences</li>
-              <li>All associated data</li>
-            </ul>
-          </div>
-        </div>
-      </ConfirmationModal>
+
+            {/* Warning Section */}
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+              <p className="text-sm text-red-800">
+                <span className="font-semibold">Warning:</span> This action <span className="font-semibold">cannot be undone</span>. Deleting your account will remove all your associated data. Any profile information, documents, settings, and more will be <span className="font-semibold">permanently lost</span>.
+              </p>
+            </div>
+
+            {/* Password confirmation */}
+            <div className="space-y-3">
+              <p className="text-sm text-gray-700">
+                To delete, type your password below
+              </p>
+              <Input
+                errorMessage={passwordError}
+                id="delete-password"
+                isInvalid={!!passwordError}
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                disableAutosize
+                classNames={{
+                  input: "bg-transparent",
+                  inputWrapper: "bg-default-100",
+                }}
+                startContent={<Lock className="w-4 h-4 text-gray-400" />}
+                endContent={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                }
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError("");
+                }}
+              />
+            </div>
+          </ModalBody>
+
+          <ModalFooter className="pt-6">
+            <Button
+              color="default"
+              isDisabled={deleteAccount.isPending}
+              variant="flat"
+              onPress={handleCloseModal}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 text-white hover:bg-red-700"
+              isDisabled={!password || !!passwordError}
+              isLoading={deleteAccount.isPending}
+              onPress={handleConfirmDelete}
+            >
+              {deleteAccount.isPending ? "Deleting..." : "Yes, Delete Account"}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

@@ -119,8 +119,8 @@ export default function SidebarUserProfile({
           <div className="w-8 h-8 rounded-full bg-adult-green flex items-center justify-center flex-shrink-0">
             <User className="w-4 h-4 text-white" />
           </div>
-          <div className="flex-1 text-left">
-            <div className="text-sm font-medium text-gray-700">
+          <div className="flex-1 text-left min-w-0">
+            <div className="text-sm font-medium text-gray-700 truncate">
               {user ? (
                 user.firstName && user.lastName ? (
                   `${user.firstName} ${user.lastName}`
@@ -131,7 +131,7 @@ export default function SidebarUserProfile({
                 <LoadingSpinner fullScreen={false} size="sm" />
               )}
             </div>
-            <p className="text-xs text-gray-500">{user?.email || ""}</p>
+            <p className="text-xs text-gray-500 truncate">{user?.email || ""}</p>
           </div>
           <ChevronUp
             className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
