@@ -1,11 +1,8 @@
 /** @type {import('next').NextConfig} */
 import bundleAnalyzer from "@next/bundle-analyzer";
 import Critters from "critters";
-import bundleAnalyzer from "@next/bundle-analyzer";
-import Critters from "critters";
 
 const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
   enabled: process.env.ANALYZE === "true",
 });
 
