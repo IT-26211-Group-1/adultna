@@ -55,6 +55,17 @@ const nextConfig = {
     },
   },
 
+  // SWC configuration for modern JavaScript
+  swcMinify: true,
+  modularizeImports: {
+    "@heroui/react": {
+      transform: "@heroui/react/dist/{{member}}",
+    },
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{member}}",
+    },
+  },
+
   // Webpack optimizations
   webpack: (config, { dev, isServer, webpack }) => {
     if (!dev && !isServer) {
@@ -74,10 +85,10 @@ const nextConfig = {
                   external: true,
                   inlineThreshold: 0,
                   minimumExternalSize: 0,
-                  pruneSource: false,
+                  pruneSource: true,
                   mergeStylesheets: true,
                   additionalStylesheets: [],
-                  preload: "media",
+                  preload: "swap",
                   noscriptFallback: true,
                   inlineFonts: false,
                   preloadFonts: true,

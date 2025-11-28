@@ -61,6 +61,17 @@ export function HeroIllustration() {
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
+    if (showSpline) {
+      const link = document.createElement("link");
+
+      link.rel = "preconnect";
+      link.href = "https://prod.spline.design";
+      link.crossOrigin = "anonymous";
+      document.head.appendChild(link);
+    }
+  }, [showSpline]);
+
+  useEffect(() => {
     if (isVisible && showSpline) {
       const timer = setTimeout(() => setShouldLoad(true), 100);
 
