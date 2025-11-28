@@ -59,7 +59,7 @@ const loadFromStorage = (): StoredConversation[] => {
   }
 };
 
-export function ChatContainerOptimized() {
+export function ChatContainer() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -516,7 +516,7 @@ export function ChatContainerOptimized() {
 
         {/* Messages */}
         <div
-          className={`flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 ${messages.length === 0 ? "flex items-center justify-center min-h-0" : ""}`}
+          className={`flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 ${messages.length === 0 ? "flex items-center justify-center min-h-[600px]" : ""}`}
           onScroll={handleScroll}
         >
           <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6 w-full">

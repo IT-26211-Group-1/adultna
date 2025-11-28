@@ -8,17 +8,17 @@ export function AgentWelcome({ className }: AgentWelcomeProps) {
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center py-2 sm:py-4 lg:py-8 px-4 sm:px-6 lg:px-8",
+        "flex flex-col items-center justify-center text-center py-2 sm:py-4 lg:py-8 px-4 sm:px-6 lg:px-8 min-h-[200px]",
         className,
       )}
     >
-      <div className="mb-4 sm:mb-6 mt-8 sm:mt-12 lg:mt-15 text-gray-600 text-sm sm:text-base lg:text-md">
+      <div className="mb-4 sm:mb-6 mt-8 sm:mt-12 lg:mt-15 text-gray-600 text-sm sm:text-base lg:text-md min-h-[48px]">
         Great to see you here! I&apos;m{" "}
         <span className={cn("font-bold")}>AI Gabay</span>, your personal guide
         to navigating adulthood.
       </div>
 
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-adult-green">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-adult-green min-h-[40px]" style={{ containIntrinsicSize: "auto 40px" }}>
         What can I help you with today?
       </h1>
 
