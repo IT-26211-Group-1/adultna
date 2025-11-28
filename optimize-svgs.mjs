@@ -7,10 +7,45 @@ const publicDir = process.argv[2] || './public';
 const svgoConfig = {
   multipass: true,
   plugins: [
-    { name: 'preset-default' },
-    { name: 'removeViewBox', active: false },
-    { name: 'removeDimensions', active: true },
-    { name: 'removeScriptElement', active: true },
+    {
+      name: 'preset-default',
+      params: {
+        overrides: {
+          removeViewBox: false,
+          cleanupIds: true,
+          removeUnknownsAndDefaults: {
+            keepRoleAttr: true,
+          },
+          removeUselessStrokeAndFill: true,
+          cleanupNumericValues: {
+            floatPrecision: 2,
+          },
+          convertPathData: {
+            floatPrecision: 2,
+          },
+        },
+      },
+    },
+    { name: 'removeDimensions' },
+    { name: 'removeScriptElement' },
+    { name: 'removeStyleElement' },
+    { name: 'removeComments' },
+    { name: 'removeMetadata' },
+    { name: 'removeEditorsNSData' },
+    { name: 'removeHiddenElems' },
+    { name: 'removeEmptyText' },
+    { name: 'removeEmptyContainers' },
+    { name: 'removeUnusedNS' },
+    { name: 'cleanupEnableBackground' },
+    { name: 'minifyStyles' },
+    { name: 'convertStyleToAttrs' },
+    { name: 'convertColors', params: { shorthex: true } },
+    { name: 'convertTransform' },
+    { name: 'removeNonInheritableGroupAttrs' },
+    { name: 'collapseGroups' },
+    { name: 'mergePaths', params: { force: true } },
+    { name: 'sortAttrs' },
+    { name: 'sortDefsChildren' },
   ],
 };
 

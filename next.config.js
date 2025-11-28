@@ -40,7 +40,7 @@ const nextConfig = {
       "@googlemaps/js-api-loader",
     ],
     webpackMemoryOptimizations: true,
-    cssChunking: "strict", // Use strict chunking for better CSS optimization
+    cssChunking: "strict",
   },
 
   // Production optimizations
@@ -57,6 +57,14 @@ const nextConfig = {
 
   // Webpack optimizations
   webpack: (config, { dev, isServer, webpack }) => {
+    if (!dev && !isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "core-js": false,
+        "regenerator-runtime": false,
+      };
+    }
+
     if (!dev && !isServer) {
       // Add Critters plugin for critical CSS inlining
       const CrittersPlugin = class {
@@ -129,8 +137,6 @@ const nextConfig = {
         },
         splitChunks: {
           chunks: "all",
-          maxInitialRequests: 25,
-          minSize: 20000,
           cacheGroups: {
             // Ensure styles are handled separately - merge all CSS into one file
             styles: {
@@ -144,14 +150,7 @@ const nextConfig = {
             // Framework essentials (React, Next.js) - load everywhere
             framework: {
               name: "framework",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/.test(
-                    module.resource
-                  ) && !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
               priority: 50,
               enforce: true,
               reuseExistingChunk: true,
@@ -160,14 +159,7 @@ const nextConfig = {
             // 3D/Graphics libraries - ONLY for roadmap route
             graphics3d: {
               name: "graphics3d",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/](@splinetool|three|@react-three|@react-spring\/three)[\\/]/.test(
-                    module.resource
-                  ) && !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/](@splinetool|three|@react-three|@react-spring\/three)[\\/]/,
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -176,14 +168,7 @@ const nextConfig = {
             // Markdown libraries - ONLY for AI Gabay route
             markdown: {
               name: "markdown",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/](react-markdown|remark-gfm|remark|unified|micromark)[\\/]/.test(
-                    module.resource
-                  ) && !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/](react-markdown|remark-gfm|remark|unified|micromark)[\\/]/,
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -192,14 +177,7 @@ const nextConfig = {
             // PDF libraries - ONLY for filebox/resume routes
             pdfLibs: {
               name: "pdf-libs",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/](pdfjs-dist|react-pdf)[\\/]/.test(
-                    module.resource
-                  ) && !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/](pdfjs-dist|react-pdf)[\\/]/,
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -208,14 +186,7 @@ const nextConfig = {
             // Animation libraries - route-specific
             animations: {
               name: "animations",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/](framer-motion|gsap|lottie-react)[\\/]/.test(
-                    module.resource
-                  ) && !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/](framer-motion|gsap|lottie-react)[\\/]/,
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -224,13 +195,7 @@ const nextConfig = {
             // AWS SDK - ONLY for features using it
             aws: {
               name: "aws-sdk",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/]@aws-sdk[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/]@aws-sdk[\\/]/,
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -239,14 +204,7 @@ const nextConfig = {
             // UI library (HeroUI, NextUI)
             uiFramework: {
               name: "ui-framework",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/](@heroui|@nextui-org)[\\/]/.test(
-                    module.resource
-                  ) && !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/](@heroui|@nextui-org)[\\/]/,
               priority: 35,
               enforce: true,
               reuseExistingChunk: true,
@@ -255,14 +213,7 @@ const nextConfig = {
             // TanStack Query - used globally
             reactQuery: {
               name: "react-query",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/]@tanstack[\\/]/.test(
-                    module.resource
-                  ) && !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/]@tanstack[\\/]/,
               priority: 35,
               enforce: true,
               reuseExistingChunk: true,
@@ -271,13 +222,7 @@ const nextConfig = {
             // Everything else - common vendor code
             commons: {
               name: "commons",
-              test: (module) => {
-                if (!module.resource) return false;
-                return (
-                  /[\\/]node_modules[\\/]/.test(module.resource) &&
-                  !/\.css$/.test(module.resource)
-                );
-              },
+              test: /[\\/]node_modules[\\/]/,
               priority: 20,
               minChunks: 2,
               reuseExistingChunk: true,
@@ -311,72 +256,79 @@ const nextConfig = {
 
       // Optimize Terser for aggressive minification
       if (config.optimization.minimizer) {
-        config.optimization.minimizer = config.optimization.minimizer.map((plugin) => {
-          if (plugin.constructor.name === 'TerserPlugin') {
-            plugin.options = {
-              ...plugin.options,
-              terserOptions: {
-                ...plugin.options.terserOptions,
-                compress: {
-                  ...plugin.options.terserOptions?.compress,
-                  // Remove console and debugger
-                  drop_console: true,
-                  drop_debugger: true,
-                  // Mark console functions as pure for removal
-                  pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.trace'],
-                  // Run compression multiple times
-                  passes: 3,
-                  // Dead code elimination
-                  dead_code: true,
-                  unused: true,
-                  // More aggressive optimizations for modern browsers
-                  arrows: true,
-                  collapse_vars: true,
-                  comparisons: true,
-                  computed_props: true,
-                  conditionals: true,
-                  evaluate: true,
-                  hoist_funs: true,
-                  hoist_props: true,
-                  if_return: true,
-                  inline: 3,
-                  join_vars: true,
-                  keep_infinity: true,
-                  loops: true,
-                  negate_iife: true,
-                  properties: true,
-                  reduce_funcs: true,
-                  reduce_vars: true,
-                  sequences: true,
-                  side_effects: true,
-                  switches: true,
-                  typeofs: true,
-                  // Unsafe optimizations for modern browsers
-                  unsafe_arrows: true,
-                  unsafe_comps: true,
-                  unsafe_Function: true,
-                  unsafe_math: true,
-                  unsafe_symbols: true,
-                  unsafe_methods: true,
-                  unsafe_proto: true,
-                  unsafe_regexp: true,
-                  unsafe_undefined: true,
-                },
-                mangle: {
-                  safari10: false,
-                  toplevel: true,
-                },
-                format: {
-                  comments: false,
+        config.optimization.minimizer = config.optimization.minimizer.map(
+          (plugin) => {
+            if (plugin.constructor.name === "TerserPlugin") {
+              plugin.options = {
+                ...plugin.options,
+                terserOptions: {
+                  ...plugin.options.terserOptions,
+                  compress: {
+                    ...plugin.options.terserOptions?.compress,
+                    // Remove console and debugger
+                    drop_console: true,
+                    drop_debugger: true,
+                    // Mark console functions as pure for removal
+                    pure_funcs: [
+                      "console.log",
+                      "console.info",
+                      "console.debug",
+                      "console.trace",
+                    ],
+                    // Run compression multiple times
+                    passes: 3,
+                    // Dead code elimination
+                    dead_code: true,
+                    unused: true,
+                    // More aggressive optimizations for modern browsers
+                    arrows: true,
+                    collapse_vars: true,
+                    comparisons: true,
+                    computed_props: true,
+                    conditionals: true,
+                    evaluate: true,
+                    hoist_funs: true,
+                    hoist_props: true,
+                    if_return: true,
+                    inline: 3,
+                    join_vars: true,
+                    keep_infinity: true,
+                    loops: true,
+                    negate_iife: true,
+                    properties: true,
+                    reduce_funcs: true,
+                    reduce_vars: true,
+                    sequences: true,
+                    side_effects: true,
+                    switches: true,
+                    typeofs: true,
+                    // Unsafe optimizations for modern browsers
+                    unsafe_arrows: true,
+                    unsafe_comps: true,
+                    unsafe_Function: true,
+                    unsafe_math: true,
+                    unsafe_symbols: true,
+                    unsafe_methods: true,
+                    unsafe_proto: true,
+                    unsafe_regexp: true,
+                    unsafe_undefined: true,
+                  },
+                  mangle: {
+                    safari10: false,
+                    toplevel: true,
+                  },
+                  format: {
+                    comments: false,
+                    ecma: 2020,
+                  },
                   ecma: 2020,
                 },
-                ecma: 2020,
-              },
-              extractComments: false,
-            };
+                extractComments: false,
+              };
+            }
+            return plugin;
           }
-          return plugin;
-        });
+        );
       }
     }
 
