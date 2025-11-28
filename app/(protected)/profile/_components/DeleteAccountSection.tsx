@@ -137,7 +137,6 @@ export function DeleteAccountSection() {
                 To delete, type your password below
               </p>
               <Input
-                disableAutosize
                 autoComplete="current-password"
                 classNames={{
                   input: "bg-transparent",
