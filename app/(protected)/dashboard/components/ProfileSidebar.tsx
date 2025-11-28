@@ -32,15 +32,15 @@ function ProfileSidebar() {
                 {user?.profilePictureUrl ? (
                   isDataUrl ? (
                     <img
-                      alt="Profile Image"
+                      alt="Profile"
                       className="w-full h-full object-cover"
                       src={user.profilePictureUrl}
                     />
                   ) : (
                     <Image
-                      alt="Profile Image"
-                      className="object-cover"
                       fill
+                      alt="Profile"
+                      className="object-cover"
                       sizes="120px"
                       src={user.profilePictureUrl}
                     />
