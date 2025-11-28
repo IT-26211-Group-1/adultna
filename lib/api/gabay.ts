@@ -10,4 +10,14 @@ export const gabayApi = {
   chat: async (data: ChatRequest): Promise<ChatResponse> => {
     return ApiClient.post<ChatResponse>("/gabay/chat", data);
   },
+
+  /**
+   * Rename a conversation
+   */
+  renameConversation: async (
+    sessionId: string,
+    newTopic: string,
+  ): Promise<{ success: boolean; message: string }> => {
+    return ApiClient.post("/gabay/rename", { sessionId, newTopic });
+  },
 };

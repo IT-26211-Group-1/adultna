@@ -84,6 +84,15 @@ const nextConfig = {
               reuseExistingChunk: true,
             },
 
+            // Markdown libraries - ONLY for AI Gabay route
+            markdown: {
+              name: 'markdown',
+              test: /[\\/]node_modules[\\/](react-markdown|remark-gfm|remark|unified|micromark)[\\/]/,
+              priority: 40,
+              enforce: true,
+              reuseExistingChunk: true,
+            },
+
             // PDF libraries - ONLY for filebox/resume routes
             pdfLibs: {
               name: 'pdf-libs',

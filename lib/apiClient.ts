@@ -371,6 +371,7 @@ export const queryKeys = {
   gabay: {
     all: ["gabay"] as const,
     chat: () => ["gabay", "chat"] as const,
+    rename: () => ["gabay", "rename"] as const,
   },
 
   // Filebox queries
