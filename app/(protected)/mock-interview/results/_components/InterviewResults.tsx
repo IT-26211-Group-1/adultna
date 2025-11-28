@@ -72,6 +72,8 @@ export function InterviewResults() {
     data: gradedAnswers,
     isLoading,
     isError,
+    error,
+    refetch,
   } = useGetAnswersByIds(answerIds, answerIds.length > 0);
 
   if (
@@ -96,15 +98,80 @@ export function InterviewResults() {
   }
 
   if (isError) {
+    const errorMessage = error?.message || "Unknown error";
+    const isTimeout = errorMessage.includes("timeout") || errorMessage.includes("Request timeout");
+    const isAuthError = errorMessage.includes("User ID is required") || errorMessage.includes("authentication");
+
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">
-            Failed to load results. Please try again.
-          </p>
-          <Button onClick={() => router.push("/mock-interview")}>
-            Back to Mock Interview
-          </Button>
+        <div className="text-center max-w-md mx-auto">
+          <div className="mb-6">
+            {isTimeout ? (
+              <>
+                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Request Timed Out</h3>
+                <p className="text-gray-600 mb-4">
+                  The grading process is taking longer than expected. This usually happens when our AI is processing complex responses.
+                </p>
+              </>
+            ) : isAuthError ? (
+              <>
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Session Expired</h3>
+                <p className="text-gray-600 mb-4">
+                  Your session has expired. Please log in again to view your results.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to Load Results</h3>
+                <p className="text-gray-600 mb-4">
+                  {errorMessage}
+                </p>
+              </>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            {(isTimeout || !isAuthError) && (
+              <Button
+                onPress={() => refetch()}
+                className="w-full"
+                color="primary"
+              >
+                Try Again
+              </Button>
+            )}
+            <Button
+              onPress={() => router.push("/mock-interview")}
+              className="w-full"
+              variant="bordered"
+            >
+              Back to Mock Interview
+            </Button>
+            {isAuthError && (
+              <Button
+                onPress={() => router.push("/auth/login")}
+                className="w-full"
+                color="primary"
+              >
+                Log In Again
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );

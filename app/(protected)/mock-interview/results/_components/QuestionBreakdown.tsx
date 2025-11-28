@@ -3,26 +3,62 @@
 import { Accordion, AccordionItem } from "@heroui/react";
 import type { InterviewAnswer } from "@/types/interview-answer";
 import ReactMarkdown from "react-markdown";
+import { Plus, Minus } from "lucide-react";
 
 type QuestionBreakdownProps = {
   answers: InterviewAnswer[];
 };
 
 export function QuestionBreakdown({ answers }: QuestionBreakdownProps) {
+  const handleAccordionChange = (keys: any) => {
+    if (typeof keys === 'object' && keys.size > 0) {
+      const openKey = Array.from(keys)[0];
+      setTimeout(() => {
+        const element = document.querySelector(`[data-key="${openKey}"]`);
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
         Question-by-Question Breakdown
       </h3>
 
-      <Accordion variant="splitted" className="px-0">
+      <Accordion
+        variant="splitted"
+        className="px-0"
+        onSelectionChange={handleAccordionChange}
+        itemClasses={{
+          base: "py-2 px-4 rounded-lg border border-gray-100 bg-gray-50 shadow-none",
+          title: "font-medium text-gray-900 text-sm",
+          trigger: "py-3 px-0 hover:bg-transparent",
+          content: "text-gray-600 text-sm leading-relaxed pt-1 pb-2",
+          indicator: "transform-none",
+        }}
+      >
         {answers.map((answer, index) => {
           const percentageScore = answer.percentageScore ?? 0;
 
           return (
             <AccordionItem
-              key={answer.id}
+              key={index.toString()}
               aria-label={`Question ${index + 1}`}
+                indicator={({ isOpen }) => (
+                <div className="flex items-center justify-center w-6 h-6 text-gray-600">
+                  {isOpen ? (
+                    <Minus className="w-4 h-4" />
+                  ) : (
+                    <Plus className="w-4 h-4" />
+                  )}
+                </div>
+              )}
               title={
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-3">
@@ -46,7 +82,6 @@ export function QuestionBreakdown({ answers }: QuestionBreakdownProps) {
                   </span>
                 </div>
               }
-              className="shadow-sm"
             >
               <div className="space-y-4 p-4">
                 <div>
