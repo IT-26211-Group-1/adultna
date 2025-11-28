@@ -30,25 +30,6 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="en">
-      <head>
-        <link href="https://fonts.googleapis.com" rel="dns-prefetch" />
-        <link
-          crossOrigin="anonymous"
-          href="https://fonts.googleapis.com"
-          rel="preconnect"
-        />
-        <link
-          crossOrigin="anonymous"
-          href="https://fonts.gstatic.com"
-          rel="preconnect"
-        />
-        <link href="https://prod.spline.design" rel="dns-prefetch" />
-        <link
-          crossOrigin="anonymous"
-          href="https://prod.spline.design"
-          rel="preconnect"
-        />
-      </head>
       <body
         suppressHydrationWarning //added so the body will handle browser extension differences while keeping the app function normally
         className={clsx(

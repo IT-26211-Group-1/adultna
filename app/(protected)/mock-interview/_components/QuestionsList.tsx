@@ -34,7 +34,7 @@ export const QuestionsList = memo(function QuestionsList({
   sessionId,
 }: QuestionsListProps) {
   const { user } = useAuth();
-  const userId = (user as any)?.userId || "";
+  const userId = user?.id || "";
 
   const { state, actions } = useMockInterviewState();
 
@@ -77,8 +77,12 @@ export const QuestionsList = memo(function QuestionsList({
         }
       }
     }
-    audio.tts.stop();
-    audio.stt.stopRealtimeRecognition();
+    if (audio?.tts) {
+      audio.tts.stop();
+    }
+    if (audio?.stt) {
+      audio.stt.stopRealtimeRecognition();
+    }
   };
 
   const navigation = useQuestionNavigation(
@@ -113,9 +117,11 @@ export const QuestionsList = memo(function QuestionsList({
 
   useEffect(() => {
     return () => {
-      audio.stt.stopRealtimeRecognition();
+      if (audio?.stt) {
+        audio.stt.stopRealtimeRecognition();
+      }
     };
-  }, [audio.stt]);
+  }, [audio?.stt]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -130,6 +136,17 @@ export const QuestionsList = memo(function QuestionsList({
   }, [answers, currentAnswer]);
 
   const handleMicrophoneClick = async () => {
+    if (!audio || !audio.stt) {
+      logger.error("[QuestionsList] Audio system not initialized");
+      addToast({
+        title: "Audio Error",
+        description: "Audio system not ready. Please refresh the page.",
+        color: "danger",
+      });
+
+      return;
+    }
+
     if (audio.stt.isRecording) {
       audio.stt.stopRecording();
       audio.stt.stopRealtimeRecognition();
@@ -145,26 +162,33 @@ export const QuestionsList = memo(function QuestionsList({
   };
 
   useEffect(() => {
-    if (audio.stt.audioBlob && !audio.stt.isRecording) {
-      const transcribe = async () => {
-        try {
-          const awsTranscript = await audio.stt.transcribeAndPoll(
-            audio.stt.audioBlob!,
-            selectedJobRole,
-          );
-
-          if (awsTranscript) {
-            setCurrentAnswer(awsTranscript);
-          }
-          audio.stt.clearRecording();
-        } catch (error) {
-          logger.error("❌ AWS transcription failed:", error);
-        }
-      };
-
-      transcribe();
+    if (!audio || !audio.stt || !audio.stt.audioBlob || audio.stt.isRecording) {
+      return;
     }
-  }, [audio.stt.audioBlob, audio.stt.isRecording, selectedJobRole]);
+
+    const transcribe = async () => {
+      try {
+        const awsTranscript = await audio.stt.transcribeAndPoll(
+          audio.stt.audioBlob!,
+          selectedJobRole,
+        );
+
+        if (awsTranscript) {
+          setCurrentAnswer(awsTranscript);
+        }
+        audio.stt.clearRecording();
+      } catch (error) {
+        logger.error("❌ AWS transcription failed:", error);
+        addToast({
+          title: "Transcription Failed",
+          description: "Please check your audio and try again.",
+          color: "danger",
+        });
+      }
+    };
+
+    transcribe();
+  }, [audio?.stt?.audioBlob, audio?.stt?.isRecording, selectedJobRole, audio]);
 
   const handleFinishInterview = async () => {
     let lastAnswerId: string | null = null;

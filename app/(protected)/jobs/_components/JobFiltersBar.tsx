@@ -14,9 +14,9 @@ export default function JobFiltersBar({
   onFilterChange,
 }: JobFiltersBarProps) {
   return (
-    <div className="max-w-6xl mx-auto mb-6 px-4 md:px-0">
+    <div className="max-w-6xl mx-auto mb-6 px-4 md:px-0 min-h-[72px]">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-gray-900 min-h-[28px]">
           {searchQuery
             ? `Search results for "${searchQuery}"`
             : "Recent Job Postings"}
