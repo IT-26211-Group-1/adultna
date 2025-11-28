@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 import bundleAnalyzer from '@next/bundle-analyzer';
+import Critters from 'critters';
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -39,6 +40,7 @@ const nextConfig = {
       "@googlemaps/js-api-loader",
     ],
     webpackMemoryOptimizations: true,
+    cssChunking: "strict", // Use strict chunking for better CSS optimization
   },
 
   // Production optimizations
@@ -55,7 +57,63 @@ const nextConfig = {
   },
 
   // Webpack optimizations
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { dev, isServer, webpack }) => {
+    if (!dev && !isServer) {
+      // Add Critters plugin for critical CSS inlining
+      const CrittersPlugin = class {
+        apply(compiler) {
+          compiler.hooks.compilation.tap('CrittersPlugin', (compilation) => {
+            compilation.hooks.processAssets.tapAsync(
+              {
+                name: 'CrittersPlugin',
+                stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_SIZE,
+              },
+              async (assets, callback) => {
+                const critters = new Critters({
+                  path: compilation.options.output.path,
+                  publicPath: '',
+                  external: true,
+                  inlineThreshold: 0,
+                  minimumExternalSize: 0,
+                  pruneSource: false,
+                  mergeStylesheets: true,
+                  additionalStylesheets: [],
+                  preload: 'media',
+                  noscriptFallback: true,
+                  inlineFonts: false,
+                  preloadFonts: true,
+                  fonts: false,
+                  keyframes: 'critical',
+                  compress: true,
+                  logLevel: 'info',
+                });
+
+                const htmlAssets = Object.keys(assets).filter(
+                  (filename) => filename.endsWith('.html')
+                );
+
+                for (const filename of htmlAssets) {
+                  try {
+                    const source = assets[filename].source();
+                    const html = typeof source === 'string' ? source : source.toString();
+                    const inlined = await critters.process(html);
+
+                    compilation.updateAsset(filename, new webpack.sources.RawSource(inlined));
+                  } catch (error) {
+                    console.warn(`Critters warning for ${filename}:`, error.message);
+                  }
+                }
+
+                callback();
+              }
+            );
+          });
+        }
+      };
+
+      config.plugins.push(new CrittersPlugin());
+    }
+
     if (!dev) {
       config.optimization = {
         ...config.optimization,
@@ -65,11 +123,26 @@ const nextConfig = {
         },
         splitChunks: {
           chunks: 'all',
+          maxInitialRequests: 25,
+          minSize: 20000,
           cacheGroups: {
+            // Ensure styles are handled separately - merge all CSS into one file
+            styles: {
+              name: 'styles',
+              test: /\.css$/,
+              chunks: 'all',
+              enforce: true,
+              priority: 100,
+            },
+
             // Framework essentials (React, Next.js) - load everywhere
             framework: {
               name: 'framework',
-              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 50,
               enforce: true,
               reuseExistingChunk: true,
@@ -78,7 +151,11 @@ const nextConfig = {
             // 3D/Graphics libraries - ONLY for roadmap route
             graphics3d: {
               name: 'graphics3d',
-              test: /[\\/]node_modules[\\/](@splinetool|three|@react-three|@react-spring\/three)[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/](@splinetool|three|@react-three|@react-spring\/three)[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -87,7 +164,11 @@ const nextConfig = {
             // Markdown libraries - ONLY for AI Gabay route
             markdown: {
               name: 'markdown',
-              test: /[\\/]node_modules[\\/](react-markdown|remark-gfm|remark|unified|micromark)[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/](react-markdown|remark-gfm|remark|unified|micromark)[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -96,7 +177,11 @@ const nextConfig = {
             // PDF libraries - ONLY for filebox/resume routes
             pdfLibs: {
               name: 'pdf-libs',
-              test: /[\\/]node_modules[\\/](pdfjs-dist|react-pdf)[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/](pdfjs-dist|react-pdf)[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -105,7 +190,11 @@ const nextConfig = {
             // Animation libraries - route-specific
             animations: {
               name: 'animations',
-              test: /[\\/]node_modules[\\/](framer-motion|gsap|lottie-react)[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/](framer-motion|gsap|lottie-react)[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -114,7 +203,11 @@ const nextConfig = {
             // AWS SDK - ONLY for features using it
             aws: {
               name: 'aws-sdk',
-              test: /[\\/]node_modules[\\/]@aws-sdk[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/]@aws-sdk[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 40,
               enforce: true,
               reuseExistingChunk: true,
@@ -123,7 +216,11 @@ const nextConfig = {
             // UI library (HeroUI, NextUI)
             uiFramework: {
               name: 'ui-framework',
-              test: /[\\/]node_modules[\\/](@heroui|@nextui-org)[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/](@heroui|@nextui-org)[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 35,
               enforce: true,
               reuseExistingChunk: true,
@@ -132,7 +229,11 @@ const nextConfig = {
             // TanStack Query - used globally
             reactQuery: {
               name: 'react-query',
-              test: /[\\/]node_modules[\\/]@tanstack[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/]@tanstack[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 35,
               enforce: true,
               reuseExistingChunk: true,
@@ -141,7 +242,11 @@ const nextConfig = {
             // Everything else - common vendor code
             commons: {
               name: 'commons',
-              test: /[\\/]node_modules[\\/]/,
+              test: (module) => {
+                if (!module.resource) return false;
+                return /[\\/]node_modules[\\/]/.test(module.resource) &&
+                  !/\.css$/.test(module.resource);
+              },
               priority: 20,
               minChunks: 2,
               reuseExistingChunk: true,
