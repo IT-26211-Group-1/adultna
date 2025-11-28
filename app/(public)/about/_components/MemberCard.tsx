@@ -1,5 +1,6 @@
 import { MemberCardProps } from "@/types/faq";
-import Image from "next/image";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export function MemberCard({
   name,
@@ -12,11 +13,12 @@ export function MemberCard({
     <div className={`${bg} border p-4 pb-6 rounded-lg shadow-md`}>
       <div className="flex justify-center mb-3">
         <div className="w-50 h-50 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
-          <Image
+          <OptimizedImage
             alt={`${name} profile`}
             className="w-full h-full object-cover"
             height={300}
-            src="/member.jpg" // Replace with actual member image URL
+            sizes="300px"
+            src="/member.jpg"
             width={300}
           />
         </div>

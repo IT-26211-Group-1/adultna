@@ -3,7 +3,6 @@
 import { memo, useState } from "react";
 import { PlusIcon, MessageSquareIcon, Home, Trash2 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Modal,
   ModalContent,
@@ -12,6 +11,8 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import type { Conversation } from "@/types/gabay";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 interface ConversationSidebarProps {
   conversations: Conversation[];
@@ -113,10 +114,12 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                 </svg>
               </button>
               <div className="flex-1 min-w-0">
-                <Image
+                <OptimizedImage
+                  priority
                   alt="AdultNa Logo"
                   className="h-7 w-auto object-contain"
                   height={28}
+                  sizes="100px"
                   src="/Logo.png"
                   width={100}
                 />
