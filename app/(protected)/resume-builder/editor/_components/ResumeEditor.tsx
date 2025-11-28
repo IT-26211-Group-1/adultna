@@ -160,6 +160,14 @@ export default function ResumeEditor() {
       const dataToSave = { ...resumeData, ...dataOverrides };
 
       if (!currentResumeId && templateId && isValidTemplateId(templateId)) {
+        // Prevent duplicate creates if one is already in progress
+        if (createResume.isPending) {
+          if (onSuccessCallback) {
+            onSuccessCallback();
+          }
+          return;
+        }
+
         const payload = mapResumeDataToCreatePayload(dataToSave, templateId);
 
         createResume.mutate(payload, {
@@ -206,6 +214,13 @@ export default function ResumeEditor() {
           },
         });
       } else {
+        // Log when we skip save to help debug issues
+        if (!currentResumeId && !templateId) {
+          console.warn('[ResumeEditor] Skipping save: no resumeId and no templateId');
+        } else if (currentResumeId && !dataToSave.firstName) {
+          console.warn('[ResumeEditor] Skipping save: missing required firstName');
+        }
+
         if (onSuccessCallback) {
           onSuccessCallback();
         }
@@ -223,15 +238,27 @@ export default function ResumeEditor() {
   );
 
   // Auto-save when resumeData changes
-  const debouncedAutoSave = useMemo(
-    () =>
-      debounce(() => {
-        if (!isInitialMount.current) {
-          handleSave();
-        }
-      }, 1000),
-    [handleSave],
+  // Use ref to store mutable debounced function
+  const debouncedAutoSave = useRef(
+    debounce(() => {
+      if (!isInitialMount.current) {
+        handleSave();
+      }
+    }, 1000)
   );
+
+  // Update debounced function when handleSave changes to prevent stale closures
+  useEffect(() => {
+    // Cancel any pending calls
+    debouncedAutoSave.current.cancel();
+
+    // Create new debounced function with updated handleSave
+    debouncedAutoSave.current = debounce(() => {
+      if (!isInitialMount.current) {
+        handleSave();
+      }
+    }, 1000);
+  }, [handleSave]);
 
   useEffect(() => {
     // Skip on initial mount or when data is empty
@@ -250,13 +277,13 @@ export default function ResumeEditor() {
     // Check if data has actually changed using deep comparison
     if (hasResumeChanged(lastSavedDataRef.current, resumeData)) {
       setHasUnsavedChanges(true);
-      debouncedAutoSave();
+      debouncedAutoSave.current();
     }
 
     return () => {
-      debouncedAutoSave.cancel();
+      debouncedAutoSave.current.cancel();
     };
-  }, [resumeData, debouncedAutoSave]);
+  }, [resumeData]);
 
   // Beforeunload handler to warn about data loss on refresh
   useEffect(() => {
