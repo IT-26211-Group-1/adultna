@@ -50,7 +50,7 @@ const nextConfig = {
 
   // Compiler optimizations
   compiler: {
-    removeConsole: {
+    removeConsole: process.env.NODE_ENV === "production" ? true : {
       exclude: ["error", "warn"],
     },
   },
@@ -63,6 +63,15 @@ const nextConfig = {
         "core-js": false,
         "regenerator-runtime": false,
       };
+
+      config.plugins.push(
+        new webpack.DefinePlugin({
+          "console.log": "(() => {})",
+          "console.debug": "(() => {})",
+          "console.info": "(() => {})",
+          "console.trace": "(() => {})",
+        })
+      );
     }
 
     if (!dev && !isServer) {
