@@ -3,7 +3,6 @@
 import { OnboardingData, YourPathStepProps } from "@/types/onboarding";
 import React from "react";
 import { LoadingButton } from "@/components/ui/Button";
-import { ChevronLeft } from "lucide-react";
 
 export default function YourPathStep({
   displayName,
@@ -11,7 +10,6 @@ export default function YourPathStep({
   priorities,
   onComplete,
   isSubmitting = false,
-  onBack,
 }: YourPathStepProps) {
   const handleSubmit = async () => {
     const payload: OnboardingData = {
@@ -48,18 +46,9 @@ export default function YourPathStep({
           </ul>
         </div>
 
-        <div className="flex justify-between">
-          {onBack && (
-            <button
-              className="text-gray-500 hover:text-gray-700 px-6 py-2 font-medium transition-colors inline-flex items-center gap-2"
-              disabled={isSubmitting}
-              onClick={onBack}
-            >
-              <ChevronLeft size={16} /> Back
-            </button>
-          )}
+        <div className="flex justify-center">
           <LoadingButton
-            className="px-8 py-3 ml-auto"
+            className="px-8 py-3"
             loading={isSubmitting}
             type="button"
             onClick={handleSubmit}

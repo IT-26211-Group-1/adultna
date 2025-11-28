@@ -181,9 +181,6 @@ export default function OnboardingModal({
           <LifeStageStep
             selectedLifeStage={selectedLifeStage}
             setSelectedLifeStage={updateSelectedLifeStage}
-            onBack={previousStep}
-            onNext={nextStep}
-            onSkip={skipStep}
           />
         );
       case STEPS.PRIORITIES:
@@ -191,9 +188,6 @@ export default function OnboardingModal({
           <PrioritiesStep
             selectedPriorities={selectedPriorities}
             setSelectedPriorities={updateSelectedPriorities}
-            onBack={previousStep}
-            onNext={nextStep}
-            onSkip={skipStep}
           />
         );
       case STEPS.YOUR_PATH:
@@ -203,7 +197,6 @@ export default function OnboardingModal({
             isSubmitting={isSubmitting}
             lifeStage={selectedLifeStage}
             priorities={selectedPriorities}
-            onBack={previousStep}
             onComplete={handleComplete}
           />
         );
@@ -217,7 +210,7 @@ export default function OnboardingModal({
       <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden">
         <div className="flex flex-col lg:flex-row h-full min-h-[700px]">
           {/* Left Panel - Visual Storytelling */}
-          <div className="lg:w-1/2 bg-gradient-to-br from-teal-50 via-blue-50 to-indigo-50 p-8 lg:p-12 flex flex-col justify-center relative overflow-hidden">
+          <div className="lg:w-1/2 bg-gradient-to-br from-yellow-50 via-teal-50 to-blue-50 p-8 lg:p-12 flex flex-col justify-center relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-teal-200/30 rounded-full blur-xl" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200/30 rounded-full blur-xl" />
@@ -244,10 +237,10 @@ export default function OnboardingModal({
                     <p className="text-gray-700 leading-relaxed mb-6">
                       We're here to help you navigate adulthood with confidence. Let's start by getting to know you better.
                     </p>
-                    <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4">
-                      <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
-                        Step 1 of 4 • Takes about 2 minutes
+                    <div className="bg-teal-500/10 border border-teal-200 rounded-xl p-4">
+                      <div className="flex items-center gap-3 text-sm text-gray-800">
+                        <div className="w-3 h-3 bg-teal-600 rounded-full animate-pulse" />
+                        <span className="font-medium">Step 1 of 4 • Takes about 2 minutes</span>
                       </div>
                     </div>
                   </>
@@ -261,10 +254,10 @@ export default function OnboardingModal({
                     <p className="text-gray-700 leading-relaxed mb-6">
                       Understanding where you are in life helps us personalize your roadmap and suggest the most relevant resources for your journey.
                     </p>
-                    <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4">
-                      <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
-                        Step 2 of 4 • Almost there!
+                    <div className="bg-teal-500/10 border border-teal-200 rounded-xl p-4">
+                      <div className="flex items-center gap-3 text-sm text-gray-800">
+                        <div className="w-3 h-3 bg-teal-600 rounded-full animate-pulse" />
+                        <span className="font-medium">Step 2 of 4 • Almost there!</span>
                       </div>
                     </div>
                   </>
@@ -278,10 +271,10 @@ export default function OnboardingModal({
                     <p className="text-gray-700 leading-relaxed mb-6">
                       Your priorities shape your path. Choose what you'd like to focus on, and we'll customize your experience accordingly.
                     </p>
-                    <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4">
-                      <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
-                        Step 3 of 4 • You're doing great!
+                    <div className="bg-teal-500/10 border border-teal-200 rounded-xl p-4">
+                      <div className="flex items-center gap-3 text-sm text-gray-800">
+                        <div className="w-3 h-3 bg-teal-600 rounded-full animate-pulse" />
+                        <span className="font-medium">Step 3 of 4 • You're doing great!</span>
                       </div>
                     </div>
                   </>
@@ -295,10 +288,10 @@ export default function OnboardingModal({
                     <p className="text-gray-700 leading-relaxed mb-6">
                       Perfect! We've got everything we need to create your personalized roadmap. Your journey to organized adulthood starts now.
                     </p>
-                    <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4">
-                      <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        Final Step • Let's get started!
+                    <div className="bg-green-500/10 border border-green-200 rounded-xl p-4">
+                      <div className="flex items-center gap-3 text-sm text-gray-800">
+                        <div className="w-3 h-3 bg-green-600 rounded-full animate-pulse" />
+                        <span className="font-medium">Final Step • Let's get started!</span>
                       </div>
                     </div>
                   </>
@@ -311,9 +304,9 @@ export default function OnboardingModal({
                   <span>Progress</span>
                   <span>{Math.round((currentStep / STEPS.YOUR_PATH) * 100)}%</span>
                 </div>
-                <div className="w-full bg-white/30 rounded-full h-2">
+                <div className="w-full bg-white rounded-full h-2">
                   <div
-                    className="bg-gradient-to-r from-teal-500 to-blue-500 h-2 rounded-full transition-all duration-500 ease-out"
+                    className="bg-adult-green h-2 rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${(currentStep / STEPS.YOUR_PATH) * 100}%` }}
                   />
                 </div>
@@ -339,18 +332,81 @@ export default function OnboardingModal({
             </div>
 
             {/* Footer Navigation */}
-            <div className="flex justify-end pt-6">
-              {currentStep === STEPS.INTRODUCTION && (
-                <button
-                  className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50"
-                  onClick={nextStep}
-                  disabled={!displayName.trim()}
-                >
-                  <span className="text-sm font-semibold text-white transition-colors duration-200 inline-flex items-center justify-center gap-2">
-                    Next →
-                  </span>
-                </button>
-              )}
+            <div className="flex justify-between pt-6">
+              <div className="flex gap-2">
+                {currentStep > STEPS.INTRODUCTION && (
+                  <button
+                    className="group min-h-[44px] py-3 px-6 border border-gray-400 hover:border-gray-500 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                    onClick={previousStep}
+                  >
+                    <span className="text-sm font-semibold transition-colors duration-200 inline-flex items-center justify-center gap-2">
+                      ← Back
+                    </span>
+                  </button>
+                )}
+                {currentStep > STEPS.INTRODUCTION && currentStep < STEPS.YOUR_PATH && (
+                  <button
+                    className="text-gray-500 hover:text-gray-700 px-6 py-3 font-medium transition-colors rounded-full"
+                    onClick={skipStep}
+                  >
+                    Skip
+                  </button>
+                )}
+              </div>
+
+              <div>
+                {currentStep === STEPS.INTRODUCTION && (
+                  <button
+                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50"
+                    onClick={nextStep}
+                    disabled={!displayName.trim()}
+                  >
+                    <span className="text-sm font-semibold text-white transition-colors duration-200 inline-flex items-center justify-center gap-2">
+                      Next →
+                    </span>
+                  </button>
+                )}
+
+                {currentStep === STEPS.LIFE_STAGE && (
+                  <button
+                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50"
+                    onClick={nextStep}
+                    disabled={!selectedLifeStage}
+                  >
+                    <span className="text-sm font-semibold text-white transition-colors duration-200 inline-flex items-center justify-center gap-2">
+                      Next →
+                    </span>
+                  </button>
+                )}
+
+                {currentStep === STEPS.PRIORITIES && (
+                  <button
+                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                    onClick={nextStep}
+                  >
+                    <span className="text-sm font-semibold text-white transition-colors duration-200 inline-flex items-center justify-center gap-2">
+                      Next →
+                    </span>
+                  </button>
+                )}
+
+                {currentStep === STEPS.YOUR_PATH && (
+                  <button
+                    className="group min-h-[44px] py-3 px-6 bg-teal-700 rounded-full hover:bg-teal-800 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                    onClick={() => handleComplete({
+                      displayName: displayName || undefined,
+                      ...(selectedLifeStage
+                        ? { questionId: selectedLifeStage.questionId, optionId: selectedLifeStage.optionId }
+                        : {}),
+                      priorities: selectedPriorities,
+                    })}
+                  >
+                    <span className="text-sm font-semibold text-white transition-colors duration-200 inline-flex items-center justify-center gap-2">
+                      Get Started
+                    </span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

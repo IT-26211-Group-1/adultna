@@ -1,7 +1,6 @@
 "use client";
 
 import React, { memo } from "react";
-import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useLifeStage } from "../hooks/useLifeStage";
 
 type LifeStageStepProps = {
@@ -9,17 +8,11 @@ type LifeStageStepProps = {
   setSelectedLifeStage: (
     stage: { questionId: number; optionId: number } | null,
   ) => void;
-  onNext: () => void;
-  onSkip: () => void;
-  onBack?: () => void;
 };
 
 function LifeStageStep({
   selectedLifeStage,
   setSelectedLifeStage,
-  onNext,
-  onSkip,
-  onBack,
 }: LifeStageStepProps) {
   const { lifeStageQuestion, loading, error, isSelected, createSelectHandler } =
     useLifeStage();
@@ -65,57 +58,31 @@ function LifeStageStep({
         This helps us personalize your experience
       </p>
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-3">
+      <div className="space-y-4">
+        <div className="flex flex-wrap justify-center gap-3">
           {options.map((option) => (
-            <label
+            <button
               key={option.id}
-              className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-            >
-              <input
-                checked={isSelected(
+              className={`group inline-flex items-center justify-center min-h-[44px] py-3 px-6 border rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                isSelected(
                   option.id,
                   lifeStageQuestion.id,
                   selectedLifeStage,
-                )}
-                className="mr-3 text-teal-600"
-                name="lifeStage"
-                type="radio"
-                value={option.id}
-                onChange={() =>
-                  setSelectedLifeStage(
-                    createSelectHandler(lifeStageQuestion.id, option.id),
-                  )
-                }
-              />
-              <span className="text-gray-900">{option.optionText}</span>
-            </label>
-          ))}
-        </div>
-
-        <div className="flex justify-between">
-          <div className="flex gap-2">
-            {onBack && (
-              <button
-                className="text-gray-500 hover:text-gray-700 px-6 py-2 font-medium transition-colors inline-flex items-center gap-2"
-                onClick={onBack}
-              >
-                <ChevronLeft size={16} /> Back
-              </button>
-            )}
-            <button
-              className="text-gray-500 hover:text-gray-700 px-6 py-2 font-medium transition-colors"
-              onClick={onSkip}
+                )
+                  ? "border-teal-600 bg-teal-50 text-teal-700 hover:bg-teal-100 focus:ring-teal-500"
+                  : "border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900 focus:ring-gray-400"
+              }`}
+              onClick={() =>
+                setSelectedLifeStage(
+                  createSelectHandler(lifeStageQuestion.id, option.id),
+                )
+              }
             >
-              Skip
+              <span className="text-sm font-semibold transition-colors duration-200 inline-flex items-center justify-center">
+                {option.optionText}
+              </span>
             </button>
-          </div>
-          <button
-            className="bg-teal-700 hover:bg-teal-800 text-white px-6 py-2 rounded-lg font-medium transition-colors inline-flex items-center gap-2"
-            onClick={onNext}
-          >
-            Next <ChevronRight size={16} />
-          </button>
+          ))}
         </div>
       </div>
     </div>
