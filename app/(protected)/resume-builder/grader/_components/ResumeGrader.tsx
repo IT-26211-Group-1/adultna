@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Textarea } from "@heroui/react";
 import { Files, FileText, ArrowLeft, Upload, Search, Clock } from "lucide-react";
 import { useResumes } from "@/hooks/queries/useResumeQueries";
 import NextLink from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
-import { ResumeScoreGauge } from "./ResumeScoreGauge";
+import { useSecureStorage } from "@/hooks/useSecureStorage";
+import { Button, Card, CardBody } from "@heroui/react";
 import { ResumeVerdict } from "./ResumeVerdict";
 import { GraderAIRecommendations } from "./GraderAIRecommendations";
 import { CategoryScores } from "./CategoryScores";
@@ -18,6 +20,9 @@ import { ApiClient } from "@/lib/apiClient";
 import { logger } from "@/lib/logger";
 
 export default function ResumeGrader() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { getSecureItem, setSecureItem, removeSecureItem } = useSecureStorage();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -30,6 +35,27 @@ export default function ResumeGrader() {
 
   const gradeResume = useGradeResume();
   const { data: resumesData = [], isLoading: isLoadingResumes } = useResumes();
+
+  // Check if we should show results based on URL params
+  const resumeId = searchParams.get('resumeId');
+  const showResults = searchParams.get('results') === 'true';
+
+  // Restore grading results from secure storage on component mount
+  useEffect(() => {
+    if (showResults && !gradingResult) {
+      const savedResults = getSecureItem('resumeGradingResults');
+      if (savedResults) {
+        try {
+          const parsedResults = JSON.parse(savedResults);
+          setGradingResult(parsedResults);
+        } catch (error) {
+          console.error('Failed to parse saved grading results:', error);
+          // Clear invalid data
+          removeSecureItem('resumeGradingResults');
+        }
+      }
+    }
+  }, [showResults, gradingResult, getSecureItem, removeSecureItem]);
 
   // Helper function for time ago
   const getTimeAgo = (date: Date | string) => {
@@ -130,6 +156,15 @@ export default function ResumeGrader() {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+
+    // Clear secure storage
+    removeSecureItem('resumeGradingResults');
+
+    // Clear URL params to go back to upload state
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.delete('results');
+    newUrl.searchParams.delete('resumeId');
+    window.history.replaceState({}, '', newUrl.toString());
   };
 
   const handleGradeResume = async () => {
@@ -183,6 +218,14 @@ export default function ResumeGrader() {
 
       setGradingResult(result);
       setIsProcessing(false);
+
+      // Save results to secure storage for persistence across refreshes
+      setSecureItem('resumeGradingResults', JSON.stringify(result));
+
+      // Update URL to persist results state
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('results', 'true');
+      window.history.replaceState({}, '', newUrl.toString());
     } catch (error: any) {
       logger.error("Grading error:", error);
 
@@ -232,7 +275,7 @@ export default function ResumeGrader() {
     return allStrengths.slice(0, 4);
   };
 
-  if (!gradingResult) {
+  if (!gradingResult && !showResults) {
     return (
       <div className="w-full">
         <div className="max-w-7xl mx-auto px-8">
@@ -472,74 +515,163 @@ export default function ResumeGrader() {
     );
   }
 
+  // If we're showing results but gradingResult is null (after refresh), redirect back to upload
+  if (showResults && !gradingResult) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Results not found. Please grade your resume again.</p>
+          <Button onPress={handleRemoveFile}>
+            Back to Grade Resume
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate score percentage for gauge
+  const scorePercentage = gradingResult ? Math.round((gradingResult.overallScore / gradingResult.maxPossibleScore) * 100) : 0;
+  const scoreLabel = gradingResult ? getScoreVerdict(gradingResult.passRate) : "Unknown";
+
   return (
-    <div className="w-full">
-      <div className="max-w-7xl mx-auto px-8">
-        <div className="space-y-8 animate-[fadeIn_0.4s_ease-out]">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Resume Grade Results</h1>
-              <p className="text-xs text-gray-500 mt-1">AI-powered feedback and recommendations for your resume</p>
-            </div>
-            <button
-              onClick={handleRemoveFile}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-200 font-medium"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Grade Another Resume
-            </button>
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      {/* Motivational Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-6">
+          Great Job!
+          <br />
+          Your Resume Has Been Analyzed
+        </h1>
+        <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+          Your resume has been thoroughly analyzed using AI-powered insights.
+          {gradingResult?.hasJobDescription && " We've provided tailored feedback based on your target job description."}
+          Here's how your resume performs and what you can improve to land your dream job.
+        </p>
+        <div className="flex gap-4 justify-center max-w-md mx-auto">
+          <Button
+            className="flex-1 border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-medium"
+            size="lg"
+            variant="bordered"
+            onPress={() => window.location.href = "/dashboard"}
+          >
+            Go to Dashboard
+          </Button>
+          <Button
+            className="flex-1 bg-adult-green text-white hover:bg-adult-green/90 font-medium"
+            size="lg"
+            onPress={handleRemoveFile}
+          >
+            Grade Another
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column - Score and Feedback */}
+          <div className="space-y-6">
+            {/* Score Card */}
+            <Card className="bg-white">
+              <CardBody className="p-8">
+                <h2 className="text-xl font-semibold text-gray-900 text-center mb-6">
+                  Your Score
+                </h2>
+                <div className="flex flex-col items-center">
+                  {/* Semi-circular Gauge */}
+                  <div className="relative w-64 h-32 mb-4">
+                    <svg className="w-full h-full" viewBox="0 0 200 100">
+                      {/* Background Arc */}
+                      <path
+                        d="M 20 100 A 80 80 0 0 1 180 100"
+                        fill="none"
+                        stroke="#E5E7EB"
+                        strokeLinecap="round"
+                        strokeWidth="20"
+                      />
+                      {/* Colored Arc */}
+                      <path
+                        d="M 20 100 A 80 80 0 0 1 180 100"
+                        fill="none"
+                        stroke="#10B981"
+                        strokeDasharray={`${(scorePercentage / 100) * 251.2} 251.2`}
+                        strokeLinecap="round"
+                        strokeWidth="20"
+                        style={{
+                          transition: "stroke-dasharray 1s ease-in-out",
+                        }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="text-5xl font-bold text-gray-900">
+                        {scorePercentage}%
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-lg font-semibold text-[#10B981]">
+                    {scoreLabel}
+                  </p>
+                </div>
+              </CardBody>
+            </Card>
           </div>
 
-          {/* Results Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column - Score & Verdict */}
-            <div className="space-y-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <ResumeScoreGauge
-                  maxPossibleScore={gradingResult.maxPossibleScore}
-                  score={gradingResult.overallScore}
-                  verdict={getScoreVerdict(gradingResult.passRate)}
-                />
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <ResumeVerdict
-                  hasJobDescription={gradingResult.hasJobDescription}
-                  verdict={gradingResult.summary}
-                  workingWell={getCategoryStrengths()}
-                />
+          {/* Right Column - Detailed Feedback and Recommendations */}
+          <div className="space-y-6">
+            {/* Detailed Feedback Section */}
+            <div className="bg-white rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Detailed Feedback
+              </h3>
+              <div className="max-h-96 overflow-y-auto pr-2">
+                <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
+                  <p className="mb-3 last:mb-0">{gradingResult?.summary || "No detailed feedback available."}</p>
+                </div>
               </div>
             </div>
 
-            {/* Right Column - Recommendations & Scores */}
-            <div className="space-y-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            {/* What's Working Well Section */}
+            <div className="bg-white rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                What's Working Well
+              </h3>
+              <ul className="space-y-2">
+                {getCategoryStrengths().length > 0 ? (
+                  getCategoryStrengths().map((strength, index) => (
+                    <li
+                      key={index}
+                      className="flex items-start gap-2 text-gray-700"
+                    >
+                      <span className="text-gray-400 mt-1">•</span>
+                      <span>{strength}</span>
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-sm text-gray-500 italic">
+                    Complete more sections to see detailed feedback
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            {/* AI Recommendations */}
+            {gradingResult?.recommendations && (
+              <div className="bg-white rounded-lg">
                 <GraderAIRecommendations
                   recommendations={gradingResult.recommendations}
                 />
               </div>
+            )}
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            {/* Category Scores */}
+            {gradingResult?.categoryScores && (
+              <div className="bg-white rounded-lg">
                 <CategoryScores categoryScores={gradingResult.categoryScores} />
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }
