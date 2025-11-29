@@ -34,7 +34,8 @@ const translations = {
     guides: {
       hero: {
         title: "Your guide to adulting in the Philippines!",
-        description: "Hey there, future adult! We know government processes can feel overwhelming, but we've got your back. Find step-by-step guides that make getting your documents simple and stress-free.",
+        description:
+          "Hey there, future adult! We know government processes can feel overwhelming, but we've got your back. Find step-by-step guides that make getting your documents simple and stress-free.",
       },
       search: {
         placeholder: "Search guides...",
@@ -76,7 +77,8 @@ const translations = {
     guides: {
       hero: {
         title: "Ang iyong gabay sa pagiging adulto sa Pilipinas!",
-        description: "Kamusta, future adult! Alam namin na ang mga proseso ng gobyerno ay maaaring nakakabigla, ngunit nandito kami para sa iyo. Maghanap ng step-by-step na gabay na ginagawang simple at walang stress ang pagkuha ng iyong mga dokumento.",
+        description:
+          "Kamusta, future adult! Alam namin na ang mga proseso ng gobyerno ay maaaring nakakabigla, ngunit nandito kami para sa iyo. Maghanap ng step-by-step na gabay na ginagawang simple at walang stress ang pagkuha ng iyong mga dokumento.",
       },
       search: {
         placeholder: "Maghanap ng mga gabay...",
@@ -108,14 +110,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
     const savedLanguage = localStorage.getItem("adultna-language") as Language;
-    console.log("Loading saved language:", savedLanguage);
     if (savedLanguage && (savedLanguage === "en" || savedLanguage === "fil")) {
       setLanguageState(savedLanguage);
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
-    console.log("Setting language to:", lang);
     setLanguageState(lang);
     if (mounted) {
       localStorage.setItem("adultna-language", lang);

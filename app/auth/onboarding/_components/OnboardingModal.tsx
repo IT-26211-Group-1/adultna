@@ -71,7 +71,7 @@ export default function OnboardingModal({
   };
 
   const updateSelectedLifeStage = (
-    lifeStage: { questionId: number; optionId: number } | null,
+    lifeStage: { questionId: number; optionId: number } | null
   ) => {
     setSelectedLifeStage(lifeStage);
     setSecureItem("onboarding-lifeStage", JSON.stringify(lifeStage), 1440); // 24 hours
@@ -81,8 +81,8 @@ export default function OnboardingModal({
     priorities:
       | { questionId: number; optionId: number }[]
       | ((
-          prevState: { questionId: number; optionId: number }[],
-        ) => { questionId: number; optionId: number }[]),
+          prevState: { questionId: number; optionId: number }[]
+        ) => { questionId: number; optionId: number }[])
   ) => {
     setSelectedPriorities((prev) => {
       const newPriorities =
@@ -91,7 +91,7 @@ export default function OnboardingModal({
       setSecureItem(
         "onboarding-priorities",
         JSON.stringify(newPriorities),
-        1440,
+        1440
       ); // 24 hours
 
       return newPriorities;
@@ -100,7 +100,7 @@ export default function OnboardingModal({
 
   const nextStep = useCallback(() => {
     updateCurrentStep(
-      currentStep < STEPS.YOUR_PATH ? currentStep + 1 : currentStep,
+      currentStep < STEPS.YOUR_PATH ? currentStep + 1 : currentStep
     );
   }, [currentStep, updateCurrentStep]);
 
@@ -110,7 +110,7 @@ export default function OnboardingModal({
 
   const previousStep = useCallback(() => {
     updateCurrentStep(
-      currentStep > STEPS.INTRODUCTION ? currentStep - 1 : currentStep,
+      currentStep > STEPS.INTRODUCTION ? currentStep - 1 : currentStep
     );
   }, [currentStep, updateCurrentStep]);
 
@@ -120,7 +120,7 @@ export default function OnboardingModal({
         updateCurrentStep(step);
       }
     },
-    [currentStep, updateCurrentStep],
+    [currentStep, updateCurrentStep]
   );
 
   const [isCompleting, setIsCompleting] = useState(false);
@@ -142,7 +142,7 @@ export default function OnboardingModal({
       updateDisplayName,
       updateSelectedLifeStage,
       updateSelectedPriorities,
-    ],
+    ]
   );
 
   if (!isOpen || !hydrated) return null;
@@ -167,9 +167,6 @@ export default function OnboardingModal({
                       preserveAspectRatio: "xMidYMid slice",
                     }}
                     style={{ width: "100%", height: "100%" }}
-                    onDOMLoaded={() =>
-                      console.log("Animation loaded successfully")
-                    }
                   />
                 </Suspense>
               </div>

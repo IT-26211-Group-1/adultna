@@ -21,8 +21,6 @@ export default function GuidesListClient() {
 
   const { guides, isLoading, error } = useGovGuides({ status: "accepted" });
 
-  console.log("GuidesListClient - Current language:", language);
-
   const filteredGuides = useMemo(() => {
     if (!guides) return [];
 

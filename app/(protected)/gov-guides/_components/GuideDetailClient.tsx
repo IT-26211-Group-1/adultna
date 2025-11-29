@@ -24,19 +24,12 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   const router = useRouter();
   const { language } = useLanguage();
   const { guide, isLoading, error } = useGovGuide(slug);
-  const { data: translatedGuide, isLoading: isTranslating, error: translationError } =
-    useTranslatedGuide(slug, language);
+  const {
+    data: translatedGuide,
+    isLoading: isTranslating,
+    error: translationError,
+  } = useTranslatedGuide(slug, language);
   const [selectedTab, setSelectedTab] = useState("complete-guide");
-
-  // Debug logging
-  console.log("Translation Debug:", {
-    language,
-    slug,
-    isTranslating,
-    hasTranslatedGuide: !!translatedGuide,
-    translationError,
-    shouldFetch: !!slug && language === "fil",
-  });
 
   const displayGuide =
     language === "fil" && translatedGuide && guide

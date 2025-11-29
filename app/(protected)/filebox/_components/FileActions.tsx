@@ -116,7 +116,7 @@ export function FileActions({
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL,
+        API_CONFIG.API_URL
       );
 
       if (response.success && response.data?.downloadUrl) {
@@ -245,16 +245,6 @@ export function FileActions({
     try {
       // Use verifiedOtp if available (from SecureDocument), otherwise use provided otp
       const otpToUse = verifiedOtp || otp;
-
-      console.log("[FileActions] Renaming file with:", {
-        fileName: newFileName,
-        hasVerifiedOtp: !!verifiedOtp,
-        hasProvidedOtp: !!otp,
-        otpLength: otpToUse?.length,
-        timeSinceVerification: otpVerifiedAt
-          ? Date.now() - otpVerifiedAt
-          : null,
-      });
 
       const response = await renameMutation.mutateAsync({
         fileId: fileMetadata.id,

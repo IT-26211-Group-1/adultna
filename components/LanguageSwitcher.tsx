@@ -6,10 +6,7 @@ import { Button } from "@heroui/button";
 export function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
 
-  console.log("LanguageSwitcher - Current language:", language);
-
   const handleLanguageChange = (lang: "en" | "fil") => {
-    console.log("Switching language to:", lang);
     setLanguage(lang);
   };
 
