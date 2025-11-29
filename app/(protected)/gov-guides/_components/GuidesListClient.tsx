@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useGovGuides } from "@/hooks/queries/useGovGuidesQueries";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { GuideCategory } from "@/types/govguide";
 import GuideCard from "./GuideCard";
 import GuideSearch from "./GuideSearch";
@@ -11,6 +12,7 @@ import GuidesLoadingSkeleton from "./GuidesLoadingSkeleton";
 const GUIDES_PER_PAGE = 10;
 
 export default function GuidesListClient() {
+  const { language, t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<
     GuideCategory | "all"
@@ -18,6 +20,8 @@ export default function GuidesListClient() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { guides, isLoading, error } = useGovGuides({ status: "accepted" });
+
+  console.log("GuidesListClient - Current language:", language);
 
   const filteredGuides = useMemo(() => {
     if (!guides) return [];
@@ -67,7 +71,7 @@ export default function GuidesListClient() {
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
-          Failed to load guides. Please try again later.
+          {t("common.error")}
         </div>
       )}
 
@@ -75,8 +79,8 @@ export default function GuidesListClient() {
         <div className="text-center">
           <p className="text-gray-600">
             {searchQuery || selectedCategory !== "all"
-              ? "No guides found matching your criteria."
-              : "No guides available at the moment."}
+              ? t("guides.noResults")
+              : t("guides.noGuides")}
           </p>
         </div>
       )}

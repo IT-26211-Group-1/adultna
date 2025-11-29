@@ -4,6 +4,8 @@ import { useState } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useGovGuide } from "@/hooks/queries/useGovGuidesQueries";
+import { useTranslatedGuide } from "@/hooks/queries/useTranslatedGuide";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, Tab } from "@heroui/tabs";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -20,14 +22,32 @@ type GuideDetailClientProps = {
 
 export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   const router = useRouter();
+  const { language } = useLanguage();
   const { guide, isLoading, error } = useGovGuide(slug);
+  const { data: translatedGuide, isLoading: isTranslating, error: translationError } =
+    useTranslatedGuide(slug, language);
   const [selectedTab, setSelectedTab] = useState("complete-guide");
 
-  if (isLoading) {
+  // Debug logging
+  console.log("Translation Debug:", {
+    language,
+    slug,
+    isTranslating,
+    hasTranslatedGuide: !!translatedGuide,
+    translationError,
+    shouldFetch: !!slug && language === "fil",
+  });
+
+  const displayGuide =
+    language === "fil" && translatedGuide && guide
+      ? ({ ...guide, ...translatedGuide } as typeof guide)
+      : guide;
+
+  if (isLoading || (language === "fil" && isTranslating)) {
     return <GuideDetailSkeleton />;
   }
 
-  if (error || !guide) {
+  if (error || !guide || !displayGuide) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
         <p className="text-red-800">
@@ -58,17 +78,17 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
         </Link>
         <ChevronRight className="w-4 h-4" />
         <span className="text-gray-900 font-medium truncate">
-          {guide.title}
+          {displayGuide.title}
         </span>
       </nav>
 
       <hr className="border-gray-200 mb-6" />
 
       <h1 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight leading-tight">
-        {guide.title}
+        {displayGuide.title}
       </h1>
 
-      <GuideInfoCards guide={guide} />
+      <GuideInfoCards guide={displayGuide} />
 
       <div className="mt-6">
         <Tabs
@@ -86,17 +106,17 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
         >
           <Tab key="complete-guide" title="Complete Guide">
             <div className="py-4">
-              <CompleteGuideTab steps={guide.steps || []} />
+              <CompleteGuideTab steps={displayGuide.steps || []} />
             </div>
           </Tab>
           <Tab key="requirements" title="Requirements">
             <div className="py-4">
-              <RequirementsTab requirements={guide.requirements || []} />
+              <RequirementsTab requirements={displayGuide.requirements || []} />
             </div>
           </Tab>
           <Tab key="general-tips" title="General Tips">
             <div className="py-4">
-              <GeneralTipsTab tips={guide.generalTips} />
+              <GeneralTipsTab tips={displayGuide.generalTips} />
             </div>
           </Tab>
         </Tabs>
