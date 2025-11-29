@@ -83,7 +83,11 @@ export function useLogin() {
             description: error.message,
             color: "danger",
           });
-        } else if (error?.message?.includes("Account is not active")) {
+        } else if (
+          error?.message?.includes("Account is not active") ||
+          error?.message?.includes("Access Denied") ||
+          error?.message?.toLowerCase().includes("deactivated")
+        ) {
           addToast({
             title: "Account Deactivated",
             description:
