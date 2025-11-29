@@ -449,21 +449,38 @@ export default function ResumeEditor() {
             )}
           </div>
           <div className="p-6 flex-shrink-0">
-            <div className="max-w-xs mx-auto space-y-3">
+            <div className="max-w-sm mx-auto space-y-4">
               <LoadingButton
-                className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ease-out disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-lg focus:ring-4 focus:ring-emerald-500/30 focus:outline-none"
                 disabled={!isFormValid || !isCurrentFormValid}
                 onClick={handleContinue}
               >
-                {isLastStep ? "Complete" : "Continue"}
+                <div className="flex items-center justify-center gap-2">
+                  <span>{isLastStep ? "Complete Resume" : "Continue"}</span>
+                  {!isLastStep && (
+                    <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  )}
+                  {isLastStep && (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
               </LoadingButton>
 
               {!isContactForm && !isLastStep && (
                 <button
-                  className="w-full text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
+                  className="w-full text-sm text-gray-500 hover:text-emerald-600 transition-all duration-200 hover:underline hover:underline-offset-2 py-2 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   onClick={handleSkip}
                 >
-                  Skip {currentStepTitle}
+                  <div className="flex items-center justify-center gap-1">
+                    <span>Skip {currentStepTitle}</span>
+                    <svg className="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
                 </button>
               )}
             </div>
