@@ -199,7 +199,7 @@ function EditForm({
         replaceTipsToFollow(guide.generalTips.tipsToFollow || ([] as any));
         replaceTipsToAvoid(guide.generalTips.tipsToAvoid || ([] as any));
         replaceImportantReminders(
-          guide.generalTips.importantReminders || ([] as any),
+          guide.generalTips.importantReminders || ([] as any)
         );
       }
     }
@@ -215,7 +215,6 @@ function EditForm({
 
   const onSubmit = useCallback(
     handleSubmit(async (data: AddGuideForm) => {
-      console.log("Form submitted! Data:", data);
       setIsSubmitting(true);
 
       try {
@@ -248,9 +247,6 @@ function EditForm({
           },
           generalTips: data.generalTips,
         };
-
-        console.log("Submitting update with data:", guideData);
-        console.log("isFree:", data.isFree, "feeAmount:", data.feeAmount);
 
         const response = await updateGuideAsync({
           guideId: guide.id,
@@ -289,7 +285,7 @@ function EditForm({
         setIsSubmitting(false);
       }
     }),
-    [handleSubmit, guide, onGuideUpdated, updateGuideAsync],
+    [handleSubmit, guide, onGuideUpdated, updateGuideAsync]
   );
 
   const handleClose = useCallback(() => {

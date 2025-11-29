@@ -30,9 +30,19 @@ type GuideDetailClientProps = {
 export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   const router = useRouter();
   const { guide, isLoading, error } = useGovGuide(slug);
+  const {
+    data: translatedGuide,
+    isLoading: isTranslating,
+    error: translationError,
+  } = useTranslatedGuide(slug, language);
   const [selectedTab, setSelectedTab] = useState("complete-guide");
 
-  if (isLoading) {
+  const displayGuide =
+    language === "fil" && translatedGuide && guide
+      ? ({ ...guide, ...translatedGuide } as typeof guide)
+      : guide;
+
+  if (isLoading || (language === "fil" && isTranslating)) {
     return <GuideDetailSkeleton />;
   }
 

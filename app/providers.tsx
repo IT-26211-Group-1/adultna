@@ -10,6 +10,7 @@ import { ToastProvider } from "@heroui/toast";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const ReactQueryDevtools =
   process.env.NODE_ENV === "development"
@@ -43,10 +44,12 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const content = (
     <HeroUIProvider navigate={router.replace}>
       <NextThemesProvider {...themeProps}>
-        <div className="fixed z-[100]">
-          <ToastProvider placement="bottom-right" toastOffset={0} />
-        </div>
-        {children}
+        <LanguageProvider>
+          <div className="fixed z-[100]">
+            <ToastProvider placement="bottom-right" toastOffset={0} />
+          </div>
+          {children}
+        </LanguageProvider>
       </NextThemesProvider>
     </HeroUIProvider>
   );
