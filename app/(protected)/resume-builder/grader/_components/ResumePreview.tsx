@@ -74,8 +74,8 @@ export function ResumePreview({
         </div>
       </div>
 
-      {/* Preview Area - Sized for full resume page */}
-      <div className="bg-white relative overflow-hidden" style={{ height: '842px', aspectRatio: '8.5/11' }}>
+      {/* Preview Area - Sized for exact resume page dimensions */}
+      <div className="bg-white relative overflow-hidden" style={{ width: '612px', height: '792px' }}>
         {fileUrl ? (
           <div className="h-full relative">
             {!isLoaded && !hasError && (

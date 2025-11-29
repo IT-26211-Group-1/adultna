@@ -13,7 +13,6 @@ import GaugeComponent from "react-gauge-component";
 import { GraderAIRecommendations } from "./GraderAIRecommendations";
 import { CategoryScores } from "./CategoryScores";
 import { ResumeVerdict } from "./ResumeVerdict";
-import { ResumePreview } from "./ResumePreview";
 import {
   useGradeResume,
   ATSGradingResult,
@@ -635,7 +634,7 @@ export default function ResumeGrader({
         </div>
 
         {/* Hero Section - Celebration */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium mb-6">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -662,10 +661,10 @@ export default function ResumeGrader({
         </p>
       </div>
 
-      {/* Top Row - Score/Verdict & Resume Preview */}
-      <div className="grid lg:grid-cols-[35%_65%] gap-1 mb-4 px-1">
-        {/* Left: Score & Verdict */}
-        <div className="space-y-8">
+      {/* Main Content Grid */}
+      <div className="grid lg:grid-cols-[40%_1px_60%] gap-0 mb-4 px-1">
+        {/* Left Panel: Score & Verdict */}
+        <div className="space-y-8 pr-8">
           {/* Score Section */}
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
@@ -718,47 +717,33 @@ export default function ResumeGrader({
           )}
         </div>
 
-        {/* Right: Resume Preview */}
-        <div>
-          <ResumePreview
-            fileName={uploadedFile?.name || "Resume.pdf"}
-            fileSize={uploadedFile?.size}
-            fileUrl={(() => {
-              try {
-                return gradingResult && uploadedFile ? URL.createObjectURL(uploadedFile) : undefined;
-              } catch (error) {
-                console.error("Error creating object URL:", error);
-                return undefined;
-              }
-            })()}
-            className="w-full"
-          />
+        {/* Vertical Divider */}
+        <div className="bg-gray-200 w-px"></div>
+
+        {/* Right Panel: AI Recommendations & Category Analysis */}
+        <div className="pl-8">
+          {/* AI Recommendations */}
+          {gradingResult?.recommendations && (
+            <div className="mb-8">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                AI Recommendations
+              </h3>
+              <GraderAIRecommendations
+                recommendations={gradingResult.recommendations}
+              />
+            </div>
+          )}
+
+          {/* Category Analysis */}
+          {gradingResult?.categoryScores && (
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                Detailed Category Analysis
+              </h3>
+              <CategoryScores categoryScores={gradingResult.categoryScores} />
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Bottom Row - AI Recommendations & Category Analysis */}
-      <div className="grid lg:grid-cols-2 gap-1 mb-4 px-1">
-        {/* Left: AI Recommendations */}
-        {gradingResult?.recommendations && (
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-6">
-              AI Recommendations
-            </h3>
-            <GraderAIRecommendations
-              recommendations={gradingResult.recommendations}
-            />
-          </div>
-        )}
-
-        {/* Right: Category Analysis */}
-        {gradingResult?.categoryScores && (
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-6">
-              Detailed Category Analysis
-            </h3>
-            <CategoryScores categoryScores={gradingResult.categoryScores} />
-          </div>
-        )}
       </div>
       </div>
     </div>
