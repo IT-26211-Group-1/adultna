@@ -63,19 +63,34 @@ export function TemplateSelector({
           onSelectTemplate={handleSelect}
         />
 
-        {/* Continue Button */}
-        {selected && (
-          <div className="flex justify-center pt-4">
+        {/* Continue Button - Sticky on mobile, normal on desktop */}
+        <div className="pt-8">
+          {/* Desktop Button */}
+          <div className="hidden sm:flex justify-center">
             <Button
-              className="bg-adult-green text-white px-8"
-              color="success"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-12 py-3 shadow-lg"
               size="lg"
+              radius="md"
+              isDisabled={!selected}
               onPress={handleContinue}
             >
-              Continue with {selectedTemplate?.name}
+              {selected ? `Continue with ${selectedTemplate?.name}` : "Select a template to continue"}
             </Button>
           </div>
-        )}
+
+          {/* Mobile Sticky Button */}
+          <div className="sm:hidden fixed bottom-6 left-4 right-4 z-50">
+            <Button
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 shadow-xl"
+              size="lg"
+              radius="md"
+              isDisabled={!selected}
+              onPress={handleContinue}
+            >
+              {selected ? `Continue with ${selectedTemplate?.name}` : "Select a template"}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

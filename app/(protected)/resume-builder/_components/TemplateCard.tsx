@@ -67,11 +67,15 @@ export function TemplateCard({
     <Card
       disableAnimation
       shadow="none"
+      isPressable
       className={cn(
         "cursor-pointer transition-all duration-300 ease-in-out border-2 hover:border-adult-green hover:bg-gray-50/50",
         isSelected ? "border-adult-green bg-adult-green/5" : "border-gray-200",
       )}
-      onPress={onSelect}
+      onPress={() => {
+        console.log('Template card clicked:', template.id);
+        onSelect();
+      }}
     >
       <CardBody className="p-3 space-y-3">
         {/* Header */}
@@ -90,9 +94,9 @@ export function TemplateCard({
         </div>
 
         {/* Template Preview */}
-        <div className="aspect-[8.5/11] bg-white rounded-md overflow-hidden relative border-2 border-gray-100 transition-all duration-300">
+        <div className="aspect-[8.5/11] bg-white rounded-md overflow-hidden relative border-2 border-gray-100 transition-all duration-300 pointer-events-none">
           <div
-            className="w-full h-full"
+            className="w-full h-full pointer-events-none"
             style={{
               transform: "scale(0.5)",
               transformOrigin: "top left",
