@@ -1,0 +1,42 @@
+{
+  "common": {
+    "submit": "Isumite",
+    "cancel": "Kanselahin",
+    "save": "I-save",
+    "edit": "Baguhin",
+    "delete": "Tanggalin",
+    "loading": "Naglo-load...",
+    "error": "May naganap na error",
+    "success": "Tagumpay!",
+    "search": "Maghanap",
+    "categories": "Mga Kategorya",
+    "all": "Lahat"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "guides": "Mga Gabay",
+    "profile": "Profile",
+    "settings": "Mga Setting"
+  },
+  "guides": {
+    "hero": {
+      "title": "Ang iyong gabay sa pagiging adulto sa Pilipinas!",
+      "description": "Kamusta, future adult! Alam namin na ang mga proseso ng gobyerno ay maaaring nakakabigla, ngunit nandito kami para sa iyo. Maghanap ng step-by-step na gabay na ginagawang simple at walang stress ang pagkuha ng iyong mga dokumento."
+    },
+    "search": {
+      "placeholder": "Maghanap ng mga gabay..."
+    },
+    "category": {
+      "all": "Lahat ng Kategorya",
+      "identification": "Pagkakakilanlan",
+      "civil-registration": "Rehistro Sibil",
+      "permits-licenses": "Mga Permit at Lisensya",
+      "social-services": "Mga Serbisyong Panlipunan",
+      "tax-related": "Kaugnay ng Buwis",
+      "legal": "Legal",
+      "other": "Iba Pa"
+    },
+    "noResults": "Walang nahanap na gabay na tumutugma sa iyong criteria.",
+    "noGuides": "Walang available na gabay sa ngayon."
+  }
+}
