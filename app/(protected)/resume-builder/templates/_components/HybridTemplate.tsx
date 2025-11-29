@@ -3,10 +3,12 @@ import {
   MapPin,
   Phone,
   Mail,
-  Linkedin,
+  Link,
   Briefcase,
   GraduationCap,
   Award,
+  Calendar,
+  Globe,
 } from "lucide-react";
 
 type TemplateProps = {
@@ -48,7 +50,7 @@ export default function HybridTemplate({
         )}
         {resumeData.linkedin && (
           <div className="flex items-center gap-2">
-            <Linkedin className="w-3.5 h-3.5 flex-shrink-0" />
+            <Link className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">
               {resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}
             </span>
@@ -64,6 +66,20 @@ export default function HybridTemplate({
           <div className="flex items-center gap-2">
             <Mail className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">{resumeData.email}</span>
+          </div>
+        )}
+        {resumeData.portfolio && (
+          <div className="flex items-center gap-2">
+            <Globe className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate">
+              {resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}
+            </span>
+          </div>
+        )}
+        {resumeData.birthDate && (
+          <div className="flex items-center gap-2">
+            <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>Born: {formatDate(resumeData.birthDate)}</span>
           </div>
         )}
       </div>

@@ -169,13 +169,29 @@ export default function ContactForm({
         </div>
 
         {showJobPosition && (
-          <Input
-            {...form.register("jobPosition")}
-            errorMessage={form.formState.errors.jobPosition?.message as string}
-            isInvalid={!!form.formState.errors.jobPosition}
-            label="Job Position"
-            placeholder="e.g., Senior Software Engineer"
-          />
+          <div className="relative">
+            <Input
+              {...form.register("jobPosition")}
+              errorMessage={form.formState.errors.jobPosition?.message as string}
+              isInvalid={!!form.formState.errors.jobPosition}
+              label="Job Position"
+              placeholder="e.g., Senior Software Engineer"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setShowJobPosition(false);
+                form.setValue("jobPosition", "");
+                setResumeData({ ...resumeData, jobPosition: "" });
+              }}
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove Job Position"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
@@ -234,70 +250,118 @@ export default function ContactForm({
 
         {/* Optional Fields */}
         {showBirthDate && (
-          <Controller
-            control={form.control}
-            name="birthDate"
-            render={({ field, fieldState }) => {
-              let value = field.value;
+          <div className="relative">
+            <Controller
+              control={form.control}
+              name="birthDate"
+              render={({ field, fieldState }) => {
+                let value = field.value;
 
-              // Only allow CalendarDate, null, or undefined for value
-              if (!(value instanceof CalendarDate)) {
-                value = undefined;
-              }
-              const handleChange = (val: unknown) => {
-                if (val instanceof Date) {
-                  field.onChange(
-                    new CalendarDate(
-                      val.getFullYear(),
-                      val.getMonth() + 1,
-                      val.getDate(),
-                    ),
-                  );
-                } else {
-                  field.onChange(val);
+                // Only allow CalendarDate, null, or undefined for value
+                if (!(value instanceof CalendarDate)) {
+                  value = undefined;
                 }
-              };
+                const handleChange = (val: unknown) => {
+                  if (val instanceof Date) {
+                    field.onChange(
+                      new CalendarDate(
+                        val.getFullYear(),
+                        val.getMonth() + 1,
+                        val.getDate(),
+                      ),
+                    );
+                  } else {
+                    field.onChange(val);
+                  }
+                };
 
-              const today = new Date();
-              const maxDate = new CalendarDate(
-                today.getFullYear(),
-                today.getMonth() + 1,
-                today.getDate(),
-              );
+                const today = new Date();
+                const maxDate = new CalendarDate(
+                  today.getFullYear(),
+                  today.getMonth() + 1,
+                  today.getDate(),
+                );
 
-              return (
-                <DatePicker
-                  errorMessage={fieldState.error?.message as string}
-                  isInvalid={!!fieldState.error}
-                  label="Birth date"
-                  maxValue={maxDate}
-                  value={value}
-                  onBlur={field.onBlur}
-                  onChange={handleChange}
-                />
-              );
-            }}
-          />
+                return (
+                  <DatePicker
+                    errorMessage={fieldState.error?.message as string}
+                    isInvalid={!!fieldState.error}
+                    label="Birth date"
+                    maxValue={maxDate}
+                    value={value}
+                    onBlur={field.onBlur}
+                    onChange={handleChange}
+                  />
+                );
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setShowBirthDate(false);
+                form.setValue("birthDate", undefined);
+                setResumeData({ ...resumeData, birthDate: undefined });
+              }}
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
+              title="Remove Birth Date"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         )}
 
         {showLinkedIn && (
-          <Input
-            {...form.register("linkedin")}
-            errorMessage={form.formState.errors.linkedin?.message as string}
-            isInvalid={!!form.formState.errors.linkedin}
-            label="LinkedIn"
-            placeholder="https://linkedin.com/in/yourprofile"
-          />
+          <div className="relative">
+            <Input
+              {...form.register("linkedin")}
+              errorMessage={form.formState.errors.linkedin?.message as string}
+              isInvalid={!!form.formState.errors.linkedin}
+              label="LinkedIn"
+              placeholder="https://linkedin.com/in/yourprofile"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setShowLinkedIn(false);
+                form.setValue("linkedin", "");
+                setResumeData({ ...resumeData, linkedin: "" });
+              }}
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove LinkedIn"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         )}
 
         {showPortfolio && (
-          <Input
-            {...form.register("portfolio")}
-            errorMessage={form.formState.errors.portfolio?.message as string}
-            isInvalid={!!form.formState.errors.portfolio}
-            label="Portfolio"
-            placeholder="https://yourportfolio.com"
-          />
+          <div className="relative">
+            <Input
+              {...form.register("portfolio")}
+              errorMessage={form.formState.errors.portfolio?.message as string}
+              isInvalid={!!form.formState.errors.portfolio}
+              label="Portfolio"
+              placeholder="https://yourportfolio.com"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setShowPortfolio(false);
+                form.setValue("portfolio", "");
+                setResumeData({ ...resumeData, portfolio: "" });
+              }}
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove Portfolio"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         )}
 
         {/* Optional Fields Section */}

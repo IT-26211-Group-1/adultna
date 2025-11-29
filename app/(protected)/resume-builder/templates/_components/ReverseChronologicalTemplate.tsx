@@ -36,16 +36,36 @@ export default function ReverseChronologicalTemplate({
                 {resumeData.city && resumeData.region && ", "}
                 {resumeData.region}
               </span>
-              {(resumeData.phone || resumeData.email) && <span>|</span>}
+              {(resumeData.phone || resumeData.email || resumeData.linkedin || resumeData.portfolio || resumeData.birthDate) && <span>|</span>}
             </>
           )}
           {resumeData.phone && (
             <>
               <span>{resumeData.phone}</span>
-              {resumeData.email && <span>|</span>}
+              {(resumeData.email || resumeData.linkedin || resumeData.portfolio || resumeData.birthDate) && <span>|</span>}
             </>
           )}
-          {resumeData.email && <span>{resumeData.email}</span>}
+          {resumeData.email && (
+            <>
+              <span>{resumeData.email}</span>
+              {(resumeData.linkedin || resumeData.portfolio || resumeData.birthDate) && <span>|</span>}
+            </>
+          )}
+          {resumeData.linkedin && (
+            <>
+              <span>{resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}</span>
+              {(resumeData.portfolio || resumeData.birthDate) && <span>|</span>}
+            </>
+          )}
+          {resumeData.portfolio && (
+            <>
+              <span>{resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}</span>
+              {resumeData.birthDate && <span>|</span>}
+            </>
+          )}
+          {resumeData.birthDate && (
+            <span>Born: {formatDate(resumeData.birthDate)}</span>
+          )}
         </div>
       </div>
 

@@ -7,6 +7,8 @@ import {
   Globe,
   Briefcase,
   GraduationCap,
+  Link,
+  Calendar,
 } from "lucide-react";
 
 type TemplateProps = {
@@ -52,12 +54,26 @@ export default function ModernTemplate({
                 </span>
               </div>
             )}
+            {resumeData.linkedin && (
+              <div className="flex items-start gap-2">
+                <Link className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span className="break-all">
+                  {resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}
+                </span>
+              </div>
+            )}
             {resumeData.portfolio && (
               <div className="flex items-start gap-2">
                 <Globe className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                 <span className="break-all">
                   {resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}
                 </span>
+              </div>
+            )}
+            {resumeData.birthDate && (
+              <div className="flex items-start gap-2">
+                <Calendar className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{formatDate(resumeData.birthDate)}</span>
               </div>
             )}
           </div>
