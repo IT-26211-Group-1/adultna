@@ -16,6 +16,21 @@ export default function ProgressStepper({
   const currentStepData = steps[currentStepIndex];
   const progressPercentage = ((currentStepIndex + 1) / steps.length) * 100;
 
+  const canGoBack = currentStepIndex > 0;
+  const canGoForward = currentStepIndex < steps.length - 1;
+
+  const goToPreviousStep = () => {
+    if (canGoBack) {
+      setCurrentStep(steps[currentStepIndex - 1].key);
+    }
+  };
+
+  const goToNextStep = () => {
+    if (canGoForward) {
+      setCurrentStep(steps[currentStepIndex + 1].key);
+    }
+  };
+
   return (
     <div className="mb-8">
       {/* Mobile Design (< 640px) */}
@@ -25,8 +40,38 @@ export default function ProgressStepper({
           <div className="text-sm font-medium text-gray-600 mb-1">
             Step {currentStepIndex + 1} of {steps.length}
           </div>
-          <div className="text-lg font-semibold text-emerald-700">
-            {currentStepData?.title}
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={goToPreviousStep}
+              disabled={!canGoBack}
+              className={`p-1 rounded transition-colors ${
+                canGoBack
+                  ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                  : "text-gray-300 cursor-not-allowed"
+              }`}
+              aria-label="Previous step"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div className="text-lg font-semibold text-emerald-700 px-2">
+              {currentStepData?.title}
+            </div>
+            <button
+              onClick={goToNextStep}
+              disabled={!canGoForward}
+              className={`p-1 rounded transition-colors ${
+                canGoForward
+                  ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                  : "text-gray-300 cursor-not-allowed"
+              }`}
+              aria-label="Next step"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -47,8 +92,38 @@ export default function ProgressStepper({
             <div className="text-sm font-medium text-gray-600 mb-1">
               Step {currentStepIndex + 1} of {steps.length}
             </div>
-            <div className="text-base font-semibold text-emerald-700">
-              {currentStepData?.title}
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={goToPreviousStep}
+                disabled={!canGoBack}
+                className={`p-2 rounded transition-colors ${
+                  canGoBack
+                    ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+                aria-label="Previous step"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div className="text-base font-semibold text-emerald-700 px-3">
+                {currentStepData?.title}
+              </div>
+              <button
+                onClick={goToNextStep}
+                disabled={!canGoForward}
+                className={`p-2 rounded transition-colors ${
+                  canGoForward
+                    ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+                aria-label="Next step"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -68,8 +143,38 @@ export default function ProgressStepper({
             <div className="text-sm font-medium text-gray-600 mb-1">
               Step {currentStepIndex + 1} of {steps.length}
             </div>
-            <div className="text-lg font-semibold text-emerald-700">
-              {currentStepData?.title}
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={goToPreviousStep}
+                disabled={!canGoBack}
+                className={`p-2 rounded transition-colors ${
+                  canGoBack
+                    ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+                aria-label="Previous step"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div className="text-lg font-semibold text-emerald-700 px-4">
+                {currentStepData?.title}
+              </div>
+              <button
+                onClick={goToNextStep}
+                disabled={!canGoForward}
+                className={`p-2 rounded transition-colors ${
+                  canGoForward
+                    ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+                aria-label="Next step"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">

@@ -412,11 +412,11 @@ export default function ResumeEditor() {
 
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50">
       {/* Left Side - Form with Breadcrumb */}
-      <div className="w-full md:w-1/2 flex flex-col">
+      <div className="w-full md:w-1/2 flex flex-col overflow-hidden">
         {/* Breadcrumb Section */}
-        <div className="bg-transparent w-full">
+        <div className="bg-transparent w-full flex-shrink-0">
           <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
             <div className="max-w-7xl mx-auto">
               <div className="mb-3 sm:mb-3 sm:flex sm:items-center sm:justify-between">
@@ -436,7 +436,7 @@ export default function ResumeEditor() {
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-6">
             <ProgressStepper currentStep={currentStep} setCurrentStep={setStep} />
             {FormComponent && (
@@ -448,21 +448,8 @@ export default function ResumeEditor() {
               />
             )}
           </div>
-          <div className="p-6">
+          <div className="p-6 flex-shrink-0">
             <div className="max-w-xs mx-auto space-y-3">
-              {!isContactForm && (
-                <div className="mb-4">
-                  <button
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                    onClick={handleBack}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    <span className="text-sm font-medium">Back</span>
-                  </button>
-                </div>
-              )}
               <LoadingButton
                 className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!isFormValid || !isCurrentFormValid}
