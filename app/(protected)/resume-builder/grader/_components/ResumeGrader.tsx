@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Card, CardBody, Button, Textarea } from "@heroui/react";
-import { Files, FileText, ArrowLeft } from "lucide-react";
+import { Textarea } from "@heroui/react";
+import { Files, FileText, ArrowLeft, Upload, Search, Clock } from "lucide-react";
+import { useResumes } from "@/hooks/queries/useResumeQueries";
 import NextLink from "next/link";
 import { addToast } from "@heroui/toast";
 import { ResumeScoreGauge } from "./ResumeScoreGauge";
@@ -24,9 +25,41 @@ export default function ResumeGrader() {
   const [gradingResult, setGradingResult] = useState<ATSGradingResult | null>(
     null,
   );
+  const [gradeSearchQuery, setGradeSearchQuery] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const gradeResume = useGradeResume();
+  const { data: resumesData = [], isLoading: isLoadingResumes } = useResumes();
+
+  // Helper function for time ago
+  const getTimeAgo = (date: Date | string) => {
+    const now = new Date();
+    const past = new Date(date);
+    const diffTime = Math.abs(now.getTime() - past.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+    return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
+  };
+
+  // Filter resumes for grade section
+  const filteredGradeResumes = resumesData.filter(resume => {
+    if (!gradeSearchQuery.trim()) return true;
+    const query = gradeSearchQuery.toLowerCase().trim();
+    return (
+      resume.title.toLowerCase().includes(query) ||
+      (resume.firstName && resume.firstName.toLowerCase().includes(query)) ||
+      (resume.lastName && resume.lastName.toLowerCase().includes(query)) ||
+      resume.status.toLowerCase().includes(query)
+    );
+  }).sort((a, b) => {
+    const dateA = new Date(a.updatedAt).getTime();
+    const dateB = new Date(b.updatedAt).getTime();
+    return dateB - dateA;
+  });
 
   const isValidFileType = (file: File): boolean => {
     const validTypes = [
@@ -205,180 +238,312 @@ export default function ResumeGrader() {
 
   if (!gradingResult) {
     return (
-      <div className="h-[100dvh] bg-gray-50 p-6 overflow-auto">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
-            <NextLink
-              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
-              href="/resume-builder"
-            >
-              <ArrowLeft className="mr-2" size={20} />
-              Back to Resume Builder
-            </NextLink>
-          </div>
+      <div className="w-full">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="space-y-8 animate-[fadeIn_0.4s_ease-out]">
 
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-semibold font-playfair mb-2">
-              ATS Resume Grader
-            </h1>
-            <p className="text-gray-500">
-              Upload your resume to get an ATS compatibility score and
-              personalized recommendations
-            </p>
-          </div>
-
-          <Card className="mb-6">
-            <CardBody className="p-6">
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                htmlFor="job-description-input"
-              >
-                Job Description (Optional)
-              </label>
-              <Textarea
-                className="mb-4"
-                id="job-description-input"
-                maxRows={8}
-                minRows={4}
-                placeholder="Paste the job description here for targeted ATS analysis and keyword matching..."
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-              />
-              <p className="text-xs text-gray-500">
-                Adding a job description helps us analyze how well your resume
-                matches specific requirements
+            {/* Hero Section */}
+            <div className="text-center space-y-2.5 max-w-2xl mx-auto">
+              <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+                Grade Your Resume
+              </h1>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Get AI-powered feedback and recommendations to make your resume stand out.
               </p>
-            </CardBody>
-          </Card>
+            </div>
 
-          <Card
-            className={`border-2 border-dashed transition-all duration-200 ${
-              isDragOver
-                ? "border-green-400 bg-green-50"
-                : uploadedFile
-                  ? "border-green-300 bg-green-50"
-                  : "border-gray-300 hover:border-gray-400"
-            }`}
-          >
-            <CardBody
-              className="p-12 text-center cursor-pointer"
-              onClick={handleBrowseClick}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            >
-              {uploadedFile ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-center">
-                    <FileText className="w-12 h-12 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-lg font-medium text-gray-900">
-                      {uploadedFile.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                  <div className="flex gap-3 justify-center">
-                    <Button
-                      color="success"
-                      isDisabled={isProcessing}
-                      isLoading={isProcessing}
-                      variant="solid"
-                      onPress={handleGradeResume}
-                    >
-                      Grade My Resume
-                    </Button>
-                    <Button
-                      color="default"
-                      isDisabled={isProcessing}
-                      variant="bordered"
-                      onPress={handleRemoveFile}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-center">
-                    <Files
-                      className={`w-12 h-12 ${isDragOver ? "text-green-600" : "text-gray-400"}`}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-lg font-medium text-gray-900">
-                      {isDragOver
-                        ? "Drop your resume here"
-                        : "Drag and drop your resume"}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      or{" "}
-                      <span className="text-green-700 font-medium">browse</span>{" "}
-                      to choose a file
-                    </p>
-                  </div>
-                  <p className="text-xs text-gray-400">
-                    PDF, DOCX, and DOC files only, up to 10MB
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+              {/* Left Column - Job Description & File Upload */}
+              <div className="space-y-6">
+                {/* Job Description Section */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <label
+                    className="block text-sm font-semibold text-gray-900 mb-3"
+                    htmlFor="job-description-input"
+                  >
+                    Job Description (Optional)
+                  </label>
+                  <Textarea
+                    className="mb-4"
+                    id="job-description-input"
+                    maxRows={8}
+                    minRows={4}
+                    placeholder="Paste the job description here for targeted ATS analysis and keyword matching..."
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500">
+                    Adding a job description helps us analyze how well your resume
+                    matches specific requirements
                   </p>
                 </div>
-              )}
-            </CardBody>
-          </Card>
 
-          <input
-            ref={fileInputRef}
-            accept=".pdf,.docx,.doc"
-            className="hidden"
-            type="file"
-            onChange={handleFileSelect}
-          />
+                {/* Upload Area */}
+                <div
+                  className={`bg-white border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 cursor-pointer group shadow-sm ${
+                    isDragOver
+                      ? "border-emerald-400 bg-emerald-50/30"
+                      : uploadedFile
+                        ? "border-emerald-300 bg-emerald-50/30"
+                        : "border-gray-300 hover:border-emerald-400 hover:bg-emerald-50/30"
+                  }`}
+                  onClick={handleBrowseClick}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                >
+                  {uploadedFile ? (
+                    <div className="space-y-4">
+                      <div className="bg-emerald-100 w-14 h-14 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                        <FileText className="w-7 h-7 text-emerald-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-900 mb-1.5">
+                          {uploadedFile.name}
+                        </h3>
+                        <p className="text-xs text-gray-600">
+                          {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <div className="flex gap-3 justify-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGradeResume();
+                          }}
+                          disabled={isProcessing}
+                          className="bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50"
+                        >
+                          {isProcessing ? "Grading..." : "Grade My Resume"}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveFile();
+                          }}
+                          disabled={isProcessing}
+                          className="px-5 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="bg-emerald-100 w-14 h-14 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
+                        <Upload className="w-7 h-7 text-emerald-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-900 mb-1.5">
+                          {isDragOver
+                            ? "Drop your resume here"
+                            : "Upload Resume to Grade"}
+                        </h3>
+                        <p className="text-xs text-gray-600 mb-4">
+                          Drop your resume here or click to browse
+                        </p>
+                        <button className="bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow">
+                          Choose File
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-400">
+                        PDF, DOCX, and DOC files only, up to 10MB
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column - Search My Resumes */}
+              <div className="space-y-6">
+                {!isLoadingResumes && resumesData.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+                    {/* Header with Search */}
+                    <div className="p-5 border-b border-gray-200">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3">Grade from My Resumes</h3>
+                      <div className="relative">
+                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          placeholder="Search your resumes..."
+                          value={gradeSearchQuery}
+                          onChange={(e) => setGradeSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Resume List */}
+                    <div className="max-h-96 overflow-y-auto">
+                      {filteredGradeResumes.length === 0 ? (
+                        <div className="p-5 text-center">
+                          <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500">
+                            {gradeSearchQuery.trim() ? 'No resumes match your search' : 'No resumes available'}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="p-2">
+                          {filteredGradeResumes.map((resume, index) => (
+                            <div key={resume.id}>
+                              <NextLink href={`/resume-builder/grader?resumeId=${resume.id}`}>
+                                <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-emerald-50/50 transition-all duration-200 text-left group">
+                                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <div className="flex-shrink-0">
+                                      <FileText className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors duration-200" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <div className="text-sm font-medium text-gray-900 truncate group-hover:text-emerald-700 transition-colors">
+                                        {resume.title}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex-shrink-0 ml-3">
+                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                                      resume.status === 'completed'
+                                        ? 'bg-emerald-100 text-emerald-700'
+                                        : resume.status === 'draft'
+                                        ? 'bg-amber-100 text-amber-700'
+                                        : 'bg-gray-100 text-gray-700'
+                                    }`}>
+                                      {resume.status.charAt(0).toUpperCase() + resume.status.slice(1)}
+                                    </span>
+                                  </div>
+                                </button>
+                              </NextLink>
+                              {index < filteredGradeResumes.length - 1 && (
+                                <div className="border-b border-gray-100 mx-3" />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer with count */}
+                    <div className="px-5 py-3 bg-gray-50 border-t border-gray-200 rounded-b-xl">
+                      <p className="text-xs text-gray-500 text-center">
+                        {filteredGradeResumes.length === resumesData.length
+                          ? `${resumesData.length} resume${resumesData.length !== 1 ? 's' : ''} available`
+                          : `${filteredGradeResumes.length} of ${resumesData.length} resume${resumesData.length !== 1 ? 's' : ''}`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Empty state when no resumes */}
+                {!isLoadingResumes && resumesData.length === 0 && (
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 text-center">
+                    <Files className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2">No saved resumes</h3>
+                    <p className="text-xs text-gray-500 mb-4">Create your first resume to grade it later</p>
+                    <NextLink href="/resume-builder/templates">
+                      <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200">
+                        Create Resume
+                      </button>
+                    </NextLink>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              accept=".pdf,.docx,.doc"
+              className="hidden"
+              type="file"
+              onChange={handleFileSelect}
+            />
+          </div>
         </div>
+
+        <style jsx>{`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
       </div>
     );
   }
 
   return (
-    <div className="h-[100dvh] bg-gray-50 p-6 overflow-hidden">
-      <div className="mb-4">
-        <Button
-          startContent={<ArrowLeft size={16} />}
-          variant="light"
-          onPress={handleRemoveFile}
-        >
-          Grade Another Resume
-        </Button>
-      </div>
+    <div className="w-full">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="space-y-8 animate-[fadeIn_0.4s_ease-out]">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Resume Grade Results</h1>
+              <p className="text-xs text-gray-500 mt-1">AI-powered feedback and recommendations for your resume</p>
+            </div>
+            <button
+              onClick={handleRemoveFile}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-200 font-medium"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Grade Another Resume
+            </button>
+          </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-[1600px] mx-auto h-full">
-        <div className="flex flex-col h-full min-h-0">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-full overflow-y-auto">
-            <div className="mb-6">
-              <ResumeScoreGauge
-                maxPossibleScore={gradingResult.maxPossibleScore}
-                score={gradingResult.overallScore}
-                verdict={getScoreVerdict(gradingResult.passRate)}
-              />
+          {/* Results Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Score & Verdict */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <ResumeScoreGauge
+                  maxPossibleScore={gradingResult.maxPossibleScore}
+                  score={gradingResult.overallScore}
+                  verdict={getScoreVerdict(gradingResult.passRate)}
+                />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <ResumeVerdict
+                  hasJobDescription={gradingResult.hasJobDescription}
+                  verdict={gradingResult.summary}
+                  workingWell={getCategoryStrengths()}
+                />
+              </div>
             </div>
 
-            <div className="flex-1">
-              <ResumeVerdict
-                hasJobDescription={gradingResult.hasJobDescription}
-                verdict={gradingResult.summary}
-                workingWell={getCategoryStrengths()}
-              />
+            {/* Right Column - Recommendations & Scores */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <GraderAIRecommendations
+                  recommendations={gradingResult.recommendations}
+                />
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <CategoryScores categoryScores={gradingResult.categoryScores} />
+              </div>
             </div>
           </div>
         </div>
-
-        <div className="flex flex-col gap-6 h-full p-3 min-h-0 overflow-y-auto">
-          <GraderAIRecommendations
-            recommendations={gradingResult.recommendations}
-          />
-          <CategoryScores categoryScores={gradingResult.categoryScores} />
-        </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
