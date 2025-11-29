@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { useGovGuides } from "@/hooks/queries/useGovGuidesQueries";
+import { useTranslatedGuides } from "@/hooks/queries/useTranslatedGuides";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { GuideCategory } from "@/types/govguide";
 import GuideCard from "./GuideCard";
 import GuideSearch from "./GuideSearch";
@@ -11,6 +13,7 @@ import GuidesLoadingSkeleton from "./GuidesLoadingSkeleton";
 const GUIDES_PER_PAGE = 10;
 
 export default function GuidesListClient() {
+  const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<
     GuideCategory | "all"
@@ -44,6 +47,17 @@ export default function GuidesListClient() {
     return filteredGuides.slice(startIndex, endIndex);
   }, [filteredGuides, currentPage]);
 
+  const paginatedSlugs = useMemo(
+    () => paginatedGuides.map((guide) => guide.slug),
+    [paginatedGuides],
+  );
+
+  const { translationsMap, isLoading: isTranslating } = useTranslatedGuides(
+    paginatedSlugs,
+    language,
+    language === "fil",
+  );
+
   const handleCategoryChange = (category: GuideCategory | "all") => {
     setSelectedCategory(category);
     setCurrentPage(1);
@@ -67,7 +81,9 @@ export default function GuidesListClient() {
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
-          Failed to load guides. Please try again later.
+          {language === "fil"
+            ? "Hindi ma-load ang mga gabay. Pakisubukan ulit mamaya."
+            : "Failed to load guides. Please try again later."}
         </div>
       )}
 
@@ -75,8 +91,12 @@ export default function GuidesListClient() {
         <div className="text-center">
           <p className="text-gray-600">
             {searchQuery || selectedCategory !== "all"
-              ? "No guides found matching your criteria."
-              : "No guides available at the moment."}
+              ? language === "fil"
+                ? "Walang nahanap na gabay na tumutugma sa iyong mga pamantayan."
+                : "No guides found matching your criteria."
+              : language === "fil"
+                ? "Walang available na gabay sa ngayon."
+                : "No guides available at the moment."}
           </p>
         </div>
       )}
@@ -85,7 +105,12 @@ export default function GuidesListClient() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {paginatedGuides.map((guide) => (
-              <GuideCard key={guide.id} guide={guide} />
+              <GuideCard
+                key={guide.id}
+                guide={guide}
+                translation={translationsMap.get(guide.slug)}
+                isTranslating={isTranslating && language === "fil"}
+              />
             ))}
           </div>
 

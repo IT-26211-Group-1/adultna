@@ -17,6 +17,21 @@ export type GetGuideResponse = {
   message?: string;
 };
 
+export type TranslatedGuideResponse = {
+  title: string;
+  description: string;
+  steps: Array<{
+    stepNumber: number;
+    title: string;
+    description: string;
+  }>;
+  requirements: Array<{
+    name: string;
+    description: string;
+  }>;
+  generalTips: string;
+};
+
 const govGuidesApi = {
   listGuides: (params?: {
     status?: GuideStatus;
@@ -35,6 +50,12 @@ const govGuidesApi = {
 
   getGuide: (id: string): Promise<GetGuideResponse> =>
     ApiClient.get(`/guides/public/${id}`),
+
+  getTranslatedGuide: (
+    id: string,
+    language: "en" | "fil",
+  ): Promise<TranslatedGuideResponse> =>
+    ApiClient.get(`/guides/public/${id}/translate?lang=${language}`),
 };
 
 export const queryKeys = {
@@ -46,6 +67,9 @@ export const queryKeys = {
       [...queryKeys.govGuides.lists(), filters] as const,
     details: () => [...queryKeys.govGuides.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.govGuides.details(), id] as const,
+    translations: () => [...queryKeys.govGuides.all, "translation"] as const,
+    translation: (id: string, language: "en" | "fil") =>
+      [...queryKeys.govGuides.translations(), id, language] as const,
   },
 };
 
@@ -92,6 +116,30 @@ export function useGovGuide(id: string) {
   return {
     guide: guideData?.guide,
     guideData,
+    isLoading,
+    error,
+    refetch,
+  };
+}
+
+export function useTranslatedGuide(id: string, language: "en" | "fil") {
+  const {
+    data,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.govGuides.translation(id, language),
+    queryFn: () => govGuidesApi.getTranslatedGuide(id, language),
+    enabled: !!id && language === "fil",
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+
+  return {
+    data,
     isLoading,
     error,
     refetch,
