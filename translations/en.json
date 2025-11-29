@@ -1,0 +1,49 @@
+{
+  "common": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success!",
+    "search": "Search",
+    "categories": "Categories",
+    "all": "All",
+    "viewDetails": "View Details",
+    "requirement": "requirement",
+    "requirements": "requirements",
+    "noRequirements": "No requirements",
+    "translating": "Translating to Filipino...",
+    "completeGuideFor": "Complete guide for applying for your"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "guides": "Guides",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "guides": {
+    "hero": {
+      "title": "Your guide to adulting in the Philippines!",
+      "description": "Hey there, future adult! We know government processes can feel overwhelming, but we've got your back. Find step-by-step guides that make getting your documents simple and stress-free."
+    },
+    "search": {
+      "placeholder": "Search guides..."
+    },
+    "category": {
+      "all": "All Categories",
+      "identification": "Government IDs",
+      "civil-registration": "Civil Registration",
+      "permits-licenses": "Permits & Licenses",
+      "social-services": "Social Services",
+      "tax-related": "Tax-Related",
+      "legal": "Legal Documents",
+      "other": "Other"
+    },
+    "noResults": "No guides found matching your criteria.",
+    "noGuides": "No guides available at the moment.",
+    "loadError": "Failed to load guides. Please try again later."
+  }
+}
