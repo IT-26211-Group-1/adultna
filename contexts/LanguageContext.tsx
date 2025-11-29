@@ -71,12 +71,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const urlLang = searchParams?.get("lang");
+    const isGovGuidesPage = pathname?.startsWith("/gov-guides");
 
     if (urlLang === "en" || urlLang === "fil") {
       if (urlLang !== language) {
         setLanguageState(urlLang);
       }
-    } else if (pathname && typeof window !== "undefined") {
+    } else if (isGovGuidesPage && pathname && typeof window !== "undefined") {
       const params = new URLSearchParams(searchParams?.toString());
       params.set("lang", language);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -113,7 +114,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         console.error("Failed to save language to localStorage:", error);
       }
 
-      if (pathname) {
+      const isGovGuidesPage = pathname?.startsWith("/gov-guides");
+      if (isGovGuidesPage && pathname) {
         const params = new URLSearchParams(searchParams?.toString());
         params.set("lang", lang);
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
