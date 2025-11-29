@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import React from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useGovGuide } from "@/hooks/queries/useGovGuidesQueries";
 import { Tabs, Tab } from "@heroui/tabs";
@@ -9,10 +10,18 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@heroui/button";
 import GuideInfoCards from "./GuideInfoCards";
-import CompleteGuideTab from "./CompleteGuideTab";
-import RequirementsTab from "./RequirementsTab";
-import GeneralTipsTab from "./GeneralTipsTab";
 import GuideDetailSkeleton from "./GuideDetailSkeleton";
+import { DownloadPdfButton } from "./DownloadPdfButton";
+
+const CompleteGuideTab = dynamic(() => import("./CompleteGuideTab"), {
+  loading: () => <div className="py-4">Loading...</div>,
+});
+const RequirementsTab = dynamic(() => import("./RequirementsTab"), {
+  loading: () => <div className="py-4">Loading...</div>,
+});
+const GeneralTipsTab = dynamic(() => import("./GeneralTipsTab"), {
+  loading: () => <div className="py-4">Loading...</div>,
+});
 
 type GuideDetailClientProps = {
   slug: string;
@@ -49,30 +58,49 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   return (
     <>
       {/* Breadcrumb Navigation */}
-      <nav className="flex items-center space-x-2 mb-6 text-sm text-gray-500">
-        <Link
-          className="hover:text-adult-green transition-colors"
-          href="/gov-guides"
-        >
-          Government Guides
-        </Link>
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-gray-900 font-medium truncate">
-          {guide.title}
-        </span>
+      <nav
+        aria-label="Breadcrumb"
+        className="flex items-center space-x-2 mb-6 text-sm text-gray-500"
+      >
+        <ol className="flex items-center space-x-2">
+          <li>
+            <Link
+              className="hover:text-adult-green transition-colors"
+              href="/gov-guides"
+            >
+              Government Guides
+            </Link>
+          </li>
+          <li aria-hidden="true">
+            <ChevronRight className="w-4 h-4" />
+          </li>
+          <li aria-current="page">
+            <span className="text-gray-900 font-medium truncate">
+              {displayGuide.title}
+            </span>
+          </li>
+        </ol>
       </nav>
 
       <hr className="border-gray-200 mb-6" />
 
-      <h1 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight leading-tight">
-        {guide.title}
-      </h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight leading-tight">
+          {displayGuide.title}
+        </h1>
+        <DownloadPdfButton slug={slug} />
+      </div>
 
       <GuideInfoCards guide={guide} />
 
-      <div className="mt-6">
+      <div
+        aria-label="Guide content sections"
+        className="mt-6 min-h-[600px]"
+        role="region"
+      >
         <Tabs
           disableAnimation
+          aria-label="Guide sections"
           classNames={{
             base: "w-full bg-transparent",
             tabList: "w-full border-b border-gray-200 bg-transparent",
@@ -85,18 +113,18 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
           onSelectionChange={(key) => setSelectedTab(key as string)}
         >
           <Tab key="complete-guide" title="Complete Guide">
-            <div className="py-4">
-              <CompleteGuideTab steps={guide.steps || []} />
+            <div className="py-4 min-h-[500px]" role="tabpanel">
+              <CompleteGuideTab steps={displayGuide.steps || []} />
             </div>
           </Tab>
           <Tab key="requirements" title="Requirements">
-            <div className="py-4">
-              <RequirementsTab requirements={guide.requirements || []} />
+            <div className="py-4 min-h-[500px]" role="tabpanel">
+              <RequirementsTab requirements={displayGuide.requirements || []} />
             </div>
           </Tab>
           <Tab key="general-tips" title="General Tips">
-            <div className="py-4">
-              <GeneralTipsTab tips={guide.generalTips} />
+            <div className="py-4 min-h-[500px]" role="tabpanel">
+              <GeneralTipsTab tips={displayGuide.generalTips} />
             </div>
           </Tab>
         </Tabs>

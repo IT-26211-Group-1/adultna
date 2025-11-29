@@ -50,8 +50,10 @@ export function RoadmapNavigation({ onAddMilestone }: RoadmapNavigationProps) {
                 <Home className="w-4 h-4 mr-1" />
                 Dashboard
               </button>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
-              <span className="text-slate-900 font-semibold">Roadmap</span>
+              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
+              <span className="text-slate-900 font-semibold truncate">
+                Roadmap
+              </span>
             </div>
           </div>
 

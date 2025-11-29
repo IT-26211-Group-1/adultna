@@ -64,8 +64,8 @@ export default function SidebarNavigation({
               href={item.href}
               title={isCollapsed ? item.label : undefined}
               onClick={() => {
-                // Close sidebar on mobile after navigation
-                if (window.innerWidth < 1280) {
+                // Close sidebar on mobile and tablet after navigation
+                if (typeof window !== "undefined" && window.innerWidth < 1280) {
                   onCloseSidebar?.();
                 }
               }}
