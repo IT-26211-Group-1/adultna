@@ -66,39 +66,38 @@ export function TemplateCard({
   return (
     <Card
       disableAnimation
-      isHoverable
-      isPressable
+      shadow="none"
       className={cn(
-        "cursor-pointer transition-all border",
-        isSelected && "ring-2 ring-adult-green shadow-lg border-adult-green",
+        "cursor-pointer transition-all duration-300 ease-in-out border-2 hover:border-adult-green hover:bg-gray-50/50",
+        isSelected ? "border-adult-green bg-adult-green/5" : "border-gray-200",
       )}
       onPress={onSelect}
     >
-      <CardBody className="p-4 space-y-4">
+      <CardBody className="p-3 space-y-3">
         {/* Header */}
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-2 mb-1">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-gray-900 mb-2">
               {template.name}
             </h3>
-            <p className="text-sm text-gray-600 mt-1">{template.description}</p>
+            <p className="text-xs text-gray-600">{template.description}</p>
           </div>
           {isSelected && (
-            <div className="h-6 w-6 rounded-full bg-adult-green flex items-center justify-center flex-shrink-0">
-              <Check className="h-4 w-4 text-white" />
+            <div className="h-5 w-5 rounded-full bg-adult-green flex items-center justify-center flex-shrink-0">
+              <Check className="h-3 w-3 text-white" />
             </div>
           )}
         </div>
 
         {/* Template Preview */}
-        <div className="aspect-[8.5/11] bg-white rounded-lg overflow-hidden relative border border-gray-200">
+        <div className="aspect-[8.5/11] bg-white rounded-md overflow-hidden relative border-2 border-gray-100 transition-all duration-300">
           <div
             className="w-full h-full"
             style={{
-              transform: "scale(0.6)",
+              transform: "scale(0.5)",
               transformOrigin: "top left",
-              width: "166.67%",
-              height: "166.67%",
+              width: "200%",
+              height: "200%",
             }}
           >
             {getTemplateComponent()}
@@ -106,11 +105,11 @@ export function TemplateCard({
         </div>
       </CardBody>
 
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-3 pt-0">
         <div className="w-full flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <div
-              className="h-4 w-4 rounded-full border border-gray-300"
+              className="h-3 w-3 rounded-full border border-gray-300"
               style={{ backgroundColor: template.colorScheme }}
             />
             <span className="text-gray-600 text-xs capitalize">
