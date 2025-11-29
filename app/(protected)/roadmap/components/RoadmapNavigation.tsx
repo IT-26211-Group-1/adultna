@@ -52,7 +52,9 @@ export function RoadmapNavigation({ onAddMilestone }: RoadmapNavigationProps) {
                 <span className="sm:hidden">Home</span>
               </button>
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
-              <span className="text-slate-900 font-semibold truncate">Roadmap</span>
+              <span className="text-slate-900 font-semibold truncate">
+                Roadmap
+              </span>
             </div>
           </div>
 

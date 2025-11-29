@@ -72,7 +72,7 @@ export function CategoryScores({
   };
 
   return (
-    <Card className={`${className} flex-shrink-0`}>
+    <Card className={`${className} bg-transparent border-none shadow-none flex-shrink-0`}>
       <CardBody className="p-4 space-y-4">
         <div>
           <h3 className="text-lg font-semibold mb-1">Category Breakdown</h3>
@@ -82,13 +82,15 @@ export function CategoryScores({
         </div>
 
         <div className="space-y-4">
-          {categories.map((category) => {
+          {categories.map((category, index) => {
             const percentage =
               (category.data.score / category.data.maxScore) * 100;
             const isPassing = category.data.score >= 20;
 
             return (
-              <div key={category.key} className="space-y-2">
+              <div key={category.key}>
+                {index > 0 && <div className="border-t border-gray-200 my-4" />}
+                <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 flex-1">
                     {isPassing ? (
@@ -248,6 +250,7 @@ export function CategoryScores({
                         ))}
                     </div>
                   )}
+                </div>
               </div>
             );
           })}

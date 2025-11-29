@@ -2,26 +2,34 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Textarea } from "@heroui/react";
-import { Files, FileText, ArrowLeft, Upload, Search, Clock } from "lucide-react";
+import { Files, FileText, Upload, Search } from "lucide-react";
 import { useResumes } from "@/hooks/queries/useResumeQueries";
 import NextLink from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { addToast } from "@heroui/toast";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
-import { Button, Card, CardBody } from "@heroui/react";
-import { ResumeVerdict } from "./ResumeVerdict";
+import { Button } from "@heroui/react";
+import GaugeComponent from "react-gauge-component";
 import { GraderAIRecommendations } from "./GraderAIRecommendations";
 import { CategoryScores } from "./CategoryScores";
+import { ResumeVerdict } from "./ResumeVerdict";
+import { ResumePreview } from "./ResumePreview";
 import {
   useGradeResume,
   ATSGradingResult,
 } from "@/hooks/queries/useResumeQueries";
 import { ApiClient } from "@/lib/apiClient";
 import { logger } from "@/lib/logger";
+import { ArrowLeft } from "lucide-react";
 
-export default function ResumeGrader() {
+interface ResumeGraderProps {
+  onResultsChange?: (showingResults: boolean) => void;
+}
+
+export default function ResumeGrader({
+  onResultsChange,
+}: ResumeGraderProps = {}) {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { getSecureItem, setSecureItem, removeSecureItem } = useSecureStorage();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -37,55 +45,53 @@ export default function ResumeGrader() {
   const { data: resumesData = [], isLoading: isLoadingResumes } = useResumes();
 
   // Check if we should show results based on URL params
-  const resumeId = searchParams.get('resumeId');
-  const showResults = searchParams.get('results') === 'true';
+  const showResults = searchParams.get("results") === "true";
 
   // Restore grading results from secure storage on component mount
   useEffect(() => {
     if (showResults && !gradingResult) {
-      const savedResults = getSecureItem('resumeGradingResults');
+      const savedResults = getSecureItem("resumeGradingResults");
+
       if (savedResults) {
         try {
           const parsedResults = JSON.parse(savedResults);
+
           setGradingResult(parsedResults);
         } catch (error) {
-          console.error('Failed to parse saved grading results:', error);
+          console.error("Failed to parse saved grading results:", error);
           // Clear invalid data
-          removeSecureItem('resumeGradingResults');
+          removeSecureItem("resumeGradingResults");
         }
       }
     }
   }, [showResults, gradingResult, getSecureItem, removeSecureItem]);
 
-  // Helper function for time ago
-  const getTimeAgo = (date: Date | string) => {
-    const now = new Date();
-    const past = new Date(date);
-    const diffTime = Math.abs(now.getTime() - past.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "1 day ago";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
-    return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
-  };
+  // Notify parent component when results state changes
+  useEffect(() => {
+    if (onResultsChange) {
+      onResultsChange(!!gradingResult || showResults);
+    }
+  }, [gradingResult, showResults, onResultsChange]);
 
   // Filter resumes for grade section
-  const filteredGradeResumes = resumesData.filter(resume => {
-    if (!gradeSearchQuery.trim()) return true;
-    const query = gradeSearchQuery.toLowerCase().trim();
-    return (
-      resume.title.toLowerCase().includes(query) ||
-      (resume.firstName && resume.firstName.toLowerCase().includes(query)) ||
-      (resume.lastName && resume.lastName.toLowerCase().includes(query)) ||
-      resume.status.toLowerCase().includes(query)
-    );
-  }).sort((a, b) => {
-    const dateA = new Date(a.updatedAt).getTime();
-    const dateB = new Date(b.updatedAt).getTime();
-    return dateB - dateA;
-  });
+  const filteredGradeResumes = resumesData
+    .filter((resume) => {
+      if (!gradeSearchQuery.trim()) return true;
+      const query = gradeSearchQuery.toLowerCase().trim();
+
+      return (
+        resume.title.toLowerCase().includes(query) ||
+        (resume.firstName && resume.firstName.toLowerCase().includes(query)) ||
+        (resume.lastName && resume.lastName.toLowerCase().includes(query)) ||
+        resume.status.toLowerCase().includes(query)
+      );
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.updatedAt).getTime();
+      const dateB = new Date(b.updatedAt).getTime();
+
+      return dateB - dateA;
+    });
 
   const isValidFileType = (file: File): boolean => {
     const validTypes = ["application/pdf"];
@@ -158,13 +164,14 @@ export default function ResumeGrader() {
     }
 
     // Clear secure storage
-    removeSecureItem('resumeGradingResults');
+    removeSecureItem("resumeGradingResults");
 
     // Clear URL params to go back to upload state
     const newUrl = new URL(window.location.href);
-    newUrl.searchParams.delete('results');
-    newUrl.searchParams.delete('resumeId');
-    window.history.replaceState({}, '', newUrl.toString());
+
+    newUrl.searchParams.delete("results");
+    newUrl.searchParams.delete("resumeId");
+    window.history.replaceState({}, "", newUrl.toString());
   };
 
   const handleGradeResume = async () => {
@@ -220,12 +227,13 @@ export default function ResumeGrader() {
       setIsProcessing(false);
 
       // Save results to secure storage for persistence across refreshes
-      setSecureItem('resumeGradingResults', JSON.stringify(result));
+      setSecureItem("resumeGradingResults", JSON.stringify(result));
 
       // Update URL to persist results state
       const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('results', 'true');
-      window.history.replaceState({}, '', newUrl.toString());
+
+      newUrl.searchParams.set("results", "true");
+      window.history.replaceState({}, "", newUrl.toString());
     } catch (error: any) {
       logger.error("Grading error:", error);
 
@@ -280,24 +288,23 @@ export default function ResumeGrader() {
       <div className="w-full">
         <div className="max-w-7xl mx-auto px-8">
           <div className="space-y-8 animate-[fadeIn_0.4s_ease-out]">
-
             {/* Hero Section */}
             <div className="text-center space-y-2.5 max-w-2xl mx-auto">
               <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
                 Grade Your Resume
               </h1>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Get AI-powered feedback and recommendations to make your resume stand out.
+                Get AI-powered feedback and recommendations to make your resume
+                stand out.
               </p>
             </div>
 
             {/* Two Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
               {/* Left Column - Job Description & File Upload */}
               <div className="space-y-6" style={{ minHeight: "500px" }}>
                 {/* Job Description Section */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
                   <label
                     className="block text-sm font-semibold text-gray-900 mb-3"
                     htmlFor="job-description-input"
@@ -314,14 +321,14 @@ export default function ResumeGrader() {
                     onChange={(e) => setJobDescription(e.target.value)}
                   />
                   <p className="text-xs text-gray-500">
-                    Adding a job description helps us analyze how well your resume
-                    matches specific requirements
+                    Adding a job description helps us analyze how well your
+                    resume matches specific requirements
                   </p>
                 </div>
 
                 {/* Upload Area */}
                 <div
-                  className={`bg-white border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 cursor-pointer group shadow-sm ${
+                  className={`bg-white border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 cursor-pointer group ${
                     isDragOver
                       ? "border-emerald-400 bg-emerald-50/30"
                       : uploadedFile
@@ -348,22 +355,22 @@ export default function ResumeGrader() {
                       </div>
                       <div className="flex gap-3 justify-center">
                         <button
+                          className="bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 disabled:opacity-50"
+                          disabled={isProcessing}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleGradeResume();
                           }}
-                          disabled={isProcessing}
-                          className="bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50"
                         >
                           {isProcessing ? "Grading..." : "Grade My Resume"}
                         </button>
                         <button
+                          className="px-5 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
+                          disabled={isProcessing}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleRemoveFile();
                           }}
-                          disabled={isProcessing}
-                          className="px-5 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
                         >
                           Remove
                         </button>
@@ -383,7 +390,7 @@ export default function ResumeGrader() {
                         <p className="text-xs text-gray-600 mb-4">
                           Drop your resume here or click to browse
                         </p>
-                        <button className="bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow">
+                        <button className="bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200">
                           Choose File
                         </button>
                       </div>
@@ -398,18 +405,23 @@ export default function ResumeGrader() {
               {/* Right Column - Search My Resumes */}
               <div className="space-y-6">
                 {!isLoadingResumes && resumesData.length > 0 && (
-                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm" style={{ minHeight: "500px" }}>
+                  <div
+                    className="bg-white border border-gray-200 rounded-xl"
+                    style={{ minHeight: "500px" }}
+                  >
                     {/* Header with Search */}
                     <div className="p-5 border-b border-gray-200">
-                      <h3 className="text-sm font-semibold text-gray-900 mb-3">Grade from My Resumes</h3>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                        Grade from My Resumes
+                      </h3>
                       <div className="relative">
                         <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
-                          type="text"
+                          className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
                           placeholder="Search your resumes..."
+                          type="text"
                           value={gradeSearchQuery}
                           onChange={(e) => setGradeSearchQuery(e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
                         />
                       </div>
                     </div>
@@ -420,14 +432,18 @@ export default function ResumeGrader() {
                         <div className="p-5 text-center">
                           <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                           <p className="text-sm text-gray-500">
-                            {gradeSearchQuery.trim() ? 'No resumes match your search' : 'No resumes available'}
+                            {gradeSearchQuery.trim()
+                              ? "No resumes match your search"
+                              : "No resumes available"}
                           </p>
                         </div>
                       ) : (
                         <div className="p-2">
                           {filteredGradeResumes.map((resume, index) => (
                             <div key={resume.id}>
-                              <NextLink href={`/resume-builder/grader?resumeId=${resume.id}`}>
+                              <NextLink
+                                href={`/resume-builder/grader?resumeId=${resume.id}`}
+                              >
                                 <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-emerald-50/50 transition-all duration-200 text-left group">
                                   <div className="flex items-center gap-3 min-w-0 flex-1">
                                     <div className="flex-shrink-0">
@@ -440,14 +456,17 @@ export default function ResumeGrader() {
                                     </div>
                                   </div>
                                   <div className="flex-shrink-0 ml-3">
-                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                                      resume.status === 'completed'
-                                        ? 'bg-emerald-100 text-emerald-700'
-                                        : resume.status === 'draft'
-                                        ? 'bg-amber-100 text-amber-700'
-                                        : 'bg-gray-100 text-gray-700'
-                                    }`}>
-                                      {resume.status.charAt(0).toUpperCase() + resume.status.slice(1)}
+                                    <span
+                                      className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                                        resume.status === "completed"
+                                          ? "bg-emerald-100 text-emerald-700"
+                                          : resume.status === "draft"
+                                            ? "bg-amber-100 text-amber-700"
+                                            : "bg-gray-100 text-gray-700"
+                                      }`}
+                                    >
+                                      {resume.status.charAt(0).toUpperCase() +
+                                        resume.status.slice(1)}
                                     </span>
                                   </div>
                                 </button>
@@ -465,9 +484,8 @@ export default function ResumeGrader() {
                     <div className="px-5 py-3 bg-gray-50 border-t border-gray-200 rounded-b-xl">
                       <p className="text-xs text-gray-500 text-center">
                         {filteredGradeResumes.length === resumesData.length
-                          ? `${resumesData.length} resume${resumesData.length !== 1 ? 's' : ''} available`
-                          : `${filteredGradeResumes.length} of ${resumesData.length} resume${resumesData.length !== 1 ? 's' : ''}`
-                        }
+                          ? `${resumesData.length} resume${resumesData.length !== 1 ? "s" : ""} available`
+                          : `${filteredGradeResumes.length} of ${resumesData.length} resume${resumesData.length !== 1 ? "s" : ""}`}
                       </p>
                     </div>
                   </div>
@@ -475,10 +493,17 @@ export default function ResumeGrader() {
 
                 {/* Empty state when no resumes */}
                 {!isLoadingResumes && resumesData.length === 0 && (
-                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col justify-center items-center text-center" style={{ minHeight: "535px" }}>
+                  <div
+                    className="bg-white border border-gray-200 rounded-xl flex flex-col justify-center items-center text-center"
+                    style={{ minHeight: "535px" }}
+                  >
                     <Files className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2">No saved resumes</h3>
-                    <p className="text-xs text-gray-500 mb-4">Create your first resume to grade it later</p>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                      No saved resumes
+                    </h3>
+                    <p className="text-xs text-gray-500 mb-4">
+                      Create your first resume to grade it later
+                    </p>
                     <NextLink href="/resume-builder/templates">
                       <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200">
                         Create Resume
@@ -520,157 +545,158 @@ export default function ResumeGrader() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Results not found. Please grade your resume again.</p>
-          <Button onPress={handleRemoveFile}>
-            Back to Grade Resume
-          </Button>
+          <p className="text-gray-600 mb-4">
+            Results not found. Please grade your resume again.
+          </p>
+          <Button onPress={handleRemoveFile}>Back to Grade Resume</Button>
         </div>
       </div>
     );
   }
 
   // Calculate score percentage for gauge
-  const scorePercentage = gradingResult ? Math.round((gradingResult.overallScore / gradingResult.maxPossibleScore) * 100) : 0;
-  const scoreLabel = gradingResult ? getScoreVerdict(gradingResult.passRate) : "Unknown";
+  const scorePercentage = gradingResult
+    ? Math.round(
+        (gradingResult.overallScore / gradingResult.maxPossibleScore) * 100,
+      )
+    : 0;
+  const scoreLabel = gradingResult
+    ? getScoreVerdict(gradingResult.passRate)
+    : "Unknown";
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      {/* Motivational Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-6">
+    <div className="w-full">
+      <div className="w-full">
+        {/* Back Navigation */}
+        <div className="mb-4 px-2">
+          <button
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-200 group"
+            onClick={handleRemoveFile}
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
+            <span className="text-sm font-medium">Back to Grade Resume</span>
+          </button>
+        </div>
+
+        {/* Hero Section - Celebration */}
+        <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium mb-6">
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              clipRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              fillRule="evenodd"
+            />
+          </svg>
+          Resume Analysis Complete
+        </div>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
           Great Job!
           <br />
-          Your Resume Has Been Analyzed
+          <span className="text-adult-green">
+            Your Resume Has Been Analyzed
+          </span>
         </h1>
-        <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+        <p className="text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
           Your resume has been thoroughly analyzed using AI-powered insights.
-          {gradingResult?.hasJobDescription && " We've provided tailored feedback based on your target job description."}
-          Here's how your resume performs and what you can improve to land your dream job.
+          {gradingResult?.hasJobDescription &&
+            " We've provided tailored feedback based on your target job description."}
+          Here's how your resume performs and what you can improve to land your
+          dream job.
         </p>
-        <div className="flex gap-4 justify-center max-w-md mx-auto">
-          <Button
-            className="flex-1 border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-medium"
-            size="lg"
-            variant="bordered"
-            onPress={() => window.location.href = "/dashboard"}
-          >
-            Go to Dashboard
-          </Button>
-          <Button
-            className="flex-1 bg-adult-green text-white hover:bg-adult-green/90 font-medium"
-            size="lg"
-            onPress={handleRemoveFile}
-          >
-            Grade Another
-          </Button>
+      </div>
+
+      {/* Top Row - Score/Verdict & Resume Preview */}
+      <div className="grid lg:grid-cols-[35%_65%] gap-1 mb-4 px-1">
+        {/* Left: Score & Verdict */}
+        <div className="space-y-8">
+          {/* Score Section */}
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">
+              Your Resume Score
+            </h2>
+
+            {/* Professional Gauge Component */}
+            <div className="w-80 h-56 mx-auto mb-6">
+              <GaugeComponent
+                arc={{
+                  colorArray: ["#EF4444", "#F59E0B", "#10B981"],
+                  padding: 0.02,
+                  subArcs: [{ limit: 40 }, { limit: 70 }, { limit: 100 }],
+                }}
+                labels={{
+                  valueLabel: {
+                    formatTextValue: (value: number) => `${value}%`,
+                    style: {
+                      fontSize: "48px",
+                      fontWeight: "bold",
+                      fill: "#1F2937",
+                    },
+                  },
+                }}
+                pointer={{
+                  type: "blob",
+                  animationDelay: 0,
+                }}
+                type="semicircle"
+                value={scorePercentage}
+              />
+              {/* Score Label Below */}
+              <div className="text-center mt-4">
+                <p className="text-xl font-semibold text-adult-green">
+                  {scoreLabel}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Detailed Verdict */}
+          {gradingResult?.summary && (
+            <div>
+              <ResumeVerdict
+                verdict={gradingResult.summary}
+                workingWell={getCategoryStrengths()}
+                hasJobDescription={gradingResult.hasJobDescription}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Right: Resume Preview */}
+        <div>
+          <ResumePreview
+            fileName={uploadedFile?.name || "Resume.pdf"}
+            fileSize={uploadedFile?.size}
+            fileUrl={gradingResult ? URL.createObjectURL(uploadedFile!) : undefined}
+            className="w-full"
+          />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column - Score and Feedback */}
-          <div className="space-y-6">
-            {/* Score Card */}
-            <Card className="bg-white">
-              <CardBody className="p-8">
-                <h2 className="text-xl font-semibold text-gray-900 text-center mb-6">
-                  Your Score
-                </h2>
-                <div className="flex flex-col items-center">
-                  {/* Semi-circular Gauge */}
-                  <div className="relative w-64 h-32 mb-4">
-                    <svg className="w-full h-full" viewBox="0 0 200 100">
-                      {/* Background Arc */}
-                      <path
-                        d="M 20 100 A 80 80 0 0 1 180 100"
-                        fill="none"
-                        stroke="#E5E7EB"
-                        strokeLinecap="round"
-                        strokeWidth="20"
-                      />
-                      {/* Colored Arc */}
-                      <path
-                        d="M 20 100 A 80 80 0 0 1 180 100"
-                        fill="none"
-                        stroke="#10B981"
-                        strokeDasharray={`${(scorePercentage / 100) * 251.2} 251.2`}
-                        strokeLinecap="round"
-                        strokeWidth="20"
-                        style={{
-                          transition: "stroke-dasharray 1s ease-in-out",
-                        }}
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-5xl font-bold text-gray-900">
-                        {scorePercentage}%
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-lg font-semibold text-[#10B981]">
-                    {scoreLabel}
-                  </p>
-                </div>
-              </CardBody>
-            </Card>
+      {/* Bottom Row - AI Recommendations & Category Analysis */}
+      <div className="grid lg:grid-cols-2 gap-1 mb-4 px-1">
+        {/* Left: AI Recommendations */}
+        {gradingResult?.recommendations && (
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
+              AI Recommendations
+            </h3>
+            <GraderAIRecommendations
+              recommendations={gradingResult.recommendations}
+            />
           </div>
+        )}
 
-          {/* Right Column - Detailed Feedback and Recommendations */}
-          <div className="space-y-6">
-            {/* Detailed Feedback Section */}
-            <div className="bg-white rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Detailed Feedback
-              </h3>
-              <div className="max-h-96 overflow-y-auto pr-2">
-                <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
-                  <p className="mb-3 last:mb-0">{gradingResult?.summary || "No detailed feedback available."}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* What's Working Well Section */}
-            <div className="bg-white rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                What's Working Well
-              </h3>
-              <ul className="space-y-2">
-                {getCategoryStrengths().length > 0 ? (
-                  getCategoryStrengths().map((strength, index) => (
-                    <li
-                      key={index}
-                      className="flex items-start gap-2 text-gray-700"
-                    >
-                      <span className="text-gray-400 mt-1">•</span>
-                      <span>{strength}</span>
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-sm text-gray-500 italic">
-                    Complete more sections to see detailed feedback
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* AI Recommendations */}
-            {gradingResult?.recommendations && (
-              <div className="bg-white rounded-lg">
-                <GraderAIRecommendations
-                  recommendations={gradingResult.recommendations}
-                />
-              </div>
-            )}
-
-            {/* Category Scores */}
-            {gradingResult?.categoryScores && (
-              <div className="bg-white rounded-lg">
-                <CategoryScores categoryScores={gradingResult.categoryScores} />
-              </div>
-            )}
+        {/* Right: Category Analysis */}
+        {gradingResult?.categoryScores && (
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
+              Detailed Category Analysis
+            </h3>
+            <CategoryScores categoryScores={gradingResult.categoryScores} />
           </div>
-        </div>
+        )}
+      </div>
       </div>
     </div>
   );
