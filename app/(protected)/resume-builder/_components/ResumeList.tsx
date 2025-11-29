@@ -195,17 +195,9 @@ export function ResumeList() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full bg-gray-50">
       {/* Breadcrumb and Tabs */}
-      <div
-        className="bg-transparent w-full"
-        style={{
-          minHeight: "auto",
-          WebkitOverflowScrolling: "touch",
-          touchAction: "pan-y",
-          overflow: "visible",
-        }}
-      >
+      <div className="bg-transparent w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="max-w-7xl mx-auto">
             {/* Breadcrumbs */}
