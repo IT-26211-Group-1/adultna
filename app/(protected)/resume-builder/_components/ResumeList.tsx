@@ -204,8 +204,8 @@ export function ResumeList() {
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="max-w-7xl mx-auto">
-            {/* Breadcrumbs and Tabs on same line */}
-            <div className="flex items-center justify-between mb-3">
+            {/* Breadcrumbs */}
+            <div className="mb-3 sm:mb-3 sm:flex sm:items-center sm:justify-between">
               <Breadcrumb
                 items={[
                   { label: "Dashboard", href: "/dashboard" },
@@ -213,26 +213,23 @@ export function ResumeList() {
                 ]}
               />
 
-              {/* Tabs on right side */}
-              <div className="flex gap-6">
+              {/* Tabs - Only visible on sm+ screens */}
+              <div className="hidden sm:flex gap-6">
                 <Link
                   href="/resume-builder?tab=create"
-                  className="relative px-1 py-2 text-sm font-medium transition-all duration-300 text-gray-600 hover:text-gray-900"
+                  className="relative px-1 py-2 text-sm font-medium transition-all duration-300 text-gray-600 hover:text-gray-900 whitespace-nowrap"
                 >
                   Create
                 </Link>
-                <span className="relative px-1 py-2 text-sm font-medium transition-all duration-300 text-emerald-600">
+                <span className="relative px-1 py-2 text-sm font-medium transition-all duration-300 text-emerald-600 whitespace-nowrap">
                   <span className="flex items-center gap-2">
                     My Resumes
-                    {/* <span className="px-1.5 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-700">
-                      {resumeCount}
-                    </span> */}
                   </span>
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />
                 </span>
                 <Link
                   href="/resume-builder?tab=grade"
-                  className="relative px-1 py-2 text-sm font-medium transition-all duration-300 text-gray-600 hover:text-gray-900"
+                  className="relative px-1 py-2 text-sm font-medium transition-all duration-300 text-gray-600 hover:text-gray-900 whitespace-nowrap"
                 >
                   Grade Resume
                 </Link>
@@ -240,21 +237,48 @@ export function ResumeList() {
             </div>
           </div>
         </div>
+
+      {/* Mobile Tabs - Closer to content on small screens */}
+      <div className="sm:hidden px-4 py-2">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex gap-3 overflow-x-auto pb-1 justify-center">
+            <Link
+              href="/resume-builder?tab=create"
+              className="relative px-2 py-2 text-xs font-medium transition-all duration-300 text-gray-600 hover:text-gray-900 whitespace-nowrap"
+            >
+              Create
+            </Link>
+            <span className="relative px-2 py-2 text-xs font-medium transition-all duration-300 text-emerald-600 whitespace-nowrap">
+              <span className="flex items-center gap-1">
+                My Resumes
+              </span>
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />
+            </span>
+            <Link
+              href="/resume-builder?tab=grade"
+              className="relative px-2 py-2 text-xs font-medium transition-all duration-300 text-gray-600 hover:text-gray-900 whitespace-nowrap"
+            >
+              Grade Resume
+            </Link>
+          </div>
+        </div>
+      </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="space-y-6 animate-[fadeIn_0.4s_ease-out]">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">My Resumes</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight">My Resumes</h1>
               <p className="text-xs text-gray-500 mt-1">{resumeCount} resume{resumeCount !== 1 ? 's' : ''} in your collection</p>
             </div>
             <Link href="/resume-builder/templates">
-              <button className="bg-emerald-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md">
-                <Plus className="w-4 h-4" />
-                Create New Resume
+              <button className="bg-emerald-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-medium hover:bg-emerald-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md w-full sm:w-auto">
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="sm:hidden">Create Resume</span>
+                <span className="hidden sm:inline">Create New Resume</span>
               </button>
             </Link>
           </div>
@@ -275,13 +299,13 @@ export function ResumeList() {
 
           {/* Loading State */}
           {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {[...Array(6)].map((_, index) => (
                 <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden animate-pulse">
-                  <div className="bg-gray-200 h-28"></div>
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="bg-gray-200 h-24 sm:h-28"></div>
+                  <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+                    <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/2"></div>
                   </div>
                 </div>
               ))}
@@ -290,12 +314,12 @@ export function ResumeList() {
 
           {/* Empty State */}
           {!isLoading && resumes.length === 0 && (
-            <div className="text-center py-12">
-              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No resumes yet</h3>
-              <p className="text-sm text-gray-500 mb-6">Start building your first resume to get started</p>
+            <div className="text-center py-8 sm:py-12">
+              <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No resumes yet</h3>
+              <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 px-4">Start building your first resume to get started</p>
               <Link href="/resume-builder/templates">
-                <button className="bg-emerald-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                <button className="bg-emerald-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-medium hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md">
                   Create Your First Resume
                 </button>
               </Link>
@@ -304,7 +328,7 @@ export function ResumeList() {
 
           {/* Resume Grid */}
           {!isLoading && resumes.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {resumes.map((resume, index) => {
                 const isDeleting = deletingId === resume.id;
                 const isExporting = exportingId === resume.id;
@@ -315,7 +339,7 @@ export function ResumeList() {
                     className="bg-white rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all duration-300 overflow-hidden group flex flex-col"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="h-64 bg-white rounded-t-lg overflow-hidden relative border-b border-gray-200 transition-all duration-300 group-hover:border-emerald-200">
+                    <div className="h-48 sm:h-56 md:h-64 bg-white rounded-t-lg overflow-hidden relative border-b border-gray-200 transition-all duration-300 group-hover:border-emerald-200">
                       <div
                         className="w-full h-full bg-white"
                         style={{
@@ -328,10 +352,10 @@ export function ResumeList() {
                         {getTemplateComponent(resume)}
                       </div>
                     </div>
-                    <div className="p-4 flex flex-col flex-1">
+                    <div className="p-3 sm:p-4 flex flex-col flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div className="min-w-0 flex-1">
-                          <h3 className="text-sm font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors duration-200 line-clamp-2">
+                          <h3 className="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors duration-200 line-clamp-2">
                             {resume.title}
                           </h3>
                           {resume.firstName && resume.lastName && (
@@ -350,31 +374,33 @@ export function ResumeList() {
                           {resume.status.charAt(0).toUpperCase() + resume.status.slice(1)}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 flex items-center mb-3">
+                      <p className="text-xs text-gray-500 flex items-center mb-2 sm:mb-3">
                         <Clock className="w-3 h-3 mr-1" />
                         {getTimeAgo(resume.updatedAt)}
                       </p>
 
                       {/* Action Buttons - Push to bottom */}
-                      <div className="flex gap-2 mt-auto">
+                      <div className="flex gap-1.5 sm:gap-2 mt-auto">
                         <button
                           onClick={() => handleEdit(resume.id)}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors duration-200"
+                          className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors duration-200"
                         >
                           <Edit className="w-3 h-3" />
-                          Edit
+                          <span className="hidden sm:inline">Edit</span>
                         </button>
                         <button
                           onClick={() => handleExport(resume.id)}
                           disabled={isExporting}
-                          className="flex items-center justify-center px-2 py-2 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors duration-200 disabled:opacity-50"
+                          className="flex items-center justify-center px-1.5 sm:px-2 py-1.5 sm:py-2 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors duration-200 disabled:opacity-50"
+                          title="Export Resume"
                         >
                           <Download className="w-3 h-3" />
                         </button>
                         <button
                           onClick={() => handleDelete(resume.id)}
                           disabled={isDeleting}
-                          className="flex items-center justify-center px-2 py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-md transition-colors duration-200 disabled:opacity-50"
+                          className="flex items-center justify-center px-1.5 sm:px-2 py-1.5 sm:py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-md transition-colors duration-200 disabled:opacity-50"
+                          title="Delete Resume"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>

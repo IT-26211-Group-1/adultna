@@ -7,8 +7,7 @@ import { RESUME_LINKS } from "@/constants/resume-links";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import {
   FileText,
-  Upload,
-  Star
+  Upload
 } from "lucide-react";
 import ResumeGrader from "../grader/_components/ResumeGrader";
 
@@ -48,8 +47,8 @@ export function ResumeDashboard() {
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="max-w-7xl mx-auto">
-            {/* Breadcrumbs and Tabs */}
-            <div className="flex items-center justify-between mb-3">
+            {/* Breadcrumbs */}
+            <div className="mb-3 sm:mb-3 sm:flex sm:items-center sm:justify-between">
               <Breadcrumb
                 items={[
                   { label: "Dashboard", href: "/dashboard" },
@@ -57,8 +56,8 @@ export function ResumeDashboard() {
                 ]}
               />
 
-             
-              <div className="flex gap-6">
+              {/* Tabs - Only visible on sm+ screens */}
+              <div className="hidden sm:flex gap-6">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
@@ -68,12 +67,12 @@ export function ResumeDashboard() {
                         return;
                       }
                       setActiveTab(tab.id as TabType);
-                     
+
                       const newUrl = new URL(window.location.href);
                       newUrl.searchParams.set('tab', tab.id);
                       window.history.pushState({}, '', newUrl);
                     }}
-                    className={`relative px-1 py-2 text-sm font-medium transition-all duration-300 ${
+                    className={`relative px-1 py-2 text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                       activeTab === tab.id
                         ? 'text-emerald-600'
                         : 'text-gray-600 hover:text-gray-900'
@@ -91,6 +90,42 @@ export function ResumeDashboard() {
             </div>
           </div>
         </div>
+
+      {/* Mobile Tabs - Closer to content on small screens */}
+      <div className="sm:hidden px-4 py-2">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex gap-3 overflow-x-auto pb-1 justify-center">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  if (tab.id === 'my-resumes') {
+                    router.push('/resume-builder/my-resumes');
+                    return;
+                  }
+                  setActiveTab(tab.id as TabType);
+
+                  const newUrl = new URL(window.location.href);
+                  newUrl.searchParams.set('tab', tab.id);
+                  window.history.pushState({}, '', newUrl);
+                }}
+                className={`relative px-2 py-2 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'text-emerald-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <span className="flex items-center gap-1">
+                  {tab.label}
+                </span>
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600 animate-[slideIn_0.3s_ease-out]" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
       </div>
 
       {/* Content */}

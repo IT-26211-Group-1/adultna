@@ -64,8 +64,8 @@ export default function SidebarNavigation({
               href={item.href}
               title={isCollapsed ? item.label : undefined}
               onClick={() => {
-                // Close sidebar on mobile after navigation
-                if (window.innerWidth < 1280) {
+                // Close sidebar on mobile and tablet after navigation
+                if (typeof window !== 'undefined' && window.innerWidth < 1280) {
                   onCloseSidebar?.();
                 }
               }}
@@ -77,7 +77,7 @@ export default function SidebarNavigation({
                 size={20}
               />
               <span
-                className={`font-medium text-sm ${
+                className={`font-medium text-sm whitespace-nowrap ${
                   isActive ? "text-white" : ""
                 } ${isCollapsed ? "xl:hidden" : ""}`}
               >

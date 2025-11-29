@@ -252,7 +252,7 @@ export default function ResumeGrader() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
               {/* Left Column - Job Description & File Upload */}
-              <div className="space-y-6">
+              <div className="space-y-6" style={{ minHeight: "500px" }}>
                 {/* Job Description Section */}
                 <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                   <label
@@ -432,7 +432,7 @@ export default function ResumeGrader() {
 
                 {/* Empty state when no resumes */}
                 {!isLoadingResumes && resumesData.length === 0 && (
-                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col justify-center items-center text-center" style={{ minHeight: "500px" }}>
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col justify-center items-center text-center" style={{ minHeight: "535px" }}>
                     <Files className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-sm font-semibold text-gray-900 mb-2">No saved resumes</h3>
                     <p className="text-xs text-gray-500 mb-4">Create your first resume to grade it later</p>
