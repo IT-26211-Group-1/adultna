@@ -24,7 +24,7 @@ export default function ResumePreviewSection({
           }
         />
       </div>
-      <div className="flex w-full justify-center overflow-y-auto bg-gray-100 p-3">
+      <div className="flex w-full justify-center overflow-y-auto">
         <ResumePreview
           className="max-w-4xl shadow-md"
           resumeData={resumeData}
