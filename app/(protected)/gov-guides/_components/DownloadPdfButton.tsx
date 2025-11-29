@@ -25,13 +25,17 @@ const DownloadPdfButtonComponent = ({ slug }: DownloadPdfButtonProps) => {
 
   return (
     <Button
-      aria-label={ariaLabel}
       aria-busy={isPending}
+      aria-label={ariaLabel}
       className="border-adult-green text-adult-green hover:bg-adult-green/10 focus-visible:ring-2 focus-visible:ring-adult-green focus-visible:ring-offset-2"
       isDisabled={isPending}
       isLoading={isPending}
       size="sm"
-      startContent={!isPending ? <Download className="w-4 h-4" aria-hidden="true" /> : undefined}
+      startContent={
+        !isPending ? (
+          <Download aria-hidden="true" className="w-4 h-4" />
+        ) : undefined
+      }
       variant="bordered"
       onPress={handleDownload}
     >

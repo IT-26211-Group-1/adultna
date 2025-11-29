@@ -108,8 +108,8 @@ export default function GuidesListClient() {
               <GuideCard
                 key={guide.id}
                 guide={guide}
-                translation={translationsMap.get(guide.slug)}
                 isTranslating={isTranslating && language === "fil"}
+                translation={translationsMap.get(guide.slug)}
               />
             ))}
           </div>

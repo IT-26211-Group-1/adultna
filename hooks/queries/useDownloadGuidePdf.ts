@@ -31,6 +31,7 @@ export function useDownloadGuidePdf() {
 
           try {
             const errorData = await response.json();
+
             errorMessage = errorData.message || errorMessage;
           } catch {
             errorMessage = `Server error: ${response.status}`;
@@ -40,6 +41,7 @@ export function useDownloadGuidePdf() {
         }
 
         const contentType = response.headers.get("content-type");
+
         if (!contentType?.includes("application/pdf")) {
           throw new Error("Invalid response format. Expected PDF.");
         }

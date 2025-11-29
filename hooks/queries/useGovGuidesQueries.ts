@@ -123,12 +123,7 @@ export function useGovGuide(id: string) {
 }
 
 export function useTranslatedGuide(id: string, language: "en" | "fil") {
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.govGuides.translation(id, language),
     queryFn: () => govGuidesApi.getTranslatedGuide(id, language),
     enabled: !!id && language === "fil",

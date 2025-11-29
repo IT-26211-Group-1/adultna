@@ -118,8 +118,8 @@ export default function GuideCard({
                     <div className="w-4 h-4 border-2 border-adult-green border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <Languages
-                      className="w-4 h-4 text-adult-green"
                       aria-label="Tagalog translation"
+                      className="w-4 h-4 text-adult-green"
                     />
                   )}
                 </div>
@@ -132,7 +132,10 @@ export default function GuideCard({
             {/* Summary */}
             <p className="text-xs text-gray-600 mb-4 line-clamp-2 flex-1">
               {isTranslating && !translation ? (
-                <span className="text-gray-400">{guide.summary || `Complete guide for applying for your ${guide.title}`}</span>
+                <span className="text-gray-400">
+                  {guide.summary ||
+                    `Complete guide for applying for your ${guide.title}`}
+                </span>
               ) : (
                 displaySummary
               )}

@@ -12,6 +12,7 @@ export default function GovGuidesHero() {
       requestIdleCallback(() => setShowDecorations(true));
     } else {
       const timeout = setTimeout(() => setShowDecorations(true), 100);
+
       return () => clearTimeout(timeout);
     }
   }, []);

@@ -31,9 +31,11 @@ const STORAGE_KEY = "adultna_language";
 const loadTranslations = async (lang: Language): Promise<TranslationData> => {
   try {
     const translations = await import(`@/translations/${lang}.json`);
+
     return translations.default;
   } catch (error) {
     console.error(`Failed to load translations for ${lang}:`, error);
+
     return {};
   }
 };
@@ -47,12 +49,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return "en";
 
     const urlLang = searchParams?.get("lang");
+
     if (urlLang === "en" || urlLang === "fil") {
       return urlLang;
     }
 
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
+
       if (stored === "en" || stored === "fil") {
         return stored;
       }
@@ -79,6 +83,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
     } else if (isGovGuidesPage && pathname && typeof window !== "undefined") {
       const params = new URLSearchParams(searchParams?.toString());
+
       params.set("lang", language);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
@@ -115,8 +120,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
 
       const isGovGuidesPage = pathname?.startsWith("/gov-guides");
+
       if (isGovGuidesPage && pathname) {
         const params = new URLSearchParams(searchParams?.toString());
+
         params.set("lang", lang);
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
       }
@@ -125,19 +132,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 
   const t = useMemo(
-    () => (key: string): string => {
-      if (isLoading || !translations) return key;
+    () =>
+      (key: string): string => {
+        if (isLoading || !translations) return key;
 
-      const keys = key.split(".");
-      let value: any = translations;
+        const keys = key.split(".");
+        let value: any = translations;
 
-      for (const k of keys) {
-        value = value?.[k];
-        if (value === undefined) break;
-      }
+        for (const k of keys) {
+          value = value?.[k];
+          if (value === undefined) break;
+        }
 
-      return value || key;
-    },
+        return value || key;
+      },
     [translations, isLoading],
   );
 

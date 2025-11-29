@@ -16,6 +16,7 @@ const LanguageSwitcherComponent = () => {
 
   const handleLanguageChange = (key: string | number) => {
     const lang = key as "en" | "fil";
+
     if (language !== lang) {
       setLanguage(lang);
     }
@@ -26,9 +27,9 @@ const LanguageSwitcherComponent = () => {
       <DropdownTrigger>
         <Button
           isIconOnly
-          variant="light"
           aria-label="Change language"
           className="text-gray-600 hover:text-adult-green"
+          variant="light"
         >
           <Globe className="w-5 h-5" />
         </Button>
@@ -39,6 +40,7 @@ const LanguageSwitcherComponent = () => {
         selectionMode="single"
         onSelectionChange={(keys) => {
           const selected = Array.from(keys)[0];
+
           if (selected) handleLanguageChange(selected);
         }}
       >
