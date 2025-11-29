@@ -21,6 +21,7 @@ import {
 import { ApiClient } from "@/lib/apiClient";
 import { logger } from "@/lib/logger";
 import { ArrowLeft } from "lucide-react";
+import { ResumeLoadingScreen } from "@/components/ui/ResumeLoadingScreen";
 
 interface ResumeGraderProps {
   onResultsChange?: (showingResults: boolean) => void;
@@ -40,6 +41,7 @@ export default function ResumeGrader({
   );
   const [gradeSearchQuery, setGradeSearchQuery] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   const gradeResume = useGradeResume();
   const { data: resumesData = [], isLoading: isLoadingResumes } = useResumes();
@@ -441,36 +443,82 @@ export default function ResumeGrader({
                         <div className="p-2">
                           {filteredGradeResumes.map((resume, index) => (
                             <div key={resume.id}>
-                              <NextLink
-                                href={`/resume-builder/grader?resumeId=${resume.id}`}
+                              <button
+                                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-emerald-50/50 transition-all duration-200 text-left group disabled:opacity-50"
+                                disabled={isProcessing}
+                                onClick={async () => {
+                                  setIsProcessing(true);
+                                  try {
+                                    // Generate PDF from existing resume and grade it
+                                    const exportResponse = await ApiClient.post<{
+                                      success: boolean;
+                                      data: { downloadUrl: string; fileKey: string };
+                                    }>(`/resumes/${resume.id}/export`);
+
+                                    if (!exportResponse.success) {
+                                      throw new Error("Failed to generate resume PDF");
+                                    }
+
+                                    // Now grade the generated PDF
+                                    const result = await gradeResume.mutateAsync({
+                                      fileKey: exportResponse.data.fileKey,
+                                      fileName: `${resume.title}.pdf`,
+                                      jobDescription: jobDescription.trim() || undefined,
+                                    });
+
+                                    setGradingResult(result);
+                                    setIsProcessing(false);
+
+                                    // Save results to secure storage
+                                    setSecureItem("resumeGradingResults", JSON.stringify(result));
+                                    setSecureItem("gradedResumeId", resume.id);
+
+                                    // Update URL to show results
+                                    const newUrl = new URL(window.location.href);
+                                    newUrl.searchParams.set("results", "true");
+                                    newUrl.searchParams.set("resumeId", resume.id);
+                                    window.history.pushState({}, "", newUrl.toString());
+
+                                    onResultsChange?.(true);
+                                  } catch (error: any) {
+                                    addToast({
+                                      title: "Grading failed",
+                                      description: error?.message || "Failed to grade resume. Please try again.",
+                                      color: "danger",
+                                    });
+                                    setIsProcessing(false);
+                                  }
+                                }}
                               >
-                                <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-emerald-50/50 transition-all duration-200 text-left group">
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <div className="flex-shrink-0">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                  <div className="flex-shrink-0">
+                                    {isProcessing ? (
+                                      <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                    ) : (
                                       <FileText className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors duration-200" />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                      <div className="text-sm font-medium text-gray-900 truncate group-hover:text-emerald-700 transition-colors">
-                                        {resume.title}
-                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-sm font-medium text-gray-900 truncate group-hover:text-emerald-700 transition-colors">
+                                      {resume.title}
                                     </div>
                                   </div>
-                                  <div className="flex-shrink-0 ml-3">
-                                    <span
-                                      className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                                        resume.status === "completed"
-                                          ? "bg-emerald-100 text-emerald-700"
-                                          : resume.status === "draft"
-                                            ? "bg-amber-100 text-amber-700"
-                                            : "bg-gray-100 text-gray-700"
-                                      }`}
-                                    >
-                                      {resume.status.charAt(0).toUpperCase() +
-                                        resume.status.slice(1)}
-                                    </span>
-                                  </div>
-                                </button>
-                              </NextLink>
+                                </div>
+                                <div className="flex-shrink-0 ml-3">
+                                  <span
+                                    className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                                      resume.status === "completed"
+                                        ? "bg-emerald-100 text-emerald-700"
+                                        : resume.status === "draft"
+                                          ? "bg-amber-100 text-amber-700"
+                                          : "bg-gray-100 text-gray-700"
+                                    }`}
+                                  >
+                                    {resume.status.charAt(0).toUpperCase() +
+                                      resume.status.slice(1)}
+                                  </span>
+                                </div>
+                              </button>
                               {index < filteredGradeResumes.length - 1 && (
                                 <div className="border-b border-gray-100 mx-3" />
                               )}
@@ -521,6 +569,7 @@ export default function ResumeGrader({
               type="file"
               onChange={handleFileSelect}
             />
+
           </div>
         </div>
 
@@ -565,6 +614,13 @@ export default function ResumeGrader({
     : "Unknown";
 
   return (
+    <>
+      {/* Resume Lottie Loading Screen */}
+      <ResumeLoadingScreen
+        isVisible={isProcessing}
+        message="Grading your resume..."
+      />
+
     <div className="w-full">
       <div className="w-full">
         {/* Back Navigation */}
@@ -667,7 +723,14 @@ export default function ResumeGrader({
           <ResumePreview
             fileName={uploadedFile?.name || "Resume.pdf"}
             fileSize={uploadedFile?.size}
-            fileUrl={gradingResult ? URL.createObjectURL(uploadedFile!) : undefined}
+            fileUrl={(() => {
+              try {
+                return gradingResult && uploadedFile ? URL.createObjectURL(uploadedFile) : undefined;
+              } catch (error) {
+                console.error("Error creating object URL:", error);
+                return undefined;
+              }
+            })()}
             className="w-full"
           />
         </div>
@@ -699,5 +762,6 @@ export default function ResumeGrader({
       </div>
       </div>
     </div>
+    </>
   );
 }

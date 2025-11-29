@@ -16,6 +16,7 @@ import ResumePreview from "../../editor/_components/ResumePreview";
 import { ResumeData } from "@/validators/resumeSchema";
 import { ApiClient } from "@/lib/apiClient";
 import { logger } from "@/lib/logger";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 export function ImportResume() {
   const router = useRouter();
@@ -246,6 +247,13 @@ export function ImportResume() {
   };
 
   return (
+    <>
+      {/* Lottie Loading Screen */}
+      <LoadingScreen
+        isVisible={isProcessing}
+        message="Analyzing your resume..."
+      />
+
     <div className="flex flex-col py-16 w-full h-full">
       <div className="flex-1 m-6 border-2 border-gray-300 rounded-xl flex flex-col p-8 relative">
         {/* Back Button */}
@@ -439,5 +447,6 @@ export function ImportResume() {
         )}
       </div>
     </div>
+    </>
   );
 }
