@@ -2,7 +2,8 @@
 
 import NextLink from "next/link";
 import { Card, CardBody, Button } from "@heroui/react";
-import { ArrowLeft, Files, FileText, Loader2 } from "lucide-react";
+import { Files, FileText, Loader2 } from "lucide-react";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
@@ -32,15 +33,10 @@ export function ImportResume() {
   const importResume = useImportResume();
   const createResumeFromImport = useCreateResumeFromImport();
 
-  // File type validation function
+  // File type validation function - PDF only
   const isValidFileType = (file: File): boolean => {
-    const validTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
-      "application/msword", // DOC (legacy)
-    ];
-    // Since we only accept pdf and word documents
-    const validExtensions = [".pdf", ".docx", ".doc"];
+    const validTypes = ["application/pdf"];
+    const validExtensions = [".pdf"];
 
     return (
       validTypes.includes(file.type) ||
@@ -73,7 +69,7 @@ export function ImportResume() {
       } else {
         addToast({
           title: "Invalid file type",
-          description: "Please upload a PDF or DOCX file only.",
+          description: "Please upload a PDF file only.",
           color: "warning",
         });
       }
@@ -91,7 +87,7 @@ export function ImportResume() {
       } else {
         addToast({
           title: "Invalid file type",
-          description: "Please upload a PDF or DOCX file only.",
+          description: "Please upload a PDF file only.",
           color: "warning",
         });
       }
@@ -254,24 +250,32 @@ export function ImportResume() {
         message="Analyzing your resume..."
       />
 
-    <div className="flex flex-col py-16 w-full h-full">
-      <div className="flex-1 m-6 border-2 border-gray-300 rounded-xl flex flex-col p-8 relative">
-        {/* Back Button */}
-        <div className="absolute top-6 left-6">
-          <NextLink
-            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
-            href="/resume-builder"
-          >
-            <ArrowLeft className="mr-2" size={20} />
-            Back
-          </NextLink>
+    <div className="min-h-screen bg-gray-50">
+      {/* Breadcrumb Section - Matching dashboard layout */}
+      <div className="bg-transparent w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-3 sm:mb-3 sm:flex sm:items-center sm:justify-between">
+              <Breadcrumb
+                items={[
+                  { label: "Dashboard", href: "/dashboard" },
+                  { label: "Resume Builder", href: "/resume-builder" },
+                  { label: "Import Resume", current: true },
+                ]}
+              />
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 max-w-6xl mx-auto px-8 py-8">
 
         {!showTemplateSelection ? (
-          <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="flex-1 flex flex-col items-center justify-center mt-16">
             <div className="w-full max-w-2xl">
-              <h1 className="text-3xl font-semibold font-playfair text-center mb-2">
-                Import your existing resume here
+              <h1 className="text-3xl font-semibold text-gray-900 tracking-tight text-center mb-2">
+                Import your <span className="text-emerald-600">existing resume</span> here
               </h1>
               <p className="text-center text-gray-500 mb-8">
                 Don&apos;t have a resume yet?{" "}
@@ -288,10 +292,10 @@ export function ImportResume() {
               <Card
                 className={`border-2 border-dashed transition-all duration-200 ${
                   isDragOver
-                    ? "border-green-400 bg-green-50"
+                    ? "border-emerald-400 bg-emerald-50/30"
                     : uploadedFile
-                      ? "border-green-300 bg-green-50"
-                      : "border-gray-300 hover:border-gray-400"
+                      ? "border-emerald-300 bg-emerald-50/30"
+                      : "border-gray-300 hover:border-emerald-400 hover:bg-emerald-50/30"
                 }`}
               >
                 <CardBody
@@ -363,7 +367,7 @@ export function ImportResume() {
                         </p>
                       </div>
                       <p className="text-xs text-gray-400">
-                        PDF, DOCX, and DOC files only, up to 10MB
+                        PDF files only, up to 10MB
                       </p>
                     </div>
                   )}
@@ -373,7 +377,7 @@ export function ImportResume() {
               {/* Hidden file input */}
               <input
                 ref={fileInputRef}
-                accept=".pdf,.docx,.doc"
+                accept=".pdf"
                 className="hidden"
                 type="file"
                 onChange={handleFileSelect}
@@ -447,6 +451,7 @@ export function ImportResume() {
         )}
       </div>
     </div>
+
     </>
   );
 }

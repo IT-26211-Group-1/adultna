@@ -331,10 +331,10 @@ export default function ResumeGrader({
                 <div
                   className={`bg-white border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 cursor-pointer group ${
                     isDragOver
-                      ? "border-emerald-400 bg-emerald-50/30"
+                      ? "border-emerald-500 bg-emerald-50 shadow-xl shadow-emerald-400/60 ring-4 ring-emerald-400/40 glow-emerald"
                       : uploadedFile
-                        ? "border-emerald-300 bg-emerald-50/30"
-                        : "border-gray-300 hover:border-emerald-400 hover:bg-emerald-50/30"
+                        ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-400/40"
+                        : "border-gray-300 hover:border-emerald-400 hover:bg-emerald-50/30 hover:shadow-md hover:shadow-emerald-200/30"
                   }`}
                   onClick={handleBrowseClick}
                   onDragLeave={handleDragLeave}
@@ -582,6 +582,17 @@ export default function ResumeGrader({
               opacity: 1;
               transform: translateY(0);
             }
+          }
+          .glow-emerald-always {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15),
+                        0 0 30px rgba(16, 185, 129, 0.1),
+                        0 0 50px rgba(16, 185, 129, 0.05);
+          }
+          .glow-emerald-intense {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25),
+                        0 0 50px rgba(16, 185, 129, 0.15),
+                        0 0 80px rgba(16, 185, 129, 0.1),
+                        0 0 120px rgba(16, 185, 129, 0.05);
           }
         `}</style>
       </div>
