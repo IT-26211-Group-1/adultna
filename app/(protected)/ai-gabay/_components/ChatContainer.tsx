@@ -8,7 +8,10 @@ import { AgentWelcome } from "./AgentWelcome";
 import { SuggestionButton } from "./SuggestionButton";
 import { ChatInput } from "./ChatInput";
 import { ConversationSidebar } from "./ConversationSidebar";
-import { useGabayChat } from "@/hooks/queries/useGabayQueries";
+import {
+  useGabayChat,
+  useRenameConversation,
+} from "@/hooks/queries/useGabayQueries";
 import {
   Modal,
   ModalContent,
@@ -56,7 +59,7 @@ const loadFromStorage = (): StoredConversation[] => {
   }
 };
 
-export function ChatContainerOptimized() {
+export function ChatContainer() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -149,6 +152,23 @@ export function ChatContainerOptimized() {
     },
     [],
   );
+
+  const { renameConversation } = useRenameConversation({
+    onSuccess: (sessionId, newTopic) => {
+      setConversations((prev) => {
+        const updated = prev.map((c) =>
+          c.id === sessionId ? { ...c, title: newTopic } : c,
+        );
+
+        saveToStorage(updated);
+
+        return updated;
+      });
+    },
+    onError: (error) => {
+      logger.error("[GABAY] Failed to rename conversation:", error);
+    },
+  });
 
   const { sendMessage, isPending } = useGabayChat({
     onSuccess: (response) => {
@@ -258,6 +278,13 @@ export function ChatContainerOptimized() {
       }
     },
     [conversations, router],
+  );
+
+  const handleRenameConversation = useCallback(
+    (id: string, newTitle: string) => {
+      renameConversation({ sessionId: id, newTopic: newTitle });
+    },
+    [renameConversation],
   );
 
   const handleDeleteConversation = useCallback(
@@ -372,6 +399,7 @@ export function ChatContainerOptimized() {
         isOpen={isSidebarOpen}
         onDeleteConversation={handleDeleteConversation}
         onNewConversation={handleNewConversation}
+        onRenameConversation={handleRenameConversation}
         onSelectConversation={handleSelectConversation}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
@@ -488,7 +516,7 @@ export function ChatContainerOptimized() {
 
         {/* Messages */}
         <div
-          className={`flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 ${messages.length === 0 ? "flex items-center justify-center min-h-0" : ""}`}
+          className={`flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 ${messages.length === 0 ? "flex items-center justify-center min-h-[600px]" : ""}`}
           onScroll={handleScroll}
         >
           <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6 w-full">

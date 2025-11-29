@@ -49,7 +49,7 @@ function DailyStreakCard() {
         </div>
         <div className="flex flex-col items-center justify-center h-full">
           <div className="text-sm text-gray-600 mt-1">day</div>
-          <div className="text-6xl font-bold text-adult-green">
+          <div className="text-5xl font-bold text-adult-green">
             {data?.dailyStreak.currentStreak || 0}
           </div>
         </div>

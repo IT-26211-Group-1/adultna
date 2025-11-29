@@ -315,6 +315,10 @@ export function CoverLetterEditorContainer() {
     );
   }
 
+  const handleBack = () => {
+    router.push("/cover-letter");
+  };
+
   return (
     <div className="h-dvh bg-white flex flex-col overflow-hidden">
       <EditorHeader
@@ -324,6 +328,7 @@ export function CoverLetterEditorContainer() {
         isExporting={exportCoverLetter.isPending}
         isSaving={isSaving}
         title={title}
+        onBack={handleBack}
         onExport={handleDownloadPDF}
         onTitleChange={handleTitleChange}
       />

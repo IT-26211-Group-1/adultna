@@ -2,31 +2,32 @@ import {
   Fira_Code as FontMono,
   Inter as FontSans,
   Playfair_Display,
-  Song_Myung,
 } from "next/font/google";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "arial"],
+  adjustFontFallback: true,
 });
 
 export const fontMono = FontMono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
+  preload: false,
+  fallback: ["monospace"],
 });
 
 export const fontPlayfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  weight: ["600", "700"],
+  style: ["normal"],
   display: "swap",
-});
-
-export const fontSongMyung = Song_Myung({
-  variable: "--font-songmyung",
-  weight: "400",
-  display: "swap",
+  preload: false,
+  fallback: ["serif"],
+  adjustFontFallback: true,
 });

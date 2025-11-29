@@ -25,11 +25,18 @@ import HybridTemplate from "../templates/_components/HybridTemplate";
 
 export function ResumeList() {
   const router = useRouter();
-  const { data: resumes = [], isLoading } = useResumes();
+  const { data: resumesData = [], isLoading } = useResumes();
   const deleteResume = useDeleteResume();
   const exportResume = useExportResume();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [exportingId, setExportingId] = useState<string | null>(null);
+
+  const resumes = [...resumesData].sort((a, b) => {
+    const dateA = new Date(a.updatedAt).getTime();
+    const dateB = new Date(b.updatedAt).getTime();
+
+    return dateB - dateA;
+  });
 
   const handleEdit = (resumeId: string) => {
     router.push(`/resume-builder/editor?resumeId=${resumeId}`);

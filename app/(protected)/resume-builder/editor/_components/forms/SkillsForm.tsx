@@ -17,6 +17,7 @@ import { addToast } from "@heroui/toast";
 export default function SkillsForm({
   resumeData,
   setResumeData,
+  onValidationChange,
 }: EditorFormProps) {
   const previousDataRef = useRef<string>("");
   const [skills, setSkills] = useState<Skill[]>(resumeData.skills || []);
@@ -171,6 +172,18 @@ export default function SkillsForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (onValidationChange) {
+      const hasAtLeastOneValidSkill = !!(
+        skills && skills.some((skill) => skill.skill?.trim())
+      );
+      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+      const isValid = hasAtLeastOneValidSkill && hasNoErrors;
+
+      onValidationChange(isValid);
+    }
+  }, [form.formState.errors, skills, onValidationChange]);
 
   useEffect(() => {
     if (resumeData.skills && resumeData.skills.length > 0) {

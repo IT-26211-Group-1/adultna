@@ -50,15 +50,58 @@ async function convertImage(filepath) {
 
   total++;
 
-  // Convert to WebP
+  console.log(`${colors.yellow}→${colors.reset} Processing ${name}${ext} (${imageType})...`);
+
+  // Resize oversized images first
+  const maxDimension = 2048;
+  try {
+    const metadata = await sharp(filepath).metadata();
+    if (metadata.width > maxDimension || metadata.height > maxDimension) {
+      console.log(`  ${colors.yellow}↓${colors.reset} Resizing source (${metadata.width}x${metadata.height} → max ${maxDimension}px)`);
+      await sharp(filepath)
+        .resize(maxDimension, maxDimension, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .toFile(filepath + '.tmp');
+
+      // Replace original with resized version
+      const { unlink, rename } = await import('fs/promises');
+      await unlink(filepath);
+      await rename(filepath + '.tmp', filepath);
+    }
+  } catch (error) {
+    console.log(`  ${colors.red}✗${colors.reset} Failed to check/resize source: ${error.message}`);
+  }
+
+  // Responsive sizes to generate
+  const sizes = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
+
+  // Generate responsive WebP sizes
+  console.log(`  ${colors.yellow}→${colors.reset} Generating WebP responsive sizes...`);
+  for (const size of sizes) {
+    const webpPath = join(dirname, `${name}-${size}w.webp`);
+    try {
+      await stat(webpPath);
+    } catch {
+      try {
+        await sharp(filepath)
+          .resize(size, null, { withoutEnlargement: true })
+          .webp({ quality: quality.webp, effort: 6 })
+          .toFile(webpPath);
+        convertedWebp++;
+      } catch (error) {
+        console.log(`    ${colors.red}✗${colors.reset} ${size}w failed: ${error.message}`);
+      }
+    }
+  }
+
+  // Generate full-size WebP
   const webpPath = join(dirname, `${name}.webp`);
   try {
     await stat(webpPath);
-    console.log(`${colors.yellow}⊙${colors.reset} WebP already exists for ${name}${ext}`);
     skipped++;
   } catch {
-    console.log(`${colors.yellow}→${colors.reset} Converting ${name}${ext} to WebP (q=${quality.webp})...`);
-
     try {
       await sharp(filepath)
         .webp({ quality: quality.webp, effort: 6 })
@@ -75,15 +118,31 @@ async function convertImage(filepath) {
     }
   }
 
-  // Convert to AVIF
+  // Generate responsive AVIF sizes
+  console.log(`  ${colors.yellow}→${colors.reset} Generating AVIF responsive sizes...`);
+  for (const size of sizes) {
+    const avifPath = join(dirname, `${name}-${size}w.avif`);
+    try {
+      await stat(avifPath);
+    } catch {
+      try {
+        await sharp(filepath)
+          .resize(size, null, { withoutEnlargement: true })
+          .avif({ quality: quality.avif, effort: 6 })
+          .toFile(avifPath);
+        convertedAvif++;
+      } catch (error) {
+        console.log(`    ${colors.red}✗${colors.reset} ${size}w failed: ${error.message}`);
+      }
+    }
+  }
+
+  // Generate full-size AVIF
   const avifPath = join(dirname, `${name}.avif`);
   try {
     await stat(avifPath);
-    console.log(`${colors.yellow}⊙${colors.reset} AVIF already exists for ${name}${ext}`);
     skipped++;
   } catch {
-    console.log(`${colors.yellow}→${colors.reset} Converting ${name}${ext} to AVIF (q=${quality.avif})...`);
-
     try {
       await sharp(filepath)
         .avif({ quality: quality.avif, effort: 6 })

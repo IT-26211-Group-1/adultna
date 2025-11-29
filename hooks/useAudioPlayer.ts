@@ -19,6 +19,14 @@ export const useAudioPlayer = (): UseAudioPlayerReturn => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const play = useCallback(async (url: string): Promise<void> => {
+    // Validate URL before creating Audio object
+    if (!url || url.trim() === "") {
+      logger.warn("[useAudioPlayer] Cannot play audio: URL is empty");
+      setError("No audio URL provided");
+
+      return;
+    }
+
     // Stop any currently playing audio
     if (audioRef.current) {
       audioRef.current.pause();

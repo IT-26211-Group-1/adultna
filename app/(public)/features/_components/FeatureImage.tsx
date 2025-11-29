@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 type FeatureImageProps = {
   src: string;
@@ -17,12 +17,12 @@ export function FeatureImage({
 }: FeatureImageProps) {
   return (
     <div className={`relative w-full h-full ${className}`}>
-      <Image
+      <OptimizedImage
         fill
         alt={alt}
         className="object-contain scale-125"
-        loading={priority ? undefined : "lazy"}
         priority={priority}
+        sizes="(max-width: 768px) 100vw, 50vw"
         src={src}
       />
     </div>

@@ -65,7 +65,7 @@ export function CoverLetterLanding({
       } else {
         addToast({
           title: "Invalid file type",
-          description: "Please upload a PDF or DOCX file only.",
+          description: "Please upload a PDF only.",
           color: "warning",
         });
       }
@@ -83,7 +83,7 @@ export function CoverLetterLanding({
       } else {
         addToast({
           title: "Invalid file type",
-          description: "Please upload a PDF or DOCX file only.",
+          description: "Please upload a PDF file only.",
           color: "warning",
         });
       }
@@ -179,7 +179,7 @@ export function CoverLetterLanding({
                         Choose a file or drop one here
                       </h3>
                       <p className="text-sm text-gray-500 mb-6">
-                        PDF, Word Document (.DOCX)
+                        PDF Format Only
                       </p>
                     </div>
                     <div
@@ -221,7 +221,7 @@ export function CoverLetterLanding({
                       Step 1: Upload a Resume
                     </h3>
                     <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                      <li>Upload your current resume in PDF or Word format</li>
+                      <li>Upload your current resume in PDF format</li>
                       <li>
                         Choose your preferred tone style (Professional,
                         Conversational, or Modern)

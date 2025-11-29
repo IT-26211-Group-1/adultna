@@ -3,6 +3,14 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/modal";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { FormInput } from "@/app/auth/register/_components/FormInput";
 import {
@@ -13,7 +21,11 @@ import { useState, useEffect, useCallback } from "react";
 import { useUpdatePassword } from "@/hooks/queries/useProfileQueries";
 
 export function PasswordForm() {
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const {
+    isOpen: isConfirmOpen,
+    onOpen: onConfirmOpen,
+    onClose: onConfirmClose,
+  } = useDisclosure();
   const [isSaving, setIsSaving] = useState(false);
   const [showRefreshModal, setShowRefreshModal] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -64,7 +76,7 @@ export function PasswordForm() {
 
   const handleSaveClick = () => {
     handleSubmit(() => {
-      setShowConfirmModal(true);
+      onConfirmOpen();
     })();
   };
 
@@ -86,7 +98,7 @@ export function PasswordForm() {
             newPassword: "",
             confirmPassword: "",
           });
-          setShowConfirmModal(false);
+          onConfirmClose();
           setHasUnsavedChanges(false);
           updatePassword.reset(); // Reset mutation state
         }, 0);
@@ -100,7 +112,7 @@ export function PasswordForm() {
 
   const handleCloseModal = () => {
     if (!isSaving) {
-      setShowConfirmModal(false);
+      onConfirmClose();
     }
   };
 
@@ -149,25 +161,71 @@ export function PasswordForm() {
       {/* Save Button */}
       <div className="flex justify-end">
         <Button
-          className="bg-adult-green hover:bg-adult-green/90 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0"
+          className={`font-medium px-6 py-2.5 rounded-xl border transition-all duration-300 ${
+            hasUnsavedChanges
+              ? "bg-adult-green hover:bg-adult-green/90 text-white border-adult-green hover:border-adult-green/90 hover:scale-[1.02]"
+              : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+          }`}
+          isDisabled={!hasUnsavedChanges}
           size="md"
-          onClick={handleSaveClick}
+          onPress={handleSaveClick}
         >
           Save Changes
         </Button>
       </div>
 
-      {/* Save Confirmation Modal */}
-      <ConfirmationModal
-        cancelText="Cancel"
-        confirmText="Update Password"
-        isLoading={isSaving}
-        message="Are you sure you want to update your password? You will need to use the new password on your next login."
-        open={showConfirmModal}
-        title="Update Password"
+      {/* Update Password Confirmation Modal */}
+      <Modal
+        backdrop="blur"
+        classNames={{
+          wrapper: "z-[200]",
+          backdrop: "z-[150]",
+        }}
+        isOpen={isConfirmOpen}
+        placement="center"
+        size="md"
         onClose={handleCloseModal}
-        onConfirm={handleConfirmSave}
-      />
+      >
+        <ModalContent className="max-w-lg">
+          <ModalHeader className="pb-1">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Update Password
+            </h3>
+          </ModalHeader>
+
+          <ModalBody className="space-y-4 pt-1">
+            <p className="text-gray-600">
+              Are you sure you want to update your password?
+            </p>
+
+            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+              <p className="text-sm text-amber-800">
+                <span className="font-semibold">Important:</span> You will need
+                to use the new password for all future logins. Make sure you
+                remember or save your new password securely.
+              </p>
+            </div>
+          </ModalBody>
+
+          <ModalFooter className="pt-6">
+            <Button
+              color="default"
+              isDisabled={isSaving}
+              variant="flat"
+              onPress={handleCloseModal}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-adult-green text-white hover:bg-adult-green/90"
+              isLoading={isSaving}
+              onPress={handleConfirmSave}
+            >
+              {isSaving ? "Updating Password..." : "Yes, Update Password"}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       {/* Refresh Warning Modal */}
       <ConfirmationModal

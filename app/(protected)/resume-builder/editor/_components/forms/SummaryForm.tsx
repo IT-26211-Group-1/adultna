@@ -15,6 +15,7 @@ import { Sparkles } from "lucide-react";
 export default function SummaryForm({
   resumeData,
   setResumeData,
+  onValidationChange,
 }: EditorFormProps) {
   const previousDataRef = useRef<string>("");
   const [summaryText, setSummaryText] = useState<string>(
@@ -61,6 +62,14 @@ export default function SummaryForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (onValidationChange) {
+      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+
+      onValidationChange(hasNoErrors);
+    }
+  }, [form.formState.errors, onValidationChange]);
 
   useEffect(() => {
     if (resumeData.summary) {

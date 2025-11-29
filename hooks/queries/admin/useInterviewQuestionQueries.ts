@@ -414,6 +414,12 @@ export function useCreateInterviewSession() {
 
 // Hook for speech-to-text transcription (Hybrid Approach)
 export function useSpeechToText(userId: string) {
+  if (!userId || userId.trim() === "") {
+    logger.error(
+      "[useSpeechToText] Invalid userId provided. Transcription will fail.",
+    );
+  }
+
   const [isListening, setIsListening] = useState(false);
   const [realtimeTranscript, setRealtimeTranscript] = useState("");
   const recognitionRef = useRef<any>(null);
@@ -461,7 +467,9 @@ export function useSpeechToText(userId: string) {
 
         recognition.continuous = true; // Keep listening
         recognition.interimResults = true; // Get partial results for instant feedback
-        recognition.lang = "en-US";
+
+        recognition.lang = "en-US,fil-PH"; // Multi-language support
+        recognition.maxAlternatives = 3; // Allow alternatives for better detection
 
         let finalTranscript = "";
 
@@ -596,6 +604,13 @@ export function useSpeechToText(userId: string) {
     audioBlob: Blob,
     jobRole?: string,
   ): Promise<string> => {
+    if (!userId || userId.trim() === "") {
+      const error = new Error("User ID is required for transcription");
+
+      logger.error("[transcribeAndPoll]", error);
+      throw error;
+    }
+
     const format = "webm";
 
     const presignedResult = await questionApi.getPresignedUrl({

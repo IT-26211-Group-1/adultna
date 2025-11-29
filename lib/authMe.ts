@@ -18,7 +18,20 @@ export async function authMeRequest(): Promise<AuthMeResponse> {
     });
 
     if (!res.ok) {
-      return { success: false, message: "Unauthorized" };
+      // Try to get the error message from the response
+      const errorData = await res.json().catch(() => ({}));
+      const errorMessage = errorData?.message || "Unauthorized";
+
+      // If account is deactivated, show specific message
+      if (errorMessage.includes("deactivated")) {
+        return {
+          success: false,
+          message:
+            "Your account is deactivated. Please contact support to re-activate your account.",
+        };
+      }
+
+      return { success: false, message: errorMessage };
     }
 
     const response = await res.json();

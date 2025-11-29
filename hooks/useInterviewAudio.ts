@@ -6,6 +6,7 @@ import {
   useTextToSpeechAudio,
   useSpeechToText,
 } from "@/hooks/queries/admin/useInterviewQuestionQueries";
+import { logger } from "@/lib/logger";
 
 type InterviewAudioReturn = {
   tts: {
@@ -108,6 +109,10 @@ export function useInterviewAudio(
     },
     [originalTranscribeAndPoll],
   );
+
+  if (!userId || userId.trim() === "") {
+    logger.warn("[useInterviewAudio] Invalid userId provided to audio hook");
+  }
 
   return {
     tts: {

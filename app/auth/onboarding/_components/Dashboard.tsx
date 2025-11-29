@@ -11,6 +11,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { addToast } from "@heroui/toast";
 import { logger } from "@/lib/logger";
 
+const DashboardWithSidebar = dynamic(() => import("./DashboardBackground"), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-gray-100 animate-pulse" />,
+});
+
 const OnboardingModal = dynamic(() => import("./OnboardingModal"), {
   ssr: false,
   loading: () => <div className="min-h-screen bg-gray-100 animate-pulse" />,
@@ -121,14 +126,25 @@ export default function DashboardClient() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen relative">
+      {/* Dashboard Background with Dark Blur */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="transform scale-100 filter blur-sm origin-top-left">
+          <DashboardWithSidebar />
+        </div>
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+
+      {/* Onboarding Modal */}
       {showOnboarding && (
-        <OnboardingModal
-          isOpen={showOnboarding}
-          isSubmitting={onboardingSubmit.isPending}
-          onClose={() => {}}
-          onComplete={handleOnboardingComplete}
-        />
+        <div className="relative z-10">
+          <OnboardingModal
+            isOpen={showOnboarding}
+            isSubmitting={onboardingSubmit.isPending}
+            onClose={() => {}}
+            onComplete={handleOnboardingComplete}
+          />
+        </div>
       )}
     </div>
   );

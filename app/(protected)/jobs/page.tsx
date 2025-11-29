@@ -1,6 +1,5 @@
 import JobBoard from "./_components/JobBoard";
 import { Metadata } from "next";
-import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Job Board - AdultNa | Find Jobs in the Philippines",
@@ -17,26 +16,8 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <>
-      <Script
-        dangerouslySetInnerHTML={{
-          __html: `
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(() => {
-                const link = document.createElement('link');
-                link.rel = 'dns-prefetch';
-                link.href = 'https://jsearch.p.rapidapi.com';
-                document.head.appendChild(link);
-              });
-            }
-          `,
-        }}
-        id="jsearch-dns-prefetch"
-        strategy="lazyOnload"
-      />
-      <div className="p-6">
-        <JobBoard />
-      </div>
-    </>
+    <div className="p-6">
+      <JobBoard />
+    </div>
   );
 }

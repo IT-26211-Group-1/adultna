@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 interface ImageContainerProps {
   step?: "email" | "otp" | "reset";
@@ -25,11 +25,12 @@ export const ImageContainer = ({ step }: ImageContainerProps = {}) => {
   return (
     <div className="hidden lg:flex lg:w-1/2 p-4">
       <div className="w-full h-[95vh] relative overflow-hidden rounded-2xl">
-        <Image
+        <OptimizedImage
           fill
           priority
           alt={getAltText()}
           className="object-cover"
+          sizes="50vw"
           src={getImageSrc()}
         />
         {/* Decorative elements overlay */}
