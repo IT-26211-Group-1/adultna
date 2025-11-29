@@ -158,6 +158,7 @@ export function useDeleteAccount() {
       addToast({
         title: error.message || "Failed to deactivate account",
         color: "danger",
+        timeout: 8000,
       });
     },
   });

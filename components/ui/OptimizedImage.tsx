@@ -24,7 +24,15 @@ export function OptimizedImage({
   const basePath = src.replace(/\.(png|jpg|jpeg)$/i, "");
   const ext = src.match(/\.(png|jpg|jpeg)$/i)?.[0] || ".png";
 
-  const widths = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
+  const allWidths = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
+
+  const maxWidth = width ? width * 3 : 3840;
+  const widths = allWidths.filter((w) => w <= maxWidth);
+
+  if (widths.length === 0) {
+    widths.push(allWidths[0]);
+  }
+
   const avifSrcSet = widths
     .map((w) => `${basePath}-${w}w.avif ${w}w`)
     .join(", ");

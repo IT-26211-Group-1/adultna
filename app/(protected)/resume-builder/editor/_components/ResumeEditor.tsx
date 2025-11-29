@@ -51,6 +51,7 @@ export default function ResumeEditor() {
   const isInitialMount = useRef(true);
 
   const [resumeData, setResumeData] = useState<ResumeData>({} as ResumeData);
+  const [isCurrentFormValid, setIsCurrentFormValid] = useState(true);
 
   useEffect(() => {
     if (existingResume && existingResume.id !== loadedResumeId) {
@@ -64,8 +65,12 @@ export default function ResumeEditor() {
   const previousStepRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (currentStep !== previousStepRef.current && isCompleted) {
-      setIsCompleted(false);
+    if (currentStep !== previousStepRef.current) {
+      if (isCompleted) {
+        setIsCompleted(false);
+      }
+      // Reset validation state when changing steps
+      setIsCurrentFormValid(true);
     }
     previousStepRef.current = currentStep;
   }, [currentStep, isCompleted]);
@@ -152,6 +157,18 @@ export default function ResumeEditor() {
     }
   }, [resumeData, currentStep]);
 
+  const handleValidationChange = useCallback((isValid: boolean) => {
+    setIsCurrentFormValid(isValid);
+  }, []);
+
+  const searchParamsRef = useRef(searchParams);
+  const routerRef = useRef(router);
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams;
+    routerRef.current = router;
+  }, [searchParams, router]);
+
   const handleSave = useCallback(
     async (
       onSuccessCallback?: () => void,
@@ -176,13 +193,16 @@ export default function ResumeEditor() {
             setCurrentResumeId(newResume.id);
             setHasUnsavedChanges(false);
             lastSavedDataRef.current = { ...resumeData };
-            const newParams = new URLSearchParams(searchParams);
+            const newParams = new URLSearchParams(searchParamsRef.current);
 
             newParams.delete("templateId");
             newParams.set("resumeId", newResume.id);
-            router.replace(`/resume-builder/editor?${newParams.toString()}`, {
-              scroll: false,
-            });
+            routerRef.current.replace(
+              `/resume-builder/editor?${newParams.toString()}`,
+              {
+                scroll: false,
+              },
+            );
             if (onSuccessCallback) {
               onSuccessCallback();
             }
@@ -215,58 +235,29 @@ export default function ResumeEditor() {
           },
         });
       } else {
-        // Log when we skip save to help debug issues
-        if (!currentResumeId && !templateId) {
-          console.warn(
-            "[ResumeEditor] Skipping save: no resumeId and no templateId",
-          );
-        } else if (currentResumeId && !dataToSave.firstName) {
-          console.warn(
-            "[ResumeEditor] Skipping save: missing required firstName",
-          );
-        }
-
         if (onSuccessCallback) {
           onSuccessCallback();
         }
       }
     },
-    [
-      currentResumeId,
-      templateId,
-      resumeData,
-      createResume,
-      updateResume,
-      searchParams,
-      router,
-    ],
+    [currentResumeId, templateId, resumeData, createResume, updateResume],
   );
 
-  // Auto-save when resumeData changes
-  // Use ref to store mutable debounced function
+  const handleSaveRef = useRef(handleSave);
+
+  useEffect(() => {
+    handleSaveRef.current = handleSave;
+  }, [handleSave]);
+
   const debouncedAutoSave = useRef(
     debounce(() => {
       if (!isInitialMount.current) {
-        handleSave();
+        handleSaveRef.current();
       }
     }, 1000),
   );
 
-  // Update debounced function when handleSave changes to prevent stale closures
   useEffect(() => {
-    // Cancel any pending calls
-    debouncedAutoSave.current.cancel();
-
-    // Create new debounced function with updated handleSave
-    debouncedAutoSave.current = debounce(() => {
-      if (!isInitialMount.current) {
-        handleSave();
-      }
-    }, 1000);
-  }, [handleSave]);
-
-  useEffect(() => {
-    // Skip on initial mount or when data is empty
     if (isInitialMount.current) {
       const hasData =
         Object.keys(resumeData).length > 0 && resumeData.firstName;
@@ -279,7 +270,6 @@ export default function ResumeEditor() {
       return;
     }
 
-    // Check if data has actually changed using deep comparison
     if (hasResumeChanged(lastSavedDataRef.current, resumeData)) {
       setHasUnsavedChanges(true);
       debouncedAutoSave.current();
@@ -292,14 +282,19 @@ export default function ResumeEditor() {
 
   // Beforeunload handler to warn about data loss on refresh
   useEffect(() => {
-    window.onbeforeunload = () => {
-      return "Are you sure you want to refresh? Data might not be saved.";
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
     };
 
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
-      window.onbeforeunload = null;
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, []);
+  }, [hasUnsavedChanges]);
 
   if (!templateId && !resumeId) {
     router.push("/resume-builder");
@@ -503,6 +498,7 @@ export default function ResumeEditor() {
                   key={currentResumeId || "new-resume"}
                   resumeData={resumeData}
                   setResumeData={setResumeData}
+                  onValidationChange={handleValidationChange}
                 />
               )}
             </div>
@@ -515,7 +511,7 @@ export default function ResumeEditor() {
                 )}
                 <LoadingButton
                   className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!isFormValid}
+                  disabled={!isFormValid || !isCurrentFormValid}
                   onClick={handleContinue}
                 >
                   {isLastStep ? "Complete" : "Continue"}

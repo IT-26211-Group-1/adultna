@@ -38,7 +38,7 @@ const JobList = memo(({ jobs }: JobListProps) => {
   return (
     <div
       aria-label="Job listings"
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto min-h-[1200px]"
       role="list"
       style={{ contain: "layout style paint" }}
     >

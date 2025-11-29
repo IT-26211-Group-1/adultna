@@ -1,6 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useRegister } from "../../../../hooks/useRegister";
 import { useGoogleAuth } from "../../../../hooks/useGoogleAuth";
 
@@ -63,6 +65,17 @@ export const RegisterForm = () => {
       {/* Left Side - Registration Form */}
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Link
+              className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-green-700 transition-colors duration-200 group"
+              href="/"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
+              Back to Home
+            </Link>
+          </div>
+
           <UserAuthTitle
             subtitle="Hi there! Please enter your details."
             title="Get Started!"
@@ -134,7 +147,12 @@ export const RegisterForm = () => {
 
             {/* Auth Buttons - No spacing between them */}
             <div className="space-y-3">
-              <AuthButton className="" loading={loading} type="submit">
+              <AuthButton
+                className=""
+                disabled={!areFieldsFilled}
+                loading={loading}
+                type="submit"
+              >
                 Register
               </AuthButton>
               <GoogleSignInButton

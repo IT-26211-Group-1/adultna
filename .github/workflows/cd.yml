@@ -47,33 +47,91 @@ jobs:
           echo "WebP variants: $webp_count"
           echo "AVIF variants: $avif_count"
 
-      - name: Deploy to S3
+      - name: Deploy to S3 (Optimized for SEA + Lighthouse 90+)
         run: |
           # Upload AVIF images with correct MIME type and long cache
           aws s3 sync ./out s3://adultna \
             --exclude "*" \
             --include "*.avif" \
             --content-type "image/avif" \
-            --cache-control "public,max-age=31536000,immutable"
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
 
           # Upload WebP images with correct MIME type and long cache
           aws s3 sync ./out s3://adultna \
             --exclude "*" \
             --include "*.webp" \
             --content-type "image/webp" \
-            --cache-control "public,max-age=31536000,immutable"
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
 
-          # Upload static assets (JS/CSS) with long cache - they have content hashes
+          # Upload PNG/JPG images with long cache
+          aws s3 sync ./out s3://adultna \
+            --exclude "*" \
+            --include "*.png" \
+            --include "*.jpg" \
+            --include "*.jpeg" \
+            --include "*.svg" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
+
+          # Upload fonts with long cache
+          aws s3 sync ./out s3://adultna \
+            --exclude "*" \
+            --include "*.woff" \
+            --include "*.woff2" \
+            --include "*.ttf" \
+            --include "*.otf" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
+
+          # Upload JavaScript with long cache and compression hint
+          aws s3 sync ./out s3://adultna \
+            --exclude "*" \
+            --include "*.js" \
+            --content-type "application/javascript; charset=utf-8" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
+
+          # Upload CSS with long cache
+          aws s3 sync ./out s3://adultna \
+            --exclude "*" \
+            --include "*.css" \
+            --content-type "text/css; charset=utf-8" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
+
+          # Upload _next/static directory (already has content hashes)
           aws s3 sync ./out/_next/static s3://adultna/_next/static \
-            --cache-control "public,max-age=31536000,immutable" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE \
             --delete
 
-          # Upload everything else (HTML, PNG, JPG, etc.) with appropriate cache
+          # Upload HTML files with no-cache for fresh content
+          aws s3 sync ./out s3://adultna \
+            --exclude "*" \
+            --include "*.html" \
+            --content-type "text/html; charset=utf-8" \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --metadata-directive REPLACE
+
+          # Upload remaining files (JSON, XML, etc.)
           aws s3 sync ./out s3://adultna \
             --exclude "_next/static/*" \
             --exclude "*.webp" \
             --exclude "*.avif" \
-            --cache-control "public,max-age=0,must-revalidate" \
+            --exclude "*.png" \
+            --exclude "*.jpg" \
+            --exclude "*.jpeg" \
+            --exclude "*.svg" \
+            --exclude "*.woff*" \
+            --exclude "*.ttf" \
+            --exclude "*.otf" \
+            --exclude "*.js" \
+            --exclude "*.css" \
+            --exclude "*.html" \
+            --cache-control "public, max-age=3600" \
+            --metadata-directive REPLACE \
             --delete
 
       - name: Invalidate CloudFront cache

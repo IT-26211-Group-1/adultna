@@ -15,6 +15,8 @@ import {
 } from "@/hooks/queries/useRoadmapQueries";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { logger } from "@/lib/logger";
+import { updateMilestoneSchema, taskSchema } from "@/validators/roadmapSchema";
+import { ZodError } from "zod";
 
 interface MilestoneModalProps {
   isOpen: boolean;
@@ -39,6 +41,7 @@ export function MilestoneModal({
   });
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingTaskTitle, setEditingTaskTitle] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: fetchedMilestone } = useMilestone(initialMilestone?.id);
   const milestone = fetchedMilestone || initialMilestone;
@@ -92,9 +95,11 @@ export function MilestoneModal({
   };
 
   const handleSaveTaskEdit = async (taskId: string) => {
-    if (!milestone || !editingTaskTitle.trim()) return;
+    if (!milestone) return;
 
     try {
+      taskSchema.parse({ title: editingTaskTitle });
+
       await updateTaskMutation.mutateAsync({
         taskId,
         title: editingTaskTitle.trim(),
@@ -107,11 +112,19 @@ export function MilestoneModal({
       setEditingTaskTitle("");
       onMilestoneUpdated?.();
     } catch (error) {
-      logger.error("Failed to update task:", error);
-      addToast({
-        title: "Failed to update task",
-        color: "danger",
-      });
+      if (error instanceof ZodError) {
+        addToast({
+          title: "Validation error",
+          description: error.issues[0].message,
+          color: "danger",
+        });
+      } else {
+        logger.error("Failed to update task:", error);
+        addToast({
+          title: "Failed to update task",
+          color: "danger",
+        });
+      }
     }
   };
 
@@ -121,18 +134,33 @@ export function MilestoneModal({
   };
 
   const handleAddTask = async () => {
-    if (!milestone || !newTaskTitle.trim()) return;
+    if (!milestone) return;
 
     if (milestone.tasks.length >= 5) {
+      addToast({
+        title: "Maximum 5 tasks allowed per milestone",
+        color: "warning",
+      });
+
       return;
     }
 
     try {
+      taskSchema.parse({ title: newTaskTitle });
+
       await createTask.mutateAsync(newTaskTitle.trim());
       setNewTaskTitle("");
       onMilestoneUpdated?.();
     } catch (error) {
-      logger.error("Failed to create task:", error);
+      if (error instanceof ZodError) {
+        addToast({
+          title: "Validation error",
+          description: error.issues[0].message,
+          color: "danger",
+        });
+      } else {
+        logger.error("Failed to create task:", error);
+      }
     }
   };
 
@@ -157,13 +185,16 @@ export function MilestoneModal({
   };
 
   const handleSaveEdit = async () => {
-    if (!milestone || !editForm.title.trim()) return;
+    if (!milestone) return;
+    setErrors({});
 
     try {
+      const validatedData = updateMilestoneSchema.parse(editForm);
+
       await updateMilestone.mutateAsync({
         milestoneId: milestone.id,
-        title: editForm.title.trim(),
-        description: editForm.description.trim(),
+        title: validatedData.title!.trim(),
+        description: validatedData.description?.trim(),
       });
       addToast({
         title: "Milestone updated successfully",
@@ -172,16 +203,28 @@ export function MilestoneModal({
       setIsEditing(false);
       onMilestoneUpdated?.();
     } catch (error) {
-      logger.error("Failed to update milestone:", error);
-      addToast({
-        title: "Failed to update milestone",
-        color: "danger",
-      });
+      if (error instanceof ZodError) {
+        const fieldErrors: Record<string, string> = {};
+
+        error.issues.forEach((issue) => {
+          const path = issue.path.join(".");
+
+          fieldErrors[path] = issue.message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        logger.error("Failed to update milestone:", error);
+        addToast({
+          title: "Failed to update milestone",
+          color: "danger",
+        });
+      }
     }
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
+    setErrors({});
     setEditForm({
       title: milestone?.title || "",
       description: milestone?.description || "",
@@ -190,6 +233,7 @@ export function MilestoneModal({
 
   const handleStartEdit = () => {
     if (milestone) {
+      setErrors({});
       setEditForm({
         title: milestone.title,
         description: milestone.description || "",
@@ -255,9 +299,13 @@ export function MilestoneModal({
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 {isEditing ? (
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <input
-                      className="w-full text-sm font-bold px-2 py-1 rounded-lg border border-white/30 bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                      className={`w-full text-sm font-bold px-2 py-1 rounded-lg border ${
+                        errors.title
+                          ? "border-red-500 bg-red-50"
+                          : "border-white/30 bg-white/50"
+                      } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900`}
                       placeholder="Milestone title"
                       type="text"
                       value={editForm.title}
@@ -265,6 +313,11 @@ export function MilestoneModal({
                         setEditForm({ ...editForm, title: e.target.value })
                       }
                     />
+                    {errors.title && (
+                      <p className="text-xs text-red-600 px-1">
+                        {errors.title}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -342,15 +395,29 @@ export function MilestoneModal({
                   Description
                 </h3>
                 {isEditing ? (
-                  <textarea
-                    className="w-full text-xs px-3 py-2 rounded-lg border border-white/30 bg-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 resize-none"
-                    placeholder="Milestone description"
-                    rows={4}
-                    value={editForm.description}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, description: e.target.value })
-                    }
-                  />
+                  <div className="space-y-1">
+                    <textarea
+                      className={`w-full text-xs px-3 py-2 rounded-lg border ${
+                        errors.description
+                          ? "border-red-500 bg-red-50"
+                          : "border-white/30 bg-white/50"
+                      } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 resize-none`}
+                      placeholder="Milestone description"
+                      rows={4}
+                      value={editForm.description}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          description: e.target.value,
+                        })
+                      }
+                    />
+                    {errors.description && (
+                      <p className="text-xs text-red-600 px-1">
+                        {errors.description}
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <p className="text-xs text-gray-700 leading-relaxed">
                     {milestone.description}
@@ -490,7 +557,7 @@ export function MilestoneModal({
                         }}
                       />
                       <Button
-                        className="text-xs font-medium bg-[#11553F] hover:bg-[#0d4230] text-white"
+                        className="text-xs font-medium bg-green-600 hover:bg-green-700 text-white"
                         isDisabled={
                           !newTaskTitle.trim() || createTask.isPending
                         }
