@@ -199,7 +199,7 @@ function EditForm({
         replaceTipsToFollow(guide.generalTips.tipsToFollow || ([] as any));
         replaceTipsToAvoid(guide.generalTips.tipsToAvoid || ([] as any));
         replaceImportantReminders(
-          guide.generalTips.importantReminders || ([] as any)
+          guide.generalTips.importantReminders || ([] as any),
         );
       }
     }
@@ -285,7 +285,7 @@ function EditForm({
         setIsSubmitting(false);
       }
     }),
-    [handleSubmit, guide, onGuideUpdated, updateGuideAsync]
+    [handleSubmit, guide, onGuideUpdated, updateGuideAsync],
   );
 
   const handleClose = useCallback(() => {

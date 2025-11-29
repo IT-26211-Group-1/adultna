@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function GovGuidesHero() {
   const { t } = useLanguage();
@@ -34,15 +34,20 @@ export default function GovGuidesHero() {
         )}
 
         <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6 sm:py-8">
-          <div className="max-w-2xl">
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-adult-green mb-2 leading-tight">
-              Your guide to adulting in the Philippines!
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-              Hey there, future adult! We know government processes can feel
-              overwhelming, but we&apos;ve got your back. Find step-by-step
-              guides that make getting your documents simple and stress-free.
-            </p>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex-1 max-w-2xl">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-adult-green mb-2 leading-tight">
+                Your guide to adulting in the Philippines!
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                Hey there, future adult! We know government processes can feel
+                overwhelming, but we&apos;ve got your back. Find step-by-step
+                guides that make getting your documents simple and stress-free.
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       </div>

@@ -28,8 +28,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const apiUrl = process.env.NEXT_PUBLIC_API || "";
+  const apiDomain = apiUrl ? new URL(apiUrl).origin : "";
+
   return (
     <html suppressHydrationWarning lang="en">
+      <head>
+        {apiDomain && (
+          <>
+            <link rel="preconnect" href={apiDomain} />
+            <link rel="dns-prefetch" href={apiDomain} />
+          </>
+        )}
+      </head>
       <body
         suppressHydrationWarning //added so the body will handle browser extension differences while keeping the app function normally
         className={clsx(

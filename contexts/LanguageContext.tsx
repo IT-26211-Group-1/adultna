@@ -30,9 +30,11 @@ const STORAGE_KEY = "adultna_language";
 const loadTranslations = async (lang: Language): Promise<TranslationData> => {
   try {
     const translations = await import(`@/translations/${lang}.json`);
+
     return translations.default;
   } catch (error) {
     console.error(`Failed to load translations for ${lang}:`, error);
+
     return {};
   }
 };
@@ -42,6 +44,7 @@ const getStoredLanguage = (): Language => {
 
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
+
     if (stored === "en" || stored === "fil") {
       return stored;
     }
@@ -90,19 +93,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const t = useMemo(
-    () => (key: string): string => {
-      if (isLoading || !translations) return key;
+    () =>
+      (key: string): string => {
+        if (isLoading || !translations) return key;
 
-      const keys = key.split(".");
-      let value: any = translations;
+        const keys = key.split(".");
+        let value: any = translations;
 
-      for (const k of keys) {
-        value = value?.[k];
-        if (value === undefined) break;
-      }
+        for (const k of keys) {
+          value = value?.[k];
+          if (value === undefined) break;
+        }
 
-      return value || key;
-    },
+        return value || key;
+      },
     [translations, isLoading],
   );
 

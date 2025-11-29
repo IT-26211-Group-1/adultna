@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { addToast } from "@heroui/toast";
 
 type DownloadPdfParams = {
   slug: string;
@@ -31,6 +31,7 @@ export function useDownloadGuidePdf() {
 
           try {
             const errorData = await response.json();
+
             errorMessage = errorData.message || errorMessage;
           } catch {
             errorMessage = `Server error: ${response.status}`;
@@ -40,6 +41,7 @@ export function useDownloadGuidePdf() {
         }
 
         const contentType = response.headers.get("content-type");
+
         if (!contentType?.includes("application/pdf")) {
           throw new Error("Invalid response format. Expected PDF.");
         }
@@ -77,14 +79,23 @@ export function useDownloadGuidePdf() {
           document.body.removeChild(a);
         }, 100);
 
-        toast.success("PDF downloaded successfully");
+        addToast({
+          title: "PDF downloaded successfully",
+          color: "success",
+        });
       } catch (error) {
-        toast.error("Failed to download PDF file");
+        addToast({
+          title: "Failed to download PDF file",
+          color: "danger",
+        });
         throw error;
       }
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to generate PDF");
+      addToast({
+        title: error.message || "Failed to generate PDF",
+        color: "danger",
+      });
     },
   });
 }

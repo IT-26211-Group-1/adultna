@@ -176,7 +176,7 @@ function AddGuideModal({
         setIsSubmitting(false);
       }
     }),
-    [handleSubmit, createGuideAsync]
+    [handleSubmit, createGuideAsync],
   );
 
   const handleClose = useCallback(() => {

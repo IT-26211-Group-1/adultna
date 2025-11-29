@@ -4,7 +4,11 @@ import { useState } from "react";
 import React from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useGovGuide } from "@/hooks/queries/useGovGuidesQueries";
+import {
+  useGovGuide,
+  useTranslatedGuide,
+} from "@/hooks/queries/useGovGuidesQueries";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, Tab } from "@heroui/tabs";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -12,6 +16,7 @@ import { Button } from "@heroui/button";
 import GuideInfoCards from "./GuideInfoCards";
 import GuideDetailSkeleton from "./GuideDetailSkeleton";
 import { DownloadPdfButton } from "./DownloadPdfButton";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const CompleteGuideTab = dynamic(() => import("./CompleteGuideTab"), {
   loading: () => <div className="py-4">Loading...</div>,
@@ -29,12 +34,10 @@ type GuideDetailClientProps = {
 
 export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   const router = useRouter();
+  const { language } = useLanguage();
   const { guide, isLoading, error } = useGovGuide(slug);
-  const {
-    data: translatedGuide,
-    isLoading: isTranslating,
-    error: translationError,
-  } = useTranslatedGuide(slug, language);
+  const { data: translatedGuide, isLoading: isTranslating } =
+    useTranslatedGuide(slug, language);
   const [selectedTab, setSelectedTab] = useState("complete-guide");
 
   const displayGuide =
@@ -86,7 +89,7 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
           </li>
           <li aria-current="page">
             <span className="text-gray-900 font-medium truncate">
-              {displayGuide.title}
+              {displayGuide?.title}
             </span>
           </li>
         </ol>
@@ -94,12 +97,21 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
 
       <hr className="border-gray-200 mb-6" />
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-semibold text-gray-900 tracking-tight leading-tight">
-          {displayGuide.title}
+          {displayGuide?.title}
         </h1>
-        <DownloadPdfButton slug={slug} />
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <DownloadPdfButton slug={slug} />
+        </div>
       </div>
+
+      {language === "fil" && isTranslating && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">Translating to Filipino...</p>
+        </div>
+      )}
 
       <GuideInfoCards guide={guide} />
 
@@ -124,17 +136,19 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
         >
           <Tab key="complete-guide" title="Complete Guide">
             <div className="py-4 min-h-[500px]" role="tabpanel">
-              <CompleteGuideTab steps={displayGuide.steps || []} />
+              <CompleteGuideTab steps={displayGuide?.steps || []} />
             </div>
           </Tab>
           <Tab key="requirements" title="Requirements">
             <div className="py-4 min-h-[500px]" role="tabpanel">
-              <RequirementsTab requirements={displayGuide.requirements || []} />
+              <RequirementsTab
+                requirements={displayGuide?.requirements || []}
+              />
             </div>
           </Tab>
           <Tab key="general-tips" title="General Tips">
             <div className="py-4 min-h-[500px]" role="tabpanel">
-              <GeneralTipsTab tips={displayGuide.generalTips} />
+              <GeneralTipsTab tips={displayGuide?.generalTips} />
             </div>
           </Tab>
         </Tabs>
