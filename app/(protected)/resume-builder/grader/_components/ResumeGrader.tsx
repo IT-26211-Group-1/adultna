@@ -62,12 +62,8 @@ export default function ResumeGrader() {
   });
 
   const isValidFileType = (file: File): boolean => {
-    const validTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
-    ];
-    const validExtensions = [".pdf", ".docx", ".doc"];
+    const validTypes = ["application/pdf"];
+    const validExtensions = [".pdf"];
 
     return (
       validTypes.includes(file.type) ||
@@ -99,7 +95,7 @@ export default function ResumeGrader() {
       } else {
         addToast({
           title: "Invalid file type",
-          description: "Please upload a PDF or DOCX file only.",
+          description: "Please upload a PDF file only.",
           color: "warning",
         });
       }
@@ -117,7 +113,7 @@ export default function ResumeGrader() {
       } else {
         addToast({
           title: "Invalid file type",
-          description: "Please upload a PDF or DOCX file only.",
+          description: "Please upload a PDF file only.",
           color: "warning",
         });
       }
@@ -349,7 +345,7 @@ export default function ResumeGrader() {
                         </button>
                       </div>
                       <p className="text-xs text-gray-400">
-                        PDF, DOCX, and DOC files only, up to 10MB
+                        PDF files only, up to 10MB
                       </p>
                     </div>
                   )}
@@ -359,7 +355,7 @@ export default function ResumeGrader() {
               {/* Right Column - Search My Resumes */}
               <div className="space-y-6">
                 {!isLoadingResumes && resumesData.length > 0 && (
-                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm" style={{ minHeight: "500px" }}>
                     {/* Header with Search */}
                     <div className="p-5 border-b border-gray-200">
                       <h3 className="text-sm font-semibold text-gray-900 mb-3">Grade from My Resumes</h3>
@@ -436,7 +432,7 @@ export default function ResumeGrader() {
 
                 {/* Empty state when no resumes */}
                 {!isLoadingResumes && resumesData.length === 0 && (
-                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 text-center">
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col justify-center items-center text-center" style={{ minHeight: "500px" }}>
                     <Files className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-sm font-semibold text-gray-900 mb-2">No saved resumes</h3>
                     <p className="text-xs text-gray-500 mb-4">Create your first resume to grade it later</p>
@@ -452,7 +448,7 @@ export default function ResumeGrader() {
 
             <input
               ref={fileInputRef}
-              accept=".pdf,.docx,.doc"
+              accept=".pdf"
               className="hidden"
               type="file"
               onChange={handleFileSelect}

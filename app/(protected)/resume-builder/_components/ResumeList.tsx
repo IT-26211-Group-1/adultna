@@ -252,9 +252,9 @@ export function ResumeList() {
               <p className="text-xs text-gray-500 mt-1">{resumeCount} resume{resumeCount !== 1 ? 's' : ''} in your collection</p>
             </div>
             <Link href="/resume-builder/templates">
-              <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow">
+              <button className="bg-emerald-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md">
                 <Plus className="w-4 h-4" />
-                Create New
+                Create New Resume
               </button>
             </Link>
           </div>
@@ -295,7 +295,7 @@ export function ResumeList() {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No resumes yet</h3>
               <p className="text-sm text-gray-500 mb-6">Start building your first resume to get started</p>
               <Link href="/resume-builder/templates">
-                <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200">
+                <button className="bg-emerald-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md">
                   Create Your First Resume
                 </button>
               </Link>
@@ -304,7 +304,7 @@ export function ResumeList() {
 
           {/* Resume Grid */}
           {!isLoading && resumes.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {resumes.map((resume, index) => {
                 const isDeleting = deletingId === resume.id;
                 const isExporting = exportingId === resume.id;
@@ -312,10 +312,10 @@ export function ResumeList() {
                 return (
                   <div
                     key={resume.id}
-                    className="bg-white rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all duration-300 overflow-hidden group"
+                    className="bg-white rounded-lg border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all duration-300 overflow-hidden group flex flex-col"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="h-28 bg-white rounded-t-lg overflow-hidden relative border-b border-gray-200 transition-all duration-300 group-hover:border-emerald-200">
+                    <div className="h-64 bg-white rounded-t-lg overflow-hidden relative border-b border-gray-200 transition-all duration-300 group-hover:border-emerald-200">
                       <div
                         className="w-full h-full bg-white"
                         style={{
@@ -328,7 +328,7 @@ export function ResumeList() {
                         {getTemplateComponent(resume)}
                       </div>
                     </div>
-                    <div className="p-4">
+                    <div className="p-4 flex flex-col flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div className="min-w-0 flex-1">
                           <h3 className="text-sm font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors duration-200 line-clamp-2">
@@ -355,8 +355,8 @@ export function ResumeList() {
                         {getTimeAgo(resume.updatedAt)}
                       </p>
 
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
+                      {/* Action Buttons - Push to bottom */}
+                      <div className="flex gap-2 mt-auto">
                         <button
                           onClick={() => handleEdit(resume.id)}
                           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors duration-200"
