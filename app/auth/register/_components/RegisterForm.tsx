@@ -147,7 +147,12 @@ export const RegisterForm = () => {
 
             {/* Auth Buttons - No spacing between them */}
             <div className="space-y-3">
-              <AuthButton className="" loading={loading} type="submit">
+              <AuthButton
+                className=""
+                disabled={!areFieldsFilled}
+                loading={loading}
+                type="submit"
+              >
                 Register
               </AuthButton>
               <GoogleSignInButton
