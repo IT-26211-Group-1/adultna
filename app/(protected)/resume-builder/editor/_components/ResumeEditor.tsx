@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import Breadcrumbs from "./Breadcrumbs";
+import ProgressStepper from "./ProgressStepper";
 import { steps } from "./steps";
 import { ResumeData } from "@/validators/resumeSchema";
 import ResumePreviewSection from "./ResumePreviewSection";
@@ -10,7 +10,7 @@ import { LoadingButton } from "@/components/ui/Button";
 import Completed from "./Completed";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
 import { ExportButton } from "./ExportButton";
-import { BackButton } from "@/components/ui/BackButton";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import {
   useResume,
   useCreateResume,
@@ -27,7 +27,6 @@ import {
 import { addToast } from "@heroui/toast";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { debounce } from "@/lib/utils/debounce";
-import InlineEditableTitle from "./InlineEditableTitle";
 import { hasResumeChanged } from "@/lib/resume/diffResume";
 
 export default function ResumeEditor() {
@@ -410,133 +409,89 @@ export default function ResumeEditor() {
     return <Completed resumeData={resumeData} setResumeData={setResumeData} />;
   }
 
-  const handleTitleChange = (newTitle: string) => {
-    setResumeData((prev) => ({ ...prev, title: newTitle }));
-  };
 
-  const handleBackToResumes = () => {
-    router.push("/resume-builder/my-resumes");
-  };
 
   return (
-    <div className="flex grow flex-col min-h-screen">
-      <header className="border-b px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1">
-            <BackButton onClick={handleBackToResumes} />
-            <div className="flex-1">
-              {currentResumeId ? (
-                <InlineEditableTitle
-                  currentTitle={
-                    resumeData.title ||
-                    existingResume?.title ||
-                    "Untitled Resume"
-                  }
-                  resumeId={currentResumeId}
-                  onTitleChange={handleTitleChange}
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Left Side - Form with Breadcrumb */}
+      <div className="w-full md:w-1/2 flex flex-col">
+        {/* Breadcrumb Section */}
+        <div className="bg-transparent w-full">
+          <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-3 sm:mb-3 sm:flex sm:items-center sm:justify-between">
+                <Breadcrumb
+                  items={[
+                    { label: "Dashboard", href: "/dashboard" },
+                    { label: "Resume Builder", href: "/resume-builder" },
+                    {
+                      label: resumeData.title || existingResume?.title || "Untitled Resume",
+                      current: true
+                    },
+                  ]}
                 />
-              ) : (
-                <h1 className="text-2xl font-bold">
-                  {resumeData.title || "Untitled Resume"}
-                </h1>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            {currentResumeId && (
-              <>
-                <button
-                  className="px-4 py-2 bg-[#11553F] hover:bg-[#0e4634] text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  disabled={isSavingToFilebox}
-                  onClick={handleSaveToFilebox}
-                >
-                  {isSavingToFilebox ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                        />
-                      </svg>
-                      Save to Filebox
-                    </>
-                  )}
-                </button>
-                <ExportButton
-                  isExporting={isExporting}
-                  onExport={handleExport}
-                />
-              </>
-            )}
-            <SaveStatusIndicator
-              hasSaved={!!currentResumeId && !isSaving && !hasUnsavedChanges}
-              hasUnsavedChanges={hasUnsavedChanges && !isSaving}
-              isSaving={isSaving}
-            />
-          </div>
-        </div>
-      </header>
-      <main className="relative grow">
-        <div className="absolute bottom-0 top-0 flex w-full">
-          <div className="w-full md:w-1/2 flex flex-col">
-            <div className="flex-1 overflow-y-auto p-6">
-              <Breadcrumbs currentStep={currentStep} setCurrentStep={setStep} />
-              {FormComponent && (
-                <FormComponent
-                  key={currentResumeId || "new-resume"}
-                  resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  onValidationChange={handleValidationChange}
-                />
-              )}
-            </div>
-            <div className="p-6">
-              <div className="max-w-xs mx-auto space-y-3">
-                {!isContactForm && (
-                  <div className="mb-4">
-                    <BackButton onClick={handleBack} />
-                  </div>
-                )}
-                <LoadingButton
-                  className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!isFormValid || !isCurrentFormValid}
-                  onClick={handleContinue}
-                >
-                  {isLastStep ? "Complete" : "Continue"}
-                </LoadingButton>
-
-                {!isContactForm && !isLastStep && (
-                  <button
-                    className="w-full text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
-                    onClick={handleSkip}
-                  >
-                    Skip {currentStepTitle}
-                  </button>
-                )}
               </div>
             </div>
           </div>
-          <div className="hidden md:flex md:w-1/2 md:border-l">
-            <ResumePreviewSection
-              className="w-full"
-              resumeData={resumeData}
-              setResumeData={setResumeData}
-            />
+        </div>
+
+        {/* Form Content */}
+        <div className="flex-1 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-6">
+            <ProgressStepper currentStep={currentStep} setCurrentStep={setStep} />
+            {FormComponent && (
+              <FormComponent
+                key={currentResumeId || "new-resume"}
+                resumeData={resumeData}
+                setResumeData={setResumeData}
+                onValidationChange={handleValidationChange}
+              />
+            )}
+          </div>
+          <div className="p-6">
+            <div className="max-w-xs mx-auto space-y-3">
+              {!isContactForm && (
+                <div className="mb-4">
+                  <button
+                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    onClick={handleBack}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span className="text-sm font-medium">Back</span>
+                  </button>
+                </div>
+              )}
+              <LoadingButton
+                className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!isFormValid || !isCurrentFormValid}
+                onClick={handleContinue}
+              >
+                {isLastStep ? "Complete" : "Continue"}
+              </LoadingButton>
+
+              {!isContactForm && !isLastStep && (
+                <button
+                  className="w-full text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
+                  onClick={handleSkip}
+                >
+                  Skip {currentStepTitle}
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </main>
+      </div>
+
+      {/* Right Side - Resume Preview (Full Height) */}
+      <div className="hidden md:flex md:w-1/2 md:border-l h-screen sticky top-0">
+        <ResumePreviewSection
+          className="w-full"
+          resumeData={resumeData}
+          setResumeData={setResumeData}
+        />
+      </div>
     </div>
   );
 }
