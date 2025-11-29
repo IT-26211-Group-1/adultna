@@ -8,6 +8,7 @@ import {
   CreateMilestonePayload,
   UpdateMilestonePayload,
 } from "@/types/roadmap";
+import { useToast } from "@heroui/react";
 
 type ServiceResponse<T = any> = {
   success: boolean;
@@ -77,6 +78,7 @@ export function useMilestone(milestoneId?: string) {
 
 export function useCreateMilestone() {
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
 
   return useMutation({
     mutationFn: async (data: CreateMilestonePayload) => {
@@ -89,6 +91,18 @@ export function useCreateMilestone() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.roadmap.milestones(),
+      });
+      addToast({
+        title: "Success",
+        description: "Milestone created successfully!",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to create milestone",
+        color: "danger",
       });
     },
   });
