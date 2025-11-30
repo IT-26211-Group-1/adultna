@@ -6,7 +6,7 @@ import { ResumeData } from "@/validators/resumeSchema";
 import { useExportResume } from "@/hooks/queries/useResumeQueries";
 import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
-import { Download, FileText, Sparkles, Users } from "lucide-react";
+import { Download, FileText, Users } from "lucide-react";
 
 interface CompletedProps {
   resumeData: ResumeData;
@@ -39,9 +39,7 @@ export default function Completed({ resumeData }: CompletedProps) {
 
   const handleEditResume = () => {
     if (resumeData.id) {
-      router.push(
-        `/resume-builder/editor?resumeId=${resumeData.id}&step=contact`,
-      );
+      router.push(`/resume-builder/editor?resumeId=${resumeData.id}&step=summary`);
     }
   };
 
@@ -52,88 +50,89 @@ export default function Completed({ resumeData }: CompletedProps) {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex-1 bg-white p-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium mb-5 mt-4">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Resume Complete
+            </div>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 leading-tight">
+              <span className="text-emerald-600">Your Resume is Ready!</span>
+            </h1>
+            <p className="text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Your resume looks amazing and is ready to help you land your dream job. You&apos;ve taken an important step toward your career goals!
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Left: Resume Preview */}
-            <div className="bg-gray-50 rounded-lg p-6 overflow-auto max-h-[85vh]">
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="h-4 w-4 text-emerald-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">Your Completed Resume</h2>
-                </div>
-                <p className="text-sm text-gray-600">Preview your professionally crafted resume</p>
+            <div>
+              <div className="bg-gray-50 rounded-2xl p-6 overflow-auto max-h-[80vh]">
+                <ResumePreview resumeData={resumeData} />
               </div>
-              <ResumePreview resumeData={resumeData} />
             </div>
 
-            {/* Right: Success Message and Actions */}
+            {/* Right: Actions */}
             <div className="flex items-start justify-center lg:pt-12">
-              <div className="bg-gray-50 rounded-lg p-8 w-full max-w-md">
-                <div className="text-center mb-6">
-                  <div className="mx-auto w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
-                    <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    Congratulations! 🎉
-                  </h1>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    Your resume looks amazing and is ready to help you land your dream job. You've taken an important step toward your career goals!
-                  </p>
-                </div>
+              <div className="w-full max-w-md space-y-8">
 
-                <div className="space-y-4">
-                  {/* Primary Action - Export to PDF */}
-                  <Button
-                    className="w-full py-3 text-sm font-semibold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                    isLoading={exportResume.isPending}
-                    onPress={handleExportToPDF}
-                    startContent={!exportResume.isPending && <Download className="h-4 w-4" />}
+                {/* Action Buttons */}
+                <div className="flex flex-col items-center gap-4">
+                  <button
+                    className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+                    onClick={handleExportToPDF}
+                    disabled={exportResume.isPending}
                   >
-                    {exportResume.isPending ? "Preparing PDF..." : "Download PDF"}
-                  </Button>
+                    <div className="flex items-center justify-center gap-2">
+                      {exportResume.isPending ? (
+                        "Preparing PDF..."
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4" />
+                          Download PDF
+                        </>
+                      )}
+                    </div>
+                  </button>
 
-                  {/* Secondary Actions */}
-                  <Button
-                    className="w-full py-2.5 text-sm font-medium border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all duration-200"
-                    variant="bordered"
-                    onPress={handleEditResume}
-                    startContent={<FileText className="h-3.5 w-3.5" />}
+                  <button
+                    className="w-full px-4 py-2 border-2 border-emerald-600 text-emerald-600 rounded-lg font-medium transition-all duration-200 hover:bg-emerald-600 hover:text-white hover:shadow-sm text-sm"
+                    onClick={handleEditResume}
                   >
-                    Edit Resume
-                  </Button>
+                    <div className="flex items-center justify-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Edit Resume
+                    </div>
+                  </button>
 
-                  <Button
-                    className="w-full py-2.5 text-sm font-medium border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all duration-200"
-                    variant="bordered"
-                    onPress={handleStartNewResume}
-                    startContent={<Sparkles className="h-3.5 w-3.5" />}
+                  <button
+                    className="px-4 py-2 bg-transparent text-gray-600 rounded-lg font-medium transition-all duration-200 hover:text-gray-800 hover:bg-gray-50 text-sm"
+                    onClick={handleStartNewResume}
                   >
                     Create New Resume
-                  </Button>
+                  </button>
                 </div>
 
                 {/* Cover Letter Invitation */}
-                <div className="mt-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <div className="flex-shrink-0">
-                      <Users className="h-4 w-4 text-blue-600 mt-0.5" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900 mb-1 text-sm">Complete Your Application Package</h3>
-                      <p className="text-xs text-gray-700 mb-3 leading-relaxed">
-                        Stand out even more with a personalized cover letter! A well-written cover letter can increase your chances of landing an interview by up to 40%.
-                      </p>
-                      <Button
-                        className="w-full text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
-                        size="sm"
-                        onPress={() => router.push("/cover-letter")}
-                      >
-                        Create Cover Letter
-                      </Button>
-                    </div>
+                <div className="border rounded-lg p-4" style={{borderColor: '#FCE2A9', backgroundColor: '#FEF3D9'}}>
+                  <div className="mb-3">
+                    <h3 className="text-small font-semibold mb-1" style={{color: '#D4A574'}}>
+                      Ready to Take It to the Next Level?
+                    </h3>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      You&apos;re already doing amazing! Now let&apos;s add a personal touch with a cover letter that tells your unique story.
+                    </p>
                   </div>
+                  <button
+                    className="w-full px-4 py-2 text-white rounded-lg font-medium transition-all duration-200 text-sm"
+                    style={{backgroundColor: '#D4A574'}}
+                    onClick={() => router.push("/cover-letter")}
+                  >
+                    Create Cover Letter
+                  </button>
                 </div>
 
                 {/* Encouragement Note */}
