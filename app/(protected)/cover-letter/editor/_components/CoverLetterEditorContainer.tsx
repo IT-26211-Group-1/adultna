@@ -493,8 +493,8 @@ export function CoverLetterEditorContainer() {
         </div>
 
         {/* Right: Preview */}
-        <div className="w-1/2 overflow-y-auto p-8">
-          <CoverLetterPreview sections={sortedSections} />
+        <div className="w-1/2 overflow-y-auto">
+          <CoverLetterPreview sections={sortedSections} className="w-full" />
         </div>
       </div>
     </div>
