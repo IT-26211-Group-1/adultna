@@ -6,18 +6,33 @@ import { steps } from "./steps";
 interface ProgressStepperProps {
   currentStep: string;
   setCurrentStep: (step: string) => void;
+  completedSteps?: string[];
 }
 
 export default function ProgressStepper({
   currentStep,
   setCurrentStep,
+  completedSteps = [],
 }: ProgressStepperProps) {
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
   const currentStepData = steps[currentStepIndex];
   const progressPercentage = ((currentStepIndex + 1) / steps.length) * 100;
 
+  // Check if contact information step is completed
+  const isContactCompleted = completedSteps.includes("contact");
+
+  // Function to check if a step is accessible
+  const isStepAccessible = (stepKey: string, stepIndex: number) => {
+    // Contact step is always accessible
+    if (stepKey === "contact") return true;
+    // Other steps are only accessible if contact is completed
+    return isContactCompleted;
+  };
+
   const canGoBack = currentStepIndex > 0;
-  const canGoForward = currentStepIndex < steps.length - 1;
+  const canGoForward = currentStepIndex < steps.length - 1 && (
+    currentStepIndex === 0 ? isContactCompleted : true
+  );
 
   const goToPreviousStep = () => {
     if (canGoBack) {
@@ -27,7 +42,10 @@ export default function ProgressStepper({
 
   const goToNextStep = () => {
     if (canGoForward) {
-      setCurrentStep(steps[currentStepIndex + 1].key);
+      const nextStep = steps[currentStepIndex + 1];
+      if (isStepAccessible(nextStep.key, currentStepIndex + 1)) {
+        setCurrentStep(nextStep.key);
+      }
     }
   };
 
@@ -197,9 +215,16 @@ export default function ProgressStepper({
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 mb-2 ${
                   index <= currentStepIndex
                     ? "bg-emerald-600 text-white shadow-md"
-                    : "bg-gray-200 text-gray-400 hover:bg-gray-300"
+                    : isStepAccessible(step.key, index)
+                      ? "bg-gray-200 text-gray-400 hover:bg-gray-300"
+                      : "bg-gray-100 text-gray-300 cursor-not-allowed"
                 }`}
-                onClick={() => setCurrentStep(step.key)}
+                onClick={() => {
+                  if (isStepAccessible(step.key, index)) {
+                    setCurrentStep(step.key);
+                  }
+                }}
+                disabled={!isStepAccessible(step.key, index)}
                 aria-label={`Go to step ${index + 1}: ${step.title}`}
               >
                 {index + 1}
@@ -210,9 +235,16 @@ export default function ProgressStepper({
                 className={`text-xs text-center leading-tight transition-colors max-w-20 ${
                   step.key === currentStep
                     ? "text-emerald-700 font-medium"
-                    : "text-gray-500 hover:text-gray-700"
+                    : isStepAccessible(step.key, index)
+                      ? "text-gray-500 hover:text-gray-700"
+                      : "text-gray-300 cursor-not-allowed"
                 }`}
-                onClick={() => setCurrentStep(step.key)}
+                onClick={() => {
+                  if (isStepAccessible(step.key, index)) {
+                    setCurrentStep(step.key);
+                  }
+                }}
+                disabled={!isStepAccessible(step.key, index)}
                 aria-label={`Go to step ${index + 1}: ${step.title}`}
               >
                 {step.title}
