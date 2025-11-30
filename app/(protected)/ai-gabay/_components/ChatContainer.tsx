@@ -65,12 +65,14 @@ export function ChatContainer() {
     }
 
     if (loadedMessages && loadedMessages.length > 0) {
-      return loadedMessages.map((m, index) => ({
-        id: `${currentSessionId}-${index}`,
-        role: m.role,
-        content: m.content,
-        timestamp: new Date(m.timestamp),
-      }));
+      return loadedMessages.map(
+        (m, index): ConversationMessage => ({
+          id: `${currentSessionId}-${index}`,
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.timestamp),
+        }),
+      );
     }
 
     return [];
