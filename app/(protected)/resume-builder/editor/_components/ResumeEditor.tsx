@@ -520,74 +520,80 @@ export default function ResumeEditor() {
 
         {/* Form Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Fixed Progress Stepper */}
+          <div className="flex-shrink-0 bg-gray-50 px-6 py-2 flex justify-center md:pl-16">
+            <div className="w-full max-w-lg">
+              <ProgressStepper
+                currentStep={currentStep}
+                setCurrentStep={setStep}
+                resumeData={resumeData}
+              />
+            </div>
+          </div>
+
+          {/* Scrollable Form Content */}
           <div className="flex-1 overflow-y-auto p-6 flex justify-center md:pl-16">
             <div className="w-full max-w-lg">
-            <ProgressStepper
-              currentStep={currentStep}
-              setCurrentStep={setStep}
-              resumeData={resumeData}
-            />
-
-            {/* Mobile Color Picker */}
-            <div className="md:hidden mb-6 flex justify-center">
-              <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-3">
-                <span className="text-sm font-medium text-gray-700">Resume Color:</span>
-                <ColorPicker
-                  color={resumeData.colorHex}
-                  onChange={(color) =>
-                    setResumeData({ ...resumeData, colorHex: color.hex })
-                  }
-                />
+              {/* Mobile Color Picker */}
+              <div className="md:hidden mb-6 flex justify-center">
+                <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-3">
+                  <span className="text-sm font-medium text-gray-700">Resume Color:</span>
+                  <ColorPicker
+                    color={resumeData.colorHex}
+                    onChange={(color) =>
+                      setResumeData({ ...resumeData, colorHex: color.hex })
+                    }
+                  />
+                </div>
               </div>
-            </div>
 
-            {FormComponent && (
-              <FormComponent
-                key={currentResumeId || "new-resume"}
-                resumeData={resumeData}
-                setResumeData={setResumeData}
-                onValidationChange={handleValidationChange}
-              />
-            )}
+              {FormComponent && (
+                <FormComponent
+                  key={currentResumeId || "new-resume"}
+                  resumeData={resumeData}
+                  setResumeData={setResumeData}
+                  onValidationChange={handleValidationChange}
+                />
+              )}
 
-            {/* Buttons Section */}
-            <div className="p-4 flex-shrink-0">
-              <div className="max-w-xs mx-auto space-y-3">
-              <LoadingButton
-                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-out disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-md focus:ring-2 focus:ring-emerald-500/30 focus:outline-none text-sm"
-                disabled={!isFormValid || !isCurrentFormValid}
-                onClick={handleContinue}
-              >
-                <div className="flex items-center justify-center gap-1.5">
-                  <span>{isLastStep ? "Complete Resume" : "Continue"}</span>
-                  {!isLastStep && (
-                    <svg className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
-                  {isLastStep && (
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+              {/* Buttons Section */}
+              <div className="p-4 flex-shrink-0">
+                <div className="max-w-xs mx-auto space-y-3">
+                  <LoadingButton
+                    className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-out disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-md focus:ring-2 focus:ring-emerald-500/30 focus:outline-none text-sm"
+                    disabled={!isFormValid || !isCurrentFormValid}
+                    onClick={handleContinue}
+                  >
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span>{isLastStep ? "Complete Resume" : "Continue"}</span>
+                      {!isLastStep && (
+                        <svg className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      )}
+                      {isLastStep && (
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </LoadingButton>
+
+                  {!isContactForm && !isLastStep && (
+                    <button
+                      className="w-full text-xs text-gray-500 hover:text-emerald-600 transition-all duration-200 hover:underline hover:underline-offset-2 py-1.5 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                      onClick={handleSkip}
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        <span>Skip {currentStepTitle}</span>
+                        <svg className="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </div>
+                    </button>
                   )}
                 </div>
-              </LoadingButton>
-
-              {!isContactForm && !isLastStep && (
-                <button
-                  className="w-full text-xs text-gray-500 hover:text-emerald-600 transition-all duration-200 hover:underline hover:underline-offset-2 py-1.5 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
-                  onClick={handleSkip}
-                >
-                  <div className="flex items-center justify-center gap-1">
-                    <span>Skip {currentStepTitle}</span>
-                    <svg className="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </button>
-              )}
               </div>
-            </div>
             </div>
           </div>
         </div>
