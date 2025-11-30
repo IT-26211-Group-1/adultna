@@ -6,7 +6,6 @@ import { ResumeData } from "@/validators/resumeSchema";
 import { useExportResume } from "@/hooks/queries/useResumeQueries";
 import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
-import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Download, FileText, Sparkles, Users } from "lucide-react";
 
 interface CompletedProps {
@@ -51,41 +50,25 @@ export default function Completed({ resumeData }: CompletedProps) {
   };
 
   return (
-    <div className="flex grow flex-col">
-      {/* Breadcrumb Section */}
-      <div className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Breadcrumb
-            items={[
-              { label: "Dashboard", href: "/dashboard" },
-              { label: "Resume Builder", href: "/resume-builder" },
-              {
-                label: resumeData.title || "My Resume",
-                current: true
-              },
-            ]}
-          />
-        </div>
-      </div>
-
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-8">
+    <div className="h-screen flex flex-col overflow-hidden">
+      <div className="flex-1 bg-white p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left: Resume Preview */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 overflow-auto max-h-[85vh]">
-              <div className="mb-4">
+            <div className="bg-gray-50 rounded-lg p-6 overflow-auto max-h-[85vh]">
+              <div className="mb-6">
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="h-4 w-4 text-emerald-600" />
-                  <h2 className="text-base font-medium text-gray-900">Your Completed Resume</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Your Completed Resume</h2>
                 </div>
-                <p className="text-xs text-gray-600">Preview your professionally crafted resume</p>
+                <p className="text-sm text-gray-600">Preview your professionally crafted resume</p>
               </div>
               <ResumePreview resumeData={resumeData} />
             </div>
 
             {/* Right: Success Message and Actions */}
             <div className="flex items-start justify-center lg:pt-12">
-              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 w-full max-w-md">
+              <div className="bg-gray-50 rounded-lg p-8 w-full max-w-md">
                 <div className="text-center mb-6">
                   <div className="mx-auto w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
                     <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,7 +115,7 @@ export default function Completed({ resumeData }: CompletedProps) {
                 </div>
 
                 {/* Cover Letter Invitation */}
-                <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
+                <div className="mt-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
                   <div className="flex items-start gap-2">
                     <div className="flex-shrink-0">
                       <Users className="h-4 w-4 text-blue-600 mt-0.5" />
