@@ -18,7 +18,6 @@ import ConclusionForm from "./forms/ConclusionForm";
 import SignatureForm from "./forms/SignatureForm";
 import { useState, useEffect, useRef, useCallback } from "react";
 import React from "react";
-import { Button } from "@heroui/react";
 
 type SectionData = {
   intro?: CoverLetterSection;
@@ -450,63 +449,38 @@ export function CoverLetterEditorContainer() {
               <IntroForm
                 section={sectionData.intro}
                 onSectionChange={handleIntroChange}
+                onNext={handleNext}
+                isLoading={isSaving}
               />
             )}
             {currentSectionType === "body" && (
               <BodyForm
                 section={sectionData.body}
                 onSectionChange={handleBodyChange}
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                isLoading={isSaving}
               />
             )}
             {currentSectionType === "conclusion" && (
               <ConclusionForm
                 section={sectionData.conclusion}
                 onSectionChange={handleConclusionChange}
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                isLoading={isSaving}
               />
             )}
             {currentSectionType === "signature" && (
               <SignatureForm
                 section={sectionData.signature}
                 onSectionChange={handleSignatureChange}
+                onFinish={handleFinish}
+                onPrevious={handlePrevious}
+                isLoading={isSaving}
               />
             )}
 
-            {/* Navigation Buttons */}
-            <div className="flex gap-3 justify-between pt-6">
-              <Button
-                disableAnimation
-                isDisabled={isFirstSection || isSaving}
-                isLoading={isSaving}
-                size="lg"
-                variant="bordered"
-                onPress={handlePrevious}
-              >
-                {isSaving ? "Saving..." : "Previous"}
-              </Button>
-              {isLastSection ? (
-                <Button
-                  disableAnimation
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                  isDisabled={isSaving}
-                  isLoading={isSaving}
-                  size="lg"
-                  onPress={handleFinish}
-                >
-                  {isSaving ? "Saving..." : "Finish"}
-                </Button>
-              ) : (
-                <Button
-                  disableAnimation
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                  isDisabled={isSaving}
-                  isLoading={isSaving}
-                  size="lg"
-                  onPress={handleNext}
-                >
-                  {isSaving ? "Saving..." : "Next"}
-                </Button>
-              )}
-            </div>
           </div>
         </div>
 

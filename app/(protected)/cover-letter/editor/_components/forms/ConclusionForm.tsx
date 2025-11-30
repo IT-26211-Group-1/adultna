@@ -1,6 +1,6 @@
 "use client";
 
-import { Textarea } from "@heroui/react";
+import { Textarea, Button } from "@heroui/react";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { debounce } from "@/lib/utils/debounce";
 import type { CoverLetterSection } from "@/types/cover-letter";
@@ -8,11 +8,17 @@ import type { CoverLetterSection } from "@/types/cover-letter";
 interface ConclusionFormProps {
   section: CoverLetterSection | undefined;
   onSectionChange: (content: string) => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  isLoading?: boolean;
 }
 
 export default function ConclusionForm({
   section,
   onSectionChange,
+  onNext,
+  onPrevious,
+  isLoading
 }: ConclusionFormProps) {
   const previousDataRef = useRef<string>("");
   const [content, setContent] = useState<string>(section?.content || "");
@@ -50,7 +56,7 @@ export default function ConclusionForm({
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Conclusion</h2>
+        <h2 className="text-2xl font-semibold mt-4">Conclusion</h2>
         <p className="text-sm text-default-500">
           End with a strong closing statement and call to action. Express your
           enthusiasm and next steps.
@@ -67,6 +73,27 @@ export default function ConclusionForm({
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
+
+        {/* Navigation Buttons */}
+        <div className="flex flex-col items-center gap-3 pt-6">
+          <Button
+            disableAnimation
+            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out border-0 font-medium min-w-40"
+            isLoading={isLoading}
+            size="md"
+            onPress={onNext}
+          >
+            {isLoading ? "Saving..." : "Proceed to Signature"}
+          </Button>
+          <button
+            type="button"
+            className="text-gray-500 hover:text-emerald-600 text-sm font-medium transition-all duration-200 ease-in-out hover:underline underline-offset-2"
+            onClick={onPrevious}
+            disabled={isLoading}
+          >
+            Back to Body
+          </button>
+        </div>
       </form>
     </div>
   );
