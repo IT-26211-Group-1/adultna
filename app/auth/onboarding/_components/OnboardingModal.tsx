@@ -248,7 +248,8 @@ export default function OnboardingModal({
                 ← Back
               </button>
             )}
-            {currentStep === STEPS.PRIORITIES && (
+            {(currentStep === STEPS.LIFE_STAGE ||
+              currentStep === STEPS.PRIORITIES) && (
               <button
                 className="text-gray-500 hover:text-gray-700 px-4 py-2 font-medium transition-colors rounded-full text-sm"
                 onClick={skipStep}
@@ -475,7 +476,8 @@ export default function OnboardingModal({
                     </span>
                   </button>
                 )}
-                {currentStep === STEPS.PRIORITIES && (
+                {(currentStep === STEPS.LIFE_STAGE ||
+                  currentStep === STEPS.PRIORITIES) && (
                   <button
                     className="text-gray-500 hover:text-gray-700 px-4 sm:px-6 py-2 sm:py-3 font-medium transition-colors rounded-full text-sm sm:text-base"
                     onClick={skipStep}
