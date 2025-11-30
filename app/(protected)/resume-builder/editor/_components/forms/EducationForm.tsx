@@ -306,7 +306,6 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
 
         <Input
           {...form.register(`educationItems.${index}.fieldOfStudy`)}
-          isRequired
           errorMessage={
             form.formState.errors.educationItems?.[index]?.fieldOfStudy?.message
           }

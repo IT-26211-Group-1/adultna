@@ -516,7 +516,11 @@ export default function ResumeEditor() {
         {/* Form Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-6">
-            <ProgressStepper currentStep={currentStep} setCurrentStep={setStep} />
+            <ProgressStepper
+              currentStep={currentStep}
+              setCurrentStep={setStep}
+              resumeData={resumeData}
+            />
 
             {/* Mobile Color Picker */}
             <div className="md:hidden mb-6 flex justify-center">

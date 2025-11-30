@@ -2,27 +2,35 @@
 
 import React from "react";
 import { steps } from "./steps";
+import { ResumeData } from "@/validators/resumeSchema";
 
 interface ProgressStepperProps {
   currentStep: string;
   setCurrentStep: (step: string) => void;
   completedSteps?: string[];
+  resumeData?: ResumeData;
 }
 
 export default function ProgressStepper({
   currentStep,
   setCurrentStep,
   completedSteps = [],
+  resumeData,
 }: ProgressStepperProps) {
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
   const currentStepData = steps[currentStepIndex];
   const progressPercentage = ((currentStepIndex + 1) / steps.length) * 100;
 
-  // Check if contact information step is completed
-  const isContactCompleted = completedSteps.includes("contact");
+  // Check if contact information step is completed based on required fields
+  const isContactCompleted = resumeData
+    ? !!(resumeData.firstName?.trim() &&
+         resumeData.lastName?.trim() &&
+         resumeData.email?.trim() &&
+         resumeData.phone?.trim())
+    : completedSteps.includes("contact");
 
   // Function to check if a step is accessible
-  const isStepAccessible = (stepKey: string, stepIndex: number) => {
+  const isStepAccessible = (stepKey: string) => {
     // Contact step is always accessible
     if (stepKey === "contact") return true;
     // Other steps are only accessible if contact is completed
@@ -30,9 +38,7 @@ export default function ProgressStepper({
   };
 
   const canGoBack = currentStepIndex > 0;
-  const canGoForward = currentStepIndex < steps.length - 1 && (
-    currentStepIndex === 0 ? isContactCompleted : true
-  );
+  const canGoForward = currentStepIndex < steps.length - 1;
 
   const goToPreviousStep = () => {
     if (canGoBack) {
@@ -43,7 +49,7 @@ export default function ProgressStepper({
   const goToNextStep = () => {
     if (canGoForward) {
       const nextStep = steps[currentStepIndex + 1];
-      if (isStepAccessible(nextStep.key, currentStepIndex + 1)) {
+      if (isStepAccessible(nextStep.key)) {
         setCurrentStep(nextStep.key);
       }
     }
@@ -215,16 +221,16 @@ export default function ProgressStepper({
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 mb-2 ${
                   index <= currentStepIndex
                     ? "bg-emerald-600 text-white shadow-md"
-                    : isStepAccessible(step.key, index)
+                    : isStepAccessible(step.key)
                       ? "bg-gray-200 text-gray-400 hover:bg-gray-300"
                       : "bg-gray-100 text-gray-300 cursor-not-allowed"
                 }`}
                 onClick={() => {
-                  if (isStepAccessible(step.key, index)) {
+                  if (isStepAccessible(step.key)) {
                     setCurrentStep(step.key);
                   }
                 }}
-                disabled={!isStepAccessible(step.key, index)}
+                disabled={!isStepAccessible(step.key)}
                 aria-label={`Go to step ${index + 1}: ${step.title}`}
               >
                 {index + 1}
@@ -235,16 +241,16 @@ export default function ProgressStepper({
                 className={`text-xs text-center leading-tight transition-colors max-w-20 ${
                   step.key === currentStep
                     ? "text-emerald-700 font-medium"
-                    : isStepAccessible(step.key, index)
+                    : isStepAccessible(step.key)
                       ? "text-gray-500 hover:text-gray-700"
                       : "text-gray-300 cursor-not-allowed"
                 }`}
                 onClick={() => {
-                  if (isStepAccessible(step.key, index)) {
+                  if (isStepAccessible(step.key)) {
                     setCurrentStep(step.key);
                   }
                 }}
-                disabled={!isStepAccessible(step.key, index)}
+                disabled={!isStepAccessible(step.key)}
                 aria-label={`Go to step ${index + 1}: ${step.title}`}
               >
                 {step.title}
