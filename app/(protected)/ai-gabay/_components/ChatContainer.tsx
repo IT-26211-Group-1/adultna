@@ -11,6 +11,7 @@ import { ConversationSidebar } from "./ConversationSidebar";
 import {
   useGabayChat,
   useRenameConversation,
+  useGabayConversations,
 } from "@/hooks/queries/useGabayQueries";
 import {
   Modal,
@@ -63,107 +64,39 @@ export function ChatContainer() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Initialize from localStorage synchronously
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [conversations, setConversations] = useState<StoredConversation[]>(() =>
-    loadFromStorage(),
-  );
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
-    () => {
-      // First check URL parameter
-      const urlConversationId = searchParams.get("c");
-
-      if (urlConversationId) {
-        return urlConversationId;
-      }
-
-      // Only default to most recent if no URL parameter is present
-      const stored = loadFromStorage();
-
-      if (stored.length > 0) {
-        const mostRecent = stored.sort(
-          (a, b) =>
-            new Date(b.lastActivityAt).getTime() -
-            new Date(a.lastActivityAt).getTime(),
-        )[0];
-
-        return mostRecent.id;
-      }
-
-      return undefined;
-    },
+    () => searchParams.get("c") || undefined,
   );
-  const [messages, setMessages] = useState<ConversationMessage[]>(() => {
-    const stored = loadFromStorage();
-    const current = stored.find((c) => c.id === currentSessionId);
-
-    return (
-      current?.messages.map((m) => ({
-        ...m,
-        timestamp: new Date(m.timestamp),
-      })) || []
-    );
-  });
+  const [messages, setMessages] = useState<ConversationMessage[]>([]);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const optionsMenuRef = useRef<HTMLDivElement>(null);
 
-  // Ref callback for auto-scroll
+  const {
+    data: conversationsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch: refetchConversations,
+  } = useGabayConversations();
+
   const messagesEndCallback = useCallback((node: HTMLDivElement | null) => {
     if (node) {
       node.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
 
-  // Scroll handler
   const handleScroll = useCallback(
     (_e: React.UIEvent<HTMLDivElement>) => {},
     [],
   );
 
-  // Update conversation in state AND localStorage
-  const updateConversation = useCallback(
-    (conversationId: string, newMessages: ConversationMessage[]) => {
-      setConversations((prev) => {
-        const existing = prev.find((c) => c.id === conversationId);
-        const title =
-          existing?.title ||
-          newMessages.find((m) => m.role === "user")?.content.slice(0, 50) ||
-          "New Chat";
-
-        const updated = {
-          id: conversationId,
-          title,
-          messages: newMessages,
-          lastActivityAt: new Date().toISOString(),
-        };
-
-        const newConversations = existing
-          ? prev.map((c) => (c.id === conversationId ? updated : c))
-          : [updated, ...prev];
-
-        // Sync to localStorage immediately
-        saveToStorage(newConversations);
-
-        return newConversations;
-      });
-    },
-    [],
-  );
-
   const { renameConversation } = useRenameConversation({
-    onSuccess: (sessionId, newTopic) => {
-      setConversations((prev) => {
-        const updated = prev.map((c) =>
-          c.id === sessionId ? { ...c, title: newTopic } : c,
-        );
-
-        saveToStorage(updated);
-
-        return updated;
-      });
+    onSuccess: () => {
+      refetchConversations();
     },
     onError: (error) => {
       logger.error("[GABAY] Failed to rename conversation:", error);
@@ -184,20 +117,18 @@ export function ChatContainer() {
 
         setMessages(newMessages);
 
-        // Update session - backend returns sessionId
         const sessionId = response.sessionId || currentSessionId;
 
         if (sessionId) {
-          updateConversation(sessionId, newMessages);
           setCurrentSessionId(sessionId);
 
-          // Update URL if this is a new conversation
           if (!currentSessionId && sessionId) {
             router.push(`/ai-gabay?c=${sessionId}`);
           }
+
+          refetchConversations();
         }
 
-        // Auto-scroll after message
         requestAnimationFrame(() => {
           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         });
@@ -263,21 +194,11 @@ export function ChatContainer() {
 
   const handleSelectConversation = useCallback(
     (id: string) => {
-      const conversation = conversations.find((c) => c.id === id);
-
-      if (conversation) {
-        setCurrentSessionId(id);
-        setMessages(
-          conversation.messages.map((m) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          })),
-        );
-        // Update URL to include conversation parameter
-        router.push(`/ai-gabay?c=${id}`);
-      }
+      setCurrentSessionId(id);
+      setMessages([]);
+      router.push(`/ai-gabay?c=${id}`);
     },
-    [conversations, router],
+    [router],
   );
 
   const handleRenameConversation = useCallback(
@@ -289,18 +210,12 @@ export function ChatContainer() {
 
   const handleDeleteConversation = useCallback(
     (id: string) => {
-      setConversations((prev) => {
-        const updated = prev.filter((c) => c.id !== id);
-
-        saveToStorage(updated);
-
-        return updated;
-      });
       if (currentSessionId === id) {
         handleNewConversation();
       }
+      refetchConversations();
     },
-    [currentSessionId, handleNewConversation],
+    [currentSessionId, handleNewConversation, refetchConversations],
   );
 
   const handleDeleteConfirm = useCallback(() => {
@@ -328,32 +243,19 @@ export function ChatContainer() {
     setShowDeleteModal(true);
   }, []);
 
-  // Handle URL changes (browser back/forward)
   useEffect(() => {
     const urlConversationId = searchParams.get("c");
 
     if (urlConversationId !== currentSessionId) {
       if (urlConversationId) {
-        const conversation = conversations.find(
-          (c) => c.id === urlConversationId,
-        );
-
-        if (conversation) {
-          setCurrentSessionId(urlConversationId);
-          setMessages(
-            conversation.messages.map((m) => ({
-              ...m,
-              timestamp: new Date(m.timestamp),
-            })),
-          );
-        }
+        setCurrentSessionId(urlConversationId);
+        setMessages([]);
       } else {
-        // No conversation in URL, go to start page
         setCurrentSessionId(undefined);
         setMessages([]);
       }
     }
-  }, [searchParams, conversations, currentSessionId]);
+  }, [searchParams, currentSessionId]);
 
   // Handle click outside options menu
   useEffect(() => {
@@ -375,13 +277,15 @@ export function ChatContainer() {
     }
   }, [showOptionsMenu]);
 
-  const conversationList: Conversation[] = conversations.map((c) => ({
-    id: c.id,
-    title: c.title,
-    lastMessage: c.messages[c.messages.length - 1]?.content,
-    lastActivityAt: new Date(c.lastActivityAt),
-    messageCount: c.messages.length,
-  }));
+  const conversationList: Conversation[] = conversationsData?.pages
+    .flatMap((page) => page.conversations)
+    .map((c) => ({
+      id: c.sessionId,
+      title: c.topic,
+      lastMessage: c.lastMessage,
+      lastActivityAt: new Date(c.startedAt),
+      messageCount: c.messageCount,
+    })) || [];
 
   // Get current conversation title
   const currentConversation = conversationList.find(
@@ -396,8 +300,11 @@ export function ChatContainer() {
       <ConversationSidebar
         conversations={conversationList}
         currentConversationId={currentSessionId}
+        hasMore={hasNextPage}
+        isLoading={isFetchingNextPage}
         isOpen={isSidebarOpen}
         onDeleteConversation={handleDeleteConversation}
+        onLoadMore={fetchNextPage}
         onNewConversation={handleNewConversation}
         onRenameConversation={handleRenameConversation}
         onSelectConversation={handleSelectConversation}

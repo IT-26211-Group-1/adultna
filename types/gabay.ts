@@ -37,3 +37,16 @@ export interface Conversation {
   lastActivityAt: Date;
   messageCount: number;
 }
+
+export interface GetConversationsResponse {
+  success: boolean;
+  conversations: Array<{
+    sessionId: string;
+    topic: string;
+    messageCount: number;
+    startedAt: string;
+    lastMessage?: string;
+  }>;
+  hasMore: boolean;
+  total: number;
+}

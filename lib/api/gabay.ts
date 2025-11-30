@@ -1,7 +1,7 @@
 "use client";
 
 import { ApiClient } from "../apiClient";
-import type { ChatRequest, ChatResponse } from "@/types/gabay";
+import type { ChatRequest, ChatResponse, GetConversationsResponse } from "@/types/gabay";
 
 export const gabayApi = {
   /**
@@ -19,5 +19,17 @@ export const gabayApi = {
     newTopic: string,
   ): Promise<{ success: boolean; message: string }> => {
     return ApiClient.post("/gabay/rename", { sessionId, newTopic });
+  },
+
+  /**
+   * Get paginated conversations for the current user
+   */
+  getConversations: async (
+    limit: number = 5,
+    offset: number = 0,
+  ): Promise<GetConversationsResponse> => {
+    return ApiClient.get<GetConversationsResponse>(
+      `/gabay/conversations?limit=${limit}&offset=${offset}`,
+    );
   },
 };

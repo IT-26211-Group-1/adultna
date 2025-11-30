@@ -1,9 +1,9 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
 import { gabayApi } from "@/lib/api/gabay";
-import type { ChatRequest, ChatResponse } from "@/types/gabay";
+import type { ChatRequest, ChatResponse, Conversation } from "@/types/gabay";
 import { logger } from "@/lib/logger";
 
 interface UseChatMutationOptions {
@@ -60,6 +60,26 @@ export function useRenameConversation(options?: UseRenameConversationOptions) {
     error: renameMutation.error,
     reset: renameMutation.reset,
   };
+}
+
+/**
+ * Hook for fetching conversations with infinite scroll (ChatGPT-style)
+ * Loads 5 conversations at a time
+ */
+export function useGabayConversations() {
+  return useInfiniteQuery({
+    queryKey: queryKeys.gabay.conversations(),
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await gabayApi.getConversations(5, pageParam);
+      return response;
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.hasMore) return undefined;
+      return allPages.length * 5;
+    },
+    initialPageParam: 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 }
 
 /**
