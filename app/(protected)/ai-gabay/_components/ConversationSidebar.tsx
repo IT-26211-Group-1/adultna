@@ -29,6 +29,9 @@ interface ConversationSidebarProps {
   onRenameConversation: (id: string, newTitle: string) => void;
   isOpen: boolean;
   onToggleSidebar: () => void;
+  hasMore?: boolean;
+  isLoading?: boolean;
+  onLoadMore?: () => void;
 }
 
 export const ConversationSidebar = memo(function ConversationSidebar({
@@ -40,6 +43,9 @@ export const ConversationSidebar = memo(function ConversationSidebar({
   onRenameConversation,
   isOpen,
   onToggleSidebar,
+  hasMore,
+  isLoading,
+  onLoadMore,
 }: ConversationSidebarProps) {
   const [showDeleteDropdown, setShowDeleteDropdown] = useState<string | null>(
     null,
@@ -351,6 +357,19 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                 </div>
               ))}
             </div>
+
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="pt-3 px-2">
+                <button
+                  className="w-full py-2 text-sm font-medium text-adult-green hover:text-adult-green/80 hover:bg-adult-green/5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading}
+                  onClick={() => onLoadMore?.()}
+                >
+                  {isLoading ? "Loading..." : "Load more"}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

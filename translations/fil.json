@@ -1,0 +1,49 @@
+{
+  "common": {
+    "submit": "Ipasa",
+    "cancel": "Kanselahin",
+    "save": "I-save",
+    "edit": "I-edit",
+    "delete": "Tanggalin",
+    "loading": "Naglo-load...",
+    "error": "May nangyaring error",
+    "success": "Tagumpay!",
+    "search": "Maghanap",
+    "categories": "Mga Kategorya",
+    "all": "Lahat",
+    "viewDetails": "Tingnan ang Detalye",
+    "requirement": "kinakailangan",
+    "requirements": "mga kinakailangan",
+    "noRequirements": "Walang kinakailangan",
+    "translating": "Sinasalin sa Filipino...",
+    "completeGuideFor": "Kumpletong gabay para sa pag-apply ng iyong"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "guides": "Mga Gabay",
+    "profile": "Profile",
+    "settings": "Mga Setting"
+  },
+  "guides": {
+    "hero": {
+      "title": "Ang iyong gabay sa pag-adulting sa Pilipinas!",
+      "description": "Kumusta, future adult! Alam namin na nakakapanghina ang mga proseso ng gobyerno, pero nandito kami para sa iyo. Hanapin ang step-by-step na gabay na ginagawang simple at walang stress ang pagkuha ng iyong mga dokumento."
+    },
+    "search": {
+      "placeholder": "Maghanap ng mga gabay..."
+    },
+    "category": {
+      "all": "Lahat ng Kategorya",
+      "identification": "Mga ID ng Gobyerno",
+      "civil-registration": "Sibil na Pagpaparehistro",
+      "permits-licenses": "Mga Permit at Lisensya",
+      "social-services": "Mga Serbisyong Panlipunan",
+      "tax-related": "Kaugnay ng Buwis",
+      "legal": "Mga Legal na Dokumento",
+      "other": "Iba Pa"
+    },
+    "noResults": "Walang nahanap na gabay na tumutugma sa iyong mga pamantayan.",
+    "noGuides": "Walang available na gabay sa ngayon.",
+    "loadError": "Hindi ma-load ang mga gabay. Pakisubukan ulit mamaya."
+  }
+}

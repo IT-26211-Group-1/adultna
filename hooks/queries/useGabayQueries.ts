@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/apiClient";
 import { gabayApi } from "@/lib/api/gabay";
 import type { ChatRequest, ChatResponse } from "@/types/gabay";
@@ -60,6 +60,46 @@ export function useRenameConversation(options?: UseRenameConversationOptions) {
     error: renameMutation.error,
     reset: renameMutation.reset,
   };
+}
+
+/**
+ * Hook for fetching conversations with infinite scroll (ChatGPT-style)
+ * Loads 5 conversations at a time
+ */
+export function useGabayConversations() {
+  return useInfiniteQuery({
+    queryKey: queryKeys.gabay.conversations(),
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await gabayApi.getConversations(5, pageParam);
+
+      return response;
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.hasMore) return undefined;
+
+      return allPages.length * 5;
+    },
+    initialPageParam: 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+/**
+ * Hook for fetching messages for a specific conversation
+ * Cached for 10 minutes to reduce API calls
+ */
+export function useGabayConversationMessages(sessionId: string | undefined) {
+  return useQuery({
+    queryKey: ["gabay", "messages", sessionId],
+    queryFn: async () => {
+      if (!sessionId) return null;
+      const response = await gabayApi.getConversationMessages(sessionId);
+      return response.messages || [];
+    },
+    enabled: !!sessionId,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+    gcTime: 1000 * 60 * 15, // 15 minutes (formerly cacheTime)
+  });
 }
 
 /**
