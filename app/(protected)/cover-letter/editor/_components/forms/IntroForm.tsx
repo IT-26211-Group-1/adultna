@@ -10,6 +10,7 @@ interface IntroFormProps {
   onSectionChange: (content: string) => void;
   onNext?: () => void;
   isLoading?: boolean;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
 export default function IntroForm({
@@ -17,6 +18,7 @@ export default function IntroForm({
   onSectionChange,
   onNext,
   isLoading,
+  onValidationChange,
 }: IntroFormProps) {
   const previousDataRef = useRef<string>("");
   const [content, setContent] = useState<string>(section?.content || "");
@@ -47,7 +49,7 @@ export default function IntroForm({
     }
   }, [content, section?.content, debouncedSync]);
 
-  const CHARACTER_LIMIT = 400;
+  const CHARACTER_LIMIT = 800;
 
   const getCharacterCount = (text: string): number => {
     return text.length;
@@ -55,6 +57,13 @@ export default function IntroForm({
 
   const isOverLimit = content.length > CHARACTER_LIMIT;
   const remainingChars = CHARACTER_LIMIT - content.length;
+
+  // Notify parent component about validation state
+  useEffect(() => {
+    if (onValidationChange) {
+      onValidationChange(!isOverLimit);
+    }
+  }, [isOverLimit, onValidationChange]);
 
   return (
     <div className="ml-auto mr-8 max-w-xl space-y-6">
@@ -88,12 +97,17 @@ export default function IntroForm({
         <div className="flex flex-col items-center gap-3 pt-6">
           <Button
             disableAnimation
-            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out border-0 font-medium min-w-40"
+            className={`${
+              isOverLimit
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
+            } text-white shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out border-0 font-medium min-w-40`}
+            isDisabled={isOverLimit || isLoading}
             isLoading={isLoading}
             size="md"
             onPress={onNext}
           >
-            {isLoading ? "Saving..." : "Proceed to Body"}
+            {isLoading ? "Saving..." : isOverLimit ? "Character limit exceeded" : "Proceed to Body"}
           </Button>
         </div>
       </form>

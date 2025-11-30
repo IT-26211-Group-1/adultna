@@ -47,6 +47,12 @@ export function CoverLetterEditorContainer() {
     null,
   );
 
+  // Form validation states
+  const [isIntroValid, setIsIntroValid] = useState(true);
+  const [isBodyValid, setIsBodyValid] = useState(true);
+  const [isConclusionValid, setIsConclusionValid] = useState(true);
+  const [isSignatureValid, setIsSignatureValid] = useState(true);
+
   const lastSavedDataRef = useRef<SectionData>({});
   const lastApiDataRef = useRef<string>("");
 
@@ -251,8 +257,24 @@ export function CoverLetterEditorContainer() {
   const isFirstSection = currentSectionIndex === 0;
   const isLastSection = currentSectionIndex === sectionOrder.length - 1;
 
+  // Check if current section is valid
+  const getCurrentSectionValidation = () => {
+    switch (currentSectionType) {
+      case "intro":
+        return isIntroValid;
+      case "body":
+        return isBodyValid;
+      case "conclusion":
+        return isConclusionValid;
+      case "signature":
+        return isSignatureValid;
+      default:
+        return true;
+    }
+  };
+
   const handleNext = async () => {
-    if (isLastSection) return;
+    if (isLastSection || !getCurrentSectionValidation()) return;
 
     // Save before moving to next section
     if (hasDataChanged()) {
@@ -299,7 +321,7 @@ export function CoverLetterEditorContainer() {
   };
 
   const handleSectionTabClick = async (sectionType: SectionType) => {
-    if (sectionType === currentSectionType) return;
+    if (sectionType === currentSectionType || !getCurrentSectionValidation()) return;
 
     // Save before switching sections
     if (hasDataChanged()) {
@@ -371,9 +393,9 @@ export function CoverLetterEditorContainer() {
                       </div>
                       <button
                         onClick={handleNext}
-                        disabled={isLastSection || isSaving}
+                        disabled={isLastSection || isSaving || !getCurrentSectionValidation()}
                         className={`p-1 rounded transition-colors ${
-                          !isLastSection && !isSaving
+                          !isLastSection && !isSaving && getCurrentSectionValidation()
                             ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
                             : "text-gray-300 cursor-not-allowed"
                         }`}
@@ -413,7 +435,7 @@ export function CoverLetterEditorContainer() {
                                 ? "bg-emerald-600 text-white shadow-md"
                                 : "bg-gray-200 text-gray-400 hover:bg-gray-300"
                             }`}
-                            disabled={isSaving}
+                            disabled={isSaving || !getCurrentSectionValidation()}
                             type="button"
                             onClick={() => handleSectionTabClick(sectionType)}
                             aria-label={`Go to step ${index + 1}: ${sectionType}`}
@@ -428,7 +450,7 @@ export function CoverLetterEditorContainer() {
                                 ? "text-emerald-700 font-medium"
                                 : "text-gray-500 hover:text-gray-700"
                             }`}
-                            disabled={isSaving}
+                            disabled={isSaving || !getCurrentSectionValidation()}
                             type="button"
                             onClick={() => handleSectionTabClick(sectionType)}
                             aria-label={`Go to step ${index + 1}: ${sectionType}`}
@@ -459,6 +481,7 @@ export function CoverLetterEditorContainer() {
                 onSectionChange={handleIntroChange}
                 onNext={handleNext}
                 isLoading={isSaving}
+                onValidationChange={setIsIntroValid}
               />
             )}
             {currentSectionType === "body" && (
@@ -468,6 +491,7 @@ export function CoverLetterEditorContainer() {
                 onNext={handleNext}
                 onPrevious={handlePrevious}
                 isLoading={isSaving}
+                onValidationChange={setIsBodyValid}
               />
             )}
             {currentSectionType === "conclusion" && (
@@ -477,6 +501,7 @@ export function CoverLetterEditorContainer() {
                 onNext={handleNext}
                 onPrevious={handlePrevious}
                 isLoading={isSaving}
+                onValidationChange={setIsConclusionValid}
               />
             )}
             {currentSectionType === "signature" && (
@@ -486,6 +511,7 @@ export function CoverLetterEditorContainer() {
                 onFinish={handleFinish}
                 onPrevious={handlePrevious}
                 isLoading={isSaving}
+                onValidationChange={setIsSignatureValid}
               />
             )}
 
