@@ -61,6 +61,11 @@ export default function ResumeEditor() {
       setResumeData(mapApiResumeToResumeData(existingResume));
       setLoadedResumeId(existingResume.id);
       setCurrentResumeId(existingResume.id);
+
+      // Check if resume is already completed and show completion page
+      if (existingResume.status === "completed") {
+        setIsCompleted(true);
+      }
     }
   }, [existingResume, loadedResumeId]);
 
@@ -515,7 +520,8 @@ export default function ResumeEditor() {
 
         {/* Form Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-6 flex justify-center pl-16">
+            <div className="w-full max-w-lg">
             <ProgressStepper
               currentStep={currentStep}
               setCurrentStep={setStep}
@@ -543,23 +549,24 @@ export default function ResumeEditor() {
                 onValidationChange={handleValidationChange}
               />
             )}
-          </div>
-          <div className="p-6 flex-shrink-0">
-            <div className="max-w-sm mx-auto space-y-4">
+
+            {/* Buttons Section */}
+            <div className="p-4 flex-shrink-0">
+              <div className="max-w-xs mx-auto space-y-3">
               <LoadingButton
-                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ease-out disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-lg focus:ring-4 focus:ring-emerald-500/30 focus:outline-none"
+                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-out disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-md focus:ring-2 focus:ring-emerald-500/30 focus:outline-none text-sm"
                 disabled={!isFormValid || !isCurrentFormValid}
                 onClick={handleContinue}
               >
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-1.5">
                   <span>{isLastStep ? "Complete Resume" : "Continue"}</span>
                   {!isLastStep && (
-                    <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   )}
                   {isLastStep && (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
@@ -568,17 +575,19 @@ export default function ResumeEditor() {
 
               {!isContactForm && !isLastStep && (
                 <button
-                  className="w-full text-sm text-gray-500 hover:text-emerald-600 transition-all duration-200 hover:underline hover:underline-offset-2 py-2 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full text-xs text-gray-500 hover:text-emerald-600 transition-all duration-200 hover:underline hover:underline-offset-2 py-1.5 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
                   onClick={handleSkip}
                 >
                   <div className="flex items-center justify-center gap-1">
                     <span>Skip {currentStepTitle}</span>
-                    <svg className="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
                 </button>
               )}
+              </div>
+            </div>
             </div>
           </div>
         </div>

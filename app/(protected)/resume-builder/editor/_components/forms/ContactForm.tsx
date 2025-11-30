@@ -138,17 +138,17 @@ export default function ContactForm({
   }, [resumeData, form]);
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Contact Information</h2>
-        <p className="text-sm text-default-500">
+    <div className="mx-auto max-w-lg space-y-4">
+      <div className="space-y-1 text-center">
+        <h2 className="text-xl font-semibold">Contact Information</h2>
+        <p className="text-xs text-default-500">
           Let&apos;s kick things off! Start by entering your name, email, and
           phone number to set up your resume and keep everything organized.
         </p>
       </div>
 
-      <form className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+      <form className="space-y-2.5">
+        <div className="grid grid-cols-2 gap-2">
           <Input
             {...form.register("firstName")}
             isRequired
@@ -156,6 +156,7 @@ export default function ContactForm({
             isInvalid={!!form.formState.errors.firstName}
             label="First Name"
             placeholder="Enter your First Name"
+            size="sm"
           />
 
           <Input
@@ -165,6 +166,7 @@ export default function ContactForm({
             isInvalid={!!form.formState.errors.lastName}
             label="Last Name"
             placeholder="Enter your Last Name"
+            size="sm"
           />
         </div>
 
@@ -176,6 +178,7 @@ export default function ContactForm({
               isInvalid={!!form.formState.errors.jobPosition}
               label="Job Position"
               placeholder="e.g., Senior Software Engineer"
+              size="sm"
             />
             <button
               type="button"
@@ -194,13 +197,14 @@ export default function ContactForm({
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <Input
             {...form.register("city")}
             errorMessage={form.formState.errors.city?.message as string}
             isInvalid={!!form.formState.errors.city}
             label="City"
             placeholder="Enter your City"
+            size="sm"
           />
 
           <Input
@@ -209,6 +213,7 @@ export default function ContactForm({
             isInvalid={!!form.formState.errors.region}
             label="Region"
             placeholder="Enter your Region"
+            size="sm"
           />
         </div>
 
@@ -220,6 +225,7 @@ export default function ContactForm({
           label="Email"
           placeholder="email@email.com"
           type="email"
+          size="sm"
         />
 
         <Input
@@ -236,6 +242,7 @@ export default function ContactForm({
             </div>
           }
           type="tel"
+          size="sm"
           onInput={(e) => {
             const target = e.target as HTMLInputElement;
 
@@ -291,6 +298,7 @@ export default function ContactForm({
                     value={value}
                     onBlur={field.onBlur}
                     onChange={handleChange}
+                    size="sm"
                   />
                 );
               }}
@@ -320,6 +328,7 @@ export default function ContactForm({
               isInvalid={!!form.formState.errors.linkedin}
               label="LinkedIn"
               placeholder="https://linkedin.com/in/yourprofile"
+              size="sm"
             />
             <button
               type="button"
@@ -346,6 +355,7 @@ export default function ContactForm({
               isInvalid={!!form.formState.errors.portfolio}
               label="Portfolio"
               placeholder="https://yourportfolio.com"
+              size="sm"
             />
             <button
               type="button"
@@ -365,10 +375,10 @@ export default function ContactForm({
         )}
 
         {/* Optional Fields Section */}
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-1.5 mt-3">
           {!showJobPosition && (
             <button
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="px-2 py-0.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowJobPosition(true)}
             >
@@ -377,7 +387,7 @@ export default function ContactForm({
           )}
           {!showBirthDate && (
             <button
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="px-2 py-0.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowBirthDate(true)}
             >
@@ -386,7 +396,7 @@ export default function ContactForm({
           )}
           {!showLinkedIn && (
             <button
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="px-2 py-0.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowLinkedIn(true)}
             >
@@ -395,7 +405,7 @@ export default function ContactForm({
           )}
           {!showPortfolio && (
             <button
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="px-2 py-0.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowPortfolio(true)}
             >
