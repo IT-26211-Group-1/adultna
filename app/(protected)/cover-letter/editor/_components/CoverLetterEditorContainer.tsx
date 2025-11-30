@@ -340,56 +340,58 @@ export function CoverLetterEditorContainer() {
             <div className="mb-8">
               {/* Mobile Design (< 640px) */}
               <div className="sm:hidden">
-                <div className="text-center mb-4">
-                  <div className="text-sm font-medium text-gray-600 mb-1">
-                    Step {currentSectionIndex + 1} of {sectionOrder.length}
-                  </div>
-                  <div className="flex items-center justify-center gap-3">
-                    <button
-                      onClick={handlePrevious}
-                      disabled={isFirstSection || isSaving}
-                      className={`p-1 rounded transition-colors ${
-                        !isFirstSection && !isSaving
-                          ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
-                          : "text-gray-300 cursor-not-allowed"
-                      }`}
-                      aria-label="Previous step"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <div className="text-lg font-semibold text-emerald-700 px-2">
-                      {currentSectionType.charAt(0).toUpperCase() + currentSectionType.slice(1)}
+                <div className="ml-auto mr-8 max-w-xl">
+                  <div className="text-center mb-4">
+                    <div className="text-sm font-medium text-gray-600 mb-1">
+                      Step {currentSectionIndex + 1} of {sectionOrder.length}
                     </div>
-                    <button
-                      onClick={handleNext}
-                      disabled={isLastSection || isSaving}
-                      className={`p-1 rounded transition-colors ${
-                        !isLastSection && !isSaving
-                          ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
-                          : "text-gray-300 cursor-not-allowed"
-                      }`}
-                      aria-label="Next step"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        onClick={handlePrevious}
+                        disabled={isFirstSection || isSaving}
+                        className={`p-1 rounded transition-colors ${
+                          !isFirstSection && !isSaving
+                            ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                            : "text-gray-300 cursor-not-allowed"
+                        }`}
+                        aria-label="Previous step"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <div className="text-lg font-semibold text-emerald-700 px-2">
+                        {currentSectionType.charAt(0).toUpperCase() + currentSectionType.slice(1)}
+                      </div>
+                      <button
+                        onClick={handleNext}
+                        disabled={isLastSection || isSaving}
+                        className={`p-1 rounded transition-colors ${
+                          !isLastSection && !isSaving
+                            ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                            : "text-gray-300 cursor-not-allowed"
+                        }`}
+                        aria-label="Next step"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
-                {/* Linear Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${((currentSectionIndex + 1) / sectionOrder.length) * 100}%` }}
-                  />
+                  {/* Linear Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${((currentSectionIndex + 1) / sectionOrder.length) * 100}%` }}
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Desktop Design (≥ 640px) */}
-              <div className="hidden sm:flex items-center justify-center">
-                <div className="flex items-center">
+              <div className="hidden sm:block ml-auto mr-8 max-w-xl">
+                <div className="flex items-center justify-center">
                   {sectionOrder.map((sectionType, index) => {
                     const isActive = currentSectionType === sectionType;
                     const isCompleted = sectionOrder.indexOf(currentSectionType) > index;

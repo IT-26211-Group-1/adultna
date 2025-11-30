@@ -49,12 +49,17 @@ export default function BodyForm({
     }
   }, [content, section?.content, debouncedSync]);
 
+  const CHARACTER_LIMIT = 1200;
+
   const getCharacterCount = (text: string): number => {
     return text.length;
   };
 
+  const isOverLimit = content.length > CHARACTER_LIMIT;
+  const remainingChars = CHARACTER_LIMIT - content.length;
+
   return (
-    <div className="mx-auto max-w-xl space-y-6">
+    <div className="ml-auto mr-8 max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold mt-4">Body</h2>
         <p className="text-sm text-default-500">
@@ -66,8 +71,15 @@ export default function BodyForm({
       <form className="space-y-6">
         <Textarea
           disableAnimation
-          description={`${content ? `${getCharacterCount(content)} characters` : "Write the main body"}`}
+          description={
+            content
+              ? `${getCharacterCount(content)}/${CHARACTER_LIMIT} characters ${remainingChars >= 0 ? `(${remainingChars} remaining)` : `(${Math.abs(remainingChars)} over limit)`}`
+              : `Write the main body (max ${CHARACTER_LIMIT} characters)`
+          }
+          errorMessage={isOverLimit ? "Body is too long. Please shorten your text." : ""}
+          isInvalid={isOverLimit}
           label="Body"
+          maxLength={CHARACTER_LIMIT + 100} // Allow some overflow for editing
           minRows={10}
           placeholder="Write your main body content here. Include relevant experience, skills, and why you're interested in the role..."
           value={content}

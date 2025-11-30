@@ -43,12 +43,17 @@ export default function SignatureForm({
     }
   }, [content, section?.content, debouncedSync]);
 
+  const CHARACTER_LIMIT = 100;
+
   const getCharacterCount = (text: string): number => {
     return text.length;
   };
 
+  const isOverLimit = content.length > CHARACTER_LIMIT;
+  const remainingChars = CHARACTER_LIMIT - content.length;
+
   return (
-    <div className="mx-auto max-w-xl space-y-6">
+    <div className="ml-auto mr-8 max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold mt-4">Signature</h2>
         <p className="text-sm text-default-500">
@@ -60,8 +65,15 @@ export default function SignatureForm({
       <form className="space-y-6">
         <Textarea
           disableAnimation
-          description={`${content ? `${getCharacterCount(content)} characters` : "Write your signature"}`}
+          description={
+            content
+              ? `${getCharacterCount(content)}/${CHARACTER_LIMIT} characters ${remainingChars >= 0 ? `(${remainingChars} remaining)` : `(${Math.abs(remainingChars)} over limit)`}`
+              : `Write your signature (max ${CHARACTER_LIMIT} characters)`
+          }
+          errorMessage={isOverLimit ? "Signature is too long. Please shorten your text." : ""}
+          isInvalid={isOverLimit}
           label="Signature"
+          maxLength={CHARACTER_LIMIT + 20} // Allow some overflow for editing
           minRows={3}
           placeholder="Sincerely,&#10;[Your Name]"
           value={content}

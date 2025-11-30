@@ -47,12 +47,17 @@ export default function IntroForm({
     }
   }, [content, section?.content, debouncedSync]);
 
+  const CHARACTER_LIMIT = 400;
+
   const getCharacterCount = (text: string): number => {
     return text.length;
   };
 
+  const isOverLimit = content.length > CHARACTER_LIMIT;
+  const remainingChars = CHARACTER_LIMIT - content.length;
+
   return (
-    <div className="mx-auto max-w-xl space-y-6">
+    <div className="ml-auto mr-8 max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold mt-4">Introduction</h2>
         <p className="text-sm text-default-500">
@@ -64,8 +69,15 @@ export default function IntroForm({
       <form className="space-y-6">
         <Textarea
           disableAnimation
-          description={`${content ? `${getCharacterCount(content)} characters` : "Write your introduction"}`}
+          description={
+            content
+              ? `${getCharacterCount(content)}/${CHARACTER_LIMIT} characters ${remainingChars >= 0 ? `(${remainingChars} remaining)` : `(${Math.abs(remainingChars)} over limit)`}`
+              : `Write your introduction (max ${CHARACTER_LIMIT} characters)`
+          }
+          errorMessage={isOverLimit ? "Introduction is too long. Please shorten your text." : ""}
+          isInvalid={isOverLimit}
           label="Introduction"
+          maxLength={CHARACTER_LIMIT + 50} // Allow some overflow for editing
           minRows={6}
           placeholder="Dear Hiring Manager,&#10;&#10;I am writing to express my strong interest in..."
           value={content}
