@@ -30,36 +30,6 @@ const INITIAL_SUGGESTIONS = [
   "How do I apply for SSS?",
 ];
 
-const STORAGE_KEY = "gabay_conversations";
-
-interface StoredConversation {
-  id: string;
-  title: string;
-  messages: ConversationMessage[];
-  lastActivityAt: string;
-}
-
-// Helper to sync localStorage
-const saveToStorage = (conversations: StoredConversation[]) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
-  } catch (e) {
-    logger.error("Failed to save conversations", e);
-  }
-};
-
-const loadFromStorage = (): StoredConversation[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-
-    return stored ? JSON.parse(stored) : [];
-  } catch (e) {
-    logger.error("Failed to load conversations", e);
-
-    return [];
-  }
-};
-
 export function ChatContainer() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -277,15 +247,16 @@ export function ChatContainer() {
     }
   }, [showOptionsMenu]);
 
-  const conversationList: Conversation[] = conversationsData?.pages
-    .flatMap((page) => page.conversations)
-    .map((c) => ({
-      id: c.sessionId,
-      title: c.topic,
-      lastMessage: c.lastMessage,
-      lastActivityAt: new Date(c.startedAt),
-      messageCount: c.messageCount,
-    })) || [];
+  const conversationList: Conversation[] =
+    conversationsData?.pages
+      .flatMap((page) => page.conversations)
+      .map((c) => ({
+        id: c.sessionId,
+        title: c.topic,
+        lastMessage: c.lastMessage,
+        lastActivityAt: new Date(c.startedAt),
+        messageCount: c.messageCount,
+      })) || [];
 
   // Get current conversation title
   const currentConversation = conversationList.find(

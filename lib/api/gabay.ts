@@ -1,7 +1,11 @@
 "use client";
 
 import { ApiClient } from "../apiClient";
-import type { ChatRequest, ChatResponse, GetConversationsResponse } from "@/types/gabay";
+import type {
+  ChatRequest,
+  ChatResponse,
+  GetConversationsResponse,
+} from "@/types/gabay";
 
 export const gabayApi = {
   /**

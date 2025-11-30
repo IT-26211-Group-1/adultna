@@ -100,7 +100,8 @@ export function useCreateMilestone() {
     onError: (error: any) => {
       addToast({
         title: "Error",
-        description: error?.response?.data?.message || "Failed to create milestone",
+        description:
+          error?.response?.data?.message || "Failed to create milestone",
         color: "danger",
       });
     },
