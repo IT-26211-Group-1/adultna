@@ -167,6 +167,10 @@ export function CoverLetterEditorContainer() {
     };
   }, [hasUnsavedChanges]);
 
+  const handleTitleChange = useCallback((newTitle: string) => {
+    setTitle(newTitle);
+  }, []);
+
   const handleSectionChange = useCallback(
     (sectionType: SectionType, content: string) => {
       setSectionData((prev) => {
@@ -330,6 +334,8 @@ export function CoverLetterEditorContainer() {
         isSaving={isSaving}
         title={title}
         onExport={handleDownloadPDF}
+        coverLetterId={coverLetterId}
+        onTitleChange={handleTitleChange}
       />
 
       <div className="flex flex-1 overflow-hidden">

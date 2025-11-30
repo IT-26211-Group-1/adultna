@@ -1,9 +1,10 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import { Download } from "lucide-react";
+import { Download, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
-import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import InlineEditableTitle from "./InlineEditableTitle";
 
 type EditorHeaderProps = {
   title: string;
@@ -12,6 +13,8 @@ type EditorHeaderProps = {
   hasUnsavedChanges: boolean;
   onExport: () => void;
   isExporting: boolean;
+  coverLetterId: string;
+  onTitleChange: (newTitle: string) => void;
 };
 
 export default function EditorHeader({
@@ -21,6 +24,8 @@ export default function EditorHeader({
   hasUnsavedChanges,
   onExport,
   isExporting,
+  coverLetterId,
+  onTitleChange,
 }: EditorHeaderProps) {
   return (
     <div className="bg-transparent w-full flex-shrink-0">
@@ -28,13 +33,30 @@ export default function EditorHeader({
         <div className="max-w-7xl mx-auto">
           <div className="mb-3 sm:mb-3 sm:flex sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
-              <Breadcrumb
-                items={[
-                  { label: "Dashboard", href: "/dashboard" },
-                  { label: "Cover Letter", href: "/cover-letter" },
-                  { label: title || "Untitled Cover Letter", current: true },
-                ]}
-              />
+              <nav
+                aria-label="Breadcrumb"
+                className="flex items-center space-x-1 text-sm overflow-x-auto scrollbar-hide"
+              >
+                <Link
+                  href="/dashboard"
+                  className="text-gray-500 hover:text-gray-700 transition-colors duration-200 whitespace-nowrap"
+                >
+                  Dashboard
+                </Link>
+                <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                <Link
+                  href="/cover-letter"
+                  className="text-gray-500 hover:text-gray-700 transition-colors duration-200 whitespace-nowrap"
+                >
+                  Cover Letter
+                </Link>
+                <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                <InlineEditableTitle
+                  coverLetterId={coverLetterId}
+                  currentTitle={title}
+                  onTitleChange={onTitleChange}
+                />
+              </nav>
               <SaveStatusIndicator
                 hasSaved={hasSaved}
                 hasUnsavedChanges={hasUnsavedChanges}
