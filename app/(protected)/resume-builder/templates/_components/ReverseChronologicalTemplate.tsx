@@ -11,6 +11,24 @@ export default function ReverseChronologicalTemplate({
 }: TemplateProps) {
   const accentColor = resumeData.colorHex || "#FF8C00";
 
+  const formatBirthDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day,
+        ).toLocaleDateString("en-US");
+      }
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-US");
+    } catch {
+      return "Invalid Date";
+    }
+  };
+
   return (
     <div className="bg-white text-black">
       {/* Name - First name black, Last name accent color */}
@@ -64,7 +82,7 @@ export default function ReverseChronologicalTemplate({
             </>
           )}
           {resumeData.birthDate && (
-            <span>Born: {formatDate(resumeData.birthDate)}</span>
+            <span>Born: {formatBirthDate(resumeData.birthDate)}</span>
           )}
         </div>
       </div>

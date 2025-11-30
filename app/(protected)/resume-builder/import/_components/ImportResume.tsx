@@ -1,8 +1,8 @@
 "use client";
 
 import NextLink from "next/link";
-import { Card, CardBody, Button } from "@heroui/react";
-import { Files, FileText, Loader2 } from "lucide-react";
+import { Card, CardBody, CardFooter, Button } from "@heroui/react";
+import { Files, FileText, Loader2, Check } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,7 @@ import { ResumeData } from "@/validators/resumeSchema";
 import { ApiClient } from "@/lib/apiClient";
 import { logger } from "@/lib/logger";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { cn } from "@/lib/utils";
 
 export function ImportResume() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export function ImportResume() {
     useState<ExtractedResumeData | null>(null);
   const [showTemplateSelection, setShowTemplateSelection] = useState(false);
   const [isCreatingResume, setIsCreatingResume] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const importResume = useImportResume();
@@ -174,14 +176,18 @@ export function ImportResume() {
     }
   };
 
-  const handleTemplateSelect = async (templateId: string) => {
-    if (!extractedData) return;
+  const handleTemplateSelect = (templateId: string) => {
+    setSelectedTemplateId(templateId);
+  };
+
+  const handleContinueWithTemplate = async () => {
+    if (!extractedData || !selectedTemplateId) return;
 
     setIsCreatingResume(true);
 
     try {
       const resume = await createResumeFromImport.mutateAsync({
-        templateId,
+        templateId: selectedTemplateId,
         extractedData,
       });
 
@@ -387,7 +393,7 @@ export function ImportResume() {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center">
             <div className="w-full max-w-6xl">
-              <h1 className="text-3xl font-semibold font-playfair text-center mb-2">
+              <h1 className="text-3xl font-semibold text-gray-900 tracking-tight text-center mb-2">
                 Choose a template for your resume
               </h1>
               <p className="text-center text-gray-500 mb-8">
@@ -396,41 +402,115 @@ export function ImportResume() {
               </p>
 
               {/* Template Selection Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {TEMPLATE_LIST.map((template) => (
-                  <Card
-                    key={template.id}
-                    disableAnimation
-                    isPressable
-                    className="border-2 border-gray-200 hover:border-green-500 hover:shadow-lg transition-all"
-                    isDisabled={isCreatingResume}
-                    onPress={() => handleTemplateSelect(template.id)}
-                  >
-                    <CardBody className="p-4">
-                      <div className="mb-3">
-                        {extractedData && (
-                          <ResumePreview
-                            resumeData={convertToResumeData(
-                              extractedData,
-                              template.id,
-                              template.colorScheme,
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {TEMPLATE_LIST.map((template) => {
+                  const isSelected = selectedTemplateId === template.id;
+                  return (
+                    <Card
+                      key={template.id}
+                      disableAnimation
+                      shadow="none"
+                      isPressable
+                      className={cn(
+                        "cursor-pointer transition-all duration-300 ease-in-out border-2 hover:border-adult-green hover:bg-gray-50/50",
+                        isSelected ? "border-adult-green bg-adult-green/5" : "border-gray-200",
+                      )}
+                      isDisabled={isCreatingResume}
+                      onPress={() => handleTemplateSelect(template.id)}
+                    >
+                      <CardBody className="p-3 space-y-3">
+                        {/* Header */}
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <div className="flex-1">
+                            <h3 className="text-base font-semibold text-gray-900 mb-2">
+                              {template.name}
+                            </h3>
+                            <p className="text-xs text-gray-600">{template.description}</p>
+                          </div>
+                          {isSelected && (
+                            <div className="h-5 w-5 rounded-full bg-adult-green flex items-center justify-center flex-shrink-0">
+                              <Check className="h-3 w-3 text-white" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Template Preview */}
+                        <div className="aspect-[8.5/11] bg-white rounded-md overflow-hidden relative border-2 border-gray-100 transition-all duration-300 pointer-events-none">
+                          <div
+                            className="w-full h-full pointer-events-none"
+                            style={{
+                              transform: "scale(0.5)",
+                              transformOrigin: "top left",
+                              width: "200%",
+                              height: "200%",
+                            }}
+                          >
+                            {extractedData && (
+                              <ResumePreview
+                                resumeData={convertToResumeData(
+                                  extractedData,
+                                  template.id,
+                                  template.colorScheme,
+                                )}
+                              />
                             )}
-                          />
-                        )}
-                      </div>
-                      <h3 className="font-semibold text-lg mb-1">
-                        {template.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-3">
-                        {template.description}
-                      </p>
-                      <div className="w-full px-4 py-2 bg-success-50 text-success-700 rounded-lg text-center text-sm font-medium">
-                        {isCreatingResume ? "Creating..." : "Select Template"}
-                      </div>
-                    </CardBody>
-                  </Card>
-                ))}
+                          </div>
+                        </div>
+                      </CardBody>
+
+                      <CardFooter className="p-3 pt-0">
+                        <div className="w-full flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className="h-3 w-3 rounded-full border border-gray-300"
+                              style={{ backgroundColor: template.colorScheme }}
+                            />
+                            <span className="text-gray-600 text-xs capitalize">
+                              {template.layoutType.replace("-", " ")}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {template.fontFamily.split(",")[0]}
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
               </div>
+
+              {/* Continue Button - Sticky on mobile, normal on desktop */}
+              {selectedTemplateId && (
+                <div className="pt-8">
+                  {/* Desktop Button */}
+                  <div className="hidden sm:flex justify-center">
+                    <Button
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-12 py-3 shadow-lg"
+                      size="lg"
+                      radius="md"
+                      isDisabled={isCreatingResume}
+                      isLoading={isCreatingResume}
+                      onPress={handleContinueWithTemplate}
+                    >
+                      {isCreatingResume ? "Creating Resume..." : `Continue with ${TEMPLATE_LIST.find(t => t.id === selectedTemplateId)?.name}`}
+                    </Button>
+                  </div>
+
+                  {/* Mobile Sticky Button */}
+                  <div className="sm:hidden fixed bottom-6 left-4 right-4 z-50">
+                    <Button
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 shadow-xl"
+                      size="lg"
+                      radius="md"
+                      isDisabled={isCreatingResume}
+                      isLoading={isCreatingResume}
+                      onPress={handleContinueWithTemplate}
+                    >
+                      {isCreatingResume ? "Creating..." : `Continue with ${TEMPLATE_LIST.find(t => t.id === selectedTemplateId)?.name}`}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Back Button */}
               <div className="mt-8 text-center">
@@ -441,6 +521,7 @@ export function ImportResume() {
                     setShowTemplateSelection(false);
                     setExtractedData(null);
                     setUploadedFile(null);
+                    setSelectedTemplateId(null);
                   }}
                 >
                   ← Upload a different resume

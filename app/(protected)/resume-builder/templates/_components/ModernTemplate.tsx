@@ -8,7 +8,7 @@ import {
   Briefcase,
   GraduationCap,
   Link,
-  Calendar,
+  Cake,
 } from "lucide-react";
 
 type TemplateProps = {
@@ -21,6 +21,24 @@ export default function ModernTemplate({
   formatDate,
 }: TemplateProps) {
   const accentColor = resumeData.colorHex || "#4A5568";
+
+  const formatBirthDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day,
+        ).toLocaleDateString("en-US");
+      }
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-US");
+    } catch {
+      return "Invalid Date";
+    }
+  };
 
   return (
     <div className="bg-white flex h-full text-black">
@@ -72,8 +90,8 @@ export default function ModernTemplate({
             )}
             {resumeData.birthDate && (
               <div className="flex items-start gap-2">
-                <Calendar className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                <span>{formatDate(resumeData.birthDate)}</span>
+                <Cake className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{formatBirthDate(resumeData.birthDate)}</span>
               </div>
             )}
           </div>

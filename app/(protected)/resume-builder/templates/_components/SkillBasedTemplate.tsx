@@ -11,6 +11,24 @@ export default function SkillBasedTemplate({
 }: TemplateProps) {
   const accentColor = resumeData.colorHex || "#A64D79";
 
+  const formatBirthDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day,
+        ).toLocaleDateString("en-US");
+      }
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-US");
+    } catch {
+      return "Invalid Date";
+    }
+  };
+
   return (
     <div className="bg-white p-12 space-y-5 text-black">
       {/* Name - Centered, Burgundy/Magenta */}
@@ -71,7 +89,7 @@ export default function SkillBasedTemplate({
           <span> | </span>
         )}
         {resumeData.birthDate && (
-          <span>Born: {formatDate(resumeData.birthDate)}</span>
+          <span>Born: {formatBirthDate(resumeData.birthDate)}</span>
         )}
       </div>
 
