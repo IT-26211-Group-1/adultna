@@ -5,6 +5,7 @@ import type {
   ChatRequest,
   ChatResponse,
   GetConversationsResponse,
+  GetMessagesResponse,
 } from "@/types/gabay";
 
 export const gabayApi = {
@@ -34,6 +35,17 @@ export const gabayApi = {
   ): Promise<GetConversationsResponse> => {
     return ApiClient.get<GetConversationsResponse>(
       `/gabay/conversations?limit=${limit}&offset=${offset}`,
+    );
+  },
+
+  /**
+   * Get messages for a specific conversation
+   */
+  getConversationMessages: async (
+    sessionId: string,
+  ): Promise<GetMessagesResponse> => {
+    return ApiClient.get<GetMessagesResponse>(
+      `/gabay/messages?sessionId=${sessionId}`,
     );
   },
 };

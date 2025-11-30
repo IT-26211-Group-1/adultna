@@ -50,3 +50,12 @@ export interface GetConversationsResponse {
   hasMore: boolean;
   total: number;
 }
+
+export interface GetMessagesResponse {
+  success: boolean;
+  messages: Array<{
+    role: "user" | "assistant";
+    content: string;
+    timestamp: string;
+  }>;
+}

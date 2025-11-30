@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MenuIcon, Trash2Icon, MoreVerticalIcon } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
@@ -12,6 +12,7 @@ import {
   useGabayChat,
   useRenameConversation,
   useGabayConversations,
+  useGabayConversationMessages,
 } from "@/hooks/queries/useGabayQueries";
 import {
   Modal,
@@ -38,8 +39,6 @@ export function ChatContainer() {
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     () => searchParams.get("c") || undefined,
   );
-  const [messages, setMessages] = useState<ConversationMessage[]>([]);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,6 +51,30 @@ export function ChatContainer() {
     isFetchingNextPage,
     refetch: refetchConversations,
   } = useGabayConversations();
+
+  const { data: loadedMessages } =
+    useGabayConversationMessages(currentSessionId);
+
+  const [localMessages, setLocalMessages] = useState<ConversationMessage[]>(
+    [],
+  );
+
+  const messages = useMemo(() => {
+    if (localMessages.length > 0) {
+      return localMessages;
+    }
+
+    if (loadedMessages && loadedMessages.length > 0) {
+      return loadedMessages.map((m, index) => ({
+        id: `${currentSessionId}-${index}`,
+        role: m.role,
+        content: m.content,
+        timestamp: new Date(m.timestamp),
+      }));
+    }
+
+    return [];
+  }, [localMessages, loadedMessages, currentSessionId]);
 
   const messagesEndCallback = useCallback((node: HTMLDivElement | null) => {
     if (node) {
@@ -83,9 +106,7 @@ export function ChatContainer() {
           timestamp: new Date(),
         };
 
-        const newMessages = [...messages, aiMessage];
-
-        setMessages(newMessages);
+        setLocalMessages((prev) => [...prev, aiMessage]);
 
         const sessionId = response.sessionId || currentSessionId;
 
@@ -114,7 +135,7 @@ export function ChatContainer() {
           error: response.blockReason || response.error,
         };
 
-        setMessages((prev) => [...prev, errorMessage]);
+        setLocalMessages((prev) => [...prev, errorMessage]);
       }
     },
     onError: (error) => {
@@ -126,7 +147,7 @@ export function ChatContainer() {
         error: error.message,
       };
 
-      setMessages((prev) => [...prev, errorMessage]);
+      setLocalMessages((prev) => [...prev, errorMessage]);
     },
   });
 
@@ -139,15 +160,13 @@ export function ChatContainer() {
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, userMessage]);
+      setLocalMessages((prev) => [...prev, userMessage]);
 
-      // Send to API with sessionId (backend loads history from S3)
       sendMessage({
         message: text,
         sessionId: currentSessionId,
       });
 
-      // Auto-scroll
       requestAnimationFrame(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       });
@@ -157,15 +176,14 @@ export function ChatContainer() {
 
   const handleNewConversation = useCallback(() => {
     setCurrentSessionId(undefined);
-    setMessages([]);
-    // Remove conversation parameter from URL
+    setLocalMessages([]);
     router.push("/ai-gabay");
   }, [router]);
 
   const handleSelectConversation = useCallback(
     (id: string) => {
       setCurrentSessionId(id);
-      setMessages([]);
+      setLocalMessages([]);
       router.push(`/ai-gabay?c=${id}`);
     },
     [router],
@@ -219,10 +237,10 @@ export function ChatContainer() {
     if (urlConversationId !== currentSessionId) {
       if (urlConversationId) {
         setCurrentSessionId(urlConversationId);
-        setMessages([]);
+        setLocalMessages([]);
       } else {
         setCurrentSessionId(undefined);
-        setMessages([]);
+        setLocalMessages([]);
       }
     }
   }, [searchParams, currentSessionId]);
