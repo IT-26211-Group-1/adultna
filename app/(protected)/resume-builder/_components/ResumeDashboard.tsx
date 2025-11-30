@@ -196,7 +196,7 @@ export function ResumeDashboard() {
               <div className="text-center mt-6">
                 <p className="text-xs text-gray-500">
                   Need help choosing?{" "}
-                  <span className="text-emerald-600 font-medium cursor-pointer hover:underline">
+                  <span className="text-emerald-600 font-medium">
                     Build a Resume
                   </span>{" "}
                   is perfect for beginners.

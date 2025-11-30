@@ -281,7 +281,7 @@ export function ImportResume() {
                 Don&apos;t have a resume yet?{" "}
                 <NextLink
                   className="text-green-700 hover:text-green-800 underline"
-                  href="/resume-builder/editor"
+                  href="/resume-builder/templates"
                 >
                   build one
                 </NextLink>{" "}

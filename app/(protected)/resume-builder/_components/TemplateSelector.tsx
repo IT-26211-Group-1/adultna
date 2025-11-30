@@ -6,6 +6,7 @@ import { Button } from "@heroui/react";
 import { TemplateGrid } from "./TemplateGrid";
 import { TemplateSelectorHeader } from "./TemplateSelectorHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import NextLink from "next/link";
 
 interface TemplateSelectorProps {
   onSelect: (templateId: TemplateId) => void;
@@ -62,6 +63,27 @@ export function TemplateSelector({
           templates={TEMPLATE_LIST}
           onSelectTemplate={handleSelect}
         />
+
+        {/* Terms and Conditions */}
+        <div className="text-center">
+          <p className="text-sm text-gray-500">
+            By clicking any of the above options, you agree to our{" "}
+            <NextLink
+              className="text-green-700 hover:text-green-800 underline"
+              href="/terms"
+            >
+              Terms and Conditions
+            </NextLink>{" "}
+            and{" "}
+            <NextLink
+              className="text-green-700 hover:text-green-800 underline"
+              href="/privacy"
+            >
+              Privacy Policy
+            </NextLink>
+            .
+          </p>
+        </div>
 
         {/* Continue Button - Sticky on mobile, normal on desktop */}
         <div className="pt-8">
