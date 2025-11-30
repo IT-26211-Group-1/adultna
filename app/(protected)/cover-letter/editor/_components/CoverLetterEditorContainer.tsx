@@ -17,6 +17,7 @@ import BodyForm from "./forms/BodyForm";
 import ConclusionForm from "./forms/ConclusionForm";
 import SignatureForm from "./forms/SignatureForm";
 import { useState, useEffect, useRef, useCallback } from "react";
+import React from "react";
 import { Button } from "@heroui/react";
 
 type SectionData = {
@@ -41,6 +42,7 @@ export function CoverLetterEditorContainer() {
   const [sectionData, setSectionData] = useState<SectionData>({});
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
   const [title, setTitle] = useState(coverLetter?.title || "");
   const [loadedCoverLetterId, setLoadedCoverLetterId] = useState<string | null>(
     null,
@@ -116,8 +118,15 @@ export function CoverLetterEditorContainer() {
       updateSections.mutate(sectionsToUpdate, {
         onSuccess: () => {
           setHasUnsavedChanges(false);
+          setHasSaved(true);
           lastSavedDataRef.current = { ...dataToSave };
           setIsSaving(false);
+
+          // Reset hasSaved after 3 seconds
+          setTimeout(() => {
+            setHasSaved(false);
+          }, 3000);
+
           resolve();
         },
         onError: (error) => {
@@ -222,9 +231,6 @@ export function CoverLetterEditorContainer() {
     }
   };
 
-  const handleTitleChange = (newTitle: string) => {
-    setTitle(newTitle);
-  };
 
   const sortedSections =
     Object.values(sectionData)
@@ -315,45 +321,128 @@ export function CoverLetterEditorContainer() {
     );
   }
 
-  const handleBack = () => {
-    router.push("/cover-letter");
-  };
 
   return (
     <div className="h-dvh bg-white flex flex-col overflow-hidden">
       <EditorHeader
-        coverLetterId={coverLetterId}
-        hasSaved={false}
+        hasSaved={hasSaved}
         hasUnsavedChanges={hasUnsavedChanges}
         isExporting={exportCoverLetter.isPending}
         isSaving={isSaving}
         title={title}
-        onBack={handleBack}
         onExport={handleDownloadPDF}
-        onTitleChange={handleTitleChange}
       />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Form Editor */}
-        <div className="w-1/2 border-r border-gray-200 overflow-y-auto p-8">
+        <div className="w-1/2 overflow-y-auto p-8">
           <div className="space-y-6">
-            {/* Section Selector */}
-            <div className="flex gap-2 mb-8">
-              {sectionOrder.map((sectionType) => (
-                <button
-                  key={sectionType}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    currentSectionType === sectionType
-                      ? "bg-adult-green text-white hover:bg-[#0e4634]"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  disabled={isSaving}
-                  type="button"
-                  onClick={() => handleSectionTabClick(sectionType)}
-                >
-                  {sectionType.charAt(0).toUpperCase() + sectionType.slice(1)}
-                </button>
-              ))}
+            {/* Section Selector - Responsive Progress Stepper */}
+            <div className="mb-8">
+              {/* Mobile Design (< 640px) */}
+              <div className="sm:hidden">
+                <div className="text-center mb-4">
+                  <div className="text-sm font-medium text-gray-600 mb-1">
+                    Step {currentSectionIndex + 1} of {sectionOrder.length}
+                  </div>
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      onClick={handlePrevious}
+                      disabled={isFirstSection || isSaving}
+                      className={`p-1 rounded transition-colors ${
+                        !isFirstSection && !isSaving
+                          ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                          : "text-gray-300 cursor-not-allowed"
+                      }`}
+                      aria-label="Previous step"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <div className="text-lg font-semibold text-emerald-700 px-2">
+                      {currentSectionType.charAt(0).toUpperCase() + currentSectionType.slice(1)}
+                    </div>
+                    <button
+                      onClick={handleNext}
+                      disabled={isLastSection || isSaving}
+                      className={`p-1 rounded transition-colors ${
+                        !isLastSection && !isSaving
+                          ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                          : "text-gray-300 cursor-not-allowed"
+                      }`}
+                      aria-label="Next step"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {/* Linear Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${((currentSectionIndex + 1) / sectionOrder.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Desktop Design (≥ 640px) */}
+              <div className="hidden sm:flex items-center justify-center">
+                <div className="flex items-center">
+                  {sectionOrder.map((sectionType, index) => {
+                    const isActive = currentSectionType === sectionType;
+                    const isCompleted = sectionOrder.indexOf(currentSectionType) > index;
+
+                    return (
+                      <React.Fragment key={sectionType}>
+                        {/* Step Container with Fixed Width */}
+                        <div className="flex flex-col items-center w-20">
+                          {/* Step Circle */}
+                          <button
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 mb-2 ${
+                              isActive || isCompleted
+                                ? "bg-emerald-600 text-white shadow-md"
+                                : "bg-gray-200 text-gray-400 hover:bg-gray-300"
+                            }`}
+                            disabled={isSaving}
+                            type="button"
+                            onClick={() => handleSectionTabClick(sectionType)}
+                            aria-label={`Go to step ${index + 1}: ${sectionType}`}
+                          >
+                            {index + 1}
+                          </button>
+
+                          {/* Step Label */}
+                          <button
+                            className={`text-xs text-center leading-tight transition-colors w-full ${
+                              isActive
+                                ? "text-emerald-700 font-medium"
+                                : "text-gray-500 hover:text-gray-700"
+                            }`}
+                            disabled={isSaving}
+                            type="button"
+                            onClick={() => handleSectionTabClick(sectionType)}
+                            aria-label={`Go to step ${index + 1}: ${sectionType}`}
+                          >
+                            {sectionType.charAt(0).toUpperCase() + sectionType.slice(1)}
+                          </button>
+                        </div>
+
+                        {/* Connector Line */}
+                        {index < sectionOrder.length - 1 && (
+                          <div
+                            className={`h-0.5 w-8 transition-all duration-200 ${
+                              index < currentSectionIndex ? "bg-emerald-600" : "bg-gray-200"
+                            }`}
+                          />
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* Form Component */}
@@ -397,7 +486,7 @@ export function CoverLetterEditorContainer() {
               {isLastSection ? (
                 <Button
                   disableAnimation
-                  className="bg-adult-green hover:bg-[#0e4634] text-white"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
                   isDisabled={isSaving}
                   isLoading={isSaving}
                   size="lg"
@@ -408,7 +497,7 @@ export function CoverLetterEditorContainer() {
               ) : (
                 <Button
                   disableAnimation
-                  className="bg-adult-green hover:bg-[#0e4634] text-white"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
                   isDisabled={isSaving}
                   isLoading={isSaving}
                   size="lg"
@@ -422,12 +511,8 @@ export function CoverLetterEditorContainer() {
         </div>
 
         {/* Right: Preview */}
-        <div className="w-1/2 bg-gray-50 overflow-y-auto p-8">
-          <div className="flex items-start justify-center">
-            <div className="w-full max-w-[500px]">
-              <CoverLetterPreview sections={sortedSections} />
-            </div>
-          </div>
+        <div className="w-1/2 overflow-y-auto p-8">
+          <CoverLetterPreview sections={sortedSections} />
         </div>
       </div>
     </div>
