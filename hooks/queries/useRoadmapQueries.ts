@@ -8,7 +8,7 @@ import {
   CreateMilestonePayload,
   UpdateMilestonePayload,
 } from "@/types/roadmap";
-import { useToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 
 type ServiceResponse<T = any> = {
   success: boolean;
@@ -78,7 +78,6 @@ export function useMilestone(milestoneId?: string) {
 
 export function useCreateMilestone() {
   const queryClient = useQueryClient();
-  const { addToast } = useToast();
 
   return useMutation({
     mutationFn: async (data: CreateMilestonePayload) => {
