@@ -148,17 +148,17 @@ export default function SummaryForm({
   };
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Professional Summary</h2>
-        <p className="text-sm text-default-500">
+    <div className="mx-auto max-w-xl space-y-3">
+      <div className="space-y-1 text-center mb-6">
+        <h2 className="text-xl font-semibold">Professional Summary</h2>
+        <p className="text-xs text-default-500">
           {hasRequiredDataForAI
             ? "Write a short introduction for your resume. Don't worry! Our AI will help you out and give recommendations."
             : "Write a short introduction for your resume. Add a job position and work experience to unlock AI-powered suggestions."}
         </p>
       </div>
 
-      <form className="space-y-6">
+      <form className="space-y-3">
         {hasRequiredDataForAI && (
           <div className="flex justify-center">
             <Button
@@ -181,6 +181,7 @@ export default function SummaryForm({
           isInvalid={!!form.formState.errors.summary}
           label="Professional Summary"
           minRows={4}
+          size="sm"
           value={summaryText}
           onChange={(e) => setSummaryText(e.target.value)}
         />

@@ -139,7 +139,7 @@ export default function ContactForm({
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <div className="space-y-1 text-center">
+      <div className="space-y-1 text-center mb-6">
         <h2 className="text-xl font-semibold">Contact Information</h2>
         <p className="text-xs text-default-500">
           Let&apos;s kick things off! Start by entering your name, email, and

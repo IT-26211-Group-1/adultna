@@ -520,7 +520,7 @@ export default function ResumeEditor() {
 
         {/* Form Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-6 flex justify-center pl-16">
+          <div className="flex-1 overflow-y-auto p-6 flex justify-center md:pl-16">
             <div className="w-full max-w-lg">
             <ProgressStepper
               currentStep={currentStep}

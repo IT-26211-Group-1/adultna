@@ -286,16 +286,16 @@ export default function WorkExperienceForm({
   };
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Work Experience</h2>
-        <p className="text-sm text-default-500">
+    <div className="mx-auto max-w-xl space-y-3">
+      <div className="space-y-1 text-center mb-6">
+        <h2 className="text-xl font-semibold">Work Experience</h2>
+        <p className="text-xs text-default-500">
           Start with your most recent job, then add as many work experiences as
           you like.
         </p>
       </div>
 
-      <form className="space-y-6">
+      <form className="space-y-3">
         <DndContext
           collisionDetection={closestCenter}
           modifiers={[restrictToVerticalAxis]}
@@ -327,12 +327,13 @@ export default function WorkExperienceForm({
         <div className="flex justify-center">
           <Button
             color="primary"
-            startContent={<PlusIcon size={16} />}
+            startContent={<PlusIcon size={14} />}
             type="button"
             variant="flat"
+            size="sm"
             onClick={addWorkExperience}
           >
-            Add Another Work Experience
+            <span className="text-xs">Add Another Work Experience</span>
           </Button>
         </div>
       </form>
@@ -378,7 +379,7 @@ function WorkExperienceItem({
     <div
       ref={setNodeRef}
       className={cn(
-        "space-y-3 p-4 border border-default-200 rounded-lg bg-background",
+        "space-y-2 p-4 bg-white rounded-lg shadow-sm border border-gray-100",
         isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
       )}
       style={{
@@ -387,10 +388,10 @@ function WorkExperienceItem({
       }}
     >
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Work Experience {index + 1}</h3>
+        <h3 className="text-sm font-medium mb-4">Work Experience {index + 1}</h3>
         <div className="flex items-center gap-2">
           <GripHorizontal
-            className="size-5 cursor-grab text-default-400 hover:text-default-600 focus:outline-none"
+            className="size-3.5 cursor-grab text-default-400 hover:text-default-600 focus:outline-none"
             {...attributes}
             {...listeners}
           />
@@ -402,7 +403,7 @@ function WorkExperienceItem({
             variant="flat"
             onClick={() => remove(index)}
           >
-            <TrashIcon size={16} />
+            <TrashIcon size={12} />
           </Button>
         </div>
       </div>
@@ -416,6 +417,7 @@ function WorkExperienceItem({
         isInvalid={!!form.formState.errors.workExperiences?.[index]?.jobTitle}
         label="Job Title"
         placeholder="Software Engineer"
+        size="sm"
       />
 
       <Input
@@ -427,9 +429,10 @@ function WorkExperienceItem({
         isInvalid={!!form.formState.errors.workExperiences?.[index]?.employer}
         label="Employer"
         placeholder="Company Name"
+        size="sm"
       />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <Controller
           control={form.control}
           name={`workExperiences.${index}.startDate`}
@@ -462,6 +465,7 @@ function WorkExperienceItem({
                 value={value}
                 onBlur={field.onBlur}
                 onChange={handleChange}
+                size="sm"
               />
             );
           }}
@@ -501,6 +505,7 @@ function WorkExperienceItem({
                 value={value}
                 onBlur={field.onBlur}
                 onChange={handleChange}
+                size="sm"
               />
             );
           }}
@@ -518,25 +523,26 @@ function WorkExperienceItem({
             value,
           )
         }
+        size="sm"
       >
-        Currently working here?
+        <span className="text-xs">Currently working here?</span>
       </Checkbox>
 
-      <div className="space-y-2">
+      <div className="space-y-1 mt-3">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium">
+          <span className="text-xs font-medium">
             Job Description <span className="text-danger">*</span>
           </span>
           <Button
             color="success"
             isLoading={isGeneratingAI}
             size="sm"
-            startContent={isGeneratingAI ? null : <Sparkles size={16} />}
+            startContent={isGeneratingAI ? null : <Sparkles size={12} />}
             type="button"
             variant="flat"
             onClick={() => onGenerateAI(index)}
           >
-            {isGeneratingAI ? "Generating..." : "Get AI Suggestions"}
+            <span className="text-xs">{isGeneratingAI ? "Generating..." : "Get AI Suggestions"}</span>
           </Button>
         </div>
         <Controller
@@ -547,11 +553,12 @@ function WorkExperienceItem({
               description={`${field.value ? `${getWordCount(field.value || "")} / 100 words` : "Maximum 100 words"}`}
               errorMessage={fieldState.error?.message}
               isInvalid={!!fieldState.error}
-              minRows={4}
+              minRows={2}
               placeholder="Describe your key responsibilities and achievements..."
               value={field.value || ""}
               onBlur={field.onBlur}
               onChange={field.onChange}
+              size="sm"
             />
           )}
         />
@@ -561,7 +568,7 @@ function WorkExperienceItem({
       {aiSuggestions.length > 0 && (
         <AISuggestions
           buttonType="plus"
-          className="mt-4"
+          className="mt-3"
           subtitle="Our AI is here to help, but your final resume is up to you — review before submitting!"
           suggestions={aiSuggestions}
           title={

@@ -32,7 +32,7 @@ export function ResumeDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-bl from-emerald-50/30 via-yellow-50/20 to-gray-50">
       {/* Breadcrumb - Always visible except when showing results */}
       {!showingResults && (
         <div
