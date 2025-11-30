@@ -93,7 +93,7 @@ export default function ReviewContainer() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Left: Cover Letter Preview */}
             <div>
-              <div className="bg-gray-50 rounded-2xl p-6 overflow-auto max-h-[80vh]">
+              <div className="bg-gray-50 rounded-2xl p-6 h-[80vh] overflow-hidden">
                 <CoverLetterPreview sections={sortedSections} />
               </div>
             </div>

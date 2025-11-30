@@ -24,17 +24,17 @@ export function CoverLetterPreview({
       ref={containerRef}
       className={cn("w-full h-full flex items-center justify-center p-4", className)}
     >
-      <div className="h-full aspect-[210/297] max-w-full">
+      <div className="w-full h-full max-w-full max-h-full">
         <Card className="shadow-lg w-full h-full rounded-lg overflow-hidden">
           <CardBody
             className={cn("p-0", !width && "invisible")}
             style={{
-              zoom: width ? Math.min(width / 650, (containerRef.current?.clientHeight || 800) / 842) : 1,
+              zoom: width && containerRef.current ? Math.min((width - 32) / 650, (containerRef.current.clientHeight - 32) / 842) : 0.5,
             }}
           >
-            <div className="w-[650px] h-[842px] bg-white p-16 pb-24 space-y-6 text-gray-900">
+            <div className="w-[650px] h-[842px] bg-white p-12 pb-16 space-y-4 text-gray-900">
               {/* Cover Letter Content */}
-              <div className="space-y-6 text-sm leading-relaxed pb-16">
+              <div className="space-y-4 text-xs leading-relaxed pb-12">
                 {sections.length > 0 ? (
                   sections.map((section) => {
                     const sectionLabels = {
