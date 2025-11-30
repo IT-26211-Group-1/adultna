@@ -3,10 +3,10 @@
 import { Button } from "@heroui/react";
 import ResumePreview from "./ResumePreview";
 import { ResumeData } from "@/validators/resumeSchema";
-import { useExportResume } from "@/hooks/queries/useResumeQueries";
+import { useExportResume, useSaveToFilebox } from "@/hooks/queries/useResumeQueries";
 import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
-import { Download, FileText, Users } from "lucide-react";
+import { Download, FileText, Users, Save } from "lucide-react";
 
 interface CompletedProps {
   resumeData: ResumeData;
@@ -16,6 +16,7 @@ interface CompletedProps {
 export default function Completed({ resumeData }: CompletedProps) {
   const router = useRouter();
   const exportResume = useExportResume();
+  const saveToFilebox = useSaveToFilebox(resumeData.id || "");
 
   const handleExportToPDF = () => {
     if (resumeData.id) {
@@ -45,6 +46,21 @@ export default function Completed({ resumeData }: CompletedProps) {
 
   const handleStartNewResume = () => {
     router.push("/resume-builder");
+  };
+
+  const handleSaveToFilebox = async () => {
+    if (resumeData.id) {
+      try {
+        await saveToFilebox.mutateAsync();
+        addToast({
+          title: "Saved to Filebox!",
+          description: "Your resume has been saved",
+          color: "success",
+        });
+      } catch {
+        addToast({ title: "Failed to save to Filebox", color: "danger" });
+      }
+    }
   };
 
   return (
@@ -105,6 +121,23 @@ export default function Completed({ resumeData }: CompletedProps) {
                     <div className="flex items-center justify-center gap-2">
                       <FileText className="h-4 w-4" />
                       Edit Resume
+                    </div>
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 bg-emerald-100 text-emerald-600 rounded-lg font-medium transition-all duration-200 hover:bg-emerald-200 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    onClick={handleSaveToFilebox}
+                    disabled={saveToFilebox.isPending}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      {saveToFilebox.isPending ? (
+                        "Saving..."
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4" />
+                          Save to Filebox
+                        </>
+                      )}
                     </div>
                   </button>
 
