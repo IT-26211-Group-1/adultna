@@ -362,13 +362,13 @@ export function CoverLetterEditorContainer() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Form Editor */}
-        <div className="w-1/2 overflow-y-auto p-8">
-          <div className="space-y-6">
+        <div className="w-full lg:w-1/2 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <div className="space-y-6 max-w-2xl mx-auto lg:max-w-none lg:mx-0">
             {/* Section Selector - Responsive Progress Stepper */}
             <div className="mb-8">
               {/* Mobile Design (< 640px) */}
               <div className="sm:hidden">
-                <div className="ml-auto mr-8 max-w-xl">
+                <div className="mx-auto max-w-xl">
                   <div className="text-center mb-4">
                     <div className="text-sm font-medium text-gray-600 mb-1">
                       Step {currentSectionIndex + 1} of {sectionOrder.length}
@@ -518,8 +518,8 @@ export function CoverLetterEditorContainer() {
           </div>
         </div>
 
-        {/* Right: Preview */}
-        <div className="w-1/2 overflow-y-auto">
+        {/* Right: Preview - Hidden on mobile and tablets */}
+        <div className="hidden lg:block w-1/2 overflow-y-auto">
           <CoverLetterPreview sections={sortedSections} className="w-full" />
         </div>
       </div>

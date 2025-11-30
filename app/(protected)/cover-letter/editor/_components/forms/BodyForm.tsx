@@ -68,7 +68,7 @@ export default function BodyForm({
   }, [isOverLimit, onValidationChange]);
 
   return (
-    <div className="ml-auto mr-8 max-w-xl space-y-6">
+    <div className="mx-auto max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">
         <h2 className="text-2xl font-semibold mt-4">Body</h2>
         <p className="text-sm text-default-500">
