@@ -246,6 +246,29 @@ export default function HybridTemplate({
           </div>
         </div>
       )}
+
+      {/* Certifications */}
+      {resumeData.certificates && resumeData.certificates.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div
+              className="w-6 h-6 flex items-center justify-center text-white rounded"
+              style={{ backgroundColor: accentColor }}
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+            </div>
+            <h2 className="text-sm font-bold">Certifications</h2>
+          </div>
+          <ul className="text-xs list-disc pl-5 space-y-1">
+            {resumeData.certificates.map((cert, index) => (
+              <li key={index}>
+                <span className="font-semibold">{cert.certificate}</span>
+                {cert.issuingOrganization && ` - ${cert.issuingOrganization}`}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
