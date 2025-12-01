@@ -8,6 +8,7 @@ import {
   CreateMilestonePayload,
   UpdateMilestonePayload,
 } from "@/types/roadmap";
+import { addToast } from "@heroui/toast";
 
 type ServiceResponse<T = any> = {
   success: boolean;
@@ -89,6 +90,19 @@ export function useCreateMilestone() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.roadmap.milestones(),
+      });
+      addToast({
+        title: "Success",
+        description: "Milestone created successfully!",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error?.response?.data?.message || "Failed to create milestone",
+        color: "danger",
       });
     },
   });

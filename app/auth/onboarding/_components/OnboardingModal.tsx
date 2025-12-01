@@ -245,7 +245,8 @@ export default function OnboardingModal({
                 ← Back
               </button>
             )}
-            {currentStep === STEPS.PRIORITIES && (
+            {(currentStep === STEPS.LIFE_STAGE ||
+              currentStep === STEPS.PRIORITIES) && (
               <button
                 className="text-gray-500 hover:text-gray-700 px-4 py-2 font-medium transition-colors rounded-full text-sm"
                 onClick={skipStep}
@@ -314,10 +315,10 @@ export default function OnboardingModal({
   // Desktop/Tablet Layout (screens >= 640px)
   const renderDesktopLayout = () => (
     <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center p-4 lg:p-6 z-50">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] lg:overflow-hidden overflow-y-auto">
         <div className="flex flex-col lg:flex-row h-full min-h-[700px]">
           {/* Left Panel - Visual Storytelling */}
-          <div className="hidden sm:flex lg:w-1/2 bg-gradient-to-br from-yellow-50 via-teal-50 to-blue-50 p-6 sm:p-8 lg:p-12 flex-col justify-center relative overflow-hidden">
+          <div className="hidden sm:flex lg:w-1/2 bg-gradient-to-br from-yellow-50 via-teal-50 to-blue-50 p-6 sm:p-8 lg:p-12 flex-col justify-center relative overflow-y-auto">
             {/* Background decoration */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-teal-200/30 rounded-full blur-xl" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200/30 rounded-full blur-xl" />
@@ -442,7 +443,7 @@ export default function OnboardingModal({
           </div>
 
           {/* Right Panel - Interactive Content */}
-          <div className="w-full lg:w-1/2 flex flex-col p-4 sm:p-6 lg:p-8 xl:p-12 overflow-y-auto">
+          <div className="w-full lg:w-1/2 flex flex-col p-4 sm:p-6 lg:p-8 xl:p-12 overflow-y-auto min-h-0">
             {/* Content Area */}
             <div className="flex-1 flex flex-col items-center pt-4 sm:pt-8 lg:pt-16">
               <div className="w-full max-w-md px-4 sm:px-0">
@@ -472,7 +473,8 @@ export default function OnboardingModal({
                     </span>
                   </button>
                 )}
-                {currentStep === STEPS.PRIORITIES && (
+                {(currentStep === STEPS.LIFE_STAGE ||
+                  currentStep === STEPS.PRIORITIES) && (
                   <button
                     className="text-gray-500 hover:text-gray-700 px-4 sm:px-6 py-2 sm:py-3 font-medium transition-colors rounded-full text-sm sm:text-base"
                     onClick={skipStep}

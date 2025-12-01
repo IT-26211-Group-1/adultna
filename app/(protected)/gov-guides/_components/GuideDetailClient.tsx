@@ -3,8 +3,10 @@
 import { useState } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useGovGuide } from "@/hooks/queries/useGovGuidesQueries";
-import { useTranslatedGuide } from "@/hooks/queries/useTranslatedGuide";
+import {
+  useGovGuide,
+  useTranslatedGuide,
+} from "@/hooks/queries/useGovGuidesQueries";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, Tab } from "@heroui/tabs";
 import { ChevronRight } from "lucide-react";
@@ -15,6 +17,8 @@ import CompleteGuideTab from "./CompleteGuideTab";
 import RequirementsTab from "./RequirementsTab";
 import GeneralTipsTab from "./GeneralTipsTab";
 import GuideDetailSkeleton from "./GuideDetailSkeleton";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { DownloadPdfButton } from "./DownloadPdfButton";
 
 type GuideDetailClientProps = {
   slug: string;
@@ -24,11 +28,8 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   const router = useRouter();
   const { language } = useLanguage();
   const { guide, isLoading, error } = useGovGuide(slug);
-  const {
-    data: translatedGuide,
-    isLoading: isTranslating,
-    error: translationError,
-  } = useTranslatedGuide(slug, language);
+  const { data: translatedGuide, isLoading: isTranslating } =
+    useTranslatedGuide(slug, language);
   const [selectedTab, setSelectedTab] = useState("complete-guide");
 
   const displayGuide =
@@ -61,25 +62,37 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
 
   return (
     <>
-      {/* Breadcrumb Navigation */}
-      <nav className="flex items-center space-x-2 mb-6 text-sm text-gray-500">
-        <Link
-          className="hover:text-adult-green transition-colors"
-          href="/gov-guides"
-        >
-          Government Guides
-        </Link>
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-gray-900 font-medium truncate">
-          {displayGuide.title}
-        </span>
-      </nav>
+      {/* Breadcrumb Navigation with Language Switcher */}
+      <div className="flex items-center justify-between mb-6">
+        <nav className="flex items-center space-x-2 text-sm text-gray-500">
+          <Link
+            className="hover:text-adult-green transition-colors"
+            href="/gov-guides"
+          >
+            Government Guides
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-gray-900 font-medium truncate">
+            {displayGuide?.title}
+          </span>
+        </nav>
+        <LanguageSwitcher />
+      </div>
 
       <hr className="border-gray-200 mb-6" />
 
-      <h1 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight leading-tight">
-        {displayGuide.title}
-      </h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight leading-tight">
+          {displayGuide?.title}
+        </h1>
+        <DownloadPdfButton slug={slug} />
+      </div>
+
+      {language === "fil" && isTranslating && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">Translating to Filipino...</p>
+        </div>
+      )}
 
       <GuideInfoCards guide={displayGuide} />
 
@@ -99,17 +112,19 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
         >
           <Tab key="complete-guide" title="Complete Guide">
             <div className="py-4">
-              <CompleteGuideTab steps={displayGuide.steps || []} />
+              <CompleteGuideTab steps={displayGuide?.steps || []} />
             </div>
           </Tab>
           <Tab key="requirements" title="Requirements">
             <div className="py-4">
-              <RequirementsTab requirements={displayGuide.requirements || []} />
+              <RequirementsTab
+                requirements={displayGuide?.requirements || []}
+              />
             </div>
           </Tab>
           <Tab key="general-tips" title="General Tips">
             <div className="py-4">
-              <GeneralTipsTab tips={displayGuide.generalTips} />
+              <GeneralTipsTab tips={displayGuide?.generalTips} />
             </div>
           </Tab>
         </Tabs>

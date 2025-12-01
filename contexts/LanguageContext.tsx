@@ -1,141 +1,166 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  type ReactNode,
+} from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-type Language = "en" | "fil";
+export type Language = "en" | "fil";
+
+type TranslationData = Record<string, any>;
 
 type LanguageContextType = {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
-};
-
-const translations = {
-  en: {
-    common: {
-      submit: "Submit",
-      cancel: "Cancel",
-      save: "Save",
-      edit: "Edit",
-      delete: "Delete",
-      loading: "Loading...",
-      error: "An error occurred",
-      success: "Success!",
-      search: "Search",
-      categories: "Categories",
-      all: "All",
-    },
-    nav: {
-      dashboard: "Dashboard",
-      guides: "Guides",
-      profile: "Profile",
-      settings: "Settings",
-    },
-    guides: {
-      hero: {
-        title: "Your guide to adulting in the Philippines!",
-        description:
-          "Hey there, future adult! We know government processes can feel overwhelming, but we've got your back. Find step-by-step guides that make getting your documents simple and stress-free.",
-      },
-      search: {
-        placeholder: "Search guides...",
-      },
-      category: {
-        all: "All Categories",
-        identification: "Identification",
-        "civil-registration": "Civil Registration",
-        "permits-licenses": "Permits & Licenses",
-        "social-services": "Social Services",
-        "tax-related": "Tax Related",
-        legal: "Legal",
-        other: "Other",
-      },
-      noResults: "No guides found matching your criteria.",
-      noGuides: "No guides available at the moment.",
-    },
-  },
-  fil: {
-    common: {
-      submit: "Isumite",
-      cancel: "Kanselahin",
-      save: "I-save",
-      edit: "Baguhin",
-      delete: "Tanggalin",
-      loading: "Naglo-load...",
-      error: "May naganap na error",
-      success: "Tagumpay!",
-      search: "Maghanap",
-      categories: "Mga Kategorya",
-      all: "Lahat",
-    },
-    nav: {
-      dashboard: "Dashboard",
-      guides: "Mga Gabay",
-      profile: "Profile",
-      settings: "Mga Setting",
-    },
-    guides: {
-      hero: {
-        title: "Ang iyong gabay sa pagiging adulto sa Pilipinas!",
-        description:
-          "Kamusta, future adult! Alam namin na ang mga proseso ng gobyerno ay maaaring nakakabigla, ngunit nandito kami para sa iyo. Maghanap ng step-by-step na gabay na ginagawang simple at walang stress ang pagkuha ng iyong mga dokumento.",
-      },
-      search: {
-        placeholder: "Maghanap ng mga gabay...",
-      },
-      category: {
-        all: "Lahat ng Kategorya",
-        identification: "Pagkakakilanlan",
-        "civil-registration": "Rehistro Sibil",
-        "permits-licenses": "Mga Permit at Lisensya",
-        "social-services": "Mga Serbisyong Panlipunan",
-        "tax-related": "Kaugnay ng Buwis",
-        legal: "Legal",
-        other: "Iba Pa",
-      },
-      noResults: "Walang nahanap na gabay na tumutugma sa iyong criteria.",
-      noGuides: "Walang available na gabay sa ngayon.",
-    },
-  },
+  isLoading: boolean;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 );
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
-  const [mounted, setMounted] = useState(false);
+const STORAGE_KEY = "adultna_language";
+
+const loadTranslations = async (lang: Language): Promise<TranslationData> => {
+  try {
+    const translations = await import(`@/translations/${lang}.json`);
+
+    return translations.default;
+  } catch (error) {
+    console.error(`Failed to load translations for ${lang}:`, error);
+
+    return {};
+  }
+};
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const getInitialLanguage = (): Language => {
+    if (typeof window === "undefined") return "en";
+
+    const urlLang = searchParams?.get("lang");
+
+    if (urlLang === "en" || urlLang === "fil") {
+      return urlLang;
+    }
+
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+
+      if (stored === "en" || stored === "fil") {
+        return stored;
+      }
+    } catch (error) {
+      console.error("Failed to read language from localStorage:", error);
+    }
+
+    return "en";
+  };
+
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+  const [translations, setTranslations] = useState<TranslationData | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
-    const savedLanguage = localStorage.getItem("adultna-language") as Language;
-    if (savedLanguage && (savedLanguage === "en" || savedLanguage === "fil")) {
-      setLanguageState(savedLanguage);
+    const urlLang = searchParams?.get("lang");
+    const isGovGuidesPage = pathname?.startsWith("/gov-guides");
+
+    if (urlLang === "en" || urlLang === "fil") {
+      if (urlLang !== language) {
+        setLanguageState(urlLang);
+      }
+    } else if (isGovGuidesPage && pathname && typeof window !== "undefined") {
+      const params = new URLSearchParams(searchParams?.toString());
+
+      params.set("lang", language);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
-  }, []);
+  }, [searchParams, language, pathname, router]);
 
-  const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
-    if (mounted) {
-      localStorage.setItem("adultna-language", lang);
-    }
-  };
+  useEffect(() => {
+    let isMounted = true;
 
-  const t = (key: string): string => {
-    const keys = key.split(".");
-    let value: any = translations[language];
+    const loadLanguageData = async () => {
+      setIsLoading(true);
+      const data = await loadTranslations(language);
 
-    for (const k of keys) {
-      value = value?.[k];
-      if (value === undefined) break;
-    }
+      if (isMounted) {
+        setTranslations(data);
+        setIsLoading(false);
+      }
+    };
 
-    return value || key;
-  };
+    loadLanguageData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [language]);
+
+  const setLanguage = useCallback(
+    (lang: Language) => {
+      setLanguageState(lang);
+
+      try {
+        localStorage.setItem(STORAGE_KEY, lang);
+      } catch (error) {
+        console.error("Failed to save language to localStorage:", error);
+      }
+
+      const isGovGuidesPage = pathname?.startsWith("/gov-guides");
+
+      if (isGovGuidesPage && pathname) {
+        const params = new URLSearchParams(searchParams?.toString());
+
+        params.set("lang", lang);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    },
+    [pathname, searchParams, router]
+  );
+
+  const t = useMemo(
+    () =>
+      (key: string): string => {
+        if (isLoading || !translations) return key;
+
+        const keys = key.split(".");
+        let value: any = translations;
+
+        for (const k of keys) {
+          value = value?.[k];
+          if (value === undefined) break;
+        }
+
+        return value || key;
+      },
+    [translations, isLoading]
+  );
+
+  const value = useMemo(
+    () => ({
+      language,
+      setLanguage,
+      t,
+      isLoading,
+    }),
+    [language, setLanguage, t, isLoading]
+  );
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
@@ -143,8 +168,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
+
   if (context === undefined) {
     throw new Error("useLanguage must be used within a LanguageProvider");
   }
+
   return context;
 }
