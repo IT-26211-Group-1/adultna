@@ -14,11 +14,14 @@ export default function HeroBreadcrumbs({
   setCurrentStep,
 }: BreadcrumbsProps) {
   return (
-    <div className="flex justify-center">
-      <Breadcrumbs onAction={(key) => setCurrentStep(key as string)}>
+    <div className="flex justify-center overflow-x-auto px-4 sm:px-0">
+      <Breadcrumbs
+        className="whitespace-nowrap"
+        onAction={(key) => setCurrentStep(key as string)}
+      >
         {steps.map((step) => (
           <BreadcrumbItem key={step.key} isCurrent={step.key === currentStep}>
-            {step.title}
+            <span className="text-xs sm:text-sm">{step.title}</span>
           </BreadcrumbItem>
         ))}
       </Breadcrumbs>

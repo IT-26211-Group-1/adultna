@@ -167,9 +167,6 @@ export default function OnboardingModal({
                       preserveAspectRatio: "xMidYMid slice",
                     }}
                     style={{ width: "100%", height: "100%" }}
-                    onDOMLoaded={() =>
-                      console.log("Animation loaded successfully")
-                    }
                   />
                 </Suspense>
               </div>

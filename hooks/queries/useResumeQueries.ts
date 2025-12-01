@@ -567,8 +567,9 @@ export type ATSGradingResult = {
 export function useGradeResume() {
   return useMutation({
     mutationFn: async (data: {
-      fileKey: string;
-      fileName: string;
+      fileKey?: string;
+      fileName?: string;
+      resumeId?: string;
       jobDescription?: string;
     }) => {
       const response = await ApiClient.post<{

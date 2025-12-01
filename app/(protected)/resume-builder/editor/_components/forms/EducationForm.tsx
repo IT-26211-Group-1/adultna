@@ -171,16 +171,16 @@ export default function EducationForm({
   };
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Education</h2>
-        <p className="text-sm text-default-500">
+    <div className="mx-auto max-w-xl space-y-3">
+      <div className="space-y-1 text-center mb-6">
+        <h2 className="text-xl font-semibold">Education</h2>
+        <p className="text-xs text-default-500">
           Where did you attend college or university? Add as many educational
           experiences as you like.
         </p>
       </div>
 
-      <form className="space-y-6">
+      <form className="space-y-3">
         <DndContext
           collisionDetection={closestCenter}
           modifiers={[restrictToVerticalAxis]}
@@ -206,12 +206,13 @@ export default function EducationForm({
         <div className="flex justify-center">
           <Button
             color="primary"
-            startContent={<PlusIcon size={16} />}
+            size="sm"
+            startContent={<PlusIcon size={14} />}
             type="button"
             variant="flat"
             onClick={addEducation}
           >
-            Add Another Education
+            <span className="text-xs">Add Another Education</span>
           </Button>
         </div>
       </form>
@@ -240,7 +241,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
     <div
       ref={setNodeRef}
       className={cn(
-        "space-y-3 p-4 border border-default-200 rounded-lg bg-background",
+        "space-y-2 p-3 bg-white rounded-lg shadow-sm border border-gray-100",
         isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
       )}
       style={{
@@ -249,7 +250,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
       }}
     >
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Education {index + 1}</h3>
+        <h3 className="text-sm font-medium mb-2">Education {index + 1}</h3>
         <div className="flex items-center gap-2">
           <GripHorizontal
             className="size-5 cursor-grab text-default-400 hover:text-default-600 focus:outline-none"
@@ -264,7 +265,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
             variant="flat"
             onClick={() => remove(index)}
           >
-            <TrashIcon size={16} />
+            <TrashIcon size={12} />
           </Button>
         </div>
       </div>
@@ -278,6 +279,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
         isInvalid={!!form.formState.errors.educationItems?.[index]?.schoolName}
         label="School Name"
         placeholder="University of the Philippines"
+        size="sm"
       />
 
       <Input
@@ -290,9 +292,10 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
         }
         label="School Location"
         placeholder="Quezon City, Philippines"
+        size="sm"
       />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <Input
           {...form.register(`educationItems.${index}.degree`)}
           isRequired
@@ -302,11 +305,11 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
           isInvalid={!!form.formState.errors.educationItems?.[index]?.degree}
           label="Degree"
           placeholder="Bachelor of Science"
+          size="sm"
         />
 
         <Input
           {...form.register(`educationItems.${index}.fieldOfStudy`)}
-          isRequired
           errorMessage={
             form.formState.errors.educationItems?.[index]?.fieldOfStudy?.message
           }
@@ -315,10 +318,11 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
           }
           label="Field of Study"
           placeholder="Computer Science"
+          size="sm"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <Controller
           control={form.control}
           name={`educationItems.${index}.graduationDate`}
@@ -342,6 +346,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
                 label="Graduation Month"
                 placeholder="Select month"
                 selectedKeys={selectedMonth ? [selectedMonth] : []}
+                size="sm"
                 onSelectionChange={(keys) => {
                   const month = Array.from(keys)[0] as string;
 
@@ -416,6 +421,7 @@ function EducationItem({ id, form, index, remove }: EducationItemProps) {
                 label="Graduation Year"
                 placeholder="Select year"
                 selectedKeys={selectedYear ? [selectedYear] : []}
+                size="sm"
                 onSelectionChange={(keys) => {
                   const year = Array.from(keys)[0] as string;
 

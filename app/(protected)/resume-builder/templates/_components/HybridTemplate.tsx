@@ -3,10 +3,12 @@ import {
   MapPin,
   Phone,
   Mail,
-  Linkedin,
+  Link,
   Briefcase,
   GraduationCap,
   Award,
+  Globe,
+  Cake,
 } from "lucide-react";
 
 type TemplateProps = {
@@ -19,6 +21,26 @@ export default function HybridTemplate({
   formatDate,
 }: TemplateProps) {
   const accentColor = resumeData.colorHex || "#000000";
+
+  const formatBirthDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day,
+        ).toLocaleDateString("en-US");
+      }
+      const date = new Date(dateValue);
+
+      if (isNaN(date.getTime())) return "Invalid Date";
+
+      return date.toLocaleDateString("en-US");
+    } catch {
+      return "Invalid Date";
+    }
+  };
 
   return (
     <div className="bg-white text-black p-10 space-y-4">
@@ -48,7 +70,7 @@ export default function HybridTemplate({
         )}
         {resumeData.linkedin && (
           <div className="flex items-center gap-2">
-            <Linkedin className="w-3.5 h-3.5 flex-shrink-0" />
+            <Link className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">
               {resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}
             </span>
@@ -64,6 +86,20 @@ export default function HybridTemplate({
           <div className="flex items-center gap-2">
             <Mail className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">{resumeData.email}</span>
+          </div>
+        )}
+        {resumeData.portfolio && (
+          <div className="flex items-center gap-2">
+            <Globe className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate">
+              {resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}
+            </span>
+          </div>
+        )}
+        {resumeData.birthDate && (
+          <div className="flex items-center gap-2">
+            <Cake className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>Born: {formatBirthDate(resumeData.birthDate)}</span>
           </div>
         )}
       </div>
