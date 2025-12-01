@@ -86,9 +86,6 @@ export default function ResumeEditor() {
   const exportResume = useExportResume();
   const saveToFilebox = useSaveToFilebox(currentResumeId || "");
 
-  const isSaving = createResume.isPending || updateResume.isPending;
-  const isExporting = exportResume.isPending;
-  const isSavingToFilebox = saveToFilebox.isPending;
 
   const FormComponent = steps.find(
     (step) => step.key === currentStep,
@@ -456,7 +453,7 @@ export default function ResumeEditor() {
                       <span className="text-gray-400">/</span>
                       <div className="flex items-center gap-2">
                         <input
-                          autoFocus
+                          ref={(input) => { if (input) input.focus(); }}
                           className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
                           placeholder="Enter resume title"
                           type="text"

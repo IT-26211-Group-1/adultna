@@ -19,6 +19,12 @@ export default function InlineEditableTitle({
   const inputRef = useRef<HTMLInputElement>(null);
   const updateTitle = useUpdateTitle(coverLetterId);
 
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
   const handleEditTitle = () => {
     setTitle(currentTitle);
     setIsEditing(true);
@@ -78,7 +84,6 @@ export default function InlineEditableTitle({
       <div className="flex items-center gap-2">
         <input
           ref={inputRef}
-          autoFocus
           className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
           placeholder="Enter cover letter title"
           type="text"

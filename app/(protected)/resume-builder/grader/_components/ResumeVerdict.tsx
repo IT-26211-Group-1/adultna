@@ -45,7 +45,7 @@ export function ResumeVerdict({
         <div className="flex items-center gap-3">
           <div className="h-px bg-gray-300 flex-1" />
           <h3 className="text-lg font-bold text-gray-900">
-            What's Working Well
+            What&apos;s Working Well
           </h3>
           <div className="h-px bg-gray-300 flex-1" />
         </div>

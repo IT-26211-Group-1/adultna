@@ -92,7 +92,7 @@ export function FileActions({
   const [secureAction, setSecureAction] = useState<OTPAction>("preview");
   const [pendingRename, setPendingRename] = useState<string | null>(null);
   const [verifiedOtp, setVerifiedOtp] = useState<string | null>(null);
-  const [otpVerifiedAt, setOtpVerifiedAt] = useState<number | null>(null);
+  const [, setOtpVerifiedAt] = useState<number | null>(null);
 
   const handleView = async () => {
     // Check if file is secure

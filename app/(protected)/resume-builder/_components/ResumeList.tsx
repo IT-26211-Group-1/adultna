@@ -500,6 +500,7 @@ export function ResumeList() {
         </ModalContent>
       </Modal>
 
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx>{`
         @keyframes fadeIn {
           from {
