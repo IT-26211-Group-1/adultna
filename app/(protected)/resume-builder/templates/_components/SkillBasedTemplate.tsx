@@ -18,7 +18,7 @@ export default function SkillBasedTemplate({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day,
+          dateValue.day
         ).toLocaleDateString("en-US");
       }
       const date = new Date(dateValue);
@@ -142,7 +142,7 @@ export default function SkillBasedTemplate({
                     {work.startDate &&
                       formatDate(work.startDate).replace(
                         /^\d{1,2}\/\d{1,2}\//,
-                        "",
+                        ""
                       )}{" "}
                     -{" "}
                     {work.isCurrentlyWorkingHere
@@ -150,7 +150,7 @@ export default function SkillBasedTemplate({
                       : work.endDate
                         ? formatDate(work.endDate).replace(
                             /^\d{1,2}\/\d{1,2}\//,
-                            "",
+                            ""
                           )
                         : ""}
                     )
@@ -189,6 +189,26 @@ export default function SkillBasedTemplate({
               </p>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Certifications */}
+      {resumeData.certificates && resumeData.certificates.length > 0 && (
+        <div className="space-y-3">
+          <h2
+            className="text-base font-bold border-b pb-1.5"
+            style={{ color: accentColor, borderColor: "#d1d5db" }}
+          >
+            Certifications
+          </h2>
+          <ul className="text-xs list-disc pl-5 space-y-1">
+            {resumeData.certificates.map((cert, index) => (
+              <li key={index}>
+                <span className="font-semibold">{cert.certificate}</span>
+                {cert.issuingOrganization && ` - ${cert.issuingOrganization}`}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

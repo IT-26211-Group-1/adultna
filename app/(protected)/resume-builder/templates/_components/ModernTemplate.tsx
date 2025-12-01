@@ -29,7 +29,7 @@ export default function ModernTemplate({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day,
+          dateValue.day
         ).toLocaleDateString("en-US");
       }
       const date = new Date(dateValue);
@@ -203,7 +203,7 @@ export default function ModernTemplate({
                         {work.startDate &&
                           formatDate(work.startDate).replace(
                             /^\d{1,2}\/\d{1,2}\//,
-                            "",
+                            ""
                           )}{" "}
                         -{" "}
                         {work.isCurrentlyWorkingHere
@@ -211,7 +211,7 @@ export default function ModernTemplate({
                           : work.endDate
                             ? formatDate(work.endDate).replace(
                                 /^\d{1,2}\/\d{1,2}\//,
-                                "",
+                                ""
                               )
                             : ""}
                       </span>
@@ -254,13 +254,36 @@ export default function ModernTemplate({
                     {edu.graduationDate &&
                       formatDate(edu.graduationDate).replace(
                         /^\d{1,2}\/\d{1,2}\//,
-                        "",
+                        ""
                       )}
                   </span>
                 </div>
                 <p className="text-xs">{edu.schoolName}</p>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Certifications */}
+        {resumeData.certificates && resumeData.certificates.length > 0 && (
+          <div className="space-y-3 relative pl-12">
+            <div
+              className="absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center text-white z-10"
+              style={{ backgroundColor: accentColor }}
+            >
+              <GraduationCap className="w-4 h-4" />
+            </div>
+            <h2 className="font-bold uppercase text-sm tracking-wide">
+              CERTIFICATIONS
+            </h2>
+            <ul className="text-xs list-disc pl-4 space-y-1">
+              {resumeData.certificates.map((cert, index) => (
+                <li key={index}>
+                  <span className="font-semibold">{cert.certificate}</span>
+                  {cert.issuingOrganization && ` - ${cert.issuingOrganization}`}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

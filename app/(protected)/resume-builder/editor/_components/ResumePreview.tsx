@@ -16,10 +16,7 @@ type ResumePreviewProps = {
   className?: string;
 };
 
-function ResumePreview({
-  resumeData,
-  className,
-}: ResumePreviewProps) {
+function ResumePreview({ resumeData, className }: ResumePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width } = useDimensions(containerRef);
   const searchParams = useSearchParams();
@@ -35,7 +32,7 @@ function ResumePreview({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day,
+          dateValue.day
         ).toLocaleDateString("en-US", { year: "numeric" });
       }
 
@@ -57,7 +54,7 @@ function ResumePreview({
     if (!width) return 1;
     return Math.min(
       (width * 0.85) / 650,
-      ((containerRef.current?.clientHeight || 800) * 0.95) / 842,
+      ((containerRef.current?.clientHeight || 800) * 0.95) / 842
     );
   }, [width]);
 
@@ -83,7 +80,7 @@ function ResumePreview({
       ref={containerRef}
       className={cn(
         "w-full h-full flex items-center justify-center",
-        className,
+        className
       )}
     >
       <div className="w-full max-w-[85%] h-full max-h-[95%] aspect-[210/297]">

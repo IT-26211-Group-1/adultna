@@ -58,7 +58,7 @@ export default function CertificationForm({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -72,26 +72,21 @@ export default function CertificationForm({
     }
   }
 
-  const syncFormData = useCallback(async () => {
-    const isValid = await form.trigger();
+  const syncFormData = useCallback(() => {
+    const values = form.getValues();
 
-    if (isValid) {
-      const values = form.getValues();
-
-      setResumeData({
-        ...resumeData,
-        certificates:
-          (values.certificates?.filter(
-            (cert) =>
-              cert && cert.certificate && cert.certificate.trim() !== "",
-          ) as any[]) || [],
-      });
-    }
-  }, [form, resumeData, setResumeData]);
+    setResumeData((prevData) => ({
+      ...prevData,
+      certificates:
+        (values.certificates?.filter(
+          (cert) => cert && cert.certificate && cert.certificate.trim() !== ""
+        ) as any[]) || [],
+    }));
+  }, [form, setResumeData]);
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData],
+    [syncFormData]
   );
 
   useEffect(() => {
@@ -213,7 +208,7 @@ function CertificationItem({
       ref={setNodeRef}
       className={cn(
         "space-y-2 p-3 bg-white rounded-lg shadow-sm border border-gray-100",
-        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
+        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50"
       )}
       style={{
         transform: CSS.Transform.toString(transform),
