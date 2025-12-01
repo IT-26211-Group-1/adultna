@@ -72,22 +72,17 @@ export default function CertificationForm({
     }
   }
 
-  const syncFormData = useCallback(async () => {
-    const isValid = await form.trigger();
+  const syncFormData = useCallback(() => {
+    const values = form.getValues();
 
-    if (isValid) {
-      const values = form.getValues();
-
-      setResumeData({
-        ...resumeData,
-        certificates:
-          (values.certificates?.filter(
-            (cert) =>
-              cert && cert.certificate && cert.certificate.trim() !== "",
-          ) as any[]) || [],
-      });
-    }
-  }, [form, resumeData, setResumeData]);
+    setResumeData((prevData) => ({
+      ...prevData,
+      certificates:
+        (values.certificates?.filter(
+          (cert) => cert && cert.certificate && cert.certificate.trim() !== "",
+        ) as any[]) || [],
+    }));
+  }, [form, setResumeData]);
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),

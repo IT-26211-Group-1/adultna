@@ -494,7 +494,9 @@ export default function ResumeGrader({
                               <button
                                 className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-emerald-50/50 transition-all duration-200 text-left group disabled:opacity-50"
                                 disabled={isProcessing}
-                                onClick={() => handleGradeSelectedResume(resume.id)}
+                                onClick={() =>
+                                  handleGradeSelectedResume(resume.id)
+                                }
                               >
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
                                   <div className="flex-shrink-0">

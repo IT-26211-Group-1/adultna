@@ -16,10 +16,7 @@ type ResumePreviewProps = {
   className?: string;
 };
 
-function ResumePreview({
-  resumeData,
-  className,
-}: ResumePreviewProps) {
+function ResumePreview({ resumeData, className }: ResumePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width } = useDimensions(containerRef);
   const searchParams = useSearchParams();
@@ -55,6 +52,7 @@ function ResumePreview({
 
   const zoom = useMemo(() => {
     if (!width) return 1;
+
     return Math.min(
       (width * 0.85) / 650,
       ((containerRef.current?.clientHeight || 800) * 0.95) / 842,
