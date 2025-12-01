@@ -68,6 +68,7 @@
     "pdfjs-dist": "^5.4.296",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-gauge-component": "^1.2.64",
     "react-google-recaptcha": "^3.1.0",
     "react-hook-form": "^7.62.0",
     "react-markdown": "^10.1.0",
