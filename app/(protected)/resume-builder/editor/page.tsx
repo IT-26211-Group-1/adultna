@@ -1,7 +1,12 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
-import ResumeEditor from "./_components/ResumeEditor";
+import dynamic from "next/dynamic";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+
+const ResumeEditor = dynamic(() => import("./_components/ResumeEditor"), {
+  loading: () => <LoadingSpinner fullScreen />,
+  ssr: true,
+});
 
 export const metadata: Metadata = {
   title: "Design your resume",
@@ -9,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense fallback={<LoadingSpinner fullScreen />}>
       <ResumeEditor />
     </Suspense>
   );

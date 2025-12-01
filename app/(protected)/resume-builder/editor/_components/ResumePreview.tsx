@@ -1,7 +1,7 @@
 import { ResumeData } from "@/validators/resumeSchema";
 import { Card, CardBody } from "@heroui/react";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
+import { useRef, useMemo, memo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import useDimensions from "@/hooks/useDimensions";
 import ReverseChronologicalTemplate from "../../templates/_components/ReverseChronologicalTemplate";
@@ -16,7 +16,7 @@ type ResumePreviewProps = {
   className?: string;
 };
 
-export default function ResumePreview({
+function ResumePreview({
   resumeData,
   className,
 }: ResumePreviewProps) {
@@ -27,7 +27,7 @@ export default function ResumePreview({
     searchParams.get("templateId") ||
     "reverse-chronological") as TemplateId;
 
-  const formatDate = (dateValue: any): string => {
+  const formatDate = useCallback((dateValue: any): string => {
     if (!dateValue) return "";
 
     try {
@@ -51,9 +51,17 @@ export default function ResumePreview({
 
       return "Invalid Date";
     }
-  };
+  }, []);
 
-  const getTemplateComponent = () => {
+  const zoom = useMemo(() => {
+    if (!width) return 1;
+    return Math.min(
+      (width * 0.85) / 650,
+      ((containerRef.current?.clientHeight || 800) * 0.95) / 842,
+    );
+  }, [width]);
+
+  const templateComponent = useMemo(() => {
     const props = { resumeData, formatDate };
 
     switch (templateId) {
@@ -68,7 +76,7 @@ export default function ResumePreview({
       default:
         return <ReverseChronologicalTemplate {...props} />;
     }
-  };
+  }, [templateId, resumeData, formatDate]);
 
   return (
     <div
@@ -82,19 +90,14 @@ export default function ResumePreview({
         <Card className="shadow-lg w-full h-full rounded-lg overflow-hidden">
           <CardBody
             className={cn("p-0", !width && "invisible")}
-            style={{
-              zoom: width
-                ? Math.min(
-                    (width * 0.85) / 650,
-                    ((containerRef.current?.clientHeight || 800) * 0.95) / 842,
-                  )
-                : 1,
-            }}
+            style={{ zoom }}
           >
-            {getTemplateComponent()}
+            {templateComponent}
           </CardBody>
         </Card>
       </div>
     </div>
   );
 }
+
+export default memo(ResumePreview);
