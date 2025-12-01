@@ -172,8 +172,8 @@ export default function CertificationForm({
         <div className="flex justify-center">
           <Button
             color="primary"
-            startContent={<PlusIcon size={14} />}
             size="sm"
+            startContent={<PlusIcon size={14} />}
             type="button"
             variant="flat"
             onClick={addCertification}

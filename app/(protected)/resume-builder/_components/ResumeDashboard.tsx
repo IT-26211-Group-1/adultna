@@ -87,7 +87,7 @@ export function ResumeDashboard() {
                       )}
                     </button>
                   ))}
-                  </div>
+                </div>
               </div>
             </div>
           </div>

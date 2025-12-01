@@ -118,7 +118,8 @@ export function CoverLetterLanding({
         {/* Header */}
         <div className="text-center space-y-2.5 max-w-2xl mx-auto mb-10">
           <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
-            Create a <span className="text-emerald-600">Cover Letter</span> in a Snap!
+            Create a <span className="text-emerald-600">Cover Letter</span> in a
+            Snap!
           </h1>
           <p className="text-sm text-gray-600 leading-relaxed">
             Upload your resume and let AI create a personalized cover letter.

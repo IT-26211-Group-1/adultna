@@ -49,13 +49,13 @@ export default function GuidesListClient() {
 
   const paginatedSlugs = useMemo(
     () => paginatedGuides.map((guide) => guide.slug),
-    [paginatedGuides]
+    [paginatedGuides],
   );
 
   const { translationsMap, isLoading: isTranslating } = useTranslatedGuides(
     paginatedSlugs,
     language,
-    language === "fil"
+    language === "fil",
   );
 
   const handleCategoryChange = (category: GuideCategory | "all") => {

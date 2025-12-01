@@ -327,10 +327,10 @@ export default function WorkExperienceForm({
         <div className="flex justify-center">
           <Button
             color="primary"
+            size="sm"
             startContent={<PlusIcon size={14} />}
             type="button"
             variant="flat"
-            size="sm"
             onClick={addWorkExperience}
           >
             <span className="text-xs">Add Another Work Experience</span>
@@ -388,7 +388,9 @@ function WorkExperienceItem({
       }}
     >
       <div className="flex justify-between items-center">
-        <h3 className="text-sm font-medium mb-4">Work Experience {index + 1}</h3>
+        <h3 className="text-sm font-medium mb-4">
+          Work Experience {index + 1}
+        </h3>
         <div className="flex items-center gap-2">
           <GripHorizontal
             className="size-3.5 cursor-grab text-default-400 hover:text-default-600 focus:outline-none"
@@ -462,10 +464,10 @@ function WorkExperienceItem({
                 errorMessage={fieldState.error?.message}
                 isInvalid={!!fieldState.error}
                 label="Start Date"
+                size="sm"
                 value={value}
                 onBlur={field.onBlur}
                 onChange={handleChange}
-                size="sm"
               />
             );
           }}
@@ -502,10 +504,10 @@ function WorkExperienceItem({
                 )}
                 isInvalid={!!fieldState.error}
                 label="End Date"
+                size="sm"
                 value={value}
                 onBlur={field.onBlur}
                 onChange={handleChange}
-                size="sm"
               />
             );
           }}
@@ -517,13 +519,13 @@ function WorkExperienceItem({
         isSelected={form.watch(
           `workExperiences.${index}.isCurrentlyWorkingHere`,
         )}
+        size="sm"
         onValueChange={(value) =>
           form.setValue(
             `workExperiences.${index}.isCurrentlyWorkingHere`,
             value,
           )
         }
-        size="sm"
       >
         <span className="text-xs">Currently working here?</span>
       </Checkbox>
@@ -542,7 +544,9 @@ function WorkExperienceItem({
             variant="flat"
             onClick={() => onGenerateAI(index)}
           >
-            <span className="text-xs">{isGeneratingAI ? "Generating..." : "Get AI Suggestions"}</span>
+            <span className="text-xs">
+              {isGeneratingAI ? "Generating..." : "Get AI Suggestions"}
+            </span>
           </Button>
         </div>
         <Controller
@@ -555,10 +559,10 @@ function WorkExperienceItem({
               isInvalid={!!fieldState.error}
               minRows={2}
               placeholder="Describe your key responsibilities and achievements..."
+              size="sm"
               value={field.value || ""}
               onBlur={field.onBlur}
               onChange={field.onChange}
-              size="sm"
             />
           )}
         />

@@ -46,17 +46,20 @@ export default function InlineEditableTitle({
     if (!trimmedTitle) {
       setTitle(currentTitle);
       setIsEditing(false);
+
       return;
     }
 
     if (trimmedTitle.length > 100) {
       setTitle(currentTitle);
       setIsEditing(false);
+
       return;
     }
 
     if (trimmedTitle === currentTitle) {
       setIsEditing(false);
+
       return;
     }
 
@@ -75,33 +78,53 @@ export default function InlineEditableTitle({
       <div className="flex items-center gap-2">
         <input
           ref={inputRef}
+          autoFocus
+          className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
+          placeholder="Enter cover letter title"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSave();
-            if (e.key === 'Escape') handleCancelEdit();
+            if (e.key === "Enter") handleSave();
+            if (e.key === "Escape") handleCancelEdit();
           }}
-          className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
-          autoFocus
-          placeholder="Enter cover letter title"
         />
         <button
-          onClick={handleSave}
           className="text-emerald-600 hover:text-emerald-800 transition-colors p-1"
           title="Save title"
+          onClick={handleSave}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 13l4 4L19 7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
           </svg>
         </button>
         <button
-          onClick={handleCancelEdit}
           className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           title="Cancel editing"
+          onClick={handleCancelEdit}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M6 18L18 6M6 6l12 12"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
           </svg>
         </button>
       </div>
@@ -117,12 +140,22 @@ export default function InlineEditableTitle({
         {currentTitle || "Untitled Cover Letter"}
       </span>
       <button
-        onClick={handleEditTitle}
         className="text-gray-400 hover:text-emerald-600 transition-colors p-1 ml-1"
         title="Edit cover letter title"
+        onClick={handleEditTitle}
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+          />
         </svg>
       </button>
       {updateTitle.isPending && (

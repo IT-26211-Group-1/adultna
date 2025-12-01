@@ -443,7 +443,7 @@ export function ResumeList() {
                   <div className="space-y-3">
                     <p>
                       Are you sure you want to delete{" "}
-                      <strong>"{resumeToDeleteData?.title}"</strong>?
+                      <strong>&ldquo;{resumeToDeleteData?.title}&rdquo;</strong>?
                     </p>
                     <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                       <p className="text-sm text-red-800">

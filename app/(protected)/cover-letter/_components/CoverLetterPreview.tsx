@@ -22,14 +22,23 @@ export function CoverLetterPreview({
   return (
     <div
       ref={containerRef}
-      className={cn("w-full h-full flex items-center justify-center p-4", className)}
+      className={cn(
+        "w-full h-full flex items-center justify-center p-4",
+        className,
+      )}
     >
       <div className="w-full h-full max-w-full max-h-full">
         <Card className="shadow-lg w-full h-full rounded-lg overflow-hidden">
           <CardBody
             className={cn("p-0", !width && "invisible")}
             style={{
-              zoom: width && containerRef.current ? Math.min((width - 32) / 650, (containerRef.current.clientHeight - 32) / 842) : 0.5,
+              zoom:
+                width && containerRef.current
+                  ? Math.min(
+                      (width - 32) / 650,
+                      (containerRef.current.clientHeight - 32) / 842,
+                    )
+                  : 0.5,
             }}
           >
             <div className="w-[650px] h-[842px] bg-white p-12 pb-16 space-y-4 text-gray-900">

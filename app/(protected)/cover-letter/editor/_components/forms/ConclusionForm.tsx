@@ -20,7 +20,7 @@ export default function ConclusionForm({
   onNext,
   onPrevious,
   isLoading,
-  onValidationChange
+  onValidationChange,
 }: ConclusionFormProps) {
   const previousDataRef = useRef<string>("");
   const [content, setContent] = useState<string>(section?.content || "");
@@ -85,7 +85,11 @@ export default function ConclusionForm({
               ? `${getCharacterCount(content)}/${CHARACTER_LIMIT} characters ${remainingChars >= 0 ? `(${remainingChars} remaining)` : `(${Math.abs(remainingChars)} over limit)`}`
               : `Write your conclusion (max ${CHARACTER_LIMIT} characters)`
           }
-          errorMessage={isOverLimit ? "Conclusion is too long. Please shorten your text." : ""}
+          errorMessage={
+            isOverLimit
+              ? "Conclusion is too long. Please shorten your text."
+              : ""
+          }
           isInvalid={isOverLimit}
           label="Conclusion"
           maxLength={CHARACTER_LIMIT + 50} // Allow some overflow for editing
@@ -109,13 +113,17 @@ export default function ConclusionForm({
             size="md"
             onPress={onNext}
           >
-            {isLoading ? "Saving..." : isOverLimit ? "Character limit exceeded" : "Proceed to Signature"}
+            {isLoading
+              ? "Saving..."
+              : isOverLimit
+                ? "Character limit exceeded"
+                : "Proceed to Signature"}
           </Button>
           <button
-            type="button"
             className="text-gray-500 hover:text-emerald-600 text-sm font-medium transition-all duration-200 ease-in-out hover:underline underline-offset-2"
-            onClick={onPrevious}
             disabled={isLoading}
+            type="button"
+            onClick={onPrevious}
           >
             Back to Body
           </button>

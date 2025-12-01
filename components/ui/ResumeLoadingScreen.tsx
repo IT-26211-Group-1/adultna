@@ -42,11 +42,14 @@ export function ResumeLoadingScreen({
         setProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
+
             return 90;
           }
+
           return prev + Math.random() * 15 + 5;
         });
       }, 200);
+
       return () => clearInterval(progressInterval);
     } else {
       setProgress(100);
@@ -69,24 +72,24 @@ export function ResumeLoadingScreen({
               style={{ width: "100%", height: "100%" }}
             />
           ) : (
-            <div className="w-20 h-20 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-20 h-20 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           )}
         </div>
 
         {/* Loading Message */}
         <div className="text-center">
-          <p className="text-2xl font-semibold text-gray-900 mb-6">
-            {message}
-          </p>
+          <p className="text-2xl font-semibold text-gray-900 mb-6">{message}</p>
 
           {/* Simple Progress Bar */}
           <div className="w-80 bg-gray-200 rounded-full h-2">
             <div
               className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
-            ></div>
+            />
           </div>
-          <p className="text-sm text-gray-600 mt-3">{Math.round(progress)}% Complete</p>
+          <p className="text-sm text-gray-600 mt-3">
+            {Math.round(progress)}% Complete
+          </p>
         </div>
       </div>
     </div>

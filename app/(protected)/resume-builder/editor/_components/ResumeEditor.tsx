@@ -8,8 +8,6 @@ import { ResumeData } from "@/validators/resumeSchema";
 import ResumePreviewSection from "./ResumePreviewSection";
 import { LoadingButton } from "@/components/ui/Button";
 import Completed from "./Completed";
-import { SaveStatusIndicator } from "./SaveStatusIndicator";
-import { ExportButton } from "./ExportButton";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import {
   useResume,
@@ -414,7 +412,9 @@ export default function ResumeEditor() {
   };
 
   const handleEditTitle = () => {
-    setTempTitle(resumeData.title || existingResume?.title || "Untitled Resume");
+    setTempTitle(
+      resumeData.title || existingResume?.title || "Untitled Resume",
+    );
     setIsEditingTitle(true);
   };
 
@@ -434,8 +434,6 @@ export default function ResumeEditor() {
   if (isCompleted) {
     return <Completed resumeData={resumeData} setResumeData={setResumeData} />;
   }
-
-
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -458,33 +456,53 @@ export default function ResumeEditor() {
                       <span className="text-gray-400">/</span>
                       <div className="flex items-center gap-2">
                         <input
+                          autoFocus
+                          className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
+                          placeholder="Enter resume title"
                           type="text"
                           value={tempTitle}
                           onChange={(e) => setTempTitle(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveTitle();
-                            if (e.key === 'Escape') handleCancelEditTitle();
+                            if (e.key === "Enter") handleSaveTitle();
+                            if (e.key === "Escape") handleCancelEditTitle();
                           }}
-                          className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
-                          autoFocus
-                          placeholder="Enter resume title"
                         />
                         <button
-                          onClick={handleSaveTitle}
                           className="text-emerald-600 hover:text-emerald-800 transition-colors p-1"
                           title="Save title"
+                          onClick={handleSaveTitle}
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M5 13l4 4L19 7"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                            />
                           </svg>
                         </button>
                         <button
-                          onClick={handleCancelEditTitle}
                           className="text-gray-400 hover:text-gray-600 transition-colors p-1"
                           title="Cancel editing"
+                          onClick={handleCancelEditTitle}
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M6 18L18 6M6 6l12 12"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                            />
                           </svg>
                         </button>
                       </div>
@@ -496,18 +514,31 @@ export default function ResumeEditor() {
                           { label: "Dashboard", href: "/dashboard" },
                           { label: "Resume Builder", href: "/resume-builder" },
                           {
-                            label: resumeData.title || existingResume?.title || "Untitled Resume",
-                            current: true
+                            label:
+                              resumeData.title ||
+                              existingResume?.title ||
+                              "Untitled Resume",
+                            current: true,
                           },
                         ]}
                       />
                       <button
-                        onClick={handleEditTitle}
                         className="text-gray-400 hover:text-emerald-600 transition-colors p-1 ml-1"
                         title="Edit resume title"
+                        onClick={handleEditTitle}
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
                         </svg>
                       </button>
                     </>
@@ -525,8 +556,8 @@ export default function ResumeEditor() {
             <div className="w-full max-w-lg">
               <ProgressStepper
                 currentStep={currentStep}
-                setCurrentStep={setStep}
                 resumeData={resumeData}
+                setCurrentStep={setStep}
               />
             </div>
           </div>
@@ -537,7 +568,9 @@ export default function ResumeEditor() {
               {/* Mobile Color Picker */}
               <div className="md:hidden mb-6 flex justify-center">
                 <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-3">
-                  <span className="text-sm font-medium text-gray-700">Resume Color:</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    Resume Color:
+                  </span>
                   <ColorPicker
                     color={resumeData.colorHex}
                     onChange={(color) =>
@@ -567,13 +600,33 @@ export default function ResumeEditor() {
                     <div className="flex items-center justify-center gap-1.5">
                       <span>{isLastStep ? "Complete Resume" : "Continue"}</span>
                       {!isLastStep && (
-                        <svg className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        <svg
+                          className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M9 5l7 7-7 7"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
                         </svg>
                       )}
                       {isLastStep && (
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M5 13l4 4L19 7"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
                         </svg>
                       )}
                     </div>
@@ -586,8 +639,18 @@ export default function ResumeEditor() {
                     >
                       <div className="flex items-center justify-center gap-1">
                         <span>Skip {currentStepTitle}</span>
-                        <svg className="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        <svg
+                          className="w-2.5 h-2.5 opacity-60"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
                         </svg>
                       </div>
                     </button>

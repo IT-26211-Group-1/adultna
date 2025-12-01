@@ -23,7 +23,7 @@ type LanguageContextType = {
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
-  undefined
+  undefined,
 );
 
 const STORAGE_KEY = "adultna_language";
@@ -69,7 +69,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const [language, setLanguageState] = useState<Language>(getInitialLanguage);
   const [translations, setTranslations] = useState<TranslationData | null>(
-    null
+    null,
   );
   const [isLoading, setIsLoading] = useState(true);
 
@@ -128,7 +128,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
       }
     },
-    [pathname, searchParams, router]
+    [pathname, searchParams, router],
   );
 
   const t = useMemo(
@@ -146,7 +146,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
         return value || key;
       },
-    [translations, isLoading]
+    [translations, isLoading],
   );
 
   const value = useMemo(
@@ -156,7 +156,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       t,
       isLoading,
     }),
-    [language, setLanguage, t, isLoading]
+    [language, setLanguage, t, isLoading],
   );
 
   return (

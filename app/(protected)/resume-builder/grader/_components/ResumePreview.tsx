@@ -25,7 +25,9 @@ export function ResumePreview({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg overflow-hidden ${className}`}>
+    <div
+      className={`bg-white border border-gray-200 rounded-lg overflow-hidden ${className}`}
+    >
       {/* Header */}
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center justify-between">
@@ -47,8 +49,8 @@ export function ResumePreview({
           <div className="flex items-center gap-2">
             <button
               className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-              onClick={() => setZoom(Math.max(50, zoom - 10))}
               disabled={zoom <= 50}
+              onClick={() => setZoom(Math.max(50, zoom - 10))}
             >
               <ZoomOut className="w-4 h-4" />
             </button>
@@ -57,15 +59,15 @@ export function ResumePreview({
             </span>
             <button
               className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-              onClick={() => setZoom(Math.min(150, zoom + 10))}
               disabled={zoom >= 150}
+              onClick={() => setZoom(Math.min(150, zoom + 10))}
             >
               <ZoomIn className="w-4 h-4" />
             </button>
             {fileUrl && (
               <button
                 className="p-1 text-gray-400 hover:text-gray-600 transition-colors ml-2"
-                onClick={() => window.open(fileUrl, '_blank')}
+                onClick={() => window.open(fileUrl, "_blank")}
               >
                 <Download className="w-4 h-4" />
               </button>
@@ -75,14 +77,19 @@ export function ResumePreview({
       </div>
 
       {/* Preview Area - Sized for exact resume page dimensions */}
-      <div className="bg-white relative overflow-hidden" style={{ width: '612px', height: '792px' }}>
+      <div
+        className="bg-white relative overflow-hidden"
+        style={{ width: "612px", height: "792px" }}
+      >
         {fileUrl ? (
           <div className="h-full relative">
             {!isLoaded && !hasError && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
                 <div className="text-center">
-                  <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-500">Loading PDF preview...</p>
+                  <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">
+                    Loading PDF preview...
+                  </p>
                 </div>
               </div>
             )}
@@ -100,22 +107,22 @@ export function ResumePreview({
             )}
 
             <iframe
-              src={`${fileUrl}#toolbar=0&navpanes=0&scrollbar=0&zoom=fit&view=FitH`}
               className="w-full h-full border-none"
-              onLoad={() => {
-                setIsLoaded(true);
-                setHasError(false);
+              src={`${fileUrl}#toolbar=0&navpanes=0&scrollbar=0&zoom=fit&view=FitH`}
+              style={{
+                width: "100%",
+                height: "100%",
+                transform: zoom !== 100 ? `scale(${zoom / 100})` : "none",
+                transformOrigin: "top center",
               }}
+              title="Resume Preview"
               onError={() => {
                 setHasError(true);
                 setIsLoaded(false);
               }}
-              title="Resume Preview"
-              style={{
-                width: '100%',
-                height: '100%',
-                transform: zoom !== 100 ? `scale(${zoom / 100})` : 'none',
-                transformOrigin: 'top center'
+              onLoad={() => {
+                setIsLoaded(true);
+                setHasError(false);
               }}
             />
           </div>

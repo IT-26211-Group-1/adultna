@@ -66,14 +66,14 @@ export function TemplateCard({
   return (
     <Card
       disableAnimation
-      shadow="none"
       isPressable
       className={cn(
         "cursor-pointer transition-all duration-300 ease-in-out border-2 hover:border-adult-green hover:bg-gray-50/50",
         isSelected ? "border-adult-green bg-adult-green/5" : "border-gray-200",
       )}
+      shadow="none"
       onPress={() => {
-        console.log('Template card clicked:', template.id);
+        console.log("Template card clicked:", template.id);
         onSelect();
       }}
     >

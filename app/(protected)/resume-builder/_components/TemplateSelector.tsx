@@ -91,12 +91,14 @@ export function TemplateSelector({
           <div className="hidden sm:flex justify-center">
             <Button
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-12 py-3 shadow-lg"
-              size="lg"
-              radius="md"
               isDisabled={!selected}
+              radius="md"
+              size="lg"
               onPress={handleContinue}
             >
-              {selected ? `Continue with ${selectedTemplate?.name}` : "Select a template to continue"}
+              {selected
+                ? `Continue with ${selectedTemplate?.name}`
+                : "Select a template to continue"}
             </Button>
           </div>
 
@@ -104,12 +106,14 @@ export function TemplateSelector({
           <div className="sm:hidden fixed bottom-6 left-4 right-4 z-50">
             <Button
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 shadow-xl"
-              size="lg"
-              radius="md"
               isDisabled={!selected}
+              radius="md"
+              size="lg"
               onPress={handleContinue}
             >
-              {selected ? `Continue with ${selectedTemplate?.name}` : "Select a template"}
+              {selected
+                ? `Continue with ${selectedTemplate?.name}`
+                : "Select a template"}
             </Button>
           </div>
         </div>

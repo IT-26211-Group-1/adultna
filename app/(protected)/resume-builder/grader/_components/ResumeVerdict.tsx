@@ -21,9 +21,9 @@ export function ResumeVerdict({
       {/* Verdict Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="h-px bg-gray-300 flex-1"></div>
+          <div className="h-px bg-gray-300 flex-1" />
           <h3 className="text-lg font-bold text-gray-900">Verdict</h3>
-          <div className="h-px bg-gray-300 flex-1"></div>
+          <div className="h-px bg-gray-300 flex-1" />
           {hasJobDescription && (
             <Chip
               color="secondary"
@@ -35,15 +35,19 @@ export function ResumeVerdict({
             </Chip>
           )}
         </div>
-        <p className="text-gray-700 leading-relaxed text-center px-4">{verdict}</p>
+        <p className="text-gray-700 leading-relaxed text-center px-4">
+          {verdict}
+        </p>
       </div>
 
       {/* What's Working Well Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="h-px bg-gray-300 flex-1"></div>
-          <h3 className="text-lg font-bold text-gray-900">What's Working Well</h3>
-          <div className="h-px bg-gray-300 flex-1"></div>
+          <div className="h-px bg-gray-300 flex-1" />
+          <h3 className="text-lg font-bold text-gray-900">
+            What's Working Well
+          </h3>
+          <div className="h-px bg-gray-300 flex-1" />
         </div>
         <div className="grid gap-3">
           {workingWell.length > 0 ? (
@@ -71,6 +75,7 @@ export function ResumeVerdict({
             className="px-8 py-3 bg-adult-green text-white rounded-lg font-medium transition-all duration-200 hover:bg-emerald-700 transform hover:scale-105 active:scale-95 w-full max-w-xs"
             onClick={() => {
               const newUrl = new URL(window.location.href);
+
               newUrl.searchParams.delete("results");
               newUrl.searchParams.delete("resumeId");
               window.history.replaceState({}, "", newUrl.toString());

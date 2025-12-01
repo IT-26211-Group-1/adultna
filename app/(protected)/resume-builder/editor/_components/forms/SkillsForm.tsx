@@ -267,9 +267,9 @@ export default function SkillsForm({
           <Button
             className="w-full"
             color="primary"
+            size="sm"
             startContent={<Plus className="w-3 h-3" />}
             variant="bordered"
-            size="sm"
             onPress={handleAddSkill}
           >
             <span className="text-xs">Add Skill</span>

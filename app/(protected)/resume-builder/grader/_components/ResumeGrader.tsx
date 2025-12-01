@@ -41,7 +41,6 @@ export default function ResumeGrader({
   const [gradeSearchQuery, setGradeSearchQuery] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-
   const gradeResume = useGradeResume();
   const { data: resumesData = [], isLoading: isLoadingResumes } = useResumes();
 
@@ -449,40 +448,63 @@ export default function ResumeGrader({
                                   setIsProcessing(true);
                                   try {
                                     // Generate PDF from existing resume and grade it
-                                    const exportResponse = await ApiClient.post<{
-                                      success: boolean;
-                                      data: { downloadUrl: string; fileKey: string };
-                                    }>(`/resumes/${resume.id}/export`);
+                                    const exportResponse =
+                                      await ApiClient.post<{
+                                        success: boolean;
+                                        data: {
+                                          downloadUrl: string;
+                                          fileKey: string;
+                                        };
+                                      }>(`/resumes/${resume.id}/export`);
 
                                     if (!exportResponse.success) {
-                                      throw new Error("Failed to generate resume PDF");
+                                      throw new Error(
+                                        "Failed to generate resume PDF",
+                                      );
                                     }
 
                                     // Now grade the generated PDF
-                                    const result = await gradeResume.mutateAsync({
-                                      fileKey: exportResponse.data.fileKey,
-                                      fileName: `${resume.title}.pdf`,
-                                      jobDescription: jobDescription.trim() || undefined,
-                                    });
+                                    const result =
+                                      await gradeResume.mutateAsync({
+                                        fileKey: exportResponse.data.fileKey,
+                                        fileName: `${resume.title}.pdf`,
+                                        jobDescription:
+                                          jobDescription.trim() || undefined,
+                                      });
 
                                     setGradingResult(result);
                                     setIsProcessing(false);
 
                                     // Save results to secure storage
-                                    setSecureItem("resumeGradingResults", JSON.stringify(result));
+                                    setSecureItem(
+                                      "resumeGradingResults",
+                                      JSON.stringify(result),
+                                    );
                                     setSecureItem("gradedResumeId", resume.id);
 
                                     // Update URL to show results
-                                    const newUrl = new URL(window.location.href);
+                                    const newUrl = new URL(
+                                      window.location.href,
+                                    );
+
                                     newUrl.searchParams.set("results", "true");
-                                    newUrl.searchParams.set("resumeId", resume.id);
-                                    window.history.pushState({}, "", newUrl.toString());
+                                    newUrl.searchParams.set(
+                                      "resumeId",
+                                      resume.id,
+                                    );
+                                    window.history.pushState(
+                                      {},
+                                      "",
+                                      newUrl.toString(),
+                                    );
 
                                     onResultsChange?.(true);
                                   } catch (error: any) {
                                     addToast({
                                       title: "Grading failed",
-                                      description: error?.message || "Failed to grade resume. Please try again.",
+                                      description:
+                                        error?.message ||
+                                        "Failed to grade resume. Please try again.",
                                       color: "danger",
                                     });
                                     setIsProcessing(false);
@@ -492,7 +514,7 @@ export default function ResumeGrader({
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
                                   <div className="flex-shrink-0">
                                     {isProcessing ? (
-                                      <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                      <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                       <FileText className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors duration-200" />
                                     )}
@@ -568,7 +590,6 @@ export default function ResumeGrader({
               type="file"
               onChange={handleFileSelect}
             />
-
           </div>
         </div>
 
@@ -584,15 +605,17 @@ export default function ResumeGrader({
             }
           }
           .glow-emerald-always {
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15),
-                        0 0 30px rgba(16, 185, 129, 0.1),
-                        0 0 50px rgba(16, 185, 129, 0.05);
+            box-shadow:
+              0 0 15px rgba(16, 185, 129, 0.15),
+              0 0 30px rgba(16, 185, 129, 0.1),
+              0 0 50px rgba(16, 185, 129, 0.05);
           }
           .glow-emerald-intense {
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25),
-                        0 0 50px rgba(16, 185, 129, 0.15),
-                        0 0 80px rgba(16, 185, 129, 0.1),
-                        0 0 120px rgba(16, 185, 129, 0.05);
+            box-shadow:
+              0 0 25px rgba(16, 185, 129, 0.25),
+              0 0 50px rgba(16, 185, 129, 0.15),
+              0 0 80px rgba(16, 185, 129, 0.1),
+              0 0 120px rgba(16, 185, 129, 0.05);
           }
         `}</style>
       </div>
@@ -631,133 +654,136 @@ export default function ResumeGrader({
         message="Grading your resume..."
       />
 
-    <div className="w-full">
       <div className="w-full">
-        {/* Back Navigation */}
-        <div className="mb-4 px-2">
-          <button
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-200 group"
-            onClick={handleRemoveFile}
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-            <span className="text-sm font-medium">Back to Grade Resume</span>
-          </button>
-        </div>
-
-        {/* Hero Section - Celebration */}
-        <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium mb-6">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              clipRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              fillRule="evenodd"
-            />
-          </svg>
-          Resume Analysis Complete
-        </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-          Great Job!
-          <br />
-          <span className="text-adult-green">
-            Your Resume Has Been Analyzed
-          </span>
-        </h1>
-        <p className="text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Your resume has been thoroughly analyzed using AI-powered insights.
-          {gradingResult?.hasJobDescription &&
-            " We've provided tailored feedback based on your target job description."}
-          Here's how your resume performs and what you can improve to land your
-          dream job.
-        </p>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-[40%_1px_60%] gap-0 mb-4 px-1">
-        {/* Left Panel: Score & Verdict */}
-        <div className="space-y-8 pr-8">
-          {/* Score Section */}
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">
-              Your Resume Score
-            </h2>
-
-            {/* Professional Gauge Component */}
-            <div className="w-80 h-56 mx-auto mb-6">
-              <GaugeComponent
-                arc={{
-                  colorArray: ["#EF4444", "#F59E0B", "#10B981"],
-                  padding: 0.02,
-                  subArcs: [{ limit: 40 }, { limit: 70 }, { limit: 100 }],
-                }}
-                labels={{
-                  valueLabel: {
-                    formatTextValue: (value: number) => `${value}%`,
-                    style: {
-                      fontSize: "48px",
-                      fontWeight: "bold",
-                      fill: "#1F2937",
-                    },
-                  },
-                }}
-                pointer={{
-                  type: "blob",
-                  animationDelay: 0,
-                }}
-                type="semicircle"
-                value={scorePercentage}
-              />
-              {/* Score Label Below */}
-              <div className="text-center mt-4">
-                <p className="text-xl font-semibold text-adult-green">
-                  {scoreLabel}
-                </p>
-              </div>
-            </div>
+        <div className="w-full">
+          {/* Back Navigation */}
+          <div className="mb-4 px-2">
+            <button
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-200 group"
+              onClick={handleRemoveFile}
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
+              <span className="text-sm font-medium">Back to Grade Resume</span>
+            </button>
           </div>
 
-          {/* Detailed Verdict */}
-          {gradingResult?.summary && (
-            <div>
-              <ResumeVerdict
-                verdict={gradingResult.summary}
-                workingWell={getCategoryStrengths()}
-                hasJobDescription={gradingResult.hasJobDescription}
-              />
+          {/* Hero Section - Celebration */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium mb-6">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  clipRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              Resume Analysis Complete
             </div>
-          )}
-        </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+              Great Job!
+              <br />
+              <span className="text-adult-green">
+                Your Resume Has Been Analyzed
+              </span>
+            </h1>
+            <p className="text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Your resume has been thoroughly analyzed using AI-powered
+              insights.
+              {gradingResult?.hasJobDescription &&
+                " We've provided tailored feedback based on your target job description."}
+              Here's how your resume performs and what you can improve to land
+              your dream job.
+            </p>
+          </div>
 
-        {/* Vertical Divider */}
-        <div className="bg-gray-200 w-px"></div>
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-[40%_1px_60%] gap-0 mb-4 px-1">
+            {/* Left Panel: Score & Verdict */}
+            <div className="space-y-8 pr-8">
+              {/* Score Section */}
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-8">
+                  Your Resume Score
+                </h2>
 
-        {/* Right Panel: AI Recommendations & Category Analysis */}
-        <div className="pl-8">
-          {/* AI Recommendations */}
-          {gradingResult?.recommendations && (
-            <div className="mb-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">
-                AI Recommendations
-              </h3>
-              <GraderAIRecommendations
-                recommendations={gradingResult.recommendations}
-              />
+                {/* Professional Gauge Component */}
+                <div className="w-80 h-56 mx-auto mb-6">
+                  <GaugeComponent
+                    arc={{
+                      colorArray: ["#EF4444", "#F59E0B", "#10B981"],
+                      padding: 0.02,
+                      subArcs: [{ limit: 40 }, { limit: 70 }, { limit: 100 }],
+                    }}
+                    labels={{
+                      valueLabel: {
+                        formatTextValue: (value: number) => `${value}%`,
+                        style: {
+                          fontSize: "48px",
+                          fontWeight: "bold",
+                          fill: "#1F2937",
+                        },
+                      },
+                    }}
+                    pointer={{
+                      type: "blob",
+                      animationDelay: 0,
+                    }}
+                    type="semicircle"
+                    value={scorePercentage}
+                  />
+                  {/* Score Label Below */}
+                  <div className="text-center mt-4">
+                    <p className="text-xl font-semibold text-adult-green">
+                      {scoreLabel}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detailed Verdict */}
+              {gradingResult?.summary && (
+                <div>
+                  <ResumeVerdict
+                    hasJobDescription={gradingResult.hasJobDescription}
+                    verdict={gradingResult.summary}
+                    workingWell={getCategoryStrengths()}
+                  />
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Category Analysis */}
-          {gradingResult?.categoryScores && (
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-6">
-                Detailed Category Analysis
-              </h3>
-              <CategoryScores categoryScores={gradingResult.categoryScores} />
+            {/* Vertical Divider */}
+            <div className="bg-gray-200 w-px" />
+
+            {/* Right Panel: AI Recommendations & Category Analysis */}
+            <div className="pl-8">
+              {/* AI Recommendations */}
+              {gradingResult?.recommendations && (
+                <div className="mb-8">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6">
+                    AI Recommendations
+                  </h3>
+                  <GraderAIRecommendations
+                    recommendations={gradingResult.recommendations}
+                  />
+                </div>
+              )}
+
+              {/* Category Analysis */}
+              {gradingResult?.categoryScores && (
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-6">
+                    Detailed Category Analysis
+                  </h3>
+                  <CategoryScores
+                    categoryScores={gradingResult.categoryScores}
+                  />
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
-      </div>
-    </div>
     </>
   );
 }

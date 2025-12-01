@@ -22,7 +22,9 @@ export default function SkillBasedTemplate({
         ).toLocaleDateString("en-US");
       }
       const date = new Date(dateValue);
+
       if (isNaN(date.getTime())) return "Invalid Date";
+
       return date.toLocaleDateString("en-US");
     } catch {
       return "Invalid Date";
@@ -56,9 +58,12 @@ export default function SkillBasedTemplate({
       <div className="text-center text-xs text-gray-700">
         {resumeData.phone && <span>{resumeData.phone}</span>}
         {resumeData.phone &&
-          (resumeData.city || resumeData.region || resumeData.email || resumeData.linkedin || resumeData.portfolio || resumeData.birthDate) && (
-            <span> | </span>
-          )}
+          (resumeData.city ||
+            resumeData.region ||
+            resumeData.email ||
+            resumeData.linkedin ||
+            resumeData.portfolio ||
+            resumeData.birthDate) && <span> | </span>}
         {(resumeData.city || resumeData.region) && (
           <span>
             {resumeData.city}
@@ -67,27 +72,26 @@ export default function SkillBasedTemplate({
           </span>
         )}
         {(resumeData.city || resumeData.region) &&
-          (resumeData.email || resumeData.linkedin || resumeData.portfolio || resumeData.birthDate) && (
-            <span> | </span>
-          )}
+          (resumeData.email ||
+            resumeData.linkedin ||
+            resumeData.portfolio ||
+            resumeData.birthDate) && <span> | </span>}
         {resumeData.email && <span>{resumeData.email}</span>}
         {resumeData.email &&
-          (resumeData.linkedin || resumeData.portfolio || resumeData.birthDate) && (
-            <span> | </span>
-          )}
+          (resumeData.linkedin ||
+            resumeData.portfolio ||
+            resumeData.birthDate) && <span> | </span>}
         {resumeData.linkedin && (
           <span>{resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}</span>
         )}
         {resumeData.linkedin &&
-          (resumeData.portfolio || resumeData.birthDate) && (
-            <span> | </span>
-          )}
+          (resumeData.portfolio || resumeData.birthDate) && <span> | </span>}
         {resumeData.portfolio && (
-          <span>{resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}</span>
+          <span>
+            {resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}
+          </span>
         )}
-        {resumeData.portfolio && resumeData.birthDate && (
-          <span> | </span>
-        )}
+        {resumeData.portfolio && resumeData.birthDate && <span> | </span>}
         {resumeData.birthDate && (
           <span>Born: {formatBirthDate(resumeData.birthDate)}</span>
         )}

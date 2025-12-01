@@ -33,7 +33,9 @@ export default function HybridTemplate({
         ).toLocaleDateString("en-US");
       }
       const date = new Date(dateValue);
+
       if (isNaN(date.getTime())) return "Invalid Date";
+
       return date.toLocaleDateString("en-US");
     } catch {
       return "Invalid Date";

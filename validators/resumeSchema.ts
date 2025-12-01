@@ -76,14 +76,16 @@ export const contactSchema = z.object({
       if (!val || val === "") return true;
 
       // Allow URLs with or without protocol
-      const urlToTest = val.startsWith('http://') || val.startsWith('https://')
-        ? val
-        : `https://${val}`;
+      const urlToTest =
+        val.startsWith("http://") || val.startsWith("https://")
+          ? val
+          : `https://${val}`;
 
       try {
         const url = new URL(urlToTest);
+
         // Check if it's a LinkedIn domain
-        return url.hostname.includes('linkedin.com');
+        return url.hostname.includes("linkedin.com");
       } catch {
         return false;
       }

@@ -206,10 +206,10 @@ export default function EducationForm({
         <div className="flex justify-center">
           <Button
             color="primary"
+            size="sm"
             startContent={<PlusIcon size={14} />}
             type="button"
             variant="flat"
-            size="sm"
             onClick={addEducation}
           >
             <span className="text-xs">Add Another Education</span>

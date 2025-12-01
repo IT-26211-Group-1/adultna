@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardBody } from "@heroui/react";
-import { Lightbulb } from "lucide-react";
 
 interface GraderAIRecommendationsProps {
   recommendations: string[];

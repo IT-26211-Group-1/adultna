@@ -1,12 +1,14 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import ResumePreview from "./ResumePreview";
 import { ResumeData } from "@/validators/resumeSchema";
-import { useExportResume, useSaveToFilebox } from "@/hooks/queries/useResumeQueries";
+import {
+  useExportResume,
+  useSaveToFilebox,
+} from "@/hooks/queries/useResumeQueries";
 import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
-import { Download, FileText, Users, Save } from "lucide-react";
+import { Download, FileText, Save } from "lucide-react";
 
 interface CompletedProps {
   resumeData: ResumeData;
@@ -40,7 +42,9 @@ export default function Completed({ resumeData }: CompletedProps) {
 
   const handleEditResume = () => {
     if (resumeData.id) {
-      router.push(`/resume-builder/editor?resumeId=${resumeData.id}&step=summary`);
+      router.push(
+        `/resume-builder/editor?resumeId=${resumeData.id}&step=summary`,
+      );
     }
   };
 
@@ -71,7 +75,11 @@ export default function Completed({ resumeData }: CompletedProps) {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium mb-5 mt-4">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <path
+                  clipRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  fillRule="evenodd"
+                />
               </svg>
               Resume Complete
             </div>
@@ -79,7 +87,8 @@ export default function Completed({ resumeData }: CompletedProps) {
               <span className="text-emerald-600">Your Resume is Ready!</span>
             </h1>
             <p className="text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Your resume looks amazing and is ready to help you land your dream job. You&apos;ve taken an important step toward your career goals!
+              Your resume looks amazing and is ready to help you land your dream
+              job. You&apos;ve taken an important step toward your career goals!
             </p>
           </div>
 
@@ -94,13 +103,12 @@ export default function Completed({ resumeData }: CompletedProps) {
             {/* Right: Actions */}
             <div className="flex items-start justify-center lg:pt-12">
               <div className="w-full max-w-md space-y-8">
-
                 {/* Action Buttons */}
                 <div className="flex flex-col items-center gap-4">
                   <button
                     className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-sm"
-                    onClick={handleExportToPDF}
                     disabled={exportResume.isPending}
+                    onClick={handleExportToPDF}
                   >
                     <div className="flex items-center justify-center gap-2">
                       {exportResume.isPending ? (
@@ -126,8 +134,8 @@ export default function Completed({ resumeData }: CompletedProps) {
 
                   <button
                     className="w-full px-4 py-2 bg-emerald-100 text-emerald-600 rounded-lg font-medium transition-all duration-200 hover:bg-emerald-200 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-                    onClick={handleSaveToFilebox}
                     disabled={saveToFilebox.isPending}
+                    onClick={handleSaveToFilebox}
                   >
                     <div className="flex items-center justify-center gap-2">
                       {saveToFilebox.isPending ? (
@@ -150,18 +158,26 @@ export default function Completed({ resumeData }: CompletedProps) {
                 </div>
 
                 {/* Cover Letter Invitation */}
-                <div className="border rounded-lg p-4" style={{borderColor: '#FCE2A9', backgroundColor: '#FEF3D9'}}>
+                <div
+                  className="border rounded-lg p-4"
+                  style={{ borderColor: "#FCE2A9", backgroundColor: "#FEF3D9" }}
+                >
                   <div className="mb-3">
-                    <h3 className="text-small font-semibold mb-1" style={{color: '#D4A574'}}>
+                    <h3
+                      className="text-small font-semibold mb-1"
+                      style={{ color: "#D4A574" }}
+                    >
                       Ready to Take It to the Next Level?
                     </h3>
                     <p className="text-xs text-gray-600 leading-relaxed">
-                      You&apos;re already doing amazing! Now let&apos;s add a personal touch with a cover letter that tells your unique story.
+                      You&apos;re already doing amazing! Now let&apos;s add a
+                      personal touch with a cover letter that tells your unique
+                      story.
                     </p>
                   </div>
                   <button
                     className="w-full px-4 py-2 text-white rounded-lg font-medium transition-all duration-200 text-sm"
-                    style={{backgroundColor: '#D4A574'}}
+                    style={{ backgroundColor: "#D4A574" }}
                     onClick={() => router.push("/cover-letter")}
                   >
                     Create Cover Letter
@@ -171,7 +187,8 @@ export default function Completed({ resumeData }: CompletedProps) {
                 {/* Encouragement Note */}
                 <div className="mt-4 text-center">
                   <p className="text-xs text-gray-500 italic">
-                    "Success is where preparation meets opportunity. You're prepared—now go find those opportunities!"
+                    "Success is where preparation meets opportunity. You're
+                    prepared—now go find those opportunities!"
                   </p>
                 </div>
               </div>

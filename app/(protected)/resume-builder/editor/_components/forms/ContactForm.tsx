@@ -174,24 +174,36 @@ export default function ContactForm({
           <div className="relative">
             <Input
               {...form.register("jobPosition")}
-              errorMessage={form.formState.errors.jobPosition?.message as string}
+              errorMessage={
+                form.formState.errors.jobPosition?.message as string
+              }
               isInvalid={!!form.formState.errors.jobPosition}
               label="Job Position"
               placeholder="e.g., Senior Software Engineer"
               size="sm"
             />
             <button
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove Job Position"
               type="button"
               onClick={() => {
                 setShowJobPosition(false);
                 form.setValue("jobPosition", "");
                 setResumeData({ ...resumeData, jobPosition: "" });
               }}
-              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
-              title="Remove Job Position"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
               </svg>
             </button>
           </div>
@@ -224,8 +236,8 @@ export default function ContactForm({
           isInvalid={!!form.formState.errors.email}
           label="Email"
           placeholder="email@email.com"
-          type="email"
           size="sm"
+          type="email"
         />
 
         <Input
@@ -236,13 +248,13 @@ export default function ContactForm({
           label="Phone"
           maxLength={10}
           placeholder="9XX-XXX-XXXX"
+          size="sm"
           startContent={
             <div className="pointer-events-none flex items-center">
               <span className="text-default-400 text-small">+63</span>
             </div>
           }
           type="tel"
-          size="sm"
           onInput={(e) => {
             const target = e.target as HTMLInputElement;
 
@@ -295,26 +307,36 @@ export default function ContactForm({
                     isInvalid={!!fieldState.error}
                     label="Birth date"
                     maxValue={maxDate}
+                    size="sm"
                     value={value}
                     onBlur={field.onBlur}
                     onChange={handleChange}
-                    size="sm"
                   />
                 );
               }}
             />
             <button
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
+              title="Remove Birth Date"
               type="button"
               onClick={() => {
                 setShowBirthDate(false);
                 form.setValue("birthDate", undefined);
                 setResumeData({ ...resumeData, birthDate: undefined });
               }}
-              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
-              title="Remove Birth Date"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
               </svg>
             </button>
           </div>
@@ -331,17 +353,27 @@ export default function ContactForm({
               size="sm"
             />
             <button
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove LinkedIn"
               type="button"
               onClick={() => {
                 setShowLinkedIn(false);
                 form.setValue("linkedin", "");
                 setResumeData({ ...resumeData, linkedin: "" });
               }}
-              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
-              title="Remove LinkedIn"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
               </svg>
             </button>
           </div>
@@ -358,17 +390,27 @@ export default function ContactForm({
               size="sm"
             />
             <button
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove Portfolio"
               type="button"
               onClick={() => {
                 setShowPortfolio(false);
                 form.setValue("portfolio", "");
                 setResumeData({ ...resumeData, portfolio: "" });
               }}
-              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
-              title="Remove Portfolio"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
               </svg>
             </button>
           </div>

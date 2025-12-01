@@ -20,7 +20,7 @@ export default function SignatureForm({
   onFinish,
   onPrevious,
   isLoading,
-  onValidationChange
+  onValidationChange,
 }: SignatureFormProps) {
   const [content, setContent] = useState<string>(section?.content || "");
 
@@ -79,7 +79,11 @@ export default function SignatureForm({
               ? `${getCharacterCount(content)}/${CHARACTER_LIMIT} characters ${remainingChars >= 0 ? `(${remainingChars} remaining)` : `(${Math.abs(remainingChars)} over limit)`}`
               : `Write your signature (max ${CHARACTER_LIMIT} characters)`
           }
-          errorMessage={isOverLimit ? "Signature is too long. Please shorten your text." : ""}
+          errorMessage={
+            isOverLimit
+              ? "Signature is too long. Please shorten your text."
+              : ""
+          }
           isInvalid={isOverLimit}
           label="Signature"
           maxLength={CHARACTER_LIMIT + 20} // Allow some overflow for editing
@@ -103,13 +107,17 @@ export default function SignatureForm({
             size="md"
             onPress={onFinish}
           >
-            {isLoading ? "Saving..." : isOverLimit ? "Character limit exceeded" : "Complete Cover Letter"}
+            {isLoading
+              ? "Saving..."
+              : isOverLimit
+                ? "Character limit exceeded"
+                : "Complete Cover Letter"}
           </Button>
           <button
-            type="button"
             className="text-gray-500 hover:text-emerald-600 text-sm font-medium transition-all duration-200 ease-in-out hover:underline underline-offset-2"
-            onClick={onPrevious}
             disabled={isLoading}
+            type="button"
+            onClick={onPrevious}
           >
             Back to Conclusion
           </button>

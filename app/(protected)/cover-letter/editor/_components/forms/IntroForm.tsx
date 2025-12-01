@@ -83,7 +83,11 @@ export default function IntroForm({
               ? `${getCharacterCount(content)}/${CHARACTER_LIMIT} characters ${remainingChars >= 0 ? `(${remainingChars} remaining)` : `(${Math.abs(remainingChars)} over limit)`}`
               : `Write your introduction (max ${CHARACTER_LIMIT} characters)`
           }
-          errorMessage={isOverLimit ? "Introduction is too long. Please shorten your text." : ""}
+          errorMessage={
+            isOverLimit
+              ? "Introduction is too long. Please shorten your text."
+              : ""
+          }
           isInvalid={isOverLimit}
           label="Introduction"
           maxLength={CHARACTER_LIMIT + 50} // Allow some overflow for editing
@@ -107,7 +111,11 @@ export default function IntroForm({
             size="md"
             onPress={onNext}
           >
-            {isLoading ? "Saving..." : isOverLimit ? "Character limit exceeded" : "Proceed to Body"}
+            {isLoading
+              ? "Saving..."
+              : isOverLimit
+                ? "Character limit exceeded"
+                : "Proceed to Body"}
           </Button>
         </div>
       </form>

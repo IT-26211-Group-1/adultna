@@ -20,7 +20,7 @@ export default function BodyForm({
   onNext,
   onPrevious,
   isLoading,
-  onValidationChange
+  onValidationChange,
 }: BodyFormProps) {
   const previousDataRef = useRef<string>("");
   const [content, setContent] = useState<string>(section?.content || "");
@@ -85,7 +85,9 @@ export default function BodyForm({
               ? `${getCharacterCount(content)}/${CHARACTER_LIMIT} characters ${remainingChars >= 0 ? `(${remainingChars} remaining)` : `(${Math.abs(remainingChars)} over limit)`}`
               : `Write the main body (max ${CHARACTER_LIMIT} characters)`
           }
-          errorMessage={isOverLimit ? "Body is too long. Please shorten your text." : ""}
+          errorMessage={
+            isOverLimit ? "Body is too long. Please shorten your text." : ""
+          }
           isInvalid={isOverLimit}
           label="Body"
           maxLength={CHARACTER_LIMIT + 100} // Allow some overflow for editing
@@ -109,13 +111,17 @@ export default function BodyForm({
             size="md"
             onPress={onNext}
           >
-            {isLoading ? "Saving..." : isOverLimit ? "Character limit exceeded" : "Proceed to Conclusion"}
+            {isLoading
+              ? "Saving..."
+              : isOverLimit
+                ? "Character limit exceeded"
+                : "Proceed to Conclusion"}
           </Button>
           <button
-            type="button"
             className="text-gray-500 hover:text-emerald-600 text-sm font-medium transition-all duration-200 ease-in-out hover:underline underline-offset-2"
-            onClick={onPrevious}
             disabled={isLoading}
+            type="button"
+            onClick={onPrevious}
           >
             Back to Introduction
           </button>

@@ -90,4 +90,5 @@ const StarMetricCardsComponent = ({
 };
 
 const StarMetricCards = memo(StarMetricCardsComponent);
+
 export default StarMetricCards;

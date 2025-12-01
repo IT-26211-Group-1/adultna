@@ -34,17 +34,20 @@ export default function EditorHeader({
           {/* Mobile Layout */}
           <div className="sm:hidden">
             <div className="flex items-center justify-between mb-4">
-              <nav aria-label="Breadcrumb" className="flex items-center space-x-1 text-sm flex-1 min-w-0">
+              <nav
+                aria-label="Breadcrumb"
+                className="flex items-center space-x-1 text-sm flex-1 min-w-0"
+              >
                 <Link
-                  href="/dashboard"
                   className="text-gray-500 hover:text-gray-700 transition-colors duration-200 whitespace-nowrap"
+                  href="/dashboard"
                 >
                   Dashboard
                 </Link>
                 <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
                 <Link
-                  href="/cover-letter"
                   className="text-gray-500 hover:text-gray-700 transition-colors duration-200 whitespace-nowrap"
+                  href="/cover-letter"
                 >
                   Cover Letter
                 </Link>
@@ -86,15 +89,15 @@ export default function EditorHeader({
                   className="flex items-center space-x-1 text-sm overflow-x-auto scrollbar-hide"
                 >
                   <Link
-                    href="/dashboard"
                     className="text-gray-500 hover:text-gray-700 transition-colors duration-200 whitespace-nowrap"
+                    href="/dashboard"
                   >
                     Dashboard
                   </Link>
                   <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
                   <Link
-                    href="/cover-letter"
                     className="text-gray-500 hover:text-gray-700 transition-colors duration-200 whitespace-nowrap"
+                    href="/cover-letter"
                   >
                     Cover Letter
                   </Link>

@@ -240,7 +240,6 @@ export function CoverLetterEditorContainer() {
     }
   };
 
-
   const sortedSections =
     Object.values(sectionData)
       .filter((s): s is CoverLetterSection => !!s)
@@ -321,7 +320,8 @@ export function CoverLetterEditorContainer() {
   };
 
   const handleSectionTabClick = async (sectionType: SectionType) => {
-    if (sectionType === currentSectionType || !getCurrentSectionValidation()) return;
+    if (sectionType === currentSectionType || !getCurrentSectionValidation())
+      return;
 
     // Save before switching sections
     if (hasDataChanged()) {
@@ -346,17 +346,16 @@ export function CoverLetterEditorContainer() {
     );
   }
 
-
   return (
     <div className="h-dvh bg-white flex flex-col overflow-hidden">
       <EditorHeader
+        coverLetterId={coverLetterId}
         hasSaved={hasSaved}
         hasUnsavedChanges={hasUnsavedChanges}
         isExporting={exportCoverLetter.isPending}
         isSaving={isSaving}
         title={title}
         onExport={handleDownloadPDF}
-        coverLetterId={coverLetterId}
         onTitleChange={handleTitleChange}
       />
 
@@ -375,34 +374,61 @@ export function CoverLetterEditorContainer() {
                     </div>
                     <div className="flex items-center justify-center gap-3">
                       <button
-                        onClick={handlePrevious}
-                        disabled={isFirstSection || isSaving}
+                        aria-label="Previous step"
                         className={`p-1 rounded transition-colors ${
                           !isFirstSection && !isSaving
                             ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
                             : "text-gray-300 cursor-not-allowed"
                         }`}
-                        aria-label="Previous step"
+                        disabled={isFirstSection || isSaving}
+                        onClick={handlePrevious}
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M15 19l-7-7 7-7"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
                         </svg>
                       </button>
                       <div className="text-lg font-semibold text-emerald-700 px-2">
-                        {currentSectionType.charAt(0).toUpperCase() + currentSectionType.slice(1)}
+                        {currentSectionType.charAt(0).toUpperCase() +
+                          currentSectionType.slice(1)}
                       </div>
                       <button
-                        onClick={handleNext}
-                        disabled={isLastSection || isSaving || !getCurrentSectionValidation()}
+                        aria-label="Next step"
                         className={`p-1 rounded transition-colors ${
-                          !isLastSection && !isSaving && getCurrentSectionValidation()
+                          !isLastSection &&
+                          !isSaving &&
+                          getCurrentSectionValidation()
                             ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
                             : "text-gray-300 cursor-not-allowed"
                         }`}
-                        aria-label="Next step"
+                        disabled={
+                          isLastSection ||
+                          isSaving ||
+                          !getCurrentSectionValidation()
+                        }
+                        onClick={handleNext}
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M9 5l7 7-7 7"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
                         </svg>
                       </button>
                     </div>
@@ -411,7 +437,9 @@ export function CoverLetterEditorContainer() {
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${((currentSectionIndex + 1) / sectionOrder.length) * 100}%` }}
+                      style={{
+                        width: `${((currentSectionIndex + 1) / sectionOrder.length) * 100}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -422,7 +450,8 @@ export function CoverLetterEditorContainer() {
                 <div className="flex items-center justify-center">
                   {sectionOrder.map((sectionType, index) => {
                     const isActive = currentSectionType === sectionType;
-                    const isCompleted = sectionOrder.indexOf(currentSectionType) > index;
+                    const isCompleted =
+                      sectionOrder.indexOf(currentSectionType) > index;
 
                     return (
                       <React.Fragment key={sectionType}>
@@ -430,32 +459,37 @@ export function CoverLetterEditorContainer() {
                         <div className="flex flex-col items-center w-20">
                           {/* Step Circle */}
                           <button
+                            aria-label={`Go to step ${index + 1}: ${sectionType}`}
                             className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 mb-2 ${
                               isActive || isCompleted
                                 ? "bg-emerald-600 text-white shadow-md"
                                 : "bg-gray-200 text-gray-400 hover:bg-gray-300"
                             }`}
-                            disabled={isSaving || !getCurrentSectionValidation()}
+                            disabled={
+                              isSaving || !getCurrentSectionValidation()
+                            }
                             type="button"
                             onClick={() => handleSectionTabClick(sectionType)}
-                            aria-label={`Go to step ${index + 1}: ${sectionType}`}
                           >
                             {index + 1}
                           </button>
 
                           {/* Step Label */}
                           <button
+                            aria-label={`Go to step ${index + 1}: ${sectionType}`}
                             className={`text-xs text-center leading-tight transition-colors w-full ${
                               isActive
                                 ? "text-emerald-700 font-medium"
                                 : "text-gray-500 hover:text-gray-700"
                             }`}
-                            disabled={isSaving || !getCurrentSectionValidation()}
+                            disabled={
+                              isSaving || !getCurrentSectionValidation()
+                            }
                             type="button"
                             onClick={() => handleSectionTabClick(sectionType)}
-                            aria-label={`Go to step ${index + 1}: ${sectionType}`}
                           >
-                            {sectionType.charAt(0).toUpperCase() + sectionType.slice(1)}
+                            {sectionType.charAt(0).toUpperCase() +
+                              sectionType.slice(1)}
                           </button>
                         </div>
 
@@ -463,7 +497,9 @@ export function CoverLetterEditorContainer() {
                         {index < sectionOrder.length - 1 && (
                           <div
                             className={`h-0.5 w-8 transition-all duration-200 ${
-                              index < currentSectionIndex ? "bg-emerald-600" : "bg-gray-200"
+                              index < currentSectionIndex
+                                ? "bg-emerald-600"
+                                : "bg-gray-200"
                             }`}
                           />
                         )}
@@ -477,50 +513,49 @@ export function CoverLetterEditorContainer() {
             {/* Form Component */}
             {currentSectionType === "intro" && (
               <IntroForm
-                section={sectionData.intro}
-                onSectionChange={handleIntroChange}
-                onNext={handleNext}
                 isLoading={isSaving}
+                section={sectionData.intro}
+                onNext={handleNext}
+                onSectionChange={handleIntroChange}
                 onValidationChange={setIsIntroValid}
               />
             )}
             {currentSectionType === "body" && (
               <BodyForm
+                isLoading={isSaving}
                 section={sectionData.body}
-                onSectionChange={handleBodyChange}
                 onNext={handleNext}
                 onPrevious={handlePrevious}
-                isLoading={isSaving}
+                onSectionChange={handleBodyChange}
                 onValidationChange={setIsBodyValid}
               />
             )}
             {currentSectionType === "conclusion" && (
               <ConclusionForm
+                isLoading={isSaving}
                 section={sectionData.conclusion}
-                onSectionChange={handleConclusionChange}
                 onNext={handleNext}
                 onPrevious={handlePrevious}
-                isLoading={isSaving}
+                onSectionChange={handleConclusionChange}
                 onValidationChange={setIsConclusionValid}
               />
             )}
             {currentSectionType === "signature" && (
               <SignatureForm
+                isLoading={isSaving}
                 section={sectionData.signature}
-                onSectionChange={handleSignatureChange}
                 onFinish={handleFinish}
                 onPrevious={handlePrevious}
-                isLoading={isSaving}
+                onSectionChange={handleSignatureChange}
                 onValidationChange={setIsSignatureValid}
               />
             )}
-
           </div>
         </div>
 
         {/* Right: Preview - Hidden on mobile and tablets */}
         <div className="hidden lg:block w-1/2 overflow-y-auto">
-          <CoverLetterPreview sections={sortedSections} className="w-full" />
+          <CoverLetterPreview className="w-full" sections={sortedSections} />
         </div>
       </div>
     </div>
