@@ -187,8 +187,8 @@ export default function Completed({ resumeData }: CompletedProps) {
                 {/* Encouragement Note */}
                 <div className="mt-4 text-center">
                   <p className="text-xs text-gray-500 italic">
-                    &ldquo;Success is where preparation meets opportunity. You&apos;re
-                    prepared—now go find those opportunities!&rdquo;
+                    &ldquo;Success is where preparation meets opportunity.
+                    You&apos;re prepared—now go find those opportunities!&rdquo;
                   </p>
                 </div>
               </div>

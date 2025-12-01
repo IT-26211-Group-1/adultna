@@ -209,8 +209,8 @@ export default function ReviewContainer() {
                 {/* Encouragement Note */}
                 <div className="mt-4 text-center">
                   <p className="text-xs text-gray-500 italic">
-                    &ldquo;The perfect combination of resume and cover letter opens
-                    doors. Go get them!&rdquo;
+                    &ldquo;The perfect combination of resume and cover letter
+                    opens doors. Go get them!&rdquo;
                   </p>
                 </div>
               </div>

@@ -328,8 +328,6 @@ export default function ResumeGrader({
 
                 {/* Upload Area */}
                 <div
-                  role="button"
-                  tabIndex={0}
                   className={`bg-white border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 cursor-pointer group ${
                     isDragOver
                       ? "border-emerald-500 bg-emerald-50 shadow-xl shadow-emerald-400/60 ring-4 ring-emerald-400/40 glow-emerald"
@@ -337,11 +335,15 @@ export default function ResumeGrader({
                         ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-400/40"
                         : "border-gray-300 hover:border-emerald-400 hover:bg-emerald-50/30 hover:shadow-md hover:shadow-emerald-200/30"
                   }`}
+                  role="button"
+                  tabIndex={0}
                   onClick={handleBrowseClick}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleBrowseClick(); }}
                   onDragLeave={handleDragLeave}
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") handleBrowseClick();
+                  }}
                 >
                   {uploadedFile ? (
                     <div className="space-y-4">
@@ -695,8 +697,8 @@ export default function ResumeGrader({
               insights.
               {gradingResult?.hasJobDescription &&
                 " We've provided tailored feedback based on your target job description."}
-              Here&apos;s how your resume performs and what you can improve to land
-              your dream job.
+              Here&apos;s how your resume performs and what you can improve to
+              land your dream job.
             </p>
           </div>
 

@@ -36,13 +36,13 @@ export default function ResumeEditor() {
   const resumeId = searchParams.get("resumeId") || null;
 
   const { data: existingResume, isLoading: isLoadingResume } = useResume(
-    resumeId || undefined,
+    resumeId || undefined
   );
 
   const [loadedResumeId, setLoadedResumeId] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(
-    resumeId,
+    resumeId
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const lastSavedDataRef = useRef<ResumeData | null>(null);
@@ -86,13 +86,12 @@ export default function ResumeEditor() {
   const exportResume = useExportResume();
   const saveToFilebox = useSaveToFilebox(currentResumeId || "");
 
-
   const FormComponent = steps.find(
-    (step) => step.key === currentStep,
+    (step) => step.key === currentStep
   )?.component;
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
   const currentStepTitle = steps.find(
-    (step) => step.key === currentStep,
+    (step) => step.key === currentStep
   )?.title;
   const isLastStep = currentStepIndex === steps.length - 1;
   const isContactForm = currentStep === "contact";
@@ -120,7 +119,7 @@ export default function ResumeEditor() {
             exp.jobTitle?.trim() &&
             exp.employer?.trim() &&
             exp.startDate &&
-            exp.description?.trim(),
+            exp.description?.trim()
         );
       case "education":
         // Check if there's at least one education item with required fields filled
@@ -136,7 +135,7 @@ export default function ResumeEditor() {
             edu.schoolName?.trim() &&
             edu.degree?.trim() &&
             edu.fieldOfStudy?.trim() &&
-            edu.graduationDate,
+            edu.graduationDate
         );
       case "certifications":
         // Check if there's at least one certification with certificate name filled
@@ -175,7 +174,7 @@ export default function ResumeEditor() {
   const handleSave = useCallback(
     async (
       onSuccessCallback?: () => void,
-      dataOverrides?: Partial<ResumeData & { status?: "draft" | "completed" }>,
+      dataOverrides?: Partial<ResumeData & { status?: "draft" | "completed" }>
     ) => {
       const dataToSave = { ...resumeData, ...dataOverrides };
 
@@ -204,7 +203,7 @@ export default function ResumeEditor() {
               `/resume-builder/editor?${newParams.toString()}`,
               {
                 scroll: false,
-              },
+              }
             );
             if (onSuccessCallback) {
               onSuccessCallback();
@@ -243,7 +242,7 @@ export default function ResumeEditor() {
         }
       }
     },
-    [currentResumeId, templateId, resumeData, createResume, updateResume],
+    [currentResumeId, templateId, resumeData, createResume, updateResume]
   );
 
   const handleSaveRef = useRef(handleSave);
@@ -257,7 +256,7 @@ export default function ResumeEditor() {
       if (!isInitialMount.current) {
         handleSaveRef.current();
       }
-    }, 1000),
+    }, 1000)
   );
 
   useEffect(() => {
@@ -363,54 +362,9 @@ export default function ResumeEditor() {
     }
   };
 
-  const handleBack = () => {
-    if (currentStepIndex > 0) {
-      const previousStep = steps[currentStepIndex - 1];
-
-      setStep(previousStep.key);
-    }
-  };
-
-  const handleExport = () => {
-    if (currentResumeId) {
-      exportResume.mutate(currentResumeId, {
-        onSuccess: () => {
-          addToast({
-            title: "Resume exported successfully",
-            color: "success",
-          });
-        },
-        onError: (error: any) => {
-          addToast({
-            title: "Failed to export resume",
-            description: error?.message || "Please try again",
-            color: "danger",
-          });
-        },
-      });
-    }
-  };
-
-  const handleSaveToFilebox = async () => {
-    if (currentResumeId) {
-      try {
-        await saveToFilebox.mutateAsync();
-        addToast({
-          title: "Saved to Filebox!",
-          color: "success",
-        });
-      } catch {
-        addToast({
-          title: "Failed to save to Filebox",
-          color: "danger",
-        });
-      }
-    }
-  };
-
   const handleEditTitle = () => {
     setTempTitle(
-      resumeData.title || existingResume?.title || "Untitled Resume",
+      resumeData.title || existingResume?.title || "Untitled Resume"
     );
     setIsEditingTitle(true);
   };
@@ -453,7 +407,9 @@ export default function ResumeEditor() {
                       <span className="text-gray-400">/</span>
                       <div className="flex items-center gap-2">
                         <input
-                          ref={(input) => { if (input) input.focus(); }}
+                          ref={(input) => {
+                            if (input) input.focus();
+                          }}
                           className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
                           placeholder="Enter resume title"
                           type="text"
