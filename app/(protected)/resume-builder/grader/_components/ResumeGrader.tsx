@@ -255,6 +255,51 @@ export default function ResumeGrader({
     }
   };
 
+  const handleGradeSelectedResume = async (resumeId: string) => {
+    setIsProcessing(true);
+
+    try {
+      const result = await gradeResume.mutateAsync({
+        resumeId,
+        jobDescription:
+          typeof jobDescription === "string" && jobDescription.trim()
+            ? jobDescription.trim()
+            : undefined,
+      });
+
+      setGradingResult(result);
+      setIsProcessing(false);
+
+      // Save results to secure storage for persistence across refreshes
+      setSecureItem("resumeGradingResults", JSON.stringify(result));
+
+      // Update URL to persist results state
+      const newUrl = new URL(window.location.href);
+
+      newUrl.searchParams.set("results", "true");
+      newUrl.searchParams.set("resumeId", resumeId);
+      window.history.replaceState({}, "", newUrl.toString());
+    } catch (error: any) {
+      logger.error("Grading error:", error);
+
+      if (error?.message?.includes("RATE_LIMIT_EXCEEDED")) {
+        addToast({
+          title: "Too many requests",
+          description: "Please try again in a moment.",
+          color: "warning",
+        });
+      } else {
+        addToast({
+          title: "Grading failed",
+          description:
+            error?.message || "Failed to grade resume. Please try again.",
+          color: "danger",
+        });
+      }
+      setIsProcessing(false);
+    }
+  };
+
   const getScoreVerdict = (passRate: string): string => {
     if (passRate === "excellent") return "Excellent!";
     if (passRate === "good") return "Good!";
@@ -449,72 +494,7 @@ export default function ResumeGrader({
                               <button
                                 className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-emerald-50/50 transition-all duration-200 text-left group disabled:opacity-50"
                                 disabled={isProcessing}
-                                onClick={async () => {
-                                  setIsProcessing(true);
-                                  try {
-                                    // Generate PDF from existing resume and grade it
-                                    const exportResponse =
-                                      await ApiClient.post<{
-                                        success: boolean;
-                                        data: {
-                                          downloadUrl: string;
-                                          fileKey: string;
-                                        };
-                                      }>(`/resumes/${resume.id}/export`);
-
-                                    if (!exportResponse.success) {
-                                      throw new Error(
-                                        "Failed to generate resume PDF",
-                                      );
-                                    }
-
-                                    // Now grade the generated PDF
-                                    const result =
-                                      await gradeResume.mutateAsync({
-                                        fileKey: exportResponse.data.fileKey,
-                                        fileName: `${resume.title}.pdf`,
-                                        jobDescription:
-                                          jobDescription.trim() || undefined,
-                                      });
-
-                                    setGradingResult(result);
-                                    setIsProcessing(false);
-
-                                    // Save results to secure storage
-                                    setSecureItem(
-                                      "resumeGradingResults",
-                                      JSON.stringify(result),
-                                    );
-                                    setSecureItem("gradedResumeId", resume.id);
-
-                                    // Update URL to show results
-                                    const newUrl = new URL(
-                                      window.location.href,
-                                    );
-
-                                    newUrl.searchParams.set("results", "true");
-                                    newUrl.searchParams.set(
-                                      "resumeId",
-                                      resume.id,
-                                    );
-                                    window.history.pushState(
-                                      {},
-                                      "",
-                                      newUrl.toString(),
-                                    );
-
-                                    onResultsChange?.(true);
-                                  } catch (error: any) {
-                                    addToast({
-                                      title: "Grading failed",
-                                      description:
-                                        error?.message ||
-                                        "Failed to grade resume. Please try again.",
-                                      color: "danger",
-                                    });
-                                    setIsProcessing(false);
-                                  }
-                                }}
+                                onClick={() => handleGradeSelectedResume(resume.id)}
                               >
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
                                   <div className="flex-shrink-0">
