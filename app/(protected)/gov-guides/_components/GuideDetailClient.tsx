@@ -41,7 +41,7 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
     return <GuideDetailSkeleton />;
   }
 
-  if (error || !guide) {
+  if (error || !guide || !displayGuide) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
         <p className="text-red-800">
@@ -94,7 +94,7 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
         </div>
       )}
 
-      <GuideInfoCards guide={guide} />
+      <GuideInfoCards guide={displayGuide} />
 
       <div className="mt-6">
         <Tabs

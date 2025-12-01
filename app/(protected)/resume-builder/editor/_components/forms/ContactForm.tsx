@@ -138,17 +138,17 @@ export default function ContactForm({
   }, [resumeData, form]);
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Contact Information</h2>
-        <p className="text-sm text-default-500">
+    <div className="mx-auto max-w-lg space-y-4">
+      <div className="space-y-1 text-center mb-6">
+        <h2 className="text-xl font-semibold">Contact Information</h2>
+        <p className="text-xs text-default-500">
           Let&apos;s kick things off! Start by entering your name, email, and
           phone number to set up your resume and keep everything organized.
         </p>
       </div>
 
-      <form className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+      <form className="space-y-2.5">
+        <div className="grid grid-cols-2 gap-2">
           <Input
             {...form.register("firstName")}
             isRequired
@@ -156,6 +156,7 @@ export default function ContactForm({
             isInvalid={!!form.formState.errors.firstName}
             label="First Name"
             placeholder="Enter your First Name"
+            size="sm"
           />
 
           <Input
@@ -165,26 +166,57 @@ export default function ContactForm({
             isInvalid={!!form.formState.errors.lastName}
             label="Last Name"
             placeholder="Enter your Last Name"
+            size="sm"
           />
         </div>
 
         {showJobPosition && (
-          <Input
-            {...form.register("jobPosition")}
-            errorMessage={form.formState.errors.jobPosition?.message as string}
-            isInvalid={!!form.formState.errors.jobPosition}
-            label="Job Position"
-            placeholder="e.g., Senior Software Engineer"
-          />
+          <div className="relative">
+            <Input
+              {...form.register("jobPosition")}
+              errorMessage={
+                form.formState.errors.jobPosition?.message as string
+              }
+              isInvalid={!!form.formState.errors.jobPosition}
+              label="Job Position"
+              placeholder="e.g., Senior Software Engineer"
+              size="sm"
+            />
+            <button
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove Job Position"
+              type="button"
+              onClick={() => {
+                setShowJobPosition(false);
+                form.setValue("jobPosition", "");
+                setResumeData({ ...resumeData, jobPosition: "" });
+              }}
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+            </button>
+          </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <Input
             {...form.register("city")}
             errorMessage={form.formState.errors.city?.message as string}
             isInvalid={!!form.formState.errors.city}
             label="City"
             placeholder="Enter your City"
+            size="sm"
           />
 
           <Input
@@ -193,6 +225,7 @@ export default function ContactForm({
             isInvalid={!!form.formState.errors.region}
             label="Region"
             placeholder="Enter your Region"
+            size="sm"
           />
         </div>
 
@@ -203,6 +236,7 @@ export default function ContactForm({
           isInvalid={!!form.formState.errors.email}
           label="Email"
           placeholder="email@email.com"
+          size="sm"
           type="email"
         />
 
@@ -214,6 +248,7 @@ export default function ContactForm({
           label="Phone"
           maxLength={10}
           placeholder="9XX-XXX-XXXX"
+          size="sm"
           startContent={
             <div className="pointer-events-none flex items-center">
               <span className="text-default-400 text-small">+63</span>
@@ -234,77 +269,158 @@ export default function ContactForm({
 
         {/* Optional Fields */}
         {showBirthDate && (
-          <Controller
-            control={form.control}
-            name="birthDate"
-            render={({ field, fieldState }) => {
-              let value = field.value;
+          <div className="relative">
+            <Controller
+              control={form.control}
+              name="birthDate"
+              render={({ field, fieldState }) => {
+                let value = field.value;
 
-              // Only allow CalendarDate, null, or undefined for value
-              if (!(value instanceof CalendarDate)) {
-                value = undefined;
-              }
-              const handleChange = (val: unknown) => {
-                if (val instanceof Date) {
-                  field.onChange(
-                    new CalendarDate(
-                      val.getFullYear(),
-                      val.getMonth() + 1,
-                      val.getDate(),
-                    ),
-                  );
-                } else {
-                  field.onChange(val);
+                // Only allow CalendarDate, null, or undefined for value
+                if (!(value instanceof CalendarDate)) {
+                  value = undefined;
                 }
-              };
+                const handleChange = (val: unknown) => {
+                  if (val instanceof Date) {
+                    field.onChange(
+                      new CalendarDate(
+                        val.getFullYear(),
+                        val.getMonth() + 1,
+                        val.getDate(),
+                      ),
+                    );
+                  } else {
+                    field.onChange(val);
+                  }
+                };
 
-              const today = new Date();
-              const maxDate = new CalendarDate(
-                today.getFullYear(),
-                today.getMonth() + 1,
-                today.getDate(),
-              );
+                const today = new Date();
+                const maxDate = new CalendarDate(
+                  today.getFullYear(),
+                  today.getMonth() + 1,
+                  today.getDate(),
+                );
 
-              return (
-                <DatePicker
-                  errorMessage={fieldState.error?.message as string}
-                  isInvalid={!!fieldState.error}
-                  label="Birth date"
-                  maxValue={maxDate}
-                  value={value}
-                  onBlur={field.onBlur}
-                  onChange={handleChange}
+                return (
+                  <DatePicker
+                    errorMessage={fieldState.error?.message as string}
+                    isInvalid={!!fieldState.error}
+                    label="Birth date"
+                    maxValue={maxDate}
+                    size="sm"
+                    value={value}
+                    onBlur={field.onBlur}
+                    onChange={handleChange}
+                  />
+                );
+              }}
+            />
+            <button
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
+              title="Remove Birth Date"
+              type="button"
+              onClick={() => {
+                setShowBirthDate(false);
+                form.setValue("birthDate", undefined);
+                setResumeData({ ...resumeData, birthDate: undefined });
+              }}
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
                 />
-              );
-            }}
-          />
+              </svg>
+            </button>
+          </div>
         )}
 
         {showLinkedIn && (
-          <Input
-            {...form.register("linkedin")}
-            errorMessage={form.formState.errors.linkedin?.message as string}
-            isInvalid={!!form.formState.errors.linkedin}
-            label="LinkedIn"
-            placeholder="https://linkedin.com/in/yourprofile"
-          />
+          <div className="relative">
+            <Input
+              {...form.register("linkedin")}
+              errorMessage={form.formState.errors.linkedin?.message as string}
+              isInvalid={!!form.formState.errors.linkedin}
+              label="LinkedIn"
+              placeholder="https://linkedin.com/in/yourprofile"
+              size="sm"
+            />
+            <button
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove LinkedIn"
+              type="button"
+              onClick={() => {
+                setShowLinkedIn(false);
+                form.setValue("linkedin", "");
+                setResumeData({ ...resumeData, linkedin: "" });
+              }}
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+            </button>
+          </div>
         )}
 
         {showPortfolio && (
-          <Input
-            {...form.register("portfolio")}
-            errorMessage={form.formState.errors.portfolio?.message as string}
-            isInvalid={!!form.formState.errors.portfolio}
-            label="Portfolio"
-            placeholder="https://yourportfolio.com"
-          />
+          <div className="relative">
+            <Input
+              {...form.register("portfolio")}
+              errorMessage={form.formState.errors.portfolio?.message as string}
+              isInvalid={!!form.formState.errors.portfolio}
+              label="Portfolio"
+              placeholder="https://yourportfolio.com"
+              size="sm"
+            />
+            <button
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              title="Remove Portfolio"
+              type="button"
+              onClick={() => {
+                setShowPortfolio(false);
+                form.setValue("portfolio", "");
+                setResumeData({ ...resumeData, portfolio: "" });
+              }}
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+            </button>
+          </div>
         )}
 
         {/* Optional Fields Section */}
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-1.5 mt-3">
           {!showJobPosition && (
             <button
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="px-2 py-0.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowJobPosition(true)}
             >
@@ -313,7 +429,7 @@ export default function ContactForm({
           )}
           {!showBirthDate && (
             <button
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="px-2 py-0.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowBirthDate(true)}
             >
@@ -322,7 +438,7 @@ export default function ContactForm({
           )}
           {!showLinkedIn && (
             <button
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="px-2 py-0.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowLinkedIn(true)}
             >
@@ -331,7 +447,7 @@ export default function ContactForm({
           )}
           {!showPortfolio && (
             <button
-              className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              className="px-2 py-0.5 text-xs border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
               type="button"
               onClick={() => setShowPortfolio(true)}
             >

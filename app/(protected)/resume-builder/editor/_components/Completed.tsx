@@ -1,11 +1,14 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import ResumePreview from "./ResumePreview";
 import { ResumeData } from "@/validators/resumeSchema";
-import { useExportResume } from "@/hooks/queries/useResumeQueries";
+import {
+  useExportResume,
+  useSaveToFilebox,
+} from "@/hooks/queries/useResumeQueries";
 import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
+import { Download, FileText, Save } from "lucide-react";
 
 interface CompletedProps {
   resumeData: ResumeData;
@@ -15,6 +18,7 @@ interface CompletedProps {
 export default function Completed({ resumeData }: CompletedProps) {
   const router = useRouter();
   const exportResume = useExportResume();
+  const saveToFilebox = useSaveToFilebox(resumeData.id || "");
 
   const handleExportToPDF = () => {
     if (resumeData.id) {
@@ -39,7 +43,7 @@ export default function Completed({ resumeData }: CompletedProps) {
   const handleEditResume = () => {
     if (resumeData.id) {
       router.push(
-        `/resume-builder/editor?resumeId=${resumeData.id}&step=contact`,
+        `/resume-builder/editor?resumeId=${resumeData.id}&step=summary`,
       );
     }
   };
@@ -48,61 +52,144 @@ export default function Completed({ resumeData }: CompletedProps) {
     router.push("/resume-builder");
   };
 
+  const handleSaveToFilebox = async () => {
+    if (resumeData.id) {
+      try {
+        await saveToFilebox.mutateAsync();
+        addToast({
+          title: "Saved to Filebox!",
+          description: "Your resume has been saved",
+          color: "success",
+        });
+      } catch {
+        addToast({ title: "Failed to save to Filebox", color: "danger" });
+      }
+    }
+  };
+
   return (
-    <div className="flex grow pt-16 flex-col">
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="h-screen flex flex-col overflow-hidden">
+      <div className="flex-1 bg-white p-8 overflow-y-auto">
+        <div className="max-w-4xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium mb-5 mt-4">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  clipRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              Resume Complete
+            </div>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 leading-tight">
+              <span className="text-emerald-600">Your Resume is Ready!</span>
+            </h1>
+            <p className="text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Your resume looks amazing and is ready to help you land your dream
+              job. You&apos;ve taken an important step toward your career goals!
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Left: Resume Preview */}
-            <div className="bg-white rounded-lg shadow-sm p-8 overflow-auto max-h-[85vh]">
-              <ResumePreview resumeData={resumeData} />
+            <div>
+              <div className="bg-gray-50 rounded-2xl p-6 overflow-auto max-h-[80vh]">
+                <ResumePreview resumeData={resumeData} />
+              </div>
             </div>
 
-            {/* Right: Success Message and Actions */}
+            {/* Right: Actions */}
             <div className="flex items-start justify-center lg:pt-12">
-              <div className="bg-white rounded-lg shadow-sm p-8 w-full max-w-md">
-                <div className="text-center mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    You&apos;re all set!
-                  </h1>
-                  <p className="text-gray-600 italic">
-                    Your resume is ready to go :)
-                  </p>
+              <div className="w-full max-w-md space-y-8">
+                {/* Action Buttons */}
+                <div className="flex flex-col items-center gap-4">
+                  <button
+                    className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+                    disabled={exportResume.isPending}
+                    onClick={handleExportToPDF}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      {exportResume.isPending ? (
+                        "Preparing PDF..."
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4" />
+                          Download PDF
+                        </>
+                      )}
+                    </div>
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 border-2 border-emerald-600 text-emerald-600 rounded-lg font-medium transition-all duration-200 hover:bg-emerald-600 hover:text-white hover:shadow-sm text-sm"
+                    onClick={handleEditResume}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Edit Resume
+                    </div>
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 bg-emerald-100 text-emerald-600 rounded-lg font-medium transition-all duration-200 hover:bg-emerald-200 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={saveToFilebox.isPending}
+                    onClick={handleSaveToFilebox}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      {saveToFilebox.isPending ? (
+                        "Saving..."
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4" />
+                          Save to Filebox
+                        </>
+                      )}
+                    </div>
+                  </button>
+
+                  <button
+                    className="px-4 py-2 bg-transparent text-gray-600 rounded-lg font-medium transition-all duration-200 hover:text-gray-800 hover:bg-gray-50 text-sm"
+                    onClick={handleStartNewResume}
+                  >
+                    Create New Resume
+                  </button>
                 </div>
 
-                <div className="space-y-3">
-                  <Button
-                    className="w-full py-3 text-base"
-                    variant="bordered"
-                    onPress={handleEditResume}
-                  >
-                    Edit Resume
-                  </Button>
-
-                  <Button
-                    className="w-full py-3 text-base"
-                    isLoading={exportResume.isPending}
-                    variant="bordered"
-                    onPress={handleExportToPDF}
-                  >
-                    {exportResume.isPending ? "Exporting..." : "Export to PDF"}
-                  </Button>
-
-                  <Button
-                    className="w-full py-3 text-base"
-                    variant="bordered"
-                    onPress={() => router.push("/cover-letter")}
+                {/* Cover Letter Invitation */}
+                <div
+                  className="border rounded-lg p-4"
+                  style={{ borderColor: "#FCE2A9", backgroundColor: "#FEF3D9" }}
+                >
+                  <div className="mb-3">
+                    <h3
+                      className="text-small font-semibold mb-1"
+                      style={{ color: "#D4A574" }}
+                    >
+                      Ready to Take It to the Next Level?
+                    </h3>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      You&apos;re already doing amazing! Now let&apos;s add a
+                      personal touch with a cover letter that tells your unique
+                      story.
+                    </p>
+                  </div>
+                  <button
+                    className="w-full px-4 py-2 text-white rounded-lg font-medium transition-all duration-200 text-sm"
+                    style={{ backgroundColor: "#D4A574" }}
+                    onClick={() => router.push("/cover-letter")}
                   >
                     Create Cover Letter
-                  </Button>
+                  </button>
+                </div>
 
-                  <Button
-                    className="w-full py-3 text-base"
-                    variant="bordered"
-                    onPress={handleStartNewResume}
-                  >
-                    Start New Resume
-                  </Button>
+                {/* Encouragement Note */}
+                <div className="mt-4 text-center">
+                  <p className="text-xs text-gray-500 italic">
+                    &ldquo;Success is where preparation meets opportunity.
+                    You&apos;re prepared—now go find those opportunities!&rdquo;
+                  </p>
                 </div>
               </div>
             </div>

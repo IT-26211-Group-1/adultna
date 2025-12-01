@@ -1,6 +1,6 @@
 "use client";
 
-import { Textarea } from "@heroui/react";
+import { Textarea, Button } from "@heroui/react";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { debounce } from "@/lib/utils/debounce";
 import type { CoverLetterSection } from "@/types/cover-letter";
@@ -8,11 +8,19 @@ import type { CoverLetterSection } from "@/types/cover-letter";
 interface ConclusionFormProps {
   section: CoverLetterSection | undefined;
   onSectionChange: (content: string) => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  isLoading?: boolean;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
 export default function ConclusionForm({
   section,
   onSectionChange,
+  onNext,
+  onPrevious,
+  isLoading,
+  onValidationChange,
 }: ConclusionFormProps) {
   const previousDataRef = useRef<string>("");
   const [content, setContent] = useState<string>(section?.content || "");
@@ -43,14 +51,26 @@ export default function ConclusionForm({
     }
   }, [content, section?.content, debouncedSync]);
 
+  const CHARACTER_LIMIT = 600;
+
   const getCharacterCount = (text: string): number => {
     return text.length;
   };
 
+  const isOverLimit = content.length > CHARACTER_LIMIT;
+  const remainingChars = CHARACTER_LIMIT - content.length;
+
+  // Notify parent component about validation state
+  useEffect(() => {
+    if (onValidationChange) {
+      onValidationChange(!isOverLimit);
+    }
+  }, [isOverLimit, onValidationChange]);
+
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Conclusion</h2>
+        <h2 className="text-2xl font-semibold mt-4">Conclusion</h2>
         <p className="text-sm text-default-500">
           End with a strong closing statement and call to action. Express your
           enthusiasm and next steps.
@@ -60,13 +80,54 @@ export default function ConclusionForm({
       <form className="space-y-6">
         <Textarea
           disableAnimation
-          description={`${content ? `${getCharacterCount(content)} characters` : "Write your conclusion"}`}
+          description={
+            content
+              ? `${getCharacterCount(content)}/${CHARACTER_LIMIT} characters ${remainingChars >= 0 ? `(${remainingChars} remaining)` : `(${Math.abs(remainingChars)} over limit)`}`
+              : `Write your conclusion (max ${CHARACTER_LIMIT} characters)`
+          }
+          errorMessage={
+            isOverLimit
+              ? "Conclusion is too long. Please shorten your text."
+              : ""
+          }
+          isInvalid={isOverLimit}
           label="Conclusion"
+          maxLength={CHARACTER_LIMIT + 50} // Allow some overflow for editing
           minRows={5}
           placeholder="Thank you for considering my application. I look forward to discussing..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
+
+        {/* Navigation Buttons */}
+        <div className="flex flex-col items-center gap-3 pt-6">
+          <Button
+            disableAnimation
+            className={`${
+              isOverLimit
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
+            } text-white shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out border-0 font-medium min-w-40`}
+            isDisabled={isOverLimit || isLoading}
+            isLoading={isLoading}
+            size="md"
+            onPress={onNext}
+          >
+            {isLoading
+              ? "Saving..."
+              : isOverLimit
+                ? "Character limit exceeded"
+                : "Proceed to Signature"}
+          </Button>
+          <button
+            className="text-gray-500 hover:text-emerald-600 text-sm font-medium transition-all duration-200 ease-in-out hover:underline underline-offset-2"
+            disabled={isLoading}
+            type="button"
+            onClick={onPrevious}
+          >
+            Back to Body
+          </button>
+        </div>
       </form>
     </div>
   );

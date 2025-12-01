@@ -7,6 +7,8 @@ import {
   Globe,
   Briefcase,
   GraduationCap,
+  Link,
+  Cake,
 } from "lucide-react";
 
 type TemplateProps = {
@@ -19,6 +21,26 @@ export default function ModernTemplate({
   formatDate,
 }: TemplateProps) {
   const accentColor = resumeData.colorHex || "#4A5568";
+
+  const formatBirthDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day,
+        ).toLocaleDateString("en-US");
+      }
+      const date = new Date(dateValue);
+
+      if (isNaN(date.getTime())) return "Invalid Date";
+
+      return date.toLocaleDateString("en-US");
+    } catch {
+      return "Invalid Date";
+    }
+  };
 
   return (
     <div className="bg-white flex h-full text-black">
@@ -52,12 +74,26 @@ export default function ModernTemplate({
                 </span>
               </div>
             )}
+            {resumeData.linkedin && (
+              <div className="flex items-start gap-2">
+                <Link className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span className="break-all">
+                  {resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}
+                </span>
+              </div>
+            )}
             {resumeData.portfolio && (
               <div className="flex items-start gap-2">
                 <Globe className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                 <span className="break-all">
                   {resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}
                 </span>
+              </div>
+            )}
+            {resumeData.birthDate && (
+              <div className="flex items-start gap-2">
+                <Cake className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{formatBirthDate(resumeData.birthDate)}</span>
               </div>
             )}
           </div>

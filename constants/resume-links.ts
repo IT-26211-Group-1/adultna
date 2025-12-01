@@ -8,17 +8,7 @@ export const RESUME_LINKS = [
   {
     title: "Upload your Existing Resume",
     description:
-      "Transfer your current resume’s details to one of our templates.",
+      "Transfer your current resume's details to one of our templates.",
     href: "/resume-builder/import",
-  },
-  {
-    title: "Grade Your Resume",
-    description: "Get AI recommendations to improve your resume.",
-    href: "/resume-builder/grader",
-  },
-  {
-    title: "My Resumes",
-    description: "Manage your saved resumes or continue where you left off.",
-    href: "/resume-builder/my-resumes",
   },
 ];
