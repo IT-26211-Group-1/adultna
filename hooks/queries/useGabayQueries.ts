@@ -94,6 +94,7 @@ export function useGabayConversationMessages(sessionId: string | undefined) {
     queryFn: async () => {
       if (!sessionId) return null;
       const response = await gabayApi.getConversationMessages(sessionId);
+
       return response.messages || [];
     },
     enabled: !!sessionId,

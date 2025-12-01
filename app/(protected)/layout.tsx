@@ -14,12 +14,17 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const pathname = usePathname();
   const isAIGabayPage = pathname.startsWith("/ai-gabay");
   const isMockInterviewPage = pathname.startsWith("/mock-interview");
+  const isMockInterviewResultsPage = pathname.startsWith(
+    "/mock-interview/results",
+  );
   const { showIdleWarning, onStayActive, onLogoutNow } = useAuth();
 
   return (
     <ProtectedRoute roles={["user"]}>
-      {isAIGabayPage || isMockInterviewPage ? (
+      {isAIGabayPage || (isMockInterviewPage && !isMockInterviewResultsPage) ? (
         <div className="w-full h-screen overflow-hidden">{children}</div>
+      ) : isMockInterviewResultsPage ? (
+        <div className="w-full min-h-screen overflow-y-auto">{children}</div>
       ) : (
         <UserSidebar>{children}</UserSidebar>
       )}

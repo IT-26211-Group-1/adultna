@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardBody } from "@heroui/react";
 
 type ScoreMetric = {
@@ -15,13 +16,13 @@ type StarMetricCardsProps = {
   deliveryFluency: number;
 };
 
-export function StarMetricCards({
+const StarMetricCardsComponent = ({
   starCompleteness,
   actionSpecificity,
   resultQuantification,
   relevanceToRole,
   deliveryFluency,
-}: StarMetricCardsProps) {
+}: StarMetricCardsProps) => {
   const metrics: ScoreMetric[] = [
     {
       label: "STAR Completeness",
@@ -86,4 +87,7 @@ export function StarMetricCards({
       </div>
     </div>
   );
-}
+};
+
+const StarMetricCards = memo(StarMetricCardsComponent);
+export default StarMetricCards;
