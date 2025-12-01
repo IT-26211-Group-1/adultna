@@ -55,9 +55,7 @@ export function ChatContainer() {
   const { data: loadedMessages } =
     useGabayConversationMessages(currentSessionId);
 
-  const [localMessages, setLocalMessages] = useState<ConversationMessage[]>(
-    [],
-  );
+  const [localMessages, setLocalMessages] = useState<ConversationMessage[]>([]);
 
   const messages = useMemo(() => {
     if (localMessages.length > 0) {
