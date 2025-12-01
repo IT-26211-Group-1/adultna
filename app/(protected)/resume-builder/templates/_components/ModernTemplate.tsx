@@ -29,7 +29,7 @@ export default function ModernTemplate({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day
+          dateValue.day,
         ).toLocaleDateString("en-US");
       }
       const date = new Date(dateValue);
@@ -203,7 +203,7 @@ export default function ModernTemplate({
                         {work.startDate &&
                           formatDate(work.startDate).replace(
                             /^\d{1,2}\/\d{1,2}\//,
-                            ""
+                            "",
                           )}{" "}
                         -{" "}
                         {work.isCurrentlyWorkingHere
@@ -211,7 +211,7 @@ export default function ModernTemplate({
                           : work.endDate
                             ? formatDate(work.endDate).replace(
                                 /^\d{1,2}\/\d{1,2}\//,
-                                ""
+                                "",
                               )
                             : ""}
                       </span>
@@ -254,7 +254,7 @@ export default function ModernTemplate({
                     {edu.graduationDate &&
                       formatDate(edu.graduationDate).replace(
                         /^\d{1,2}\/\d{1,2}\//,
-                        ""
+                        "",
                       )}
                   </span>
                 </div>

@@ -18,7 +18,7 @@ export default function SkillBasedTemplate({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day
+          dateValue.day,
         ).toLocaleDateString("en-US");
       }
       const date = new Date(dateValue);
@@ -142,7 +142,7 @@ export default function SkillBasedTemplate({
                     {work.startDate &&
                       formatDate(work.startDate).replace(
                         /^\d{1,2}\/\d{1,2}\//,
-                        ""
+                        "",
                       )}{" "}
                     -{" "}
                     {work.isCurrentlyWorkingHere
@@ -150,7 +150,7 @@ export default function SkillBasedTemplate({
                       : work.endDate
                         ? formatDate(work.endDate).replace(
                             /^\d{1,2}\/\d{1,2}\//,
-                            ""
+                            "",
                           )
                         : ""}
                     )

@@ -58,7 +58,7 @@ export default function CertificationForm({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -79,14 +79,14 @@ export default function CertificationForm({
       ...prevData,
       certificates:
         (values.certificates?.filter(
-          (cert) => cert && cert.certificate && cert.certificate.trim() !== ""
+          (cert) => cert && cert.certificate && cert.certificate.trim() !== "",
         ) as any[]) || [],
     }));
   }, [form, setResumeData]);
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData]
+    [syncFormData],
   );
 
   useEffect(() => {
@@ -208,7 +208,7 @@ function CertificationItem({
       ref={setNodeRef}
       className={cn(
         "space-y-2 p-3 bg-white rounded-lg shadow-sm border border-gray-100",
-        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50"
+        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
       )}
       style={{
         transform: CSS.Transform.toString(transform),

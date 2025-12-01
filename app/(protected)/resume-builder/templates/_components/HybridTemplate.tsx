@@ -29,7 +29,7 @@ export default function HybridTemplate({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day
+          dateValue.day,
         ).toLocaleDateString("en-US");
       }
       const date = new Date(dateValue);
@@ -138,7 +138,7 @@ export default function HybridTemplate({
                   {work.startDate &&
                     formatDate(work.startDate).replace(
                       /^\d{1,2}\/\d{1,2}\//,
-                      ""
+                      "",
                     )}
                   {work.startDate &&
                     (work.isCurrentlyWorkingHere || work.endDate) &&
@@ -148,7 +148,7 @@ export default function HybridTemplate({
                     : work.endDate
                       ? formatDate(work.endDate).replace(
                           /^\d{1,2}\/\d{1,2}\//,
-                          ""
+                          "",
                         )
                       : ""}
                 </div>
@@ -194,7 +194,7 @@ export default function HybridTemplate({
                 {edu.graduationDate &&
                   formatDate(edu.graduationDate).replace(
                     /^\d{1,2}\/\d{1,2}\//,
-                    ""
+                    "",
                   )}
               </div>
               <div>
