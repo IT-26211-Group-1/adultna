@@ -40,10 +40,12 @@ export function ChatContainer() {
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     () => searchParams.get("c") || undefined,
   );
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const optionsMenuRef = useRef<HTMLDivElement>(null);
+  const isCreatingConversationRef = useRef(false);
 
   const {
     data: conversationsData,
@@ -59,10 +61,12 @@ export function ChatContainer() {
   const [localMessages, setLocalMessages] = useState<ConversationMessage[]>([]);
 
   const messages = useMemo(() => {
+    // Always prioritize local messages if they exist (ongoing conversation)
     if (localMessages.length > 0) {
       return localMessages;
     }
 
+    // Otherwise show loaded history
     if (loadedMessages && loadedMessages.length > 0) {
       return loadedMessages.map(
         (m, index): ConversationMessage => ({
@@ -121,10 +125,17 @@ export function ChatContainer() {
         const sessionId = response.sessionId || currentSessionId;
 
         if (sessionId) {
-          setCurrentSessionId(sessionId);
-
+          // For new conversations, update URL and state together
           if (!currentSessionId && sessionId) {
-            router.push(`/ai-gabay?c=${sessionId}`);
+            isCreatingConversationRef.current = true;
+            setCurrentSessionId(sessionId);
+            router.replace(`/ai-gabay?c=${sessionId}`, { scroll: false });
+            // Reset flag after navigation completes
+            setTimeout(() => {
+              isCreatingConversationRef.current = false;
+            }, 100);
+          } else if (currentSessionId !== sessionId) {
+            setCurrentSessionId(sessionId);
           }
 
           refetchConversations();
@@ -170,7 +181,22 @@ export function ChatContainer() {
         timestamp: new Date(),
       };
 
-      setLocalMessages((prev) => [...prev, userMessage]);
+      setLocalMessages((prev) => {
+        if (prev.length === 0 && loadedMessages && loadedMessages.length > 0) {
+          const historyMessages = loadedMessages.map(
+            (m, index): ConversationMessage => ({
+              id: `${currentSessionId}-${index}`,
+              role: m.role,
+              content: m.content,
+              timestamp: new Date(m.timestamp),
+            }),
+          );
+
+          return [...historyMessages, userMessage];
+        }
+
+        return [...prev, userMessage];
+      });
 
       sendMessage({
         message: text,
@@ -181,7 +207,7 @@ export function ChatContainer() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       });
     },
-    [currentSessionId, sendMessage],
+    [currentSessionId, sendMessage, loadedMessages],
   );
 
   const handleNewConversation = useCallback(() => {
@@ -242,18 +268,35 @@ export function ChatContainer() {
   }, []);
 
   useEffect(() => {
+    // Skip if we're in the middle of creating a new conversation
+    if (isCreatingConversationRef.current) {
+      return;
+    }
+
     const urlConversationId = searchParams.get("c");
 
     if (urlConversationId !== currentSessionId) {
       if (urlConversationId) {
+        // Switching to a different existing conversation
+        if (currentSessionId && currentSessionId !== urlConversationId) {
+          setIsLoadingHistory(true);
+          setLocalMessages([]);
+        }
         setCurrentSessionId(urlConversationId);
-        setLocalMessages([]);
-      } else {
+      } else if (currentSessionId) {
+        // Going back to home (no conversation)
         setCurrentSessionId(undefined);
         setLocalMessages([]);
       }
     }
   }, [searchParams, currentSessionId]);
+
+  // Reset loading state when messages are loaded
+  useEffect(() => {
+    if (loadedMessages && isLoadingHistory) {
+      setIsLoadingHistory(false);
+    }
+  }, [loadedMessages, isLoadingHistory]);
 
   // Handle click outside options menu
   useEffect(() => {
