@@ -11,6 +11,7 @@ import { ConversationSidebar } from "./ConversationSidebar";
 import {
   useGabayChat,
   useRenameConversation,
+  useDeleteConversation,
   useGabayConversations,
   useGabayConversationMessages,
 } from "@/hooks/queries/useGabayQueries";
@@ -93,6 +94,15 @@ export function ChatContainer() {
     },
     onError: (error) => {
       logger.error("[GABAY] Failed to rename conversation:", error);
+    },
+  });
+
+  const { deleteConversation } = useDeleteConversation({
+    onSuccess: () => {
+      refetchConversations();
+    },
+    onError: (error) => {
+      logger.error("[GABAY] Failed to delete conversation:", error);
     },
   });
 
@@ -198,12 +208,12 @@ export function ChatContainer() {
 
   const handleDeleteConversation = useCallback(
     (id: string) => {
+      deleteConversation(id);
       if (currentSessionId === id) {
         handleNewConversation();
       }
-      refetchConversations();
     },
-    [currentSessionId, handleNewConversation, refetchConversations],
+    [deleteConversation, currentSessionId, handleNewConversation],
   );
 
   const handleDeleteConfirm = useCallback(() => {
