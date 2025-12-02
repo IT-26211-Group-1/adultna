@@ -41,12 +41,14 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
           summary: translatedGuide.description,
           steps: guide.steps?.map((step) => {
             const translatedStep = translatedGuide.steps?.find(
-              (s) => s.stepNumber === step.stepNumber
+              (s) => s.stepNumber === step.stepNumber,
             );
+
             return translatedStep ? { ...step, ...translatedStep } : step;
           }),
           requirements: guide.requirements?.map((req, index) => {
             const translatedReq = translatedGuide.requirements?.[index];
+
             return translatedReq ? { ...req, ...translatedReq } : req;
           }),
           generalTips: translatedGuide.generalTips || guide.generalTips,
