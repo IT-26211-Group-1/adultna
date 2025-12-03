@@ -34,6 +34,9 @@ export function RoadmapContainer() {
 
   return (
     <>
+      {/* Resume Builder Dashboard Background - Simple gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-green-50 to-emerald-100/40 -z-10"></div>
+
       <div className="relative z-10 flex h-screen flex-col">
         <RoadmapNavigation
           onAddMilestone={() => handleAddMilestone()}
@@ -41,7 +44,7 @@ export function RoadmapContainer() {
           currentCameraView={currentCameraView}
           isMobile={isMobile}
         />
-        <main className="flex-1 overflow-hidden mt-14">
+        <main className="flex-1 overflow-hidden mt-16">
           <RoadmapClient
             onEmptyPositionClick={handleAddMilestone}
             selectedCameraView={selectedCameraView}

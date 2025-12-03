@@ -22,15 +22,15 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-40 border-b border-gray-100">
-      <div className="bg-white/95 backdrop-blur-sm">
+    <nav className="fixed top-0 left-0 right-0 z-40">
+      <div className="bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-16">
             {/* Left Section - Back Button and Title */}
             <div className="flex items-center space-x-4">
               {/* Back Button */}
               <Button
-                className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-0 bg-transparent p-2 min-w-fit"
+                className="text-gray-700 hover:text-gray-900 hover:bg-white/60 border-0 bg-white/40 p-2 min-w-fit transition-colors duration-200 backdrop-blur-sm"
                 size="sm"
                 variant="light"
                 startContent={<ArrowLeft className="w-4 h-4" />}
@@ -53,7 +53,7 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
                   src="/AdultNa-Logo-Icon.png"
                   width={20}
                 />
-                <h1 className="text-base font-semibold text-gray-900 tracking-tight">
+                <h1 className="text-base font-semibold text-gray-800 tracking-tight">
                   Roadmap
                 </h1>
               </div>
@@ -72,7 +72,7 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
 
               {/* Add Milestone Button */}
               <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-150 border-0"
+                className="bg-green-600 hover:bg-green-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-150 border-0"
                 size="sm"
                 startContent={<Plus className="w-4 h-4" />}
                 onPress={onAddMilestone}
