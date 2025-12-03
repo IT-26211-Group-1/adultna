@@ -243,27 +243,8 @@ export function FileActions({
       return;
     }
 
-    // Archive directly without modal
-    try {
-      await archiveMutation.mutateAsync(fileMetadata.id);
-      addToast({
-        title: "File archived successfully",
-        color: "success",
-      });
-    } catch (error) {
-      logger.error("Archive error:", error);
-      if (error instanceof ApiError) {
-        addToast({
-          title: error.message || "Failed to archive file",
-          color: "danger",
-        });
-      } else {
-        addToast({
-          title: "Failed to archive file",
-          color: "danger",
-        });
-      }
-    }
+    // Show archive confirmation modal
+    onArchiveOpen();
   };
   const handleArchiveConfirm = async () => {
     if (!fileMetadata) {
@@ -770,6 +751,45 @@ export function FileActions({
                     {toggleProtectionMutation.isPending
                       ? "Protecting..."
                       : "Protect"}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+
+        {/* Archive Confirmation Modal */}
+        <Modal isOpen={isArchiveOpen} onOpenChange={onArchiveOpenChange}>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex gap-2 items-center">
+                  <Archive className="w-5 h-5 text-warning" />
+                  <span>Archive File</span>
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                    Are you sure you want to archive{" "}
+                    <strong>{file.name}</strong>?
+                  </p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Archived files can be restored later from the archived files
+                    view.
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="default" variant="light" onPress={onClose}>
+                    Cancel
+                  </Button>
+                  <Button
+                    color="warning"
+                    isLoading={archiveMutation.isPending}
+                    onPress={async () => {
+                      await handleArchiveConfirm();
+                      onClose();
+                    }}
+                  >
+                    {archiveMutation.isPending ? "Archiving..." : "Archive"}
                   </Button>
                 </ModalFooter>
               </>
