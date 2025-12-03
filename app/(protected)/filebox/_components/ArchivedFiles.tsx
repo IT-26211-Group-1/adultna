@@ -158,8 +158,8 @@ export function ArchivedFiles({ isOpen, onClose }: ArchivedFilesProps) {
                             {(file.fileSize / 1024).toFixed(2)} KB
                           </TableCell>
                           <TableCell>
-                            {file.deletedAt
-                              ? new Date(file.deletedAt).toLocaleDateString()
+                            {file.archivedDate
+                              ? new Date(file.archivedDate).toLocaleDateString()
                               : "N/A"}
                           </TableCell>
                           <TableCell>
