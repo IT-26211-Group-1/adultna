@@ -97,12 +97,15 @@ export default function SummaryForm({
     const wordCount = summaryText.trim()
       ? summaryText.trim().split(/\s+/).length
       : 0;
-    
+
     return {
       charCount,
       wordCount,
-      isCharLimitNear: charCount >= SUMMARY_LIMITS.maxCharacters * SUMMARY_LIMITS.warningThreshold,
-      isWordLimitNear: wordCount >= SUMMARY_LIMITS.maxWords * SUMMARY_LIMITS.warningThreshold,
+      isCharLimitNear:
+        charCount >=
+        SUMMARY_LIMITS.maxCharacters * SUMMARY_LIMITS.warningThreshold,
+      isWordLimitNear:
+        wordCount >= SUMMARY_LIMITS.maxWords * SUMMARY_LIMITS.warningThreshold,
     };
   }, [summaryText]);
 
@@ -200,6 +203,7 @@ export default function SummaryForm({
             value={summaryText}
             onChange={(e) => {
               const newValue = e.target.value;
+
               if (newValue.length <= SUMMARY_LIMITS.maxCharacters) {
                 setSummaryText(newValue);
               }
@@ -213,7 +217,8 @@ export default function SummaryForm({
                   : "text-gray-500"
               }`}
             >
-              {summaryStats.charCount.toLocaleString()} / {SUMMARY_LIMITS.maxCharacters.toLocaleString()} characters
+              {summaryStats.charCount.toLocaleString()} /{" "}
+              {SUMMARY_LIMITS.maxCharacters.toLocaleString()} characters
             </span>
             <span
               className={`text-xs font-medium transition-colors ${
@@ -222,7 +227,8 @@ export default function SummaryForm({
                   : "text-gray-500"
               }`}
             >
-              {summaryStats.wordCount.toLocaleString()} / {SUMMARY_LIMITS.maxWords.toLocaleString()} words
+              {summaryStats.wordCount.toLocaleString()} /{" "}
+              {SUMMARY_LIMITS.maxWords.toLocaleString()} words
             </span>
           </div>
         </div>

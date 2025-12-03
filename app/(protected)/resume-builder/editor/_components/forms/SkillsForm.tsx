@@ -36,7 +36,7 @@ export default function SkillsForm({
   });
 
   const generateSkillsSuggestions = useGenerateSkillsSuggestions(
-    resumeData.id || ""
+    resumeData.id || "",
   );
 
   const handleAddSkill = () => {
@@ -46,6 +46,7 @@ export default function SkillsForm({
         description: `You can add up to ${MAX_SKILLS} skills maximum`,
         color: "warning",
       });
+
       return;
     }
 
@@ -91,6 +92,7 @@ export default function SkillsForm({
         description: `You can add up to ${MAX_SKILLS} skills maximum`,
         color: "warning",
       });
+
       return;
     }
 
@@ -176,7 +178,7 @@ export default function SkillsForm({
         ...resumeData,
         skills:
           values.skills?.filter(
-            (skill) => skill && skill.skill && skill.skill.trim() !== ""
+            (skill) => skill && skill.skill && skill.skill.trim() !== "",
           ) || [],
       });
     }
@@ -184,7 +186,7 @@ export default function SkillsForm({
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData]
+    [syncFormData],
   );
 
   useEffect(() => {
