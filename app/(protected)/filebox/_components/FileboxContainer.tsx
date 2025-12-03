@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFileboxOperations } from "@/hooks/useFileboxOperations";
 import { SearchBar } from "./SearchBar";
 import { LoadingState } from "./LoadingState";
@@ -8,8 +8,11 @@ import { ErrorState } from "./ErrorState";
 import { EmptyState } from "./EmptyState";
 import { FileboxContent } from "./FileboxContent";
 import { FileboxModals } from "./FileboxModals";
+import { ArchivedFiles } from "./ArchivedFiles";
 
 export function FileboxContainer() {
+  const [showArchived, setShowArchived] = useState(false);
+
   const {
     selectedFile,
     selectedRecentFile,
@@ -76,6 +79,7 @@ export function FileboxContainer() {
             <SearchBar
               searchTerm={searchTerm}
               selectedCategory={selectedCategory}
+              onArchivedClick={() => setShowArchived(true)}
               onCategoryChange={setSelectedCategory}
               onSearchChange={setSearchTerm}
               onUploadClick={() => setShowUpload(true)}
@@ -121,6 +125,11 @@ export function FileboxContainer() {
         onCloseUpload={() => setShowUpload(false)}
         onDownload={handleDownload}
         onSecureSuccess={handleSecureSuccess}
+      />
+
+      <ArchivedFiles
+        isOpen={showArchived}
+        onClose={() => setShowArchived(false)}
       />
     </div>
   );
