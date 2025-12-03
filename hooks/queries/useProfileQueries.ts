@@ -24,7 +24,7 @@ export type UpdateProfileRequest = {
 };
 
 export type UpdatePasswordRequest = {
-  currentPassword: string;
+  currentPassword?: string;
   newPassword: string;
 };
 
