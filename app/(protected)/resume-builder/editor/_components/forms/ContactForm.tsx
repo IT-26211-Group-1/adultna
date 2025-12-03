@@ -312,7 +312,7 @@ export default function ContactForm({
                 );
 
                 return (
-                  <div className="relative">
+                  <div className="relative [&_input]:!pr-16 [&_button[aria-label]]:!right-8">
                     <DatePicker
                       errorMessage={fieldState.error?.message as string}
                       isInvalid={!!fieldState.error}
@@ -324,7 +324,7 @@ export default function ContactForm({
                       onChange={handleChange}
                     />
                     <button
-                      className="absolute right-9 top-[22px] text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
+                      className="absolute right-2 top-[22px] text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
                       title="Remove Birth Date"
                       type="button"
                       onClick={() => {
