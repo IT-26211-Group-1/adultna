@@ -49,6 +49,11 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
     useState<CameraAnimation | null>(null);
   const [cameraViewAnimation, setCameraViewAnimation] =
     useState<CameraAnimation | null>(null);
+
+  // Debug animation states
+  React.useEffect(() => {
+    console.log("🔄 Animation states changed - milestoneAnimation:", milestoneAnimation, "cameraViewAnimation:", cameraViewAnimation);
+  }, [milestoneAnimation, cameraViewAnimation]);
   const [hasOpenedFromQuery, setHasOpenedFromQuery] = useState(false);
 
   const isMobile = useMemo(() => {
@@ -125,34 +130,15 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
     refetch: refetchMilestones,
   } = useUserMilestonesWithPolling(true);
 
-  // Calculate camera position for milestone zoom
+  // 🎯 SIMPLIFIED: No camera animation for now - just focus on modal
   const createMilestoneZoom = useCallback(
-    (milestone: Milestone): CameraAnimation => {
-      const { x, y, z } = milestone.position;
+    (milestone: Milestone): CameraAnimation | null => {
+      console.log("🔍 Milestone clicked:", milestone);
+      console.log("🔍 Milestone position:", milestone.position);
 
-      // Calculate optimal camera angle based on milestone position with top-down view
-      const offsetX = x > 0 ? 1.2 : -1.2; // Reduced horizontal offset
-      const offsetZ = z > 0 ? 1.2 : -1.2; // Reduced depth offset
-
-      // Get current camera position if available
-      const camera = (window as any).__camera;
-      const fromPosition: [number, number, number] = camera ?
-        [camera.position.x, camera.position.y, camera.position.z] :
-        DEFAULT_CAMERA_VIEW.position;
-      const fromFov = camera ? camera.fov : DEFAULT_CAMERA_VIEW.fov;
-
-      return {
-        from: {
-          position: fromPosition,
-          fov: fromFov,
-        },
-        to: {
-          position: [x + offsetX, y + 3.5, z + offsetZ],
-          fov: isMobile ? 60 : 30, // Less aggressive zoom for mobile
-        },
-        duration: isMobile ? 400 : 600, // Faster animations on mobile
-        delay: 0,
-      };
+      // Return null for now to skip animation and focus on modal functionality
+      console.log("⏭️ Skipping camera animation for debugging");
+      return null;
     },
     [isMobile, DEFAULT_CAMERA_VIEW],
   );
@@ -223,15 +209,28 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
   }, [selectedCameraView]);
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
+    console.log("🔥 MILESTONE CLICK HANDLER CALLED!", interaction);
+    logger.log("🔥 MILESTONE CLICK HANDLER CALLED!", interaction);
+
     const milestone = milestones.find((m) => m.id === interaction.milestoneId);
+    console.log("🔍 Found milestone:", milestone);
 
     if (milestone) {
       setSelectedMilestone(milestone);
-      const zoomAnimation = createMilestoneZoom(milestone);
+      console.log("✅ About to create zoom animation...");
 
-      setMilestoneAnimation(zoomAnimation);
+      const zoomAnimation = createMilestoneZoom(milestone);
+      console.log("🎯 Created zoom animation:", zoomAnimation);
+
+      // Only set animation if it's not null
+      if (zoomAnimation) {
+        setMilestoneAnimation(zoomAnimation);
+      }
+
       onOpen();
+      console.log("📤 Modal opened and animation set");
     } else {
+      console.log("❌ No milestone found for ID:", interaction.milestoneId);
       logger.log("❌ No milestone found for ID:", interaction.milestoneId);
     }
   };
@@ -247,6 +246,9 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
   }, [onEmptyPositionClick]);
 
   const handleModalClose = () => {
+    console.log("🚪 Modal closing...");
+
+    // Simply reset milestone animation - let the camera stay where it is
     setMilestoneAnimation(null);
     setSelectedMilestone(null);
     onClose();
@@ -257,6 +259,8 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
     if (milestoneId) {
       router.replace("/roadmap", { scroll: false });
     }
+
+    console.log("✅ Modal closed, returning to default view");
   };
 
   // Fallback click handler for the Canvas element
@@ -303,6 +307,7 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
             milestoneAnimation={milestoneAnimation || cameraViewAnimation}
             isMobile={isMobile}
             onAnimationComplete={() => {
+              console.log("🏁 Animation completed! milestoneAnimation:", milestoneAnimation, "cameraViewAnimation:", cameraViewAnimation);
               if (cameraViewAnimation) {
                 setCameraViewAnimation(null);
               }

@@ -49,9 +49,12 @@ export function CameraController({
 
   // Handle milestone animations
   useEffect(() => {
+    console.log("🎬 CameraController received milestoneAnimation:", milestoneAnimation);
     if (milestoneAnimation) {
+      console.log("🎯 Starting milestone animation...");
       setStartMilestoneAnimation(true);
     } else {
+      console.log("⏹️ Stopping milestone animation");
       setStartMilestoneAnimation(false);
     }
   }, [milestoneAnimation]);

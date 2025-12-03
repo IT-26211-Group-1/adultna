@@ -22,16 +22,20 @@ export function RoadmapModel({
 }: RoadmapModelProps) {
   const { scene } = useGLTF("/models/final-roadmap-draco.glb");
 
-  const positionCoordinates: Record<number, [number, number, number]> = useMemo(() => ({
-    1: [2.6, 0.1, 1.0],
-    2: [1.6, 0.1, 1.1],
-    3: [0.6, 0.1, 1.0],
-    4: [0.5, 0.1, 0.0],
-    5: [0.4, 0.1, -0.9],
-    6: [-0.6, 0.1, -1.1],
-    7: [-1.6, 0.1, -1.0],
-    8: [-1.9, 0.1, 0.1],
-  }), []);
+  // 📍 MILESTONE POSITION COORDINATES [X, Y, Z] - RESTORED
+  // These coordinates define the exact position of each milestone on the roadmap
+  const positionCoordinates: Record<number, [number, number, number]> = useMemo(() => {
+    return {
+      1: [2.6, 0.1, 1.0],   // Top-right area
+      2: [1.6, 0.1, 1.1],   // Right side
+      3: [0.6, 0.1, 1.0],   // Center-right
+      4: [0.5, 0.1, 0.0],   // Center
+      5: [0.4, 0.1, -0.9],  // Center-left
+      6: [-0.6, 0.1, -1.1], // Left side
+      7: [-1.6, 0.1, -1.0], // Far left
+      8: [-1.9, 0.1, 0.1],  // Bottom-left area
+    };
+  }, []);
 
   const handleHitboxClick = useMemo(() =>
     (milestoneId: string, positionNumber: number) => {
