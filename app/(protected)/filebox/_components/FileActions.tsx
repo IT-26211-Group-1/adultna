@@ -229,8 +229,6 @@ export function FileActions({
   };
 
   const handleArchive = async () => {
-    console.log("handleArchive function called");
-
     if (!fileMetadata) {
       addToast({
         title: "File metadata not available",
@@ -240,7 +238,6 @@ export function FileActions({
     }
 
     if (file.isSecure) {
-      console.log("File is secure, showing OTP modal");
       setSecureAction("archive");
       setShowSecureAccess(true);
       return;
