@@ -7,11 +7,15 @@
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
     "dev:https": "next dev --experimental-https",
+    "prebuild": "node convert-images.mjs ./public && node optimize-svgs.mjs ./public",
     "build": "next build",
+    "analyze": "ANALYZE=true pnpm build",
     "start": "next start",
     "lint": "eslint --fix",
     "typecheck": "tsc --noEmit",
-    "export": "next export"
+    "export": "next export",
+    "convert-images": "node convert-images.mjs ./public",
+    "optimize-svgs": "node optimize-svgs.mjs ./public"
   },
   "dependencies": {
     "@aws-sdk/client-transcribe-streaming": "^3.920.0",
@@ -64,6 +68,7 @@
     "pdfjs-dist": "^5.4.296",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-gauge-component": "^1.2.64",
     "react-google-recaptcha": "^3.1.0",
     "react-hook-form": "^7.62.0",
     "react-markdown": "^10.1.0",
@@ -109,6 +114,8 @@
     "globals": "16.0.0",
     "postcss": "8.5.6",
     "prettier": "3.5.3",
+    "sharp": "^0.34.5",
+    "svgo": "^3.3.2",
     "tailwind-variants": "2.0.1",
     "tailwindcss": "4.1.11",
     "typescript": "5.6.3"

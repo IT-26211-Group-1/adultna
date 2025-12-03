@@ -36,7 +36,7 @@ const generateState = (): string => {
 export const useGoogleAuth = () => {
   const handleGoogleSignIn = async (mode: "login" | "register" = "login") => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/auth/google/callback`;
+    const redirectUri = `${window.location.origin}/auth/google/callback/`;
     const scope = "openid email profile";
     const responseType = "code";
     const accessType = "offline";

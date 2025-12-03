@@ -79,8 +79,15 @@ export const verifyEmailSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.email("Invalid Email Format"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Invalid Email Format")
+    .transform((val) => val.trim()),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(8, "Password must be at least 8 characters"),
 });
 
 export const forgotPasswordOtpSchema = z.object({

@@ -145,10 +145,6 @@ function AddGuideModal({
           generalTips: data.generalTips,
         };
 
-        console.log("Creating guide with data:", guideData);
-        console.log("isFree:", data.isFree, "feeAmount:", data.feeAmount);
-        console.log("General tips being sent:", data.generalTips);
-
         const response = await createGuideAsync(guideData);
 
         if (response.success) {

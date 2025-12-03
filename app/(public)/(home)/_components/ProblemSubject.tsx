@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
+
 export function ProblemSubject() {
   return (
     <div className="relative mt-12 lg:mt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -8,12 +10,11 @@ export function ProblemSubject() {
         className="absolute inset-0 flex justify-center items-center mb-40"
         style={{ zIndex: 0 }}
       >
-        <Image
+        <OptimizedImage
           alt="Pathway representing the journey to adulthood"
           className="max-w-screen mr-3 h-auto object-cover opacity-70"
           height={1080}
-          loading="lazy"
-          quality={75}
+          sizes="100vw"
           src="/Road.png"
           width={1920}
         />

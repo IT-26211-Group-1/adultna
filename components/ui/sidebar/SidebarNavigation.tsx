@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { LayoutGrid, Map, Bot } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -13,6 +14,7 @@ interface NavItem {
 
 interface SidebarNavigationProps {
   isCollapsed: boolean;
+  onCloseSidebar?: () => void;
 }
 
 const navItems: NavItem[] = [
@@ -38,6 +40,7 @@ const navItems: NavItem[] = [
 
 export default function SidebarNavigation({
   isCollapsed,
+  onCloseSidebar,
 }: SidebarNavigationProps) {
   const pathname = usePathname();
 
@@ -50,9 +53,9 @@ export default function SidebarNavigation({
 
         return (
           <li key={item.id}>
-            <a
+            <Link
               className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-colors duration-200 ${
-                isCollapsed ? "justify-center" : ""
+                isCollapsed ? "xl:justify-center" : ""
               } ${
                 isActive
                   ? "bg-adult-green text-white shadow-md"
@@ -60,6 +63,12 @@ export default function SidebarNavigation({
               }`}
               href={item.href}
               title={isCollapsed ? item.label : undefined}
+              onClick={() => {
+                // Close sidebar on mobile and tablet after navigation
+                if (typeof window !== "undefined" && window.innerWidth < 1280) {
+                  onCloseSidebar?.();
+                }
+              }}
             >
               <item.icon
                 className={`flex-shrink-0 ${
@@ -67,16 +76,14 @@ export default function SidebarNavigation({
                 }`}
                 size={20}
               />
-              {!isCollapsed && (
-                <span
-                  className={`font-medium text-sm ${
-                    isActive ? "text-white" : ""
-                  }`}
-                >
-                  {item.label}
-                </span>
-              )}
-            </a>
+              <span
+                className={`font-medium text-sm whitespace-nowrap ${
+                  isActive ? "text-white" : ""
+                } ${isCollapsed ? "xl:hidden" : ""}`}
+              >
+                {item.label}
+              </span>
+            </Link>
           </li>
         );
       })}

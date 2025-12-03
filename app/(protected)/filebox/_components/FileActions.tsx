@@ -92,7 +92,7 @@ export function FileActions({
   const [secureAction, setSecureAction] = useState<OTPAction>("preview");
   const [pendingRename, setPendingRename] = useState<string | null>(null);
   const [verifiedOtp, setVerifiedOtp] = useState<string | null>(null);
-  const [otpVerifiedAt, setOtpVerifiedAt] = useState<number | null>(null);
+  const [, setOtpVerifiedAt] = useState<number | null>(null);
 
   const handleView = async () => {
     // Check if file is secure
@@ -245,16 +245,6 @@ export function FileActions({
     try {
       // Use verifiedOtp if available (from SecureDocument), otherwise use provided otp
       const otpToUse = verifiedOtp || otp;
-
-      console.log("[FileActions] Renaming file with:", {
-        fileName: newFileName,
-        hasVerifiedOtp: !!verifiedOtp,
-        hasProvidedOtp: !!otp,
-        otpLength: otpToUse?.length,
-        timeSinceVerification: otpVerifiedAt
-          ? Date.now() - otpVerifiedAt
-          : null,
-      });
 
       const response = await renameMutation.mutateAsync({
         fileId: fileMetadata.id,

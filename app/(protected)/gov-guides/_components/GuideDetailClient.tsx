@@ -3,7 +3,11 @@
 import { useState } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useGovGuide } from "@/hooks/queries/useGovGuidesQueries";
+import {
+  useGovGuide,
+  useTranslatedGuide,
+} from "@/hooks/queries/useGovGuidesQueries";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, Tab } from "@heroui/tabs";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -13,6 +17,8 @@ import CompleteGuideTab from "./CompleteGuideTab";
 import RequirementsTab from "./RequirementsTab";
 import GeneralTipsTab from "./GeneralTipsTab";
 import GuideDetailSkeleton from "./GuideDetailSkeleton";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { DownloadPdfButton } from "./DownloadPdfButton";
 
 type GuideDetailClientProps = {
   slug: string;
@@ -20,14 +26,40 @@ type GuideDetailClientProps = {
 
 export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
   const router = useRouter();
+  const { language } = useLanguage();
   const { guide, isLoading, error } = useGovGuide(slug);
+  const { data: translatedGuide, isLoading: isTranslating } =
+    useTranslatedGuide(slug, language);
   const [selectedTab, setSelectedTab] = useState("complete-guide");
 
-  if (isLoading) {
+  // Merge translated content with original guide data
+  const displayGuide =
+    language === "fil" && translatedGuide && guide
+      ? {
+          ...guide,
+          title: translatedGuide.title,
+          summary: translatedGuide.description,
+          steps: guide.steps?.map((step) => {
+            const translatedStep = translatedGuide.steps?.find(
+              (s) => s.stepNumber === step.stepNumber,
+            );
+
+            return translatedStep ? { ...step, ...translatedStep } : step;
+          }),
+          requirements: guide.requirements?.map((req, index) => {
+            const translatedReq = translatedGuide.requirements?.[index];
+
+            return translatedReq ? { ...req, ...translatedReq } : req;
+          }),
+          generalTips: translatedGuide.generalTips || guide.generalTips,
+        }
+      : guide;
+
+  if (isLoading || (language === "fil" && isTranslating)) {
     return <GuideDetailSkeleton />;
   }
 
-  if (error || !guide) {
+  if (error || !guide || !displayGuide) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
         <p className="text-red-800">
@@ -48,27 +80,39 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
 
   return (
     <>
-      {/* Breadcrumb Navigation */}
-      <nav className="flex items-center space-x-2 mb-6 text-sm text-gray-500">
-        <Link
-          className="hover:text-adult-green transition-colors"
-          href="/gov-guides"
-        >
-          Government Guides
-        </Link>
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-gray-900 font-medium truncate">
-          {guide.title}
-        </span>
-      </nav>
+      {/* Breadcrumb Navigation with Language Switcher */}
+      <div className="flex items-center justify-between mb-6">
+        <nav className="flex items-center space-x-2 text-sm text-gray-500">
+          <Link
+            className="hover:text-adult-green transition-colors"
+            href="/gov-guides"
+          >
+            Government Guides
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-gray-900 font-medium truncate">
+            {displayGuide?.title}
+          </span>
+        </nav>
+        <LanguageSwitcher />
+      </div>
 
       <hr className="border-gray-200 mb-6" />
 
-      <h1 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight leading-tight">
-        {guide.title}
-      </h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight leading-tight">
+          {displayGuide?.title}
+        </h1>
+        <DownloadPdfButton slug={slug} />
+      </div>
 
-      <GuideInfoCards guide={guide} />
+      {language === "fil" && isTranslating && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">Translating to Filipino...</p>
+        </div>
+      )}
+
+      <GuideInfoCards guide={displayGuide} />
 
       <div className="mt-6">
         <Tabs
@@ -86,17 +130,19 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
         >
           <Tab key="complete-guide" title="Complete Guide">
             <div className="py-4">
-              <CompleteGuideTab steps={guide.steps || []} />
+              <CompleteGuideTab steps={displayGuide?.steps || []} />
             </div>
           </Tab>
           <Tab key="requirements" title="Requirements">
             <div className="py-4">
-              <RequirementsTab requirements={guide.requirements || []} />
+              <RequirementsTab
+                requirements={displayGuide?.requirements || []}
+              />
             </div>
           </Tab>
           <Tab key="general-tips" title="General Tips">
             <div className="py-4">
-              <GeneralTipsTab tips={guide.generalTips} />
+              <GeneralTipsTab tips={displayGuide?.generalTips} />
             </div>
           </Tab>
         </Tabs>

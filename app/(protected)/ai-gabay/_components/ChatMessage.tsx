@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   CheckIcon,
   ClipboardIcon,
@@ -8,8 +9,12 @@ import {
   ThumbsUpIcon,
   ThumbsDownIcon,
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-gray-200 h-4 rounded" />,
+});
 
 type ChatMessageOptimizedProps = {
   id: string;

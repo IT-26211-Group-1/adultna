@@ -80,7 +80,8 @@ export default function JobBoard() {
       {isFetching ? (
         <div
           aria-label="Loading jobs"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto min-h-[1200px]"
+          style={{ contain: "layout style paint" }}
         >
           {[...Array(JOBS_PER_PAGE)].map((_, index) => (
             <JobCardSkeleton key={index} index={index} />

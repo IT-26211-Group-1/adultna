@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Modal, ModalContent, ModalBody, Progress } from "@heroui/react";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 type GradingProgressModalProps = {
   isOpen: boolean;
@@ -43,13 +44,7 @@ const GradingProgressModalComponent = ({
       <ModalContent>
         <ModalBody className="py-10 px-8">
           <div className="flex flex-col items-center space-y-6">
-            <div className="relative">
-              <div className="w-16 h-16 relative">
-                <div className="absolute inset-0 rounded-full border-4 border-[#11553F] border-t-transparent animate-spin [animation-duration:1s]" />
-                <div className="absolute inset-1 rounded-full border-2 border-transparent border-r-[#11553F] animate-spin opacity-70 [animation-duration:1.5s] [animation-direction:reverse]" />
-                <div className="absolute inset-2 rounded-full border border-transparent border-b-[#11553F] animate-spin opacity-40 [animation-duration:2.5s]" />
-              </div>
-            </div>
+            <LoadingSpinner fullScreen={false} size="xl" variant="default" />
 
             <div className="w-full space-y-3 text-center">
               <h3 className="text-xl font-semibold text-gray-900">

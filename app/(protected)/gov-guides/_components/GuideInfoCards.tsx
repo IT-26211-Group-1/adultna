@@ -16,7 +16,7 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
         disableAnimation
         className="border border-gray-200 h-16 w-full shadow-none"
       >
-        <CardBody className="p-3">
+        <CardBody className="p-3 overflow-hidden">
           <div className="flex items-start gap-2">
             <div className="p-1.5 bg-green-50 rounded-lg">
               <DollarSign className="w-4 h-4 text-adult-green" />
@@ -52,7 +52,7 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
         disableAnimation
         className="border border-gray-200 h-16 w-full shadow-none"
       >
-        <CardBody className="p-3">
+        <CardBody className="p-3 overflow-hidden">
           <div className="flex items-start gap-2">
             <div className="p-1.5 bg-orange-50 rounded-lg">
               <Clock className="w-4 h-4 text-crayola-orange" />
@@ -79,7 +79,7 @@ export default function GuideInfoCards({ guide }: GuideInfoCardsProps) {
           isPressable
           className="border border-gray-200 hover:border-adult-green transition-colors cursor-pointer h-16 w-full shadow-none"
         >
-          <CardBody className="p-3">
+          <CardBody className="p-3 overflow-hidden">
             <div className="flex items-start gap-2">
               <div className="p-1.5 bg-blue-50 rounded-lg">
                 <MapPin className="w-4 h-4 text-blue-600" />

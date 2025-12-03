@@ -3,17 +3,35 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/modal";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { FormInput } from "@/app/auth/register/_components/FormInput";
 import {
   passwordUpdateSchema,
+  setPasswordSchema,
   PasswordUpdateInput,
+  SetPasswordInput,
 } from "@/validators/profileSchema";
 import { useState, useEffect, useCallback } from "react";
 import { useUpdatePassword } from "@/hooks/queries/useProfileQueries";
+import { useAuth } from "@/hooks/useAuth";
 
 export function PasswordForm() {
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const { user } = useAuth();
+  const hasPassword = user?.hasPassword ?? true;
+
+  const {
+    isOpen: isConfirmOpen,
+    onOpen: onConfirmOpen,
+    onClose: onConfirmClose,
+  } = useDisclosure();
   const [isSaving, setIsSaving] = useState(false);
   const [showRefreshModal, setShowRefreshModal] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -26,14 +44,21 @@ export function PasswordForm() {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
-  } = useForm<PasswordUpdateInput>({
-    resolver: zodResolver(passwordUpdateSchema),
+  } = useForm<PasswordUpdateInput | SetPasswordInput>({
+    resolver: zodResolver(
+      hasPassword ? passwordUpdateSchema : setPasswordSchema
+    ),
     mode: "onChange",
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
+    defaultValues: hasPassword
+      ? {
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }
+      : {
+          newPassword: "",
+          confirmPassword: "",
+        },
   });
 
   // Track changes in form values
@@ -51,7 +76,7 @@ export function PasswordForm() {
         return "";
       }
     },
-    [hasUnsavedChanges],
+    [hasUnsavedChanges]
   );
 
   useEffect(() => {
@@ -64,7 +89,7 @@ export function PasswordForm() {
 
   const handleSaveClick = () => {
     handleSubmit(() => {
-      setShowConfirmModal(true);
+      onConfirmOpen();
     })();
   };
 
@@ -74,19 +99,28 @@ export function PasswordForm() {
     handleSubmit(async (data) => {
       try {
         await updatePassword.mutateAsync({
-          currentPassword: data.currentPassword,
+          currentPassword: hasPassword
+            ? (data as PasswordUpdateInput).currentPassword
+            : undefined,
           newPassword: data.newPassword,
         });
 
         // Reset form immediately after success
         setTimeout(() => {
           setFormKey((prev) => prev + 1); // Force remount
-          reset({
-            currentPassword: "",
-            newPassword: "",
-            confirmPassword: "",
-          });
-          setShowConfirmModal(false);
+          reset(
+            hasPassword
+              ? {
+                  currentPassword: "",
+                  newPassword: "",
+                  confirmPassword: "",
+                }
+              : {
+                  newPassword: "",
+                  confirmPassword: "",
+                }
+          );
+          onConfirmClose();
           setHasUnsavedChanges(false);
           updatePassword.reset(); // Reset mutation state
         }, 0);
@@ -100,7 +134,7 @@ export function PasswordForm() {
 
   const handleCloseModal = () => {
     if (!isSaving) {
-      setShowConfirmModal(false);
+      onConfirmClose();
     }
   };
 
@@ -116,15 +150,17 @@ export function PasswordForm() {
 
   return (
     <div key={formKey} className="space-y-6">
-      {/* Current Password Field */}
-      <FormInput
-        autoComplete="current-password"
-        error={errors.currentPassword?.message}
-        name="currentPassword"
-        placeholder="Current Password"
-        register={register}
-        type="password"
-      />
+      {/* Current Password Field - Only show for users with existing password */}
+      {hasPassword && (
+        <FormInput
+          autoComplete="current-password"
+          error={(errors as any).currentPassword?.message}
+          name="currentPassword"
+          placeholder="Current Password"
+          register={register}
+          type="password"
+        />
+      )}
 
       {/* New Password and Confirm Password Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -149,25 +185,74 @@ export function PasswordForm() {
       {/* Save Button */}
       <div className="flex justify-end">
         <Button
-          className="bg-adult-green hover:bg-adult-green/90 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0"
+          className={`font-medium px-6 py-2.5 rounded-xl border transition-all duration-300 ${
+            hasUnsavedChanges
+              ? "bg-adult-green hover:bg-adult-green/90 text-white border-adult-green hover:border-adult-green/90 hover:scale-[1.02]"
+              : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+          }`}
+          isDisabled={!hasUnsavedChanges}
           size="md"
-          onClick={handleSaveClick}
+          onPress={handleSaveClick}
         >
           Save Changes
         </Button>
       </div>
 
-      {/* Save Confirmation Modal */}
-      <ConfirmationModal
-        cancelText="Cancel"
-        confirmText="Update Password"
-        isLoading={isSaving}
-        message="Are you sure you want to update your password? You will need to use the new password on your next login."
-        open={showConfirmModal}
-        title="Update Password"
+      {/* Update Password Confirmation Modal */}
+      <Modal
+        backdrop="blur"
+        classNames={{
+          wrapper: "z-[200]",
+          backdrop: "z-[150]",
+        }}
+        isOpen={isConfirmOpen}
+        placement="center"
+        size="md"
         onClose={handleCloseModal}
-        onConfirm={handleConfirmSave}
-      />
+      >
+        <ModalContent className="max-w-lg">
+          <ModalHeader className="pb-1">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {hasPassword ? "Update Password" : "Set Password"}
+            </h3>
+          </ModalHeader>
+
+          <ModalBody className="space-y-4 pt-1">
+            <p className="text-gray-600">
+              {hasPassword
+                ? "Are you sure you want to update your password?"
+                : "Are you sure you want to set a password for your account?"}
+            </p>
+
+            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+              <p className="text-sm text-amber-800">
+                <span className="font-semibold">Important:</span>{" "}
+                {hasPassword
+                  ? "You will need to use the new password for all future logins. Make sure you remember or save your new password securely."
+                  : "After setting a password, you can use either Google sign-in or email/password to log in. Make sure you remember or save your password securely."}
+              </p>
+            </div>
+          </ModalBody>
+
+          <ModalFooter className="pt-6">
+            <Button
+              color="default"
+              isDisabled={isSaving}
+              variant="flat"
+              onPress={handleCloseModal}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-adult-green text-white hover:bg-adult-green/90"
+              isLoading={isSaving}
+              onPress={handleConfirmSave}
+            >
+              {isSaving ? "Updating Password..." : "Yes, Update Password"}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       {/* Refresh Warning Modal */}
       <ConfirmationModal

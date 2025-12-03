@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export function Roadmap() {
   return (
@@ -16,12 +16,10 @@ export function Roadmap() {
         </p>
 
         <div className="max-w-2xl mx-auto">
-          <Image
+          <OptimizedImage
             alt="AdultNa roadmap showing milestones: education, career, finance, and personal growth"
             className="w-full h-auto rounded-xl"
             height={300}
-            loading="lazy"
-            quality={85}
             sizes="(max-width: 640px) 90vw, (max-width: 1024px) 80vw, 672px"
             src="/roadmap-horizontal.png"
             width={672}
