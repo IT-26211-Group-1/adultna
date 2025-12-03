@@ -39,7 +39,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   const [files, setFiles] = useState<FileUploadStatus[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [pendingUpload, setPendingUpload] = useState<UploadDocumentForm | null>(
-    null
+    null,
   );
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
@@ -74,7 +74,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
     if (quota.isQuotaExceeded) {
       setStorageError(
-        "Storage quota exceeded. Please delete some files to free up space."
+        "Storage quota exceeded. Please delete some files to free up space.",
       );
 
       return false;
@@ -84,7 +84,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
     if (totalSize > quota.remainingStorageBytes) {
       setStorageError(
-        `Total file size (${formatFileSize(totalSize)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`
+        `Total file size (${formatFileSize(totalSize)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`,
       );
 
       return false;
@@ -114,7 +114,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
       if (
         files.some(
-          (f) => f.file.name === file.name && f.file.size === file.size
+          (f) => f.file.name === file.name && f.file.size === file.size,
         )
       ) {
         return false;
@@ -246,7 +246,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       setAbortController(controller);
 
       setFiles((prev) =>
-        prev.map((f, idx) => (idx === i ? { ...f, status: "uploading" } : f))
+        prev.map((f, idx) => (idx === i ? { ...f, status: "uploading" } : f)),
       );
 
       try {
@@ -265,13 +265,13 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
             prev.map((f, idx) =>
               idx === i
                 ? { ...f, status: "duplicate", error: "File already exists" }
-                : f
-            )
+                : f,
+            ),
           );
         } else if (result.success) {
           successCount++;
           setFiles((prev) =>
-            prev.map((f, idx) => (idx === i ? { ...f, status: "success" } : f))
+            prev.map((f, idx) => (idx === i ? { ...f, status: "success" } : f)),
           );
         } else {
           errorCount++;
@@ -283,8 +283,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
                     status: "error",
                     error: result.message || "Upload failed",
                   }
-                : f
-            )
+                : f,
+            ),
           );
         }
       } catch (error) {
@@ -311,8 +311,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
         setFiles((prev) =>
           prev.map((f, idx) =>
-            idx === i ? { ...f, status: "error", error: errorMessage } : f
-          )
+            idx === i ? { ...f, status: "error", error: errorMessage } : f,
+          ),
         );
       }
     }
@@ -335,7 +335,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       if (successCount > 0) message.push(`${successCount} uploaded`);
       if (duplicateCount > 0)
         message.push(
-          `${duplicateCount} duplicate${duplicateCount > 1 ? "s" : ""}`
+          `${duplicateCount} duplicate${duplicateCount > 1 ? "s" : ""}`,
         );
       if (errorCount > 0) message.push(`${errorCount} failed`);
 
