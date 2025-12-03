@@ -14,6 +14,8 @@ import { Skill } from "@/types/resume";
 import { useGenerateSkillsSuggestions } from "@/hooks/queries/useAIQueries";
 import { addToast } from "@heroui/toast";
 
+const MAX_SKILLS = 15;
+
 export default function SkillsForm({
   resumeData,
   setResumeData,
@@ -24,6 +26,8 @@ export default function SkillsForm({
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
+  const isAtMaxSkills = skills.length >= MAX_SKILLS;
+
   const form = useForm<SkillFormData>({
     resolver: zodResolver(skillSchema),
     defaultValues: {
@@ -32,10 +36,19 @@ export default function SkillsForm({
   });
 
   const generateSkillsSuggestions = useGenerateSkillsSuggestions(
-    resumeData.id || "",
+    resumeData.id || ""
   );
 
   const handleAddSkill = () => {
+    if (isAtMaxSkills) {
+      addToast({
+        title: "Maximum skills reached",
+        description: `You can add up to ${MAX_SKILLS} skills maximum`,
+        color: "warning",
+      });
+      return;
+    }
+
     const newSkill: Skill = {
       skill: "",
       proficiency: 0,
@@ -72,6 +85,15 @@ export default function SkillsForm({
   };
 
   const handleApplySkill = (skill: string) => {
+    if (isAtMaxSkills) {
+      addToast({
+        title: "Maximum skills reached",
+        description: `You can add up to ${MAX_SKILLS} skills maximum`,
+        color: "warning",
+      });
+      return;
+    }
+
     const newSkill: Skill = {
       skill,
       proficiency: 0,
@@ -154,7 +176,7 @@ export default function SkillsForm({
         ...resumeData,
         skills:
           values.skills?.filter(
-            (skill) => skill && skill.skill && skill.skill.trim() !== "",
+            (skill) => skill && skill.skill && skill.skill.trim() !== ""
           ) || [],
       });
     }
@@ -162,7 +184,7 @@ export default function SkillsForm({
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData],
+    [syncFormData]
   );
 
   useEffect(() => {
@@ -207,7 +229,7 @@ export default function SkillsForm({
         <h2 className="text-xl font-semibold">Skills</h2>
         <p className="text-xs text-default-500">
           Nice Work! You&apos;re almost there. Best if you add 4-6 skills for
-          the job you&apos;re applying for.
+          the job you&apos;re applying for. (Max {MAX_SKILLS} skills)
         </p>
       </div>
 
@@ -264,16 +286,28 @@ export default function SkillsForm({
             </div>
           ))}
 
-          <Button
-            className="w-full"
-            color="primary"
-            size="sm"
-            startContent={<Plus className="w-3 h-3" />}
-            variant="bordered"
-            onPress={handleAddSkill}
-          >
-            <span className="text-xs">Add Skill</span>
-          </Button>
+          <div className="space-y-2">
+            <Button
+              className="w-full"
+              color="primary"
+              isDisabled={isAtMaxSkills}
+              size="sm"
+              startContent={<Plus className="w-3 h-3" />}
+              variant="bordered"
+              onPress={handleAddSkill}
+            >
+              <span className="text-xs">
+                {isAtMaxSkills
+                  ? `Maximum ${MAX_SKILLS} Skills Reached`
+                  : "Add Skill"}
+              </span>
+            </Button>
+            {skills.length > 0 && (
+              <p className="text-xs text-center text-default-500">
+                {skills.length} / {MAX_SKILLS} skills added
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="text-xs text-default-500 bg-default-100 p-3 rounded-lg">

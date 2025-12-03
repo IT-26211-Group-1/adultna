@@ -8,7 +8,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
 import { EditorFormProps } from "@/lib/resume/types";
-import { useEffect, useCallback, useMemo, useRef } from "react";
+import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { PlusIcon, TrashIcon, GripHorizontal } from "lucide-react";
 import { debounce } from "@/lib/utils/debounce";
 import {
@@ -58,7 +58,7 @@ export default function CertificationForm({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -79,14 +79,14 @@ export default function CertificationForm({
       ...prevData,
       certificates:
         (values.certificates?.filter(
-          (cert) => cert && cert.certificate && cert.certificate.trim() !== "",
+          (cert) => cert && cert.certificate && cert.certificate.trim() !== ""
         ) as any[]) || [],
     }));
   }, [form, setResumeData]);
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData],
+    [syncFormData]
   );
 
   useEffect(() => {
@@ -194,6 +194,20 @@ function CertificationItem({
   index,
   remove,
 }: CertificationItemProps) {
+  const CHAR_LIMITS = {
+    certificateName: 100,
+    issuingOrg: 100,
+    warningThreshold: 0.8,
+  } as const;
+
+  const certificateValue =
+    form.watch(`certificates.${index}.certificate`) || "";
+  const issuingOrgValue =
+    form.watch(`certificates.${index}.issuingOrganization`) || "";
+
+  const certCharCount = certificateValue.length;
+  const orgCharCount = issuingOrgValue.length;
+
   const {
     attributes,
     listeners,
@@ -208,7 +222,7 @@ function CertificationItem({
       ref={setNodeRef}
       className={cn(
         "space-y-2 p-3 bg-white rounded-lg shadow-sm border border-gray-100",
-        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
+        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50"
       )}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -236,31 +250,57 @@ function CertificationItem({
         </div>
       </div>
 
-      <Input
-        {...form.register(`certificates.${index}.certificate`)}
-        isRequired
-        errorMessage={
-          form.formState.errors.certificates?.[index]?.certificate?.message
-        }
-        isInvalid={!!form.formState.errors.certificates?.[index]?.certificate}
-        label="Certificate Name"
-        placeholder="AWS Certified Solutions Architect"
-        size="sm"
-      />
+      <div className="space-y-1">
+        <Input
+          {...form.register(`certificates.${index}.certificate`)}
+          isRequired
+          errorMessage={
+            form.formState.errors.certificates?.[index]?.certificate?.message
+          }
+          isInvalid={!!form.formState.errors.certificates?.[index]?.certificate}
+          label="Certificate Name"
+          placeholder="AWS Certified Solutions Architect"
+          size="sm"
+        />
+        <p
+          className={cn(
+            "text-xs text-right transition-colors",
+            certCharCount >=
+              CHAR_LIMITS.certificateName * CHAR_LIMITS.warningThreshold
+              ? "text-amber-600 font-medium"
+              : "text-gray-500"
+          )}
+        >
+          {certCharCount} / {CHAR_LIMITS.certificateName}
+        </p>
+      </div>
 
-      <Input
-        {...form.register(`certificates.${index}.issuingOrganization`)}
-        errorMessage={
-          form.formState.errors.certificates?.[index]?.issuingOrganization
-            ?.message
-        }
-        isInvalid={
-          !!form.formState.errors.certificates?.[index]?.issuingOrganization
-        }
-        label="Issuing Organization"
-        placeholder="Amazon Web Services"
-        size="sm"
-      />
+      <div className="space-y-1">
+        <Input
+          {...form.register(`certificates.${index}.issuingOrganization`)}
+          errorMessage={
+            form.formState.errors.certificates?.[index]?.issuingOrganization
+              ?.message
+          }
+          isInvalid={
+            !!form.formState.errors.certificates?.[index]?.issuingOrganization
+          }
+          label="Issuing Organization"
+          placeholder="Amazon Web Services"
+          size="sm"
+        />
+        <p
+          className={cn(
+            "text-xs text-right transition-colors",
+            orgCharCount >=
+              CHAR_LIMITS.issuingOrg * CHAR_LIMITS.warningThreshold
+              ? "text-amber-600 font-medium"
+              : "text-gray-500"
+          )}
+        >
+          {orgCharCount} / {CHAR_LIMITS.issuingOrg}
+        </p>
+      </div>
     </div>
   );
 }

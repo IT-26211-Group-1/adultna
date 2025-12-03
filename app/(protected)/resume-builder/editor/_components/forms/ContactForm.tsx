@@ -17,7 +17,7 @@ export default function ContactForm({
   const isSyncingRef = useRef(false);
   const previousDataRef = useRef<string>("");
   const [showJobPosition, setShowJobPosition] = useState(
-    !!resumeData.jobPosition,
+    !!resumeData.jobPosition
   );
   const [showBirthDate, setShowBirthDate] = useState(!!resumeData.birthDate);
   const [showLinkedIn, setShowLinkedIn] = useState(!!resumeData.linkedin);
@@ -40,7 +40,7 @@ export default function ContactForm({
           ? new CalendarDate(
               resumeData.birthDate.getFullYear(),
               resumeData.birthDate.getMonth() + 1,
-              resumeData.birthDate.getDate(),
+              resumeData.birthDate.getDate()
             )
           : undefined,
       linkedin: resumeData.linkedin || "",
@@ -70,7 +70,7 @@ export default function ContactForm({
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData],
+    [syncFormData]
   );
 
   useEffect(() => {
@@ -126,7 +126,7 @@ export default function ContactForm({
               ? new CalendarDate(
                   resumeData.birthDate.getFullYear(),
                   resumeData.birthDate.getMonth() + 1,
-                  resumeData.birthDate.getDate(),
+                  resumeData.birthDate.getDate()
                 )
               : undefined,
           linkedin: resumeData.linkedin || "",
@@ -210,23 +210,33 @@ export default function ContactForm({
         )}
 
         <div className="grid grid-cols-2 gap-2">
-          <Input
-            {...form.register("city")}
-            errorMessage={form.formState.errors.city?.message as string}
-            isInvalid={!!form.formState.errors.city}
-            label="City"
-            placeholder="Enter your City"
-            size="sm"
-          />
+          <div className="space-y-1">
+            <Input
+              {...form.register("city")}
+              errorMessage={form.formState.errors.city?.message as string}
+              isInvalid={!!form.formState.errors.city}
+              label="City"
+              placeholder="Enter your City"
+              size="sm"
+            />
+            <p className="text-xs text-right text-gray-500">
+              {(form.watch("city") || "").length} / 50
+            </p>
+          </div>
 
-          <Input
-            {...form.register("region")}
-            errorMessage={form.formState.errors.region?.message as string}
-            isInvalid={!!form.formState.errors.region}
-            label="Region"
-            placeholder="Enter your Region"
-            size="sm"
-          />
+          <div className="space-y-1">
+            <Input
+              {...form.register("region")}
+              errorMessage={form.formState.errors.region?.message as string}
+              isInvalid={!!form.formState.errors.region}
+              label="Region"
+              placeholder="Enter your Region"
+              size="sm"
+            />
+            <p className="text-xs text-right text-gray-500">
+              {(form.watch("region") || "").length} / 100
+            </p>
+          </div>
         </div>
 
         <Input
@@ -286,8 +296,8 @@ export default function ContactForm({
                       new CalendarDate(
                         val.getFullYear(),
                         val.getMonth() + 1,
-                        val.getDate(),
-                      ),
+                        val.getDate()
+                      )
                     );
                   } else {
                     field.onChange(val);
@@ -298,7 +308,7 @@ export default function ContactForm({
                 const maxDate = new CalendarDate(
                   today.getFullYear(),
                   today.getMonth() + 1,
-                  today.getDate(),
+                  today.getDate()
                 );
 
                 return (
