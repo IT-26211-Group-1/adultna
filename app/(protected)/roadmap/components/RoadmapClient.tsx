@@ -75,11 +75,13 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
       return {
         // 🔧 MOBILE CAMERA POSITION ADJUSTMENT [X, Y, Z]
         // X: Left(-) / Right(+) | Y: Down(-) / Up(+) | Z: Away(-) / Closer(+)
-        position: DEFAULT_CAMERA_VIEW.position, // Use default view position
+        // Optimized height to fit roadmap close to screen borders
+        position: [0.3, 16, 0] as [number, number, number], // Closer position for mobile
 
-        // 🔧 MOBILE FIELD OF VIEW ADJUSTMENT
+        // 📱 MOBILE FIELD OF VIEW ADJUSTMENT - FIT TO BORDERS
         // Smaller number = zoomed in, Larger number = zoomed out
-        fov: DEFAULT_CAMERA_VIEW.fov, // Use default view fov
+        // Desktop: 31, Mobile: 45 (balanced view to fit screen borders)
+        fov: 45, // Balanced FOV to fit roadmap close to mobile screen borders
 
         introAnimation: null, // No intro animation for mobile
       };

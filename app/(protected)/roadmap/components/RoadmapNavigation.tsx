@@ -11,9 +11,10 @@ interface RoadmapNavigationProps {
   onAddMilestone?: () => void;
   onCameraViewChange?: (view: CameraView) => void;
   currentCameraView?: string;
+  isMobile?: boolean;
 }
 
-export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentCameraView }: RoadmapNavigationProps) {
+export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentCameraView, isMobile }: RoadmapNavigationProps) {
   const router = useRouter();
 
   const handleDashboardClick = () => {
@@ -65,6 +66,7 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
                 <CameraViewSelector
                   onViewChange={onCameraViewChange}
                   currentView={currentCameraView}
+                  isMobile={isMobile}
                 />
               )}
 

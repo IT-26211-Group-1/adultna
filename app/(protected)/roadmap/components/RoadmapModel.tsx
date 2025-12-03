@@ -116,7 +116,8 @@ export function RoadmapModel({
 
   // 🔧 MOBILE ROADMAP SIZE ADJUSTMENT
   // Decrease first number to make roadmap smaller, increase to make bigger
-  const modelScale = isMobile ? 0.65 : 1;
+  // Optimized to fit close to mobile screen borders
+  const modelScale = isMobile ? 0.8 : 1;
 
   // 🔧 MOBILE ROADMAP POSITION ADJUSTMENT [X, Y, Z]
   // X: Left(-) / Right(+) | Y: Down(-) / Up(+) | Z: Away(-) / Closer(+)

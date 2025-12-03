@@ -13,6 +13,10 @@ export function RoadmapContainer() {
   const [currentCameraView, setCurrentCameraView] = useState<string>("top-vertical");
   const [selectedCameraView, setSelectedCameraView] = useState<CameraView | null>(null);
 
+  // Mobile detection
+  const isMobile = typeof window !== "undefined" &&
+    (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
   const handleAddMilestone = (position?: number) => {
     setSuggestedPosition(position);
     onOpen();
@@ -35,6 +39,7 @@ export function RoadmapContainer() {
           onAddMilestone={() => handleAddMilestone()}
           onCameraViewChange={handleCameraViewChange}
           currentCameraView={currentCameraView}
+          isMobile={isMobile}
         />
         <main className="flex-1 overflow-hidden mt-14">
           <RoadmapClient

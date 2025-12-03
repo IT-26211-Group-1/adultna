@@ -12,34 +12,39 @@ export type CameraView = {
   fov: number;
 };
 
-const CAMERA_VIEWS: CameraView[] = [
+// Create camera views with mobile-optimized FOV
+const createCameraViews = (isMobile: boolean): CameraView[] => [
   {
     id: "top-vertical",
     name: "Top View",
     position: [0.3, 15, 0],
-    fov: 31,
+    fov: isMobile ? 40 : 31, // Moderate FOV for mobile to fit screen borders
   },
   {
     id: "top-horizontal",
     name: "Top View (Horizontal)",
     position: [0, 15.7, -0.6],
-    fov: 31,
+    fov: isMobile ? 40 : 31, // Moderate FOV for mobile to fit screen borders
   },
   {
     id: "isometric",
     name: "Isometric View",
     position: [4.6, 9.4, 3.9],
-    fov: 39,
+    fov: isMobile ? 50 : 39, // Balanced FOV for mobile isometric view
   },
 ];
 
 interface CameraViewSelectorProps {
   onViewChange: (view: CameraView) => void;
   currentView?: string;
+  isMobile?: boolean;
 }
 
-export function CameraViewSelector({ onViewChange, currentView = "top-vertical" }: CameraViewSelectorProps) {
+export function CameraViewSelector({ onViewChange, currentView = "top-vertical", isMobile = false }: CameraViewSelectorProps) {
   const [selectedViewId, setSelectedViewId] = useState(currentView);
+
+  // Get device-appropriate camera views
+  const CAMERA_VIEWS = createCameraViews(isMobile);
 
   const handleViewChange = (viewId: string) => {
     const view = CAMERA_VIEWS.find(v => v.id === viewId);
