@@ -65,10 +65,11 @@ function UserSidebar({
   const toggleSection = useCallback(
     (sectionId: string) => {
       if (isCollapsed) return; // Don't allow expansion when collapsed
-      setExpandedSections((prev) =>
-        prev.includes(sectionId)
-          ? prev.filter((id) => id !== sectionId)
-          : [...prev, sectionId],
+      setExpandedSections(
+        (prev) =>
+          prev.includes(sectionId)
+            ? [] // Close the currently open section
+            : [sectionId], // Open only the new section, close all others
       );
     },
     [isCollapsed],
@@ -80,10 +81,8 @@ function UserSidebar({
       if (isCollapsed) {
         handleCollapse();
       }
-      // Auto-expand the clicked section
-      setExpandedSections((prev) =>
-        prev.includes(sectionId) ? prev : [...prev, sectionId],
-      );
+      // Auto-expand the clicked section, close all others
+      setExpandedSections([sectionId]);
     },
     [isCollapsed, handleCollapse],
   );
@@ -123,7 +122,9 @@ function UserSidebar({
         {isOpen && (
           <div
             aria-label="Close sidebar"
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className={`fixed inset-0 z-40 xl:hidden transition-all duration-300 ease-in-out ${
+              isOpen ? "bg-black/20 backdrop-blur-sm" : "bg-transparent"
+            }`}
             role="button"
             tabIndex={0}
             onClick={handleToggle}
@@ -135,30 +136,53 @@ function UserSidebar({
           />
         )}
 
-        {/* Toggle button for mobile */}
+        {/* Toggle button for mobile - Right side with animation */}
         <button
-          aria-label="Toggle sidebar"
-          className="fixed top-4 left-4 z-50 lg:hidden bg-white/70 p-2 rounded-md shadow-md border"
+          aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
+          className="fixed top-6 right-6 z-[101] xl:hidden bg-white/90 backdrop-blur-md p-3 rounded-2xl border-0 hover:bg-white transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
           onClick={handleToggle}
         >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
+          <div className="relative w-[22px] h-[22px]">
+            <Menu
+              className={`absolute top-0 left-0 text-gray-700 transition-all duration-300 ease-in-out ${
+                isOpen
+                  ? "opacity-0 rotate-45 scale-75"
+                  : "opacity-100 rotate-0 scale-100"
+              }`}
+              size={22}
+            />
+            <X
+              className={`absolute top-0 left-0 text-gray-700 transition-all duration-300 ease-in-out ${
+                isOpen
+                  ? "opacity-100 rotate-0 scale-100"
+                  : "opacity-0 -rotate-45 scale-75"
+              }`}
+              size={22}
+            />
+          </div>
         </button>
 
         {/* Sidebar */}
         <div
           className={`
-            fixed top-4 left-4 h-[calc(100vh-2rem)] backdrop-blur-md border border-white/30 rounded-2xl shadow-lg z-[100]
-            transform transition-all duration-300 ease-in-out
-            ${isOpen ? "translate-x-0" : "-translate-x-full"}
-            lg:translate-x-0
-            ${isCollapsed ? "lg:w-20" : "lg:w-64"}
-            w-64 flex flex-col
+            fixed z-[100]
+            transform transition-all duration-400 ease-in-out
+            ${isOpen ? "translate-y-0" : "-translate-y-full"}
+            xl:translate-x-0 xl:translate-y-0
+            w-full ${isCollapsed ? "xl:w-20" : "xl:w-64"} flex flex-col
+            top-0 left-0 xl:left-4 xl:top-4
+            h-auto max-h-[75vh] xl:h-[calc(100vh-2rem)] xl:max-h-none
+            rounded-b-2xl xl:rounded-2xl
+            xl:border xl:border-white/30
+            bg-white xl:backdrop-blur-md
           `}
           style={{
             backgroundColor:
               pathname === "/roadmap"
                 ? "rgba(154,205,50, 0.15)"
-                : "rgba(17,85,63, 0.10)",
+                : window.innerWidth < 1280
+                  ? "#ffffff"
+                  : "rgba(17,85,63, 0.10)",
           }}
         >
           {/* Header */}
@@ -167,13 +191,13 @@ function UserSidebar({
           {/* Collapse/Expand Button - Desktop only */}
           <button
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden lg:flex absolute -right-3 top-20 bg-white/70 border border-gray-200 rounded-xl p-1.5 shadow-md hover:shadow-lg transition-all duration-200 hover:bg-gray-50 z-10"
+            className="hidden xl:block absolute -right-3 top-20 bg-white/90 backdrop-blur-sm border border-white/30 rounded-xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white hover:scale-105 z-10"
             onClick={handleCollapse}
           >
             {isCollapsed ? (
-              <ChevronRight className="text-gray-600" size={16} />
+              <ChevronRight className="text-gray-700" size={16} />
             ) : (
-              <ChevronLeft className="text-gray-600" size={16} />
+              <ChevronLeft className="text-gray-700" size={16} />
             )}
           </button>
 
@@ -182,10 +206,14 @@ function UserSidebar({
             {/* Main Section */}
             <div className="mb-6">
               <ul className="space-y-2">
-                <SidebarNavigation isCollapsed={isCollapsed} />
+                <SidebarNavigation
+                  isCollapsed={isCollapsed}
+                  onCloseSidebar={handleToggle}
+                />
                 <SidebarCollapsibleSection
                   expandedSections={expandedSections}
                   isCollapsed={isCollapsed}
+                  onCloseSidebar={handleToggle}
                   onExpandSidebar={handleExpandSidebar}
                   onToggleSection={toggleSection}
                 />
@@ -193,11 +221,15 @@ function UserSidebar({
             </div>
           </nav>
 
-          {/* Storage Section */}
-          <SidebarStorage isCollapsed={isCollapsed} />
+          {/* Desktop: Storage Section */}
+          <div className="hidden xl:block">
+            <SidebarStorage isCollapsed={isCollapsed} />
+          </div>
 
-          {/* User Profile Section */}
-          <SidebarUserProfile isCollapsed={isCollapsed} />
+          {/* Desktop: User Profile Section */}
+          <div className="hidden xl:block">
+            <SidebarUserProfile isCollapsed={isCollapsed} />
+          </div>
         </div>
       </div>
 
@@ -205,8 +237,8 @@ function UserSidebar({
       {children && (
         <div
           className={`transition-all duration-300 ${
-            pathname === "/roadmap" ? "" : isCollapsed ? "lg:ml-24" : "lg:ml-76"
-          } relative z-10`}
+            pathname === "/roadmap" ? "" : isCollapsed ? "xl:ml-24" : "xl:ml-76"
+          } relative z-10 pt-16 xl:pt-0`}
         >
           {typeof children === "function"
             ? children({ sidebarCollapsed: isCollapsed })

@@ -6,7 +6,7 @@ export default function JobCardSkeleton({ index = 0 }: { index?: number }) {
 
   return (
     <article
-      className={`bg-gradient-to-br ${cardColor} border border-gray-200 rounded-2xl overflow-hidden h-full flex flex-col animate-pulse`}
+      className={`bg-gradient-to-br ${cardColor} border border-gray-200 rounded-2xl overflow-hidden h-full flex flex-col animate-pulse min-h-[380px]`}
     >
       {/* Header Section */}
       <div className="p-5 flex-grow">

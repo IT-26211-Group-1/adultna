@@ -112,7 +112,7 @@ export const useGoogleCallback = () => {
 
       // For login, proceed with authentication
       try {
-        const redirectUri = `${window.location.origin}/auth/google/callback`;
+        const redirectUri = `${window.location.origin}/auth/google/callback/`;
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API}/auth/google/callback?mode=${mode}`,
           {

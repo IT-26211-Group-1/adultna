@@ -22,6 +22,7 @@ export type User = {
   role: string;
   emailVerified: boolean;
   onboardingStatus?: "not_started" | "in_progress" | "completed";
+  hasPassword: boolean;
 };
 
 export type AuthMeResponse = {

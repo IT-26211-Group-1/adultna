@@ -1,9 +1,14 @@
 "use client";
 
-import { memo, useState } from "react";
-import { PlusIcon, MessageSquareIcon, Home, Trash2 } from "lucide-react";
+import { memo, useState, useEffect, useRef } from "react";
+import {
+  PlusIcon,
+  MessageSquareIcon,
+  Home,
+  Trash2,
+  Pencil,
+} from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Modal,
   ModalContent,
@@ -13,14 +18,20 @@ import {
 } from "@heroui/modal";
 import type { Conversation } from "@/types/gabay";
 
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
+
 interface ConversationSidebarProps {
   conversations: Conversation[];
   currentConversationId?: string;
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
   onDeleteConversation: (id: string) => void;
+  onRenameConversation: (id: string, newTitle: string) => void;
   isOpen: boolean;
   onToggleSidebar: () => void;
+  hasMore?: boolean;
+  isLoading?: boolean;
+  onLoadMore?: () => void;
 }
 
 export const ConversationSidebar = memo(function ConversationSidebar({
@@ -29,13 +40,20 @@ export const ConversationSidebar = memo(function ConversationSidebar({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
+  onRenameConversation,
   isOpen,
   onToggleSidebar,
+  hasMore,
+  isLoading,
+  onLoadMore,
 }: ConversationSidebarProps) {
   const [showDeleteDropdown, setShowDeleteDropdown] = useState<string | null>(
     null,
   );
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDeleteClick = (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -61,6 +79,35 @@ export const ConversationSidebar = memo(function ConversationSidebar({
   const handleDropdownCancel = () => {
     setShowDeleteDropdown(null);
   };
+
+  const handleRenameClick = (conversation: Conversation) => {
+    setShowDeleteDropdown(null);
+    setEditingId(conversation.id);
+    setEditValue(conversation.title);
+  };
+
+  const handleRenameSubmit = (conversationId: string) => {
+    if (
+      editValue.trim() &&
+      editValue !== conversations.find((c) => c.id === conversationId)?.title
+    ) {
+      onRenameConversation(conversationId, editValue.trim());
+    }
+    setEditingId(null);
+    setEditValue("");
+  };
+
+  const handleRenameCancel = () => {
+    setEditingId(null);
+    setEditValue("");
+  };
+
+  useEffect(() => {
+    if (editingId && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingId]);
 
   return (
     <>
@@ -113,10 +160,12 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                 </svg>
               </button>
               <div className="flex-1 min-w-0">
-                <Image
+                <OptimizedImage
+                  priority
                   alt="AdultNa Logo"
                   className="h-7 w-auto object-contain"
                   height={28}
+                  sizes="100px"
                   src="/Logo.png"
                   width={100}
                 />
@@ -195,32 +244,59 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                     className="group relative"
                     data-conversation-id={conversation.id}
                   >
-                    <button
-                      className={`flex w-full items-center gap-3 p-3 text-left transition-all rounded-lg ${
-                        currentConversationId === conversation.id
-                          ? "bg-adult-green/10 text-adult-green shadow-sm"
-                          : "text-gray-700 hover:text-adult-green hover:bg-gray-50/50"
-                      }`}
-                      title={conversation.title}
-                      onClick={() => onSelectConversation(conversation.id)}
-                    >
-                      <MessageSquareIcon className="h-4 w-4 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {conversation.title}
-                        </p>
-                        {conversation.lastMessage && (
-                          <p className="text-xs opacity-75 truncate mt-1">
-                            {conversation.lastMessage}
-                          </p>
-                        )}
+                    {editingId === conversation.id ? (
+                      <div className="flex w-full items-center gap-2 p-3">
+                        <MessageSquareIcon className="h-4 w-4 flex-shrink-0 text-gray-600" />
+                        <input
+                          ref={inputRef}
+                          className="flex-1 text-sm font-medium bg-white border border-adult-green rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-adult-green/20"
+                          type="text"
+                          value={editValue}
+                          onBlur={() => handleRenameSubmit(conversation.id)}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleRenameSubmit(conversation.id);
+                            } else if (e.key === "Escape") {
+                              handleRenameCancel();
+                            }
+                          }}
+                        />
                       </div>
-                    </button>
+                    ) : (
+                      <button
+                        className={`flex w-full items-center gap-3 p-3 text-left transition-all rounded-lg ${
+                          currentConversationId === conversation.id
+                            ? "bg-adult-green/10 text-adult-green shadow-sm"
+                            : "text-gray-700 hover:text-adult-green hover:bg-gray-50/50"
+                        }`}
+                        title={conversation.title}
+                        onClick={() => onSelectConversation(conversation.id)}
+                      >
+                        <MessageSquareIcon className="h-4 w-4 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {conversation.title}
+                          </p>
+                          {conversation.lastMessage && (
+                            <p className="text-xs opacity-75 truncate mt-1">
+                              {conversation.lastMessage}
+                            </p>
+                          )}
+                        </div>
+                      </button>
+                    )}
 
                     {/* Options Button - shows on hover with gradient overlay */}
-                    {currentConversationId !== conversation.id && (
+                    {editingId !== conversation.id && (
                       <div className="absolute inset-y-0 right-0 w-20 opacity-0 transition-opacity duration-200 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
-                        <div className="absolute inset-0 bg-gradient-to-l from-purple-50/90 via-purple-50/60 to-transparent" />
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-l ${
+                            currentConversationId === conversation.id
+                              ? "from-adult-green/10 via-adult-green/5 to-transparent"
+                              : "from-purple-50/90 via-purple-50/60 to-transparent"
+                          }`}
+                        />
                         <button
                           className="absolute inset-y-0 right-3 flex items-center justify-center w-8 h-full text-gray-600 hover:text-gray-800 transition-colors duration-200"
                           title="More options"
@@ -255,6 +331,14 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                         />
                         <div className="absolute top-full right-3 z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[120px] mt-1">
                           <button
+                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => handleRenameClick(conversation)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                            Rename
+                          </button>
+                          <div className="mx-2 border-b border-gray-200/50" />
+                          <button
                             className="flex w-full items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                             onClick={() =>
                               handleDeleteOptionClick(conversation.id)
@@ -273,6 +357,19 @@ export const ConversationSidebar = memo(function ConversationSidebar({
                 </div>
               ))}
             </div>
+
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="pt-3 px-2">
+                <button
+                  className="w-full py-2 text-sm font-medium text-adult-green hover:text-adult-green/80 hover:bg-adult-green/5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading}
+                  onClick={() => onLoadMore?.()}
+                >
+                  {isLoading ? "Loading..." : "Load more"}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

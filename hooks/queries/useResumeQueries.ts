@@ -68,11 +68,11 @@ export function useUpdateResume(resumeId: string) {
 
       return response.resume!;
     },
-    onSuccess: () => {
-      // Don't overwrite cache - just mark as stale for background refetch
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.resumes.detail(resumeId),
-      });
+    onSuccess: (updatedResume) => {
+      queryClient.setQueryData(
+        queryKeys.resumes.detail(resumeId),
+        updatedResume,
+      );
     },
   });
 }
@@ -567,8 +567,9 @@ export type ATSGradingResult = {
 export function useGradeResume() {
   return useMutation({
     mutationFn: async (data: {
-      fileKey: string;
-      fileName: string;
+      fileKey?: string;
+      fileName?: string;
+      resumeId?: string;
       jobDescription?: string;
     }) => {
       const response = await ApiClient.post<{

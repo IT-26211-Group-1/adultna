@@ -2,7 +2,8 @@
 
 import { Link } from "@heroui/link";
 import NextLink from "next/link";
-import Image from "next/image";
+
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export const Footer = () => {
   const scrollToSection = (sectionId: string) => {
@@ -19,9 +20,10 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="flex flex-col items-start">
             <div className="flex items-center gap-2 mb-4">
-              <Image
+              <OptimizedImage
                 alt="AdultNa Logo"
                 height={250}
+                sizes="250px"
                 src="/Updated-AdultNa-Logo.png"
                 width={250}
               />

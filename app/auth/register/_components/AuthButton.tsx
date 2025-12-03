@@ -7,6 +7,7 @@ interface AuthButtonProps {
   variant?: "primary" | "secondary";
   onClick?: () => void;
   className?: string;
+  disabled?: boolean;
 }
 
 export const AuthButton = ({
@@ -16,11 +17,13 @@ export const AuthButton = ({
   variant = "primary",
   onClick,
   className = "",
+  disabled = false,
 }: AuthButtonProps) => {
   return (
     <Button
       className={`w-full font-medium text-md h-12 ${variant === "primary" ? "bg-adult-green text-white hover:bg-green-950" : "border-gray-100 hover:border-gray-200 text-white hover:bg-adult-green/100"} ${className}`}
       color="default"
+      isDisabled={disabled || loading}
       isLoading={loading}
       radius="lg"
       size="md"

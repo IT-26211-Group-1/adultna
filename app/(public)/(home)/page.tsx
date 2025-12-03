@@ -1,8 +1,34 @@
+import dynamic from "next/dynamic";
 import { Hero } from "@/app/(public)/(home)/_components/Hero";
-import { Problem } from "@/app/(public)/(home)/_components/Problem";
-import { Preview } from "@/app/(public)/(home)/_components/Preview";
-import { Roadmap } from "@/app/(public)/(home)/_components/Roadmap";
-import { CTA } from "@/app/(public)/(home)/_components/CTA";
+
+const Problem = dynamic(
+  () =>
+    import("@/app/(public)/(home)/_components/Problem").then((mod) => ({
+      default: mod.Problem,
+    })),
+  { ssr: true },
+);
+const Preview = dynamic(
+  () =>
+    import("@/app/(public)/(home)/_components/Preview").then((mod) => ({
+      default: mod.Preview,
+    })),
+  { ssr: true },
+);
+const Roadmap = dynamic(
+  () =>
+    import("@/app/(public)/(home)/_components/Roadmap").then((mod) => ({
+      default: mod.Roadmap,
+    })),
+  { ssr: true },
+);
+const CTA = dynamic(
+  () =>
+    import("@/app/(public)/(home)/_components/CTA").then((mod) => ({
+      default: mod.CTA,
+    })),
+  { ssr: true },
+);
 
 export default function Home() {
   return (

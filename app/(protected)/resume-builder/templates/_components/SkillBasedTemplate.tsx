@@ -11,6 +11,26 @@ export default function SkillBasedTemplate({
 }: TemplateProps) {
   const accentColor = resumeData.colorHex || "#A64D79";
 
+  const formatBirthDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day,
+        ).toLocaleDateString("en-US");
+      }
+      const date = new Date(dateValue);
+
+      if (isNaN(date.getTime())) return "Invalid Date";
+
+      return date.toLocaleDateString("en-US");
+    } catch {
+      return "Invalid Date";
+    }
+  };
+
   return (
     <div className="bg-white p-12 space-y-5 text-black">
       {/* Name - Centered, Burgundy/Magenta */}
@@ -38,9 +58,12 @@ export default function SkillBasedTemplate({
       <div className="text-center text-xs text-gray-700">
         {resumeData.phone && <span>{resumeData.phone}</span>}
         {resumeData.phone &&
-          (resumeData.city || resumeData.region || resumeData.email) && (
-            <span> | </span>
-          )}
+          (resumeData.city ||
+            resumeData.region ||
+            resumeData.email ||
+            resumeData.linkedin ||
+            resumeData.portfolio ||
+            resumeData.birthDate) && <span> | </span>}
         {(resumeData.city || resumeData.region) && (
           <span>
             {resumeData.city}
@@ -48,10 +71,30 @@ export default function SkillBasedTemplate({
             {resumeData.region}
           </span>
         )}
-        {(resumeData.city || resumeData.region) && resumeData.email && (
-          <span> | </span>
-        )}
+        {(resumeData.city || resumeData.region) &&
+          (resumeData.email ||
+            resumeData.linkedin ||
+            resumeData.portfolio ||
+            resumeData.birthDate) && <span> | </span>}
         {resumeData.email && <span>{resumeData.email}</span>}
+        {resumeData.email &&
+          (resumeData.linkedin ||
+            resumeData.portfolio ||
+            resumeData.birthDate) && <span> | </span>}
+        {resumeData.linkedin && (
+          <span>{resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}</span>
+        )}
+        {resumeData.linkedin &&
+          (resumeData.portfolio || resumeData.birthDate) && <span> | </span>}
+        {resumeData.portfolio && (
+          <span>
+            {resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}
+          </span>
+        )}
+        {resumeData.portfolio && resumeData.birthDate && <span> | </span>}
+        {resumeData.birthDate && (
+          <span>Born: {formatBirthDate(resumeData.birthDate)}</span>
+        )}
       </div>
 
       {/* Summary */}
@@ -146,6 +189,26 @@ export default function SkillBasedTemplate({
               </p>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Certifications */}
+      {resumeData.certificates && resumeData.certificates.length > 0 && (
+        <div className="space-y-3">
+          <h2
+            className="text-base font-bold border-b pb-1.5"
+            style={{ color: accentColor, borderColor: "#d1d5db" }}
+          >
+            Certifications
+          </h2>
+          <ul className="text-xs list-disc pl-5 space-y-1">
+            {resumeData.certificates.map((cert, index) => (
+              <li key={index}>
+                <span className="font-semibold">{cert.certificate}</span>
+                {cert.issuingOrganization && ` - ${cert.issuingOrganization}`}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

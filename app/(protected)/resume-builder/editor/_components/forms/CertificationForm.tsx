@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 export default function CertificationForm({
   resumeData,
   setResumeData,
+  onValidationChange,
 }: EditorFormProps) {
   const previousDataRef = useRef<string>("");
 
@@ -71,22 +72,17 @@ export default function CertificationForm({
     }
   }
 
-  const syncFormData = useCallback(async () => {
-    const isValid = await form.trigger();
+  const syncFormData = useCallback(() => {
+    const values = form.getValues();
 
-    if (isValid) {
-      const values = form.getValues();
-
-      setResumeData({
-        ...resumeData,
-        certificates:
-          (values.certificates?.filter(
-            (cert) =>
-              cert && cert.certificate && cert.certificate.trim() !== "",
-          ) as any[]) || [],
-      });
-    }
-  }, [form, resumeData, setResumeData]);
+    setResumeData((prevData) => ({
+      ...prevData,
+      certificates:
+        (values.certificates?.filter(
+          (cert) => cert && cert.certificate && cert.certificate.trim() !== "",
+        ) as any[]) || [],
+    }));
+  }, [form, setResumeData]);
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
@@ -100,6 +96,20 @@ export default function CertificationForm({
 
     return unsubscribe;
   }, [form, debouncedSync]);
+
+  useEffect(() => {
+    if (onValidationChange) {
+      const values = form.getValues();
+      const hasAtLeastOneValidCertificate = !!(
+        values.certificates &&
+        values.certificates.some((cert) => cert.certificate?.trim())
+      );
+      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+      const isValid = hasAtLeastOneValidCertificate && hasNoErrors;
+
+      onValidationChange(isValid);
+    }
+  }, [form.formState.errors, form, onValidationChange]);
 
   useEffect(() => {
     if (resumeData.certificates && resumeData.certificates.length > 0) {
@@ -122,16 +132,16 @@ export default function CertificationForm({
   };
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Certifications</h2>
-        <p className="text-sm text-default-500">
+    <div className="mx-auto max-w-xl space-y-3">
+      <div className="space-y-1 text-center mb-6">
+        <h2 className="text-xl font-semibold">Certifications</h2>
+        <p className="text-xs text-default-500">
           Great Job! Add certifications that are related to your job
           requirements.
         </p>
       </div>
 
-      <form className="space-y-6">
+      <form className="space-y-3">
         <DndContext
           collisionDetection={closestCenter}
           modifiers={[restrictToVerticalAxis]}
@@ -157,12 +167,13 @@ export default function CertificationForm({
         <div className="flex justify-center">
           <Button
             color="primary"
-            startContent={<PlusIcon size={16} />}
+            size="sm"
+            startContent={<PlusIcon size={14} />}
             type="button"
             variant="flat"
             onClick={addCertification}
           >
-            Add Another Certification
+            <span className="text-xs">Add Another Certification</span>
           </Button>
         </div>
       </form>
@@ -196,7 +207,7 @@ function CertificationItem({
     <div
       ref={setNodeRef}
       className={cn(
-        "space-y-3 p-4 border border-default-200 rounded-lg bg-background",
+        "space-y-2 p-3 bg-white rounded-lg shadow-sm border border-gray-100",
         isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
       )}
       style={{
@@ -205,7 +216,7 @@ function CertificationItem({
       }}
     >
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Certification {index + 1}</h3>
+        <h3 className="text-sm font-medium mb-2">Certification {index + 1}</h3>
         <div className="flex items-center gap-2">
           <GripHorizontal
             className="size-5 cursor-grab text-default-400 hover:text-default-600 focus:outline-none"
@@ -220,7 +231,7 @@ function CertificationItem({
             variant="flat"
             onClick={() => remove(index)}
           >
-            <TrashIcon size={16} />
+            <TrashIcon size={12} />
           </Button>
         </div>
       </div>
@@ -234,6 +245,7 @@ function CertificationItem({
         isInvalid={!!form.formState.errors.certificates?.[index]?.certificate}
         label="Certificate Name"
         placeholder="AWS Certified Solutions Architect"
+        size="sm"
       />
 
       <Input
@@ -247,6 +259,7 @@ function CertificationItem({
         }
         label="Issuing Organization"
         placeholder="Amazon Web Services"
+        size="sm"
       />
     </div>
   );

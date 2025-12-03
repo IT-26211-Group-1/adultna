@@ -2,21 +2,17 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import Breadcrumbs from "./Breadcrumbs";
+import ProgressStepper from "./ProgressStepper";
 import { steps } from "./steps";
 import { ResumeData } from "@/validators/resumeSchema";
 import ResumePreviewSection from "./ResumePreviewSection";
 import { LoadingButton } from "@/components/ui/Button";
 import Completed from "./Completed";
-import { SaveStatusIndicator } from "./SaveStatusIndicator";
-import { ExportButton } from "./ExportButton";
-import { BackButton } from "@/components/ui/BackButton";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import {
   useResume,
   useCreateResume,
   useUpdateResume,
-  useExportResume,
-  useSaveToFilebox,
 } from "@/hooks/queries/useResumeQueries";
 import { TemplateId, isValidTemplateId } from "@/constants/templates";
 import {
@@ -27,8 +23,8 @@ import {
 import { addToast } from "@heroui/toast";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { debounce } from "@/lib/utils/debounce";
-import InlineEditableTitle from "./InlineEditableTitle";
 import { hasResumeChanged } from "@/lib/resume/diffResume";
+import ColorPicker from "./ColorPicker";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
@@ -50,13 +46,22 @@ export default function ResumeEditor() {
   const lastSavedDataRef = useRef<ResumeData | null>(null);
   const isInitialMount = useRef(true);
 
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [tempTitle, setTempTitle] = useState("");
+
   const [resumeData, setResumeData] = useState<ResumeData>({} as ResumeData);
+  const [isCurrentFormValid, setIsCurrentFormValid] = useState(true);
 
   useEffect(() => {
     if (existingResume && existingResume.id !== loadedResumeId) {
       setResumeData(mapApiResumeToResumeData(existingResume));
       setLoadedResumeId(existingResume.id);
       setCurrentResumeId(existingResume.id);
+
+      // Check if resume is already completed and show completion page
+      if (existingResume.status === "completed") {
+        setIsCompleted(true);
+      }
     }
   }, [existingResume, loadedResumeId]);
 
@@ -64,20 +69,18 @@ export default function ResumeEditor() {
   const previousStepRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (currentStep !== previousStepRef.current && isCompleted) {
-      setIsCompleted(false);
+    if (currentStep !== previousStepRef.current) {
+      if (isCompleted) {
+        setIsCompleted(false);
+      }
+      // Reset validation state when changing steps
+      setIsCurrentFormValid(true);
     }
     previousStepRef.current = currentStep;
   }, [currentStep, isCompleted]);
 
   const createResume = useCreateResume();
   const updateResume = useUpdateResume(currentResumeId || "");
-  const exportResume = useExportResume();
-  const saveToFilebox = useSaveToFilebox(currentResumeId || "");
-
-  const isSaving = createResume.isPending || updateResume.isPending;
-  const isExporting = exportResume.isPending;
-  const isSavingToFilebox = saveToFilebox.isPending;
 
   const FormComponent = steps.find(
     (step) => step.key === currentStep,
@@ -152,6 +155,18 @@ export default function ResumeEditor() {
     }
   }, [resumeData, currentStep]);
 
+  const handleValidationChange = useCallback((isValid: boolean) => {
+    setIsCurrentFormValid(isValid);
+  }, []);
+
+  const searchParamsRef = useRef(searchParams);
+  const routerRef = useRef(router);
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams;
+    routerRef.current = router;
+  }, [searchParams, router]);
+
   const handleSave = useCallback(
     async (
       onSuccessCallback?: () => void,
@@ -160,6 +175,15 @@ export default function ResumeEditor() {
       const dataToSave = { ...resumeData, ...dataOverrides };
 
       if (!currentResumeId && templateId && isValidTemplateId(templateId)) {
+        // Prevent duplicate creates if one is already in progress
+        if (createResume.isPending) {
+          if (onSuccessCallback) {
+            onSuccessCallback();
+          }
+
+          return;
+        }
+
         const payload = mapResumeDataToCreatePayload(dataToSave, templateId);
 
         createResume.mutate(payload, {
@@ -167,13 +191,16 @@ export default function ResumeEditor() {
             setCurrentResumeId(newResume.id);
             setHasUnsavedChanges(false);
             lastSavedDataRef.current = { ...resumeData };
-            const newParams = new URLSearchParams(searchParams);
+            const newParams = new URLSearchParams(searchParamsRef.current);
 
             newParams.delete("templateId");
             newParams.set("resumeId", newResume.id);
-            router.replace(`/resume-builder/editor?${newParams.toString()}`, {
-              scroll: false,
-            });
+            routerRef.current.replace(
+              `/resume-builder/editor?${newParams.toString()}`,
+              {
+                scroll: false,
+              },
+            );
             if (onSuccessCallback) {
               onSuccessCallback();
             }
@@ -211,30 +238,24 @@ export default function ResumeEditor() {
         }
       }
     },
-    [
-      currentResumeId,
-      templateId,
-      resumeData,
-      createResume,
-      updateResume,
-      searchParams,
-      router,
-    ],
+    [currentResumeId, templateId, resumeData, createResume, updateResume],
   );
 
-  // Auto-save when resumeData changes
-  const debouncedAutoSave = useMemo(
-    () =>
-      debounce(() => {
-        if (!isInitialMount.current) {
-          handleSave();
-        }
-      }, 1000),
-    [handleSave],
+  const handleSaveRef = useRef(handleSave);
+
+  useEffect(() => {
+    handleSaveRef.current = handleSave;
+  }, [handleSave]);
+
+  const debouncedAutoSave = useRef(
+    debounce(() => {
+      if (!isInitialMount.current) {
+        handleSaveRef.current();
+      }
+    }, 1000),
   );
 
   useEffect(() => {
-    // Skip on initial mount or when data is empty
     if (isInitialMount.current) {
       const hasData =
         Object.keys(resumeData).length > 0 && resumeData.firstName;
@@ -247,27 +268,31 @@ export default function ResumeEditor() {
       return;
     }
 
-    // Check if data has actually changed using deep comparison
     if (hasResumeChanged(lastSavedDataRef.current, resumeData)) {
       setHasUnsavedChanges(true);
-      debouncedAutoSave();
+      debouncedAutoSave.current();
     }
 
     return () => {
-      debouncedAutoSave.cancel();
+      debouncedAutoSave.current.cancel();
     };
-  }, [resumeData, debouncedAutoSave]);
+  }, [resumeData]);
 
   // Beforeunload handler to warn about data loss on refresh
   useEffect(() => {
-    window.onbeforeunload = () => {
-      return "Are you sure you want to refresh? Data might not be saved.";
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
     };
 
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
-      window.onbeforeunload = null;
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, []);
+  }, [hasUnsavedChanges]);
 
   if (!templateId && !resumeId) {
     router.push("/resume-builder");
@@ -333,49 +358,23 @@ export default function ResumeEditor() {
     }
   };
 
-  const handleBack = () => {
-    if (currentStepIndex > 0) {
-      const previousStep = steps[currentStepIndex - 1];
+  const handleEditTitle = () => {
+    setTempTitle(
+      resumeData.title || existingResume?.title || "Untitled Resume",
+    );
+    setIsEditingTitle(true);
+  };
 
-      setStep(previousStep.key);
+  const handleSaveTitle = () => {
+    if (tempTitle.trim()) {
+      setResumeData({ ...resumeData, title: tempTitle.trim() });
+      setIsEditingTitle(false);
     }
   };
 
-  const handleExport = () => {
-    if (currentResumeId) {
-      exportResume.mutate(currentResumeId, {
-        onSuccess: () => {
-          addToast({
-            title: "Resume exported successfully",
-            color: "success",
-          });
-        },
-        onError: (error: any) => {
-          addToast({
-            title: "Failed to export resume",
-            description: error?.message || "Please try again",
-            color: "danger",
-          });
-        },
-      });
-    }
-  };
-
-  const handleSaveToFilebox = async () => {
-    if (currentResumeId) {
-      try {
-        await saveToFilebox.mutateAsync();
-        addToast({
-          title: "Saved to Filebox!",
-          color: "success",
-        });
-      } catch {
-        addToast({
-          title: "Failed to save to Filebox",
-          color: "danger",
-        });
-      }
-    }
+  const handleCancelEditTitle = () => {
+    setTempTitle("");
+    setIsEditingTitle(false);
   };
 
   // Show completion page if resume is completed
@@ -383,132 +382,243 @@ export default function ResumeEditor() {
     return <Completed resumeData={resumeData} setResumeData={setResumeData} />;
   }
 
-  const handleTitleChange = (newTitle: string) => {
-    setResumeData((prev) => ({ ...prev, title: newTitle }));
-  };
-
-  const handleBackToResumes = () => {
-    router.push("/resume-builder/my-resumes");
-  };
-
   return (
-    <div className="flex grow flex-col min-h-screen">
-      <header className="border-b px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1">
-            <BackButton onClick={handleBackToResumes} />
-            <div className="flex-1">
-              {currentResumeId ? (
-                <InlineEditableTitle
-                  currentTitle={
-                    resumeData.title ||
-                    existingResume?.title ||
-                    "Untitled Resume"
-                  }
-                  resumeId={currentResumeId}
-                  onTitleChange={handleTitleChange}
-                />
-              ) : (
-                <h1 className="text-2xl font-bold">
-                  {resumeData.title || "Untitled Resume"}
-                </h1>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            {currentResumeId && (
-              <>
-                <button
-                  className="px-4 py-2 bg-[#11553F] hover:bg-[#0e4634] text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  disabled={isSavingToFilebox}
-                  onClick={handleSaveToFilebox}
-                >
-                  {isSavingToFilebox ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                      Saving...
-                    </>
+    <div className="flex h-screen bg-gray-50">
+      {/* Left Side - Form with Breadcrumb */}
+      <div className="w-full md:w-1/2 flex flex-col overflow-hidden">
+        {/* Breadcrumb Section */}
+        <div className="bg-transparent w-full flex-shrink-0">
+          <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-3 sm:mb-3 sm:flex sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2">
+                  {isEditingTitle ? (
+                    <div className="flex items-center gap-3">
+                      <Breadcrumb
+                        items={[
+                          { label: "Dashboard", href: "/dashboard" },
+                          { label: "Resume Builder", href: "/resume-builder" },
+                        ]}
+                      />
+                      <span className="text-gray-400">/</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          ref={(input) => {
+                            if (input) input.focus();
+                          }}
+                          className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
+                          placeholder="Enter resume title"
+                          type="text"
+                          value={tempTitle}
+                          onChange={(e) => setTempTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSaveTitle();
+                            if (e.key === "Escape") handleCancelEditTitle();
+                          }}
+                        />
+                        <button
+                          className="text-emerald-600 hover:text-emerald-800 transition-colors p-1"
+                          title="Save title"
+                          onClick={handleSaveTitle}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M5 13l4 4L19 7"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                          title="Cancel editing"
+                          onClick={handleCancelEditTitle}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M6 18L18 6M6 6l12 12"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
                   ) : (
                     <>
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                      <Breadcrumb
+                        items={[
+                          { label: "Dashboard", href: "/dashboard" },
+                          { label: "Resume Builder", href: "/resume-builder" },
+                          {
+                            label:
+                              resumeData.title ||
+                              existingResume?.title ||
+                              "Untitled Resume",
+                            current: true,
+                          },
+                        ]}
+                      />
+                      <button
+                        className="text-gray-400 hover:text-emerald-600 transition-colors p-1 ml-1"
+                        title="Edit resume title"
+                        onClick={handleEditTitle}
                       >
-                        <path
-                          d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                        />
-                      </svg>
-                      Save to Filebox
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
+                        </svg>
+                      </button>
                     </>
                   )}
-                </button>
-                <ExportButton
-                  isExporting={isExporting}
-                  onExport={handleExport}
-                />
-              </>
-            )}
-            <SaveStatusIndicator
-              hasSaved={!!currentResumeId && !isSaving && !hasUnsavedChanges}
-              hasUnsavedChanges={hasUnsavedChanges && !isSaving}
-              isSaving={isSaving}
-            />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </header>
-      <main className="relative grow">
-        <div className="absolute bottom-0 top-0 flex w-full">
-          <div className="w-full md:w-1/2 flex flex-col">
-            <div className="flex-1 overflow-y-auto p-6">
-              <Breadcrumbs currentStep={currentStep} setCurrentStep={setStep} />
+
+        {/* Form Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Fixed Progress Stepper */}
+          <div className="flex-shrink-0 bg-gray-50 px-6 py-2 flex justify-center md:pl-16">
+            <div className="w-full max-w-lg">
+              <ProgressStepper
+                currentStep={currentStep}
+                resumeData={resumeData}
+                setCurrentStep={setStep}
+              />
+            </div>
+          </div>
+
+          {/* Scrollable Form Content */}
+          <div className="flex-1 overflow-y-auto p-6 flex justify-center md:pl-16">
+            <div className="w-full max-w-lg">
+              {/* Mobile Color Picker */}
+              <div className="md:hidden mb-6 flex justify-center">
+                <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-3">
+                  <span className="text-sm font-medium text-gray-700">
+                    Resume Color:
+                  </span>
+                  <ColorPicker
+                    color={resumeData.colorHex}
+                    onChange={(color) =>
+                      setResumeData({ ...resumeData, colorHex: color.hex })
+                    }
+                  />
+                </div>
+              </div>
+
               {FormComponent && (
                 <FormComponent
                   key={currentResumeId || "new-resume"}
                   resumeData={resumeData}
                   setResumeData={setResumeData}
+                  onValidationChange={handleValidationChange}
                 />
               )}
-            </div>
-            <div className="p-6">
-              <div className="max-w-xs mx-auto space-y-3">
-                {!isContactForm && (
-                  <div className="mb-4">
-                    <BackButton onClick={handleBack} />
-                  </div>
-                )}
-                <LoadingButton
-                  className="w-full bg-[#11553F] hover:bg-[#0e4634] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!isFormValid}
-                  onClick={handleContinue}
-                >
-                  {isLastStep ? "Complete" : "Continue"}
-                </LoadingButton>
 
-                {!isContactForm && !isLastStep && (
-                  <button
-                    className="w-full text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
-                    onClick={handleSkip}
+              {/* Buttons Section */}
+              <div className="p-4 flex-shrink-0">
+                <div className="max-w-xs mx-auto space-y-3">
+                  <LoadingButton
+                    className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-medium py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-out disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-md focus:ring-2 focus:ring-emerald-500/30 focus:outline-none text-sm"
+                    disabled={!isFormValid || !isCurrentFormValid}
+                    onClick={handleContinue}
                   >
-                    Skip {currentStepTitle}
-                  </button>
-                )}
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span>{isLastStep ? "Complete Resume" : "Continue"}</span>
+                      {!isLastStep && (
+                        <svg
+                          className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M9 5l7 7-7 7"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
+                        </svg>
+                      )}
+                      {isLastStep && (
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M5 13l4 4L19 7"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
+                        </svg>
+                      )}
+                    </div>
+                  </LoadingButton>
+
+                  {!isContactForm && !isLastStep && (
+                    <button
+                      className="w-full text-xs text-gray-500 hover:text-emerald-600 transition-all duration-200 hover:underline hover:underline-offset-2 py-1.5 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                      onClick={handleSkip}
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        <span>Skip {currentStepTitle}</span>
+                        <svg
+                          className="w-2.5 h-2.5 opacity-60"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                          />
+                        </svg>
+                      </div>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-          <div className="hidden md:flex md:w-1/2 md:border-l">
-            <ResumePreviewSection
-              className="w-full"
-              resumeData={resumeData}
-              setResumeData={setResumeData}
-            />
-          </div>
         </div>
-      </main>
+      </div>
+
+      {/* Right Side - Resume Preview (Full Height) */}
+      <div className="hidden md:flex md:w-1/2 h-screen sticky top-0">
+        <ResumePreviewSection
+          className="w-full"
+          resumeData={resumeData}
+          setResumeData={setResumeData}
+        />
+      </div>
     </div>
   );
 }

@@ -6,20 +6,20 @@ const nameSchema = (field: string) =>
     .min(1, `${field} is required`)
     .refine(
       (val) => val === val.trim(),
-      `${field} cannot start or end with spaces`,
+      `${field} cannot start or end with spaces`
     )
     .refine(
       (val) => val.trim().length >= 2,
-      `${field} must be at least 2 characters`,
+      `${field} must be at least 2 characters`
     )
     .refine(
       (val) => !/\s{2,}/.test(val),
-      `${field} cannot contain multiple consecutive spaces`,
+      `${field} cannot contain multiple consecutive spaces`
     )
     .max(30, `${field} must be less than 30 characters`)
     .regex(
       /^[a-zA-Z\s'-]+$/,
-      `${field} can only contain letters, spaces, hyphens, and apostrophes`,
+      `${field} can only contain letters, spaces, hyphens, and apostrophes`
     );
 
 const displayNameSchema = z
@@ -29,7 +29,7 @@ const displayNameSchema = z
   .max(30, "Display name must be less than 30 characters")
   .refine(
     (val) => val === val.trim(),
-    "Display name cannot start or end with spaces",
+    "Display name cannot start or end with spaces"
   );
 
 const emailSchema = z
@@ -42,7 +42,7 @@ const emailSchema = z
   .refine((val) => !val.includes(".."), "Email cannot contain consecutive dots")
   .refine(
     (val) => !val.startsWith(".") && !val.endsWith("."),
-    "Email cannot start or end with a dot",
+    "Email cannot start or end with a dot"
   );
 
 const strongPasswordSchema = z
@@ -54,12 +54,12 @@ const strongPasswordSchema = z
   .regex(/^(?=.*\d)/, "Password must contain at least one number")
   .regex(
     /^(?=.*[!@#$%^&*(),.?":{}|<>])/,
-    "Password must contain at least one special character",
+    "Password must contain at least one special character"
   )
   .refine((val) => !/\s/.test(val), "Password cannot contain spaces")
   .refine(
     (val) => !/(.)\1{2,}/.test(val),
-    "Password cannot have more than 2 consecutive identical characters",
+    "Password cannot have more than 2 consecutive identical characters"
   );
 
 export const profileUpdateSchema = z.object({
@@ -90,5 +90,19 @@ export const passwordUpdateSchema = z
     path: ["newPassword"],
   });
 
+export const setPasswordSchema = z
+  .object({
+    newPassword: strongPasswordSchema,
+    confirmPassword: z
+      .string()
+      .min(1, "Please confirm your password")
+      .refine((val) => !/\s/.test(val), "Password cannot contain spaces"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 export type PasswordUpdateInput = z.infer<typeof passwordUpdateSchema>;
+export type SetPasswordInput = z.infer<typeof setPasswordSchema>;

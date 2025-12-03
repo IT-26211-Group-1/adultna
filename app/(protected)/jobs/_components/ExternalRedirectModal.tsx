@@ -8,16 +8,7 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import { LoadingButton } from "@/components/ui/Button";
-import dynamic from "next/dynamic";
-
-const ExternalLink = dynamic(
-  () => import("lucide-react").then((mod) => ({ default: mod.ExternalLink })),
-  { ssr: false },
-);
-const AlertTriangle = dynamic(
-  () => import("lucide-react").then((mod) => ({ default: mod.AlertTriangle })),
-  { ssr: false },
-);
+import { ExternalLink, AlertTriangle } from "lucide-react";
 
 type ExternalRedirectModalProps = {
   isOpen: boolean;

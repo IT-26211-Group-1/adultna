@@ -25,7 +25,8 @@ export function useRegister() {
     watch,
   } = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    mode: "onBlur",
+    mode: "onTouched",
+    reValidateMode: "onChange",
   });
 
   const handleCaptchaChange = useCallback((token: string | null) => {

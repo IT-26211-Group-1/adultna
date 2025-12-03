@@ -17,6 +17,7 @@ import { addToast } from "@heroui/toast";
 export default function SkillsForm({
   resumeData,
   setResumeData,
+  onValidationChange,
 }: EditorFormProps) {
   const previousDataRef = useRef<string>("");
   const [skills, setSkills] = useState<Skill[]>(resumeData.skills || []);
@@ -173,6 +174,18 @@ export default function SkillsForm({
   }, [form, debouncedSync]);
 
   useEffect(() => {
+    if (onValidationChange) {
+      const hasAtLeastOneValidSkill = !!(
+        skills && skills.some((skill) => skill.skill?.trim())
+      );
+      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+      const isValid = hasAtLeastOneValidSkill && hasNoErrors;
+
+      onValidationChange(isValid);
+    }
+  }, [form.formState.errors, skills, onValidationChange]);
+
+  useEffect(() => {
     if (resumeData.skills && resumeData.skills.length > 0) {
       const currentData = JSON.stringify(resumeData.skills);
 
@@ -189,16 +202,16 @@ export default function SkillsForm({
   }, [resumeData.skills, form]);
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Skills</h2>
-        <p className="text-sm text-default-500">
+    <div className="mx-auto max-w-xl space-y-3">
+      <div className="space-y-1 text-center mb-6">
+        <h2 className="text-xl font-semibold">Skills</h2>
+        <p className="text-xs text-default-500">
           Nice Work! You&apos;re almost there. Best if you add 4-6 skills for
           the job you&apos;re applying for.
         </p>
       </div>
 
-      <form className="space-y-6">
+      <form className="space-y-3">
         <div className="flex justify-center">
           <Button
             color="success"
@@ -225,6 +238,7 @@ export default function SkillsForm({
                   isInvalid={!!form.formState.errors.skills?.[index]?.skill}
                   label={`Skill ${index + 1}`}
                   placeholder="e.g., JavaScript, React, Python"
+                  size="sm"
                   value={skill.skill}
                   onChange={(e) => handleSkillChange(index, e.target.value)}
                 />
@@ -253,11 +267,12 @@ export default function SkillsForm({
           <Button
             className="w-full"
             color="primary"
-            startContent={<Plus className="w-4 h-4" />}
+            size="sm"
+            startContent={<Plus className="w-3 h-3" />}
             variant="bordered"
             onPress={handleAddSkill}
           >
-            Add Skill
+            <span className="text-xs">Add Skill</span>
           </Button>
         </div>
 

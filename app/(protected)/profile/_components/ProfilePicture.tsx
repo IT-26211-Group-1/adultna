@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Camera, Loader2, Upload, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { Camera, Loader2, Upload, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/queries/useAuthQueries";
 import { useUploadProfilePicture } from "@/hooks/queries/useProfileQueries";
 import { addToast } from "@heroui/toast";
@@ -106,20 +106,20 @@ export function ProfilePicture({ onImageChange }: ProfilePictureProps) {
     <div className="flex items-center gap-4">
       {/* Profile Picture Display */}
       <div ref={menuRef} className="relative">
-        <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+        <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center relative">
           {imagePreview ? (
             <Image
+              fill
               alt="Profile"
-              className="w-full h-full object-cover"
-              height={80}
+              className="object-cover"
+              sizes="80px"
               src={imagePreview}
-              width={80}
             />
           ) : (
             <span className="text-2xl text-gray-400 font-semibold" />
           )}
           {uploadProfilePicture.isPending && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full z-10">
               <Loader2 className="w-6 h-6 text-white animate-spin" />
             </div>
           )}
