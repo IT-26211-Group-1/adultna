@@ -22,7 +22,7 @@ export function RoadmapModel({
 }: RoadmapModelProps) {
   const { scene } = useGLTF("/models/final-roadmap-draco.glb");
 
-  // 📍 MILESTONE POSITION COORDINATES [X, Y, Z] - RESTORED
+  // MILESTONE POSITION COORDINATES [X, Y, Z] 
   // These coordinates define the exact position of each milestone on the roadmap
   const positionCoordinates: Record<number, [number, number, number]> = useMemo(() => {
     return {
@@ -114,12 +114,12 @@ export function RoadmapModel({
     return scene;
   }, [scene]);
 
-  // 🔧 MOBILE ROADMAP SIZE ADJUSTMENT
+  // MOBILE ROADMAP SIZE ADJUSTMENT
   // Decrease first number to make roadmap smaller, increase to make bigger
   // Optimized to fit close to mobile screen borders
   const modelScale = isMobile ? 0.8 : 1;
 
-  // 🔧 MOBILE ROADMAP POSITION ADJUSTMENT [X, Y, Z]
+  // MOBILE ROADMAP POSITION ADJUSTMENT [X, Y, Z]
   // X: Left(-) / Right(+) | Y: Down(-) / Up(+) | Z: Away(-) / Closer(+)
   const modelPosition: [number, number, number] = isMobile ? [0, -0.8, 0] : [0, 0, 0];
 
