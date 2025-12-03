@@ -125,16 +125,25 @@ export function CameraController({
     },
   });
 
-  // Update camera every frame
+  // Update camera every frame and store reference for position logging
   useFrame(() => {
-    camera.position.set(
-      position.get()[0],
-      position.get()[1],
-      position.get()[2],
-    );
-    if (camera instanceof PerspectiveCamera) {
-      camera.fov = fov.get();
-      camera.updateProjectionMatrix();
+    // Store camera reference globally for console access
+    (window as any).__camera = camera;
+
+    // Only update camera position if there's an active animation
+    const hasActiveAnimation = (milestoneAnimation && startMilestoneAnimation) ||
+                              (!isMobile && introAnimation && startIntroAnimation && !introComplete);
+
+    if (hasActiveAnimation) {
+      camera.position.set(
+        position.get()[0],
+        position.get()[1],
+        position.get()[2],
+      );
+      if (camera instanceof PerspectiveCamera) {
+        camera.fov = fov.get();
+        camera.updateProjectionMatrix();
+      }
     }
   });
 

@@ -3,11 +3,13 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Suspense, useState, useCallback, useEffect, useMemo } from "react";
+import React from "react";
 import { useDisclosure } from "@heroui/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CameraController } from "./CameraController";
 import { RoadmapModel } from "./RoadmapModel";
 import { MilestoneModal } from "./MilestoneModal";
+import { CameraControlGUI } from "./CameraControlGUI";
 import { useUserMilestonesWithPolling } from "@/hooks/queries/useRoadmapQueries";
 import {
   CameraAnimation,
@@ -31,7 +33,11 @@ const DESKTOP_CAMERA_ANIMATION: CameraAnimation = {
   delay: 200,
 };
 
-export function RoadmapClient() {
+interface RoadmapClientProps {
+  onEmptyPositionClick?: (positionNumber: number) => void;
+}
+
+export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -51,11 +57,18 @@ export function RoadmapClient() {
   const cameraSettings = useMemo(() => {
     if (isMobile) {
       return {
-        position: [3, 6, 8] as [number, number, number], // Closer, higher angle for mobile
-        fov: 75, // Wider FOV for mobile screens
+        // 🔧 MOBILE CAMERA POSITION ADJUSTMENT [X, Y, Z]
+        // X: Left(-) / Right(+) | Y: Down(-) / Up(+) | Z: Away(-) / Closer(+)
+        position: [0, 12, 15] as [number, number, number], // Higher angle for better top-down view
+
+        // 🔧 MOBILE FIELD OF VIEW ADJUSTMENT
+        // Smaller number = zoomed in, Larger number = zoomed out
+        fov: 55, // Balanced FOV for mobile visibility
+
         introAnimation: null, // No intro animation for mobile
       };
     } else {
+      // 🖥️ DESKTOP SETTINGS (separate from mobile)
       return {
         position: [0, 5, 15] as [number, number, number], // Starting position for desktop animation
         fov: 55, // Standard FOV for desktop
@@ -174,6 +187,12 @@ export function RoadmapClient() {
     refetchMilestones();
   }, [refetchMilestones]);
 
+  // Handle clicks on empty positions
+  const handleEmptyPositionClick = useCallback((positionNumber: number) => {
+    logger.log(`🎯 Empty position ${positionNumber} clicked`);
+    onEmptyPositionClick?.(positionNumber);
+  }, [onEmptyPositionClick]);
+
   const handleModalClose = () => {
     setMilestoneAnimation(null);
     setSelectedMilestone(null);
@@ -191,6 +210,46 @@ export function RoadmapClient() {
   const handleCanvasClick = (event: React.MouseEvent) => {
     logger.log("🖱️  Canvas clicked at:", event.clientX, event.clientY);
   };
+
+
+  // Camera position tracking for finding optimal views
+  React.useEffect(() => {
+    // Function to log current camera position
+    (window as any).logCameraPos = () => {
+      const camera = (window as any).__camera;
+      if (camera) {
+        const pos = camera.position;
+        const target = camera.controls?.target || { x: 0, y: 0, z: 0 };
+        console.log(`Camera Position: [${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)}]`);
+        console.log(`Camera Target: [${target.x.toFixed(2)}, ${target.y.toFixed(2)}, ${target.z.toFixed(2)}]`);
+        console.log(`Camera FOV: ${camera.fov}`);
+        console.log('Copy this for your settings:');
+        console.log(`position: [${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)}]`);
+      }
+    };
+
+    // Auto-tracking function
+    let trackingInterval: NodeJS.Timeout;
+    (window as any).trackCamera = () => {
+      console.log('🎥 Starting camera position tracking...');
+      trackingInterval = setInterval(() => {
+        (window as any).logCameraPos();
+      }, 2000);
+    };
+
+    (window as any).stopTracking = () => {
+      console.log('⏹️ Stopping camera tracking');
+      clearInterval(trackingInterval);
+    };
+
+    return () => {
+      clearInterval(trackingInterval);
+      delete (window as any).logCameraPos;
+      delete (window as any).trackCamera;
+      delete (window as any).stopTracking;
+      delete (window as any).__camera;
+    };
+  }, []);
 
   if (isLoading || milestones.length === 0) {
     return (
@@ -217,9 +276,10 @@ export function RoadmapClient() {
           {...canvasWebGLSettings}
           onClick={handleCanvasClick}
         >
+          {/* CameraController for camera reference storage only */}
           <CameraController
-            introAnimation={cameraSettings.introAnimation}
-            milestoneAnimation={milestoneAnimation}
+            introAnimation={null}
+            milestoneAnimation={null}
             isMobile={isMobile}
           />
           {/* Optimized lighting setup for mobile performance */}
@@ -242,23 +302,26 @@ export function RoadmapClient() {
             <RoadmapModel
               milestones={milestones}
               onMilestoneClick={handleMilestoneClick}
+              isMobile={isMobile}
+              onEmptyPositionClick={handleEmptyPositionClick}
             />
           </Suspense>
+          {/*
+            🔧 MOBILE ADJUSTMENT GUIDE:
+            - maxDistance: increase to zoom out more, decrease to limit zoom
+            - minDistance: increase to prevent getting too close
+            - maxPolarAngle: lower values prevent looking from below
+          */}
           <OrbitControls
-            dampingFactor={isMobile ? 0.08 : 0.05}
             enableDamping={true}
-            enablePan={!isMobile}
+            dampingFactor={0.05}
+            enablePan={true}
             enableRotate={true}
             enableZoom={true}
-            maxDistance={isMobile ? 30 : 50}
+            minDistance={5}
+            maxDistance={50}
             maxPolarAngle={Math.PI}
-            minDistance={isMobile ? 3 : 2}
-            rotateSpeed={isMobile ? 0.8 : 1}
-            zoomSpeed={isMobile ? 0.8 : 1}
-            touches={{
-              ONE: 1, // Rotate
-              TWO: 2, // Zoom
-            }}
+            minPolarAngle={0}
           />
         </Canvas>
       </div>
@@ -269,6 +332,9 @@ export function RoadmapClient() {
         onClose={handleModalClose}
         onMilestoneUpdated={handleMilestoneUpdated}
       />
+
+      {/* Camera Control GUI for position testing */}
+      <CameraControlGUI />
     </>
   );
 }

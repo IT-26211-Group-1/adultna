@@ -10,11 +10,15 @@ import { logger } from "@/lib/logger";
 interface RoadmapModelProps {
   onMilestoneClick: (interaction: RoadmapInteraction) => void;
   milestones: Milestone[];
+  isMobile?: boolean;
+  onEmptyPositionClick?: (positionNumber: number) => void;
 }
 
 export function RoadmapModel({
   onMilestoneClick,
   milestones,
+  isMobile = false,
+  onEmptyPositionClick,
 }: RoadmapModelProps) {
   const { scene } = useGLTF("/models/final-roadmap-draco.glb");
 
@@ -44,6 +48,11 @@ export function RoadmapModel({
       onMilestoneClick(interaction);
     }, [onMilestoneClick]);
 
+  // Get all milestone positions that are occupied
+  const occupiedPositions = useMemo(() =>
+    new Set(milestones.map(m => m.positionNumber || 1)), [milestones]);
+
+  // Create hitboxes for existing milestones
   const milestoneHitboxes = useMemo(() => {
     return milestones.map((milestone) => {
       const position = positionCoordinates[milestone.positionNumber || 1];
@@ -63,6 +72,27 @@ export function RoadmapModel({
     });
   }, [milestones, positionCoordinates, handleHitboxClick]);
 
+  // Create hitboxes for empty positions (only if onEmptyPositionClick is provided)
+  const emptyPositionHitboxes = useMemo(() => {
+    if (!onEmptyPositionClick) return [];
+
+    const allPositions = Object.keys(positionCoordinates).map(Number);
+    const emptyPositions = allPositions.filter(pos => !occupiedPositions.has(pos));
+
+    return emptyPositions.map((positionNumber) => {
+      const position = positionCoordinates[positionNumber];
+
+      return (
+        <MilestoneHitbox
+          key={`empty-${positionNumber}`}
+          milestoneId={`empty-position-${positionNumber}`}
+          position={position}
+          onClick={() => onEmptyPositionClick(positionNumber)}
+        />
+      );
+    });
+  }, [positionCoordinates, occupiedPositions, onEmptyPositionClick]);
+
   const clonedScene = useMemo(() => {
     if (scene) {
       const cloned = scene.clone();
@@ -80,10 +110,19 @@ export function RoadmapModel({
     return scene;
   }, [scene]);
 
+  // 🔧 MOBILE ROADMAP SIZE ADJUSTMENT
+  // Decrease first number to make roadmap smaller, increase to make bigger
+  const modelScale = isMobile ? 0.65 : 1;
+
+  // 🔧 MOBILE ROADMAP POSITION ADJUSTMENT [X, Y, Z]
+  // X: Left(-) / Right(+) | Y: Down(-) / Up(+) | Z: Away(-) / Closer(+)
+  const modelPosition: [number, number, number] = isMobile ? [0, -0.8, 0] : [0, 0, 0];
+
   return (
-    <group>
+    <group scale={modelScale} position={modelPosition}>
       <primitive object={clonedScene} />
       {milestoneHitboxes}
+      {emptyPositionHitboxes}
     </group>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Plus, Home } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
@@ -18,56 +18,55 @@ export function RoadmapNavigation({ onAddMilestone }: RoadmapNavigationProps) {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-40">
-      <div className="relative">
-        {/* Gradient background that fades to pure transparent */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/50 to-transparent" />
-        {/* Blur effect only on the top portion */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-transparent backdrop-blur-md" />
-
-        <div className="relative flex items-center justify-between px-4 sm:px-6 py-4">
-          {/* Left Section - Logo and Breadcrumb */}
-          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
-            {/* Logo */}
-            <div className="flex items-center flex-shrink-0">
-              <OptimizedImage
-                priority
-                alt="AdultNa Logo"
-                className="object-contain"
-                height={24}
-                sizes="24px"
-                src="/AdultNa-Logo-Icon.png"
-                width={24}
-              />
-            </div>
-
-            {/* Breadcrumb */}
-            <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-w-0">
-              <button
-                className="flex items-center text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap"
-                onClick={handleDashboardClick}
+    <nav className="fixed top-0 left-0 right-0 z-40 border-b border-gray-100">
+      <div className="bg-white/95 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14">
+            {/* Left Section - Back Button and Title */}
+            <div className="flex items-center space-x-4">
+              {/* Back Button */}
+              <Button
+                className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-0 bg-transparent p-2 min-w-fit"
+                size="sm"
+                variant="light"
+                startContent={<ArrowLeft className="w-4 h-4" />}
+                onPress={handleDashboardClick}
               >
-                <Home className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                <span className="hidden sm:inline">Dashboard</span>
-                <span className="sm:hidden">Home</span>
-              </button>
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0" />
-              <span className="text-slate-900 font-semibold truncate">
-                Roadmap
-              </span>
-            </div>
-          </div>
+                <span className="hidden sm:inline text-sm font-medium">Back</span>
+              </Button>
 
-          {/* Right Section - Add Milestone Button */}
-          <div className="flex items-center space-x-3 flex-shrink-0">
-            <Button
-              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg text-xs sm:text-sm font-semibold px-2 sm:px-4 py-2"
-              startContent={<Plus className="w-3 h-3 sm:w-4 sm:h-4" />}
-              onPress={onAddMilestone}
-            >
-              <span className="hidden sm:inline">Add Milestone</span>
-              <span className="sm:hidden">Add</span>
-            </Button>
+              {/* Divider */}
+              <div className="hidden sm:block w-px h-5 bg-gray-300" />
+
+              {/* Logo and Title */}
+              <div className="flex items-center space-x-3">
+                <OptimizedImage
+                  priority
+                  alt="AdultNa Logo"
+                  className="object-contain"
+                  height={20}
+                  sizes="20px"
+                  src="/AdultNa-Logo-Icon.png"
+                  width={20}
+                />
+                <h1 className="text-base font-semibold text-gray-900 tracking-tight">
+                  Roadmap
+                </h1>
+              </div>
+            </div>
+
+            {/* Right Section - Add Milestone Button */}
+            <div className="flex items-center">
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-150 border-0"
+                size="sm"
+                startContent={<Plus className="w-4 h-4" />}
+                onPress={onAddMilestone}
+              >
+                <span className="hidden sm:inline">Add Milestone</span>
+                <span className="sm:hidden">Add</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
