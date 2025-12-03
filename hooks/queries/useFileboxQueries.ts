@@ -22,7 +22,7 @@ import {
 
 const fileboxApi = {
   generateUploadUrl: (
-    request: GenerateUploadUrlRequest,
+    request: GenerateUploadUrlRequest
   ): Promise<UploadUrlResponse> =>
     ApiClient.post("/filebox/upload", request, {}, API_CONFIG.API_URL),
 
@@ -30,7 +30,7 @@ const fileboxApi = {
   uploadToS3: async (
     uploadUrl: string,
     file: File,
-    signal?: AbortSignal,
+    signal?: AbortSignal
   ): Promise<void> => {
     const response = await fetch(uploadUrl, {
       method: "PUT",
@@ -49,7 +49,7 @@ const fileboxApi = {
       throw new ApiError(
         "Failed to upload file to storage",
         response.status,
-        null,
+        null
       );
     }
   },
@@ -60,20 +60,20 @@ const fileboxApi = {
       "/filebox/verify-upload",
       { fileId },
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     ),
 
   // Toggle file protection
   toggleProtection: (
     fileId: string,
     isSecure: boolean,
-    otp?: string,
+    otp?: string
   ): Promise<any> =>
     ApiClient.put(
       `/filebox/files/${fileId}/protection`,
       { isSecure, otp },
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     ),
 
   // Generate pre-signed download URL
@@ -87,7 +87,7 @@ const fileboxApi = {
     return ApiClient.get(
       `/filebox/files${queryParams}`,
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     );
   },
 
@@ -101,13 +101,13 @@ const fileboxApi = {
     fileName: string,
     otp?: string,
     replaceDuplicate?: boolean,
-    keepBoth?: boolean,
+    keepBoth?: boolean
   ): Promise<any> =>
     ApiClient.patch(
       `/filebox/files/${fileId}`,
       { fileName, otp, replaceDuplicate, keepBoth },
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     ),
 
   // Get user storage limit
@@ -117,26 +117,62 @@ const fileboxApi = {
   // Request document OTP
   requestDocumentOTP: (
     fileId: string,
-    request?: RequestDocumentOTPRequest,
+    request?: RequestDocumentOTPRequest
   ): Promise<RequestDocumentOTPResponse> =>
     ApiClient.post(
       `/filebox/documents/${fileId}/request-otp`,
       request || {},
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     ),
 
   // Verify document OTP
   verifyDocumentOTP: (
     fileId: string,
-    request: VerifyDocumentOTPRequest,
+    request: VerifyDocumentOTPRequest
   ): Promise<VerifyDocumentOTPResponse> =>
     ApiClient.post(
       `/filebox/documents/${fileId}/verify-otp`,
       request,
       {},
-      API_CONFIG.API_URL,
+      API_CONFIG.API_URL
     ),
+
+  // Archive file (soft delete)
+  archiveFile: (
+    fileId: string
+  ): Promise<{ success: boolean; message: string }> =>
+    ApiClient.post(
+      `/filebox/files/${fileId}/archive`,
+      {},
+      {},
+      API_CONFIG.API_URL
+    ),
+
+  // Restore archived file
+  restoreFile: (
+    fileId: string
+  ): Promise<{ success: boolean; message: string }> =>
+    ApiClient.post(
+      `/filebox/files/${fileId}/restore`,
+      {},
+      {},
+      API_CONFIG.API_URL
+    ),
+
+  // Permanently delete file
+  permanentDeleteFile: (
+    fileId: string
+  ): Promise<{ success: boolean; message: string }> =>
+    ApiClient.delete(
+      `/filebox/files/${fileId}/permanent`,
+      {},
+      API_CONFIG.API_URL
+    ),
+
+  // List archived files
+  listArchivedFiles: (): Promise<ListFilesResponse> =>
+    ApiClient.get("/filebox/archived", {}, API_CONFIG.API_URL),
 };
 
 // Query Hooks
@@ -168,7 +204,7 @@ export function useFileboxFiles(category?: string) {
     queryKey: queryKeys.filebox.list(backendCategory),
     queryFn: () =>
       fileboxApi.listFiles(
-        backendCategory ? { category: backendCategory } : undefined,
+        backendCategory ? { category: backendCategory } : undefined
       ),
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -263,7 +299,7 @@ export function useFileboxUpload() {
         throw new ApiError(
           uploadUrlResponse.message || "Failed to generate upload URL",
           uploadUrlResponse.statusCode || 400,
-          null,
+          null
         );
       }
 
@@ -277,7 +313,7 @@ export function useFileboxUpload() {
         await fileboxApi.uploadToS3(
           uploadUrlResponse.data.uploadUrl,
           file,
-          signal,
+          signal
         );
 
         // Check if aborted before verification
@@ -296,7 +332,7 @@ export function useFileboxUpload() {
                 ? error.message
                 : "File verification failed. The file may be corrupted or have an invalid type.",
               400,
-              null,
+              null
             );
           }
         }
@@ -341,7 +377,7 @@ export function useFileboxDownload() {
         throw new ApiError(
           downloadUrlResponse.message || "Failed to generate download URL",
           400,
-          null,
+          null
         );
       }
 
@@ -352,7 +388,7 @@ export function useFileboxDownload() {
         throw new ApiError(
           "Failed to fetch file from storage",
           response.status,
-          null,
+          null
         );
       }
 
@@ -390,7 +426,7 @@ export function useFileboxView() {
         throw new ApiError(
           downloadUrlResponse.message || "Failed to generate preview URL",
           400,
-          null,
+          null
         );
       }
 
@@ -417,7 +453,7 @@ export function useFileboxDelete() {
         throw new ApiError(
           response.message || "Failed to delete file",
           400,
-          null,
+          null
         );
       }
 
@@ -472,7 +508,7 @@ export function useFileboxRename() {
         fileName,
         otp,
         replaceDuplicate,
-        keepBoth,
+        keepBoth
       );
 
       if (!response.success) {
@@ -482,7 +518,7 @@ export function useFileboxRename() {
         throw new ApiError(
           response.message || "Failed to rename file",
           response.statusCode || 400,
-          null,
+          null
         );
       }
 
@@ -532,7 +568,7 @@ export function useToggleFileProtection() {
         throw new ApiError(
           response.message || "Failed to toggle file protection",
           response.statusCode || 400,
-          null,
+          null
         );
       }
 
@@ -574,14 +610,14 @@ export function useRequestDocumentOTP() {
     }) => {
       const response = await fileboxApi.requestDocumentOTP(
         fileId,
-        action ? { action } : undefined,
+        action ? { action } : undefined
       );
 
       if (!response.success) {
         throw new ApiError(
           response.message || "Failed to request OTP",
           400,
-          null,
+          null
         );
       }
 
@@ -624,12 +660,147 @@ export function useVerifyDocumentOTP() {
         throw new ApiError(
           response.message || "Failed to verify OTP",
           400,
-          null,
+          null
         );
       }
 
       return response;
     },
     retry: false, // Don't retry OTP verification
+  });
+}
+
+/**
+ * Hook to archive a file (soft delete)
+ */
+export function useFileboxArchive() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (fileId: string) => {
+      const response = await fileboxApi.archiveFile(fileId);
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to archive file",
+          400,
+          null
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.status === 404 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to restore an archived file
+ */
+export function useFileboxRestore() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (fileId: string) => {
+      const response = await fileboxApi.restoreFile(fileId);
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to restore file",
+          400,
+          null
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.status === 404 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to permanently delete a file
+ */
+export function useFileboxPermanentDelete() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (fileId: string) => {
+      const response = await fileboxApi.permanentDeleteFile(fileId);
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to permanently delete file",
+          400,
+          null
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.quota(),
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.status === 404 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to fetch archived files
+ */
+export function useFileboxArchivedFiles() {
+  return useQuery({
+    queryKey: ["filebox", "archived"],
+    queryFn: fileboxApi.listArchivedFiles,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.isUnauthorized || error.isForbidden) {
+          return false;
+        }
+      }
+
+      return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
+    },
   });
 }

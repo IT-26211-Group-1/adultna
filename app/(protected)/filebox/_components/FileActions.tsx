@@ -22,6 +22,7 @@ import {
   Edit3,
   Lock,
   LockOpen,
+  Archive,
 } from "lucide-react";
 import { FileItem } from "./FileItem";
 import {
@@ -29,6 +30,7 @@ import {
   useFileboxDelete,
   useFileboxRename,
   useToggleFileProtection,
+  useFileboxArchive,
 } from "@/hooks/queries/useFileboxQueries";
 import { addToast } from "@heroui/toast";
 import { ApiError, ApiClient } from "@/lib/apiClient";
@@ -53,12 +55,18 @@ export function FileActions({
 }: FileActionsProps) {
   const downloadMutation = useFileboxDownload();
   const deleteMutation = useFileboxDelete();
+  const archiveMutation = useFileboxArchive();
   const renameMutation = useFileboxRename();
   const toggleProtectionMutation = useToggleFileProtection();
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
     onOpenChange: onDeleteOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: isArchiveOpen,
+    onOpen: onArchiveOpen,
+    onOpenChange: onArchiveOpenChange,
   } = useDisclosure();
   const {
     isOpen: isPreviewOpen,
@@ -116,7 +124,7 @@ export function FileActions({
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL,
+        API_CONFIG.API_URL
       );
 
       if (response.success && response.data?.downloadUrl) {
@@ -218,6 +226,74 @@ export function FileActions({
     }
 
     onDeleteOpen();
+  };
+
+  const handleArchive = async () => {
+    console.log("handleArchive function called");
+
+    if (!fileMetadata) {
+      addToast({
+        title: "File metadata not available",
+        color: "danger",
+      });
+      return;
+    }
+
+    if (file.isSecure) {
+      console.log("File is secure, showing OTP modal");
+      setSecureAction("archive");
+      setShowSecureAccess(true);
+      return;
+    }
+
+    // Archive directly without modal
+    try {
+      await archiveMutation.mutateAsync(fileMetadata.id);
+      addToast({
+        title: "File archived successfully",
+        color: "success",
+      });
+    } catch (error) {
+      logger.error("Archive error:", error);
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to archive file",
+          color: "danger",
+        });
+      } else {
+        addToast({
+          title: "Failed to archive file",
+          color: "danger",
+        });
+      }
+    }
+  };
+  const handleArchiveConfirm = async () => {
+    if (!fileMetadata) {
+      addToast({
+        title: "File metadata not available",
+        color: "danger",
+      });
+
+      return;
+    }
+
+    try {
+      await archiveMutation.mutateAsync(fileMetadata.id);
+      addToast({
+        title: "File archived successfully",
+        color: "success",
+      });
+    } catch (error) {
+      logger.error("Archive error:", error);
+
+      if (error instanceof ApiError) {
+        addToast({
+          title: error.message || "Failed to archive file",
+          color: "danger",
+        });
+      }
+    }
   };
 
   const handleRenameClick = () => {
@@ -444,6 +520,9 @@ export function FileActions({
     } else if (secureAction === "delete") {
       // Proceed with delete confirmation
       onDeleteOpen();
+    } else if (secureAction === "archive") {
+      // Proceed with archive confirmation
+      onArchiveOpen();
     } else if (secureAction === "rename") {
       setVerifiedOtp(null); // No OTP needed since it was already verified and consumed
       setOtpVerifiedAt(Date.now()); // Track when it was verified
@@ -508,11 +587,21 @@ export function FileActions({
                 <EllipsisVertical className="w-4 h-4" />
               </Button>
             </DropdownTrigger>
-            <DropdownMenu aria-label="File actions">
+            <DropdownMenu
+              aria-label="File actions"
+              onAction={(key) => {
+                console.log("DropdownMenu onAction called with key:", key);
+                if (key === "edit") handleRenameClick();
+                else if (key === "protection") handleToggleProtection();
+                else if (key === "archive") {
+                  console.log("Archive action triggered from dropdown");
+                  handleArchive();
+                }
+              }}
+            >
               <DropdownItem
                 key="edit"
                 startContent={<Edit3 className="w-4 h-4" />}
-                onPress={handleRenameClick}
               >
                 Rename
               </DropdownItem>
@@ -525,18 +614,16 @@ export function FileActions({
                     <Lock className="w-4 h-4" />
                   )
                 }
-                onPress={handleToggleProtection}
               >
                 {file.isSecure ? "Unprotect" : "Protect"}
               </DropdownItem>
               <DropdownItem
-                key="delete"
-                className="text-danger"
-                color="danger"
-                startContent={<Trash2 className="w-4 h-4" />}
-                onPress={handleDelete}
+                key="archive"
+                className="text-warning"
+                color="warning"
+                startContent={<Archive className="w-4 h-4" />}
               >
-                Delete
+                Archive
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>
@@ -722,12 +809,24 @@ export function FileActions({
               <EllipsisVertical className="w-4 h-4" />
             </Button>
           </DropdownTrigger>
-          <DropdownMenu aria-label="File actions">
+          <DropdownMenu
+            aria-label="File actions"
+            onAction={(key) => {
+              console.log("Grid DropdownMenu onAction called with key:", key);
+              if (key === "view") handleView();
+              else if (key === "download") handleDownload();
+              else if (key === "rename") handleRenameClick();
+              else if (key === "protection") handleToggleProtection();
+              else if (key === "archive") {
+                console.log("Grid: Archive action triggered from dropdown");
+                handleArchive();
+              }
+            }}
+          >
             <DropdownItem
               key="view"
               isDisabled={isLoadingPreview}
               startContent={<Eye className="w-4 h-4" />}
-              onPress={handleView}
             >
               {isLoadingPreview ? "Opening..." : "View"}
             </DropdownItem>
@@ -735,14 +834,12 @@ export function FileActions({
               key="download"
               isDisabled={downloadMutation.isPending}
               startContent={<Download className="w-4 h-4" />}
-              onPress={handleDownload}
             >
               {downloadMutation.isPending ? "Downloading..." : "Download"}
             </DropdownItem>
             <DropdownItem
               key="rename"
               startContent={<Edit3 className="w-4 h-4" />}
-              onPress={handleRenameClick}
             >
               Rename
             </DropdownItem>
@@ -755,18 +852,16 @@ export function FileActions({
                   <Lock className="w-4 h-4" />
                 )
               }
-              onPress={handleToggleProtection}
             >
               {file.isSecure ? "Unprotect" : "Protect"}
             </DropdownItem>
             <DropdownItem
-              key="delete"
-              className="text-danger"
-              color="danger"
-              startContent={<Trash2 className="w-4 h-4" />}
-              onPress={handleDelete}
+              key="archive"
+              className="text-warning"
+              color="warning"
+              startContent={<Archive className="w-4 h-4" />}
             >
-              Delete
+              Archive
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
@@ -912,6 +1007,44 @@ export function FileActions({
                   {toggleProtectionMutation.isPending
                     ? "Protecting..."
                     : "Protect"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Archive Confirmation Modal */}
+      <Modal isOpen={isArchiveOpen} onOpenChange={onArchiveOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex gap-2 items-center">
+                <Archive className="w-5 h-5 text-warning" />
+                <span>Archive File</span>
+              </ModalHeader>
+              <ModalBody>
+                <p>
+                  Are you sure you want to archive <strong>{file.name}</strong>?
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  Archived files can be restored later from the archived files
+                  view.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color="warning"
+                  isLoading={archiveMutation.isPending}
+                  onPress={async () => {
+                    await handleArchiveConfirm();
+                    onClose();
+                  }}
+                >
+                  {archiveMutation.isPending ? "Archiving..." : "Archive"}
                 </Button>
               </ModalFooter>
             </>
