@@ -312,22 +312,19 @@ export default function ContactForm({
                 );
 
                 return (
-                  <div className="relative flex items-center gap-2">
-                    <div className="flex-1">
-                      <DatePicker
-                        errorMessage={fieldState.error?.message as string}
-                        isInvalid={!!fieldState.error}
-                        label="Birth date"
-                        maxValue={maxDate}
-                        size="sm"
-                        value={value}
-                        onBlur={field.onBlur}
-                        onChange={handleChange}
-                      />
-                    </div>
+                  <div className="relative">
+                    <DatePicker
+                      errorMessage={fieldState.error?.message as string}
+                      isInvalid={!!fieldState.error}
+                      label="Birth date"
+                      maxValue={maxDate}
+                      size="sm"
+                      value={value}
+                      onBlur={field.onBlur}
+                      onChange={handleChange}
+                    />
                     <button
-                      className="text-gray-400 hover:text-red-500 transition-colors p-1 self-center"
-                      style={{ marginTop: "12px" }}
+                      className="absolute right-9 top-[22px] text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
                       title="Remove Birth Date"
                       type="button"
                       onClick={() => {
