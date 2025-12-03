@@ -4,6 +4,9 @@ import { useState, useMemo, useCallback } from "react";
 import {
   useFileboxFiles,
   useFileboxDownload,
+  useFileboxArchive,
+  useFileboxRestore,
+  useFileboxPermanentDelete,
 } from "@/hooks/queries/useFileboxQueries";
 import {
   formatFileSize,
@@ -52,6 +55,9 @@ export const useFileboxOperations = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const downloadMutation = useFileboxDownload();
+  const archiveMutation = useFileboxArchive();
+  const restoreMutation = useFileboxRestore();
+  const permanentDeleteMutation = useFileboxPermanentDelete();
 
   const {
     data: filesResponse,
@@ -271,6 +277,70 @@ export const useFileboxOperations = () => {
     }
   }, [selectedFile, fileMetadataMap, downloadMutation]);
 
+  const handleArchiveFile = useCallback(
+    async (fileId: string) => {
+      try {
+        await archiveMutation.mutateAsync(fileId);
+        addToast({
+          title: "File archived successfully",
+          color: "success",
+        });
+        closeSidebar();
+      } catch (error) {
+        logger.error("Archive error:", error);
+        if (error instanceof ApiError) {
+          addToast({
+            title: error.message || "Failed to archive file",
+            color: "danger",
+          });
+        }
+      }
+    },
+    [archiveMutation],
+  );
+
+  const handleRestoreFile = useCallback(
+    async (fileId: string) => {
+      try {
+        await restoreMutation.mutateAsync(fileId);
+        addToast({
+          title: "File restored successfully",
+          color: "success",
+        });
+      } catch (error) {
+        logger.error("Restore error:", error);
+        if (error instanceof ApiError) {
+          addToast({
+            title: error.message || "Failed to restore file",
+            color: "danger",
+          });
+        }
+      }
+    },
+    [restoreMutation],
+  );
+
+  const handlePermanentDelete = useCallback(
+    async (fileId: string) => {
+      try {
+        await permanentDeleteMutation.mutateAsync(fileId);
+        addToast({
+          title: "File permanently deleted",
+          color: "success",
+        });
+      } catch (error) {
+        logger.error("Permanent delete error:", error);
+        if (error instanceof ApiError) {
+          addToast({
+            title: error.message || "Failed to permanently delete file",
+            color: "danger",
+          });
+        }
+      }
+    },
+    [permanentDeleteMutation],
+  );
+
   const closeSidebar = useCallback(() => {
     setShowSidebar(false);
     setSelectedFile(null);
@@ -340,6 +410,9 @@ export const useFileboxOperations = () => {
     handleFileDoubleClick,
     handleShowDetails,
     handleDownload,
+    handleArchiveFile,
+    handleRestoreFile,
+    handlePermanentDelete,
     handleSort,
     clearAllSelections,
     closeSidebar,

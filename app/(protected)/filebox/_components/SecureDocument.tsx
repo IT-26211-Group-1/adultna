@@ -315,8 +315,12 @@ export function SecureDocument({
           // Also clear ResendTimer's sessionStorage
           sessionStorage.removeItem(`otpTimer:${actualFileId}`);
 
-          if (action === "delete") {
-            setSuccessMessage("Access granted! Proceeding to delete...");
+          if (action === "delete" || action === "archive") {
+            setSuccessMessage(
+              action === "delete"
+                ? "Access granted! Proceeding to delete..."
+                : "Access granted! Proceeding to archive...",
+            );
             onSuccess?.("");
             onClose?.();
 
