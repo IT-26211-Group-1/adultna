@@ -16,7 +16,7 @@ export function RoadmapModel({
   onMilestoneClick,
   milestones,
 }: RoadmapModelProps) {
-  const { scene } = useGLTF("/models/final-roadmap.glb");
+  const { scene } = useGLTF("/models/final-roadmap-draco.glb");
 
   const positionCoordinates: Record<number, [number, number, number]> = useMemo(() => ({
     1: [2.6, 0.1, 1.0],
@@ -88,4 +88,4 @@ export function RoadmapModel({
   );
 }
 
-useGLTF.preload("/models/final-roadmap.glb");
+useGLTF.preload("/models/final-roadmap-draco.glb");
