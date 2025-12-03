@@ -102,15 +102,15 @@ export default function CertificationForm({
       const subscription = form.watch((values) => {
         const hasAtLeastOneValidCertificate = !!(
           values.certificates &&
-          values.certificates.some((cert) => cert.certificate?.trim())
+          values.certificates.some((cert) => cert?.certificate?.trim())
         );
         const hasNoErrors = Object.keys(form.formState.errors).length === 0;
 
         // Check if any field exceeds character limits
         const hasCharacterLimitExceeded = values.certificates?.some(
           (cert) =>
-            (cert.certificate && cert.certificate.length > 100) ||
-            (cert.issuingOrganization && cert.issuingOrganization.length > 100)
+            (cert?.certificate && cert.certificate.length > 100) ||
+            (cert?.issuingOrganization && cert.issuingOrganization.length > 100)
         );
 
         const isValid =
@@ -123,7 +123,7 @@ export default function CertificationForm({
 
       return () => subscription.unsubscribe();
     }
-  }, [form, form.formState.errors, onValidationChange]);
+  }, [form, onValidationChange]);
 
   useEffect(() => {
     if (resumeData.certificates && resumeData.certificates.length > 0) {
