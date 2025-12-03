@@ -43,6 +43,7 @@ export type FileMetadata = {
   uploadDate: string;
   lastModified: string;
   isSecure: boolean;
+  archivedDate?: string;
 };
 
 export type UserQuota = {
