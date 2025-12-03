@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Textarea } from "@heroui/react";
 import { Files, FileText, Upload, Search } from "lucide-react";
 import { useResumes } from "@/hooks/queries/useResumeQueries";
@@ -43,6 +43,33 @@ export default function ResumeGrader({
 
   const gradeResume = useGradeResume();
   const { data: resumesData = [], isLoading: isLoadingResumes } = useResumes();
+
+  // Job description limits
+  const JOB_DESC_LIMITS = {
+    maxCharacters: 5000,
+    maxWords: 800,
+    warningThreshold: 0.9,
+  } as const;
+
+  // Memoized character and word counts
+  const jobDescStats = useMemo(() => {
+    const charCount = jobDescription.length;
+    const wordCount = jobDescription.trim()
+      ? jobDescription.trim().split(/\s+/).length
+      : 0;
+
+    return {
+      charCount,
+      wordCount,
+      isCharLimitNear:
+        charCount >=
+        JOB_DESC_LIMITS.maxCharacters * JOB_DESC_LIMITS.warningThreshold,
+      isWordLimitNear:
+        wordCount >=
+        JOB_DESC_LIMITS.maxWords * JOB_DESC_LIMITS.warningThreshold,
+      isCharLimitExceeded: charCount > JOB_DESC_LIMITS.maxCharacters,
+    };
+  }, [jobDescription]);
 
   // Check if we should show results based on URL params
   const showResults = searchParams.get("results") === "true";
@@ -357,14 +384,46 @@ export default function ResumeGrader({
                     Job Description (Optional)
                   </label>
                   <Textarea
-                    className="mb-4"
+                    className="mb-3"
                     id="job-description-input"
                     maxRows={8}
                     minRows={4}
                     placeholder="Paste the job description here for targeted ATS analysis and keyword matching..."
                     value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+
+                      if (newValue.length <= JOB_DESC_LIMITS.maxCharacters) {
+                        setJobDescription(newValue);
+                      }
+                    }}
                   />
+
+                  {/* Counter Display */}
+                  <div className="flex items-center justify-between gap-4 mb-2">
+                    <span
+                      className={`text-xs font-medium transition-colors ${
+                        jobDescStats.isCharLimitNear
+                          ? "text-amber-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {jobDescStats.charCount.toLocaleString()} /{" "}
+                      {JOB_DESC_LIMITS.maxCharacters.toLocaleString()}{" "}
+                      characters
+                    </span>
+                    <span
+                      className={`text-xs font-medium transition-colors ${
+                        jobDescStats.isWordLimitNear
+                          ? "text-amber-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {jobDescStats.wordCount.toLocaleString()} /{" "}
+                      {JOB_DESC_LIMITS.maxWords.toLocaleString()} words
+                    </span>
+                  </div>
+
                   <p className="text-xs text-gray-500">
                     Adding a job description helps us analyze how well your
                     resume matches specific requirements

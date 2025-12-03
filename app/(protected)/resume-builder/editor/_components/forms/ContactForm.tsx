@@ -17,7 +17,7 @@ export default function ContactForm({
   const isSyncingRef = useRef(false);
   const previousDataRef = useRef<string>("");
   const [showJobPosition, setShowJobPosition] = useState(
-    !!resumeData.jobPosition,
+    !!resumeData.jobPosition
   );
   const [showBirthDate, setShowBirthDate] = useState(!!resumeData.birthDate);
   const [showLinkedIn, setShowLinkedIn] = useState(!!resumeData.linkedin);
@@ -40,7 +40,7 @@ export default function ContactForm({
           ? new CalendarDate(
               resumeData.birthDate.getFullYear(),
               resumeData.birthDate.getMonth() + 1,
-              resumeData.birthDate.getDate(),
+              resumeData.birthDate.getDate()
             )
           : undefined,
       linkedin: resumeData.linkedin || "",
@@ -70,7 +70,7 @@ export default function ContactForm({
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData],
+    [syncFormData]
   );
 
   useEffect(() => {
@@ -126,7 +126,7 @@ export default function ContactForm({
               ? new CalendarDate(
                   resumeData.birthDate.getFullYear(),
                   resumeData.birthDate.getMonth() + 1,
-                  resumeData.birthDate.getDate(),
+                  resumeData.birthDate.getDate()
                 )
               : undefined,
           linkedin: resumeData.linkedin || "",
@@ -210,23 +210,33 @@ export default function ContactForm({
         )}
 
         <div className="grid grid-cols-2 gap-2">
-          <Input
-            {...form.register("city")}
-            errorMessage={form.formState.errors.city?.message as string}
-            isInvalid={!!form.formState.errors.city}
-            label="City"
-            placeholder="Enter your City"
-            size="sm"
-          />
+          <div className="space-y-1">
+            <Input
+              {...form.register("city")}
+              errorMessage={form.formState.errors.city?.message as string}
+              isInvalid={!!form.formState.errors.city}
+              label="City"
+              placeholder="Enter your City"
+              size="sm"
+            />
+            <p className="text-xs text-right text-gray-500">
+              {(form.watch("city") || "").length} / 80
+            </p>
+          </div>
 
-          <Input
-            {...form.register("region")}
-            errorMessage={form.formState.errors.region?.message as string}
-            isInvalid={!!form.formState.errors.region}
-            label="Region"
-            placeholder="Enter your Region"
-            size="sm"
-          />
+          <div className="space-y-1">
+            <Input
+              {...form.register("region")}
+              errorMessage={form.formState.errors.region?.message as string}
+              isInvalid={!!form.formState.errors.region}
+              label="Region"
+              placeholder="Enter your Region"
+              size="sm"
+            />
+            <p className="text-xs text-right text-gray-500">
+              {(form.watch("region") || "").length} / 100
+            </p>
+          </div>
         </div>
 
         <Input
@@ -286,8 +296,8 @@ export default function ContactForm({
                       new CalendarDate(
                         val.getFullYear(),
                         val.getMonth() + 1,
-                        val.getDate(),
-                      ),
+                        val.getDate()
+                      )
                     );
                   } else {
                     field.onChange(val);
@@ -298,47 +308,49 @@ export default function ContactForm({
                 const maxDate = new CalendarDate(
                   today.getFullYear(),
                   today.getMonth() + 1,
-                  today.getDate(),
+                  today.getDate()
                 );
 
                 return (
-                  <DatePicker
-                    errorMessage={fieldState.error?.message as string}
-                    isInvalid={!!fieldState.error}
-                    label="Birth date"
-                    maxValue={maxDate}
-                    size="sm"
-                    value={value}
-                    onBlur={field.onBlur}
-                    onChange={handleChange}
-                  />
+                  <div className="relative [&_input]:!pr-16 [&_button[aria-label]]:!right-8">
+                    <DatePicker
+                      errorMessage={fieldState.error?.message as string}
+                      isInvalid={!!fieldState.error}
+                      label="Birth date"
+                      maxValue={maxDate}
+                      size="sm"
+                      value={value}
+                      onBlur={field.onBlur}
+                      onChange={handleChange}
+                    />
+                    <button
+                      className="absolute right-2 top-[20px] text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
+                      title="Remove Birth Date"
+                      type="button"
+                      onClick={() => {
+                        setShowBirthDate(false);
+                        form.setValue("birthDate", undefined);
+                        setResumeData({ ...resumeData, birthDate: undefined });
+                      }}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M6 18L18 6M6 6l12 12"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 );
               }}
             />
-            <button
-              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
-              title="Remove Birth Date"
-              type="button"
-              onClick={() => {
-                setShowBirthDate(false);
-                form.setValue("birthDate", undefined);
-                setResumeData({ ...resumeData, birthDate: undefined });
-              }}
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M6 18L18 6M6 6l12 12"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                />
-              </svg>
-            </button>
           </div>
         )}
 
