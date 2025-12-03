@@ -220,7 +220,7 @@ export default function ContactForm({
               size="sm"
             />
             <p className="text-xs text-right text-gray-500">
-              {(form.watch("city") || "").length} / 50
+              {(form.watch("city") || "").length} / 80
             </p>
           </div>
 

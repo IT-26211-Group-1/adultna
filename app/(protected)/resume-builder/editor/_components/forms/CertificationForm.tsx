@@ -123,7 +123,7 @@ export default function CertificationForm({
 
       return () => subscription.unsubscribe();
     }
-  }, [form, form.formState.errors, onValidationChange]);
+  }, [form, onValidationChange]);
 
   useEffect(() => {
     if (resumeData.certificates && resumeData.certificates.length > 0) {
