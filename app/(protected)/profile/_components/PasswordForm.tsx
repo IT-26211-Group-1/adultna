@@ -63,7 +63,7 @@ export function PasswordForm() {
         return "";
       }
     },
-    [hasUnsavedChanges],
+    [hasUnsavedChanges]
   );
 
   useEffect(() => {
@@ -131,7 +131,7 @@ export function PasswordForm() {
       {/* Current Password Field */}
       <FormInput
         autoComplete="current-password"
-        error={errors.currentPassword?.message}
+        error={(errors as any).currentPassword?.message}
         name="currentPassword"
         placeholder="Current Password"
         register={register}
