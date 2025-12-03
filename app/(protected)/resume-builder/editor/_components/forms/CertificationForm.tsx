@@ -58,7 +58,7 @@ export default function CertificationForm({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -79,14 +79,14 @@ export default function CertificationForm({
       ...prevData,
       certificates:
         (values.certificates?.filter(
-          (cert) => cert && cert.certificate && cert.certificate.trim() !== "",
+          (cert) => cert && cert.certificate && cert.certificate.trim() !== ""
         ) as any[]) || [],
     }));
   }, [form, setResumeData]);
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData],
+    [syncFormData]
   );
 
   useEffect(() => {
@@ -99,17 +99,31 @@ export default function CertificationForm({
 
   useEffect(() => {
     if (onValidationChange) {
-      const values = form.getValues();
-      const hasAtLeastOneValidCertificate = !!(
-        values.certificates &&
-        values.certificates.some((cert) => cert.certificate?.trim())
-      );
-      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
-      const isValid = hasAtLeastOneValidCertificate && hasNoErrors;
+      const subscription = form.watch((values) => {
+        const hasAtLeastOneValidCertificate = !!(
+          values.certificates &&
+          values.certificates.some((cert) => cert.certificate?.trim())
+        );
+        const hasNoErrors = Object.keys(form.formState.errors).length === 0;
 
-      onValidationChange(isValid);
+        // Check if any field exceeds character limits
+        const hasCharacterLimitExceeded = values.certificates?.some(
+          (cert) =>
+            (cert.certificate && cert.certificate.length > 100) ||
+            (cert.issuingOrganization && cert.issuingOrganization.length > 100)
+        );
+
+        const isValid =
+          hasAtLeastOneValidCertificate &&
+          hasNoErrors &&
+          !hasCharacterLimitExceeded;
+
+        onValidationChange(isValid);
+      });
+
+      return () => subscription.unsubscribe();
     }
-  }, [form.formState.errors, form, onValidationChange]);
+  }, [form, form.formState.errors, onValidationChange]);
 
   useEffect(() => {
     if (resumeData.certificates && resumeData.certificates.length > 0) {
@@ -222,7 +236,7 @@ function CertificationItem({
       ref={setNodeRef}
       className={cn(
         "space-y-2 p-3 bg-white rounded-lg shadow-sm border border-gray-100",
-        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
+        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50"
       )}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -268,7 +282,7 @@ function CertificationItem({
             certCharCount >=
               CHAR_LIMITS.certificateName * CHAR_LIMITS.warningThreshold
               ? "text-amber-600 font-medium"
-              : "text-gray-500",
+              : "text-gray-500"
           )}
         >
           {certCharCount} / {CHAR_LIMITS.certificateName}
@@ -295,7 +309,7 @@ function CertificationItem({
             orgCharCount >=
               CHAR_LIMITS.issuingOrg * CHAR_LIMITS.warningThreshold
               ? "text-amber-600 font-medium"
-              : "text-gray-500",
+              : "text-gray-500"
           )}
         >
           {orgCharCount} / {CHAR_LIMITS.issuingOrg}

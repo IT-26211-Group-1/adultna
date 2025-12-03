@@ -132,6 +132,7 @@ export const workSchema = z.object({
           isCurrentlyWorkingHere: z.boolean().optional(),
           description: z
             .string()
+            .max(800, "Description must be less than 800 characters")
             .optional()
             .refine((value) => {
               if (!value) return true;
