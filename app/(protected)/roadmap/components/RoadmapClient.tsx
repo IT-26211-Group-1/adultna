@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { Suspense, useState, useCallback, useEffect } from "react";
+import { Suspense, useState, useCallback, useEffect, useMemo } from "react";
 import { useDisclosure } from "@heroui/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CameraController } from "./CameraController";
@@ -17,7 +17,8 @@ import {
 import { logger } from "@/lib/logger";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
-const CAMERA_ANIMATION: CameraAnimation = {
+// Desktop intro animation
+const DESKTOP_CAMERA_ANIMATION: CameraAnimation = {
   from: {
     position: [55, 0, 10],
     fov: 6,
@@ -26,8 +27,8 @@ const CAMERA_ANIMATION: CameraAnimation = {
     position: [5, 8, 5],
     fov: 40,
   },
-  duration: 2000,
-  delay: 1000,
+  duration: 800,
+  delay: 200,
 };
 
 export function RoadmapClient() {
@@ -40,6 +41,53 @@ export function RoadmapClient() {
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
   const [hasOpenedFromQuery, setHasOpenedFromQuery] = useState(false);
+
+  const isMobile = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }, []);
+
+  // Camera positions optimized for each device type
+  const cameraSettings = useMemo(() => {
+    if (isMobile) {
+      return {
+        position: [3, 6, 8] as [number, number, number], // Closer, higher angle for mobile
+        fov: 75, // Wider FOV for mobile screens
+        introAnimation: null, // No intro animation for mobile
+      };
+    } else {
+      return {
+        position: [0, 5, 15] as [number, number, number], // Starting position for desktop animation
+        fov: 55, // Standard FOV for desktop
+        introAnimation: DESKTOP_CAMERA_ANIMATION,
+      };
+    }
+  }, [isMobile]);
+
+  const canvasWebGLSettings = useMemo(() => {
+    const baseSettings = {
+      resize: { scroll: false, debounce: { scroll: 50, resize: 100 } },
+      dpr: typeof window !== "undefined" ? Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2) : 1,
+      performance: { min: isMobile ? 0.3 : 0.5 },
+      gl: {
+        antialias: !isMobile,
+        alpha: true,
+        powerPreference: "default" as const,
+        stencil: false,
+        depth: true,
+        preserveDrawingBuffer: false,
+      }
+    };
+
+    if (isMobile) {
+      baseSettings.gl = {
+        ...baseSettings.gl,
+        powerPreference: "default" as const,
+      };
+    }
+
+    return baseSettings;
+  }, [isMobile]);
 
   const {
     data: milestones = [],
@@ -56,20 +104,23 @@ export function RoadmapClient() {
       const offsetX = x > 0 ? 1.2 : -1.2; // Reduced horizontal offset
       const offsetZ = z > 0 ? 1.2 : -1.2; // Reduced depth offset
 
+      const fromPosition: [number, number, number] = isMobile ? cameraSettings.position : [5, 8, 5];
+      const fromFov = isMobile ? cameraSettings.fov : 40;
+
       return {
         from: {
-          position: [5, 8, 5], // Current camera position after initial animation
-          fov: 40,
+          position: fromPosition,
+          fov: fromFov,
         },
         to: {
-          position: [x + offsetX, y + 3.5, z + offsetZ], // Higher Y for top-down view
-          fov: 30, // Less aggressive zoom
+          position: [x + offsetX, y + 3.5, z + offsetZ],
+          fov: isMobile ? 60 : 30, // Less aggressive zoom for mobile
         },
-        duration: 1200,
+        duration: isMobile ? 400 : 600, // Faster animations on mobile
         delay: 0,
       };
     },
-    [],
+    [isMobile, cameraSettings],
   );
 
   // Auto-open milestone modal from query parameter
@@ -161,47 +212,53 @@ export function RoadmapClient() {
     <>
       <div className="w-full h-full relative">
         <Canvas
-          camera={{ position: [0, 5, 15], fov: 55 }}
+          camera={{ position: cameraSettings.position, fov: cameraSettings.fov }}
           className="w-full h-full"
-          resize={{ scroll: false, debounce: { scroll: 50, resize: 100 } }}
-          // Performance optimizations for mobile devices
-          dpr={Math.min(window.devicePixelRatio, 2)} // Cap pixel ratio to prevent high-DPI lag
-          performance={{ min: 0.5 }} // Auto frame rate adjustment when performance drops
-          gl={{
-            antialias: false, // Disable anti-aliasing for better performance
-            alpha: true, // Enable transparency for proper background rendering
-            powerPreference: "high-performance", // Request dedicated GPU if available
-            stencil: false // Disable stencil buffer (not needed for this scene)
-          }}
+          {...canvasWebGLSettings}
           onClick={handleCanvasClick}
         >
           <CameraController
-            animation={CAMERA_ANIMATION}
+            introAnimation={cameraSettings.introAnimation}
             milestoneAnimation={milestoneAnimation}
+            isMobile={isMobile}
           />
-          {/* Lighting setup optimized for performance vs visual quality balance */}
+          {/* Optimized lighting setup for mobile performance */}
           {/* eslint-disable-next-line react/no-unknown-property */}
-          <ambientLight intensity={1.0} /> {/* Base lighting for overall visibility */}
+          <ambientLight intensity={isMobile ? 1.2 : 1.0} />
           {/* eslint-disable-next-line react/no-unknown-property */}
-          <directionalLight intensity={1.5} position={[10, 15, 10]} /> {/* Main light source */}
-          {/* eslint-disable-next-line react/no-unknown-property */}
-          <hemisphereLight intensity={0.4} groundColor="#444444" /> {/* Soft ground reflection */}
-          <Suspense fallback={null}>
+          <directionalLight intensity={isMobile ? 1.2 : 1.5} position={[10, 15, 10]} />
+          {!isMobile && (
+            /* eslint-disable-next-line react/no-unknown-property */
+            <hemisphereLight intensity={0.4} groundColor="#444444" />
+          )}
+          <Suspense
+            fallback={
+              <mesh>
+                <boxGeometry args={[1, 0.1, 1]} />
+                <meshBasicMaterial color="#e5e7eb" />
+              </mesh>
+            }
+          >
             <RoadmapModel
               milestones={milestones}
               onMilestoneClick={handleMilestoneClick}
             />
           </Suspense>
-          {/* OrbitControls with full freedom - no restrictions on movement */}
           <OrbitControls
-            dampingFactor={0.05}
+            dampingFactor={isMobile ? 0.08 : 0.05}
             enableDamping={true}
-            enablePan={true}
+            enablePan={!isMobile}
             enableRotate={true}
             enableZoom={true}
-            maxDistance={50}
+            maxDistance={isMobile ? 30 : 50}
             maxPolarAngle={Math.PI}
-            minDistance={2}
+            minDistance={isMobile ? 3 : 2}
+            rotateSpeed={isMobile ? 0.8 : 1}
+            zoomSpeed={isMobile ? 0.8 : 1}
+            touches={{
+              ONE: 1, // Rotate
+              TWO: 2, // Zoom
+            }}
           />
         </Canvas>
       </div>

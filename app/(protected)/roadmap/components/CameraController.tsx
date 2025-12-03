@@ -7,36 +7,31 @@ import { useSpring } from "@react-spring/three";
 import { CameraAnimation } from "../../../../types/roadmap";
 
 interface CameraControllerProps {
-  animation: CameraAnimation;
   onAnimationComplete?: () => void;
   milestoneAnimation?: CameraAnimation | null;
+  introAnimation?: CameraAnimation | null;
+  isMobile?: boolean;
 }
 
 export function CameraController({
-  animation,
   onAnimationComplete,
   milestoneAnimation,
+  introAnimation,
+  isMobile = false,
 }: CameraControllerProps) {
   const { camera, size } = useThree();
-  const [startAnimation, setStartAnimation] = useState(false);
-  const [currentAnimation, setCurrentAnimation] = useState(animation);
+  const [startIntroAnimation, setStartIntroAnimation] = useState(false);
+  const [startMilestoneAnimation, setStartMilestoneAnimation] = useState(false);
+  const [introComplete, setIntroComplete] = useState(isMobile); // Skip intro on mobile
 
-  // Update animation when milestone changes
+  // Default positions based on device type
+  const defaultPosition: [number, number, number] = isMobile ? [3, 6, 8] : [5, 8, 5];
+  const defaultFov = isMobile ? 75 : 40;
+
+  // Start intro animation on mount (desktop only)
   useEffect(() => {
-    if (milestoneAnimation) {
-      setCurrentAnimation(milestoneAnimation);
-      setStartAnimation(true);
-    } else {
-      setCurrentAnimation(animation);
-      setStartAnimation(true);
-    }
-  }, [milestoneAnimation, animation]);
-
-  // Set initial camera position on mount
-  useEffect(() => {
-    if (!milestoneAnimation) {
-      const { position, fov } = animation.from;
-
+    if (!isMobile && introAnimation && !introComplete) {
+      const { position, fov } = introAnimation.from;
       camera.position.set(position[0], position[1], position[2]);
       if (camera instanceof PerspectiveCamera) {
         camera.fov = fov;
@@ -44,13 +39,22 @@ export function CameraController({
       }
 
       const timer = setTimeout(
-        () => setStartAnimation(true),
-        animation.delay || 1000,
+        () => setStartIntroAnimation(true),
+        introAnimation.delay || 0,
       );
 
       return () => clearTimeout(timer);
     }
-  }, [camera, animation, milestoneAnimation]);
+  }, [camera, introAnimation, isMobile, introComplete]);
+
+  // Handle milestone animations
+  useEffect(() => {
+    if (milestoneAnimation) {
+      setStartMilestoneAnimation(true);
+    } else {
+      setStartMilestoneAnimation(false);
+    }
+  }, [milestoneAnimation]);
 
   // Handle viewport resize
   useEffect(() => {
@@ -60,14 +64,65 @@ export function CameraController({
     }
   }, [camera, size.width, size.height]);
 
+  // Determine current animation target
+  const getAnimationTarget = () => {
+    if (milestoneAnimation && startMilestoneAnimation) {
+      return {
+        position: milestoneAnimation.to.position,
+        fov: milestoneAnimation.to.fov,
+      };
+    }
+
+    if (!isMobile && introAnimation && startIntroAnimation && !introComplete) {
+      return {
+        position: introAnimation.to.position,
+        fov: introAnimation.to.fov,
+      };
+    }
+
+    return {
+      position: defaultPosition,
+      fov: defaultFov,
+    };
+  };
+
+  // Get starting position for animations
+  const getAnimationFrom = () => {
+    if (milestoneAnimation && startMilestoneAnimation) {
+      return {
+        position: milestoneAnimation.from.position,
+        fov: milestoneAnimation.from.fov,
+      };
+    }
+
+    if (!isMobile && introAnimation && !introComplete) {
+      return {
+        position: introAnimation.from.position,
+        fov: introAnimation.from.fov,
+      };
+    }
+
+    return {
+      position: defaultPosition,
+      fov: defaultFov,
+    };
+  };
+
+  const target = getAnimationTarget();
+  const from = getAnimationFrom();
+
   // Animation spring
   const { position, fov } = useSpring({
-    position: startAnimation
-      ? currentAnimation.to.position
-      : currentAnimation.from.position,
-    fov: startAnimation ? currentAnimation.to.fov : currentAnimation.from.fov,
+    from,
+    to: target,
     config: { mass: 1, tension: 40, friction: 50 },
-    onRest: onAnimationComplete,
+    onRest: () => {
+      if (milestoneAnimation && startMilestoneAnimation) {
+        onAnimationComplete?.();
+      } else if (!isMobile && introAnimation && startIntroAnimation && !introComplete) {
+        setIntroComplete(true);
+      }
+    },
   });
 
   // Update camera every frame
