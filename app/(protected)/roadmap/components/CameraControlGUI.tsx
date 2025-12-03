@@ -27,9 +27,9 @@ export function CameraControlGUI() {
   };
 
   const presetViews = {
-    "Top View": { x: 0, y: 25, z: 0, fov: 45 },
+    "Top View": { x: 6, y: 8, z: 0.2, fov: 48 },
     "Isometric": { x: 15, y: 15, z: 15, fov: 50 },
-    "Side View": { x: 20, y: 5, z: 0, fov: 50 },
+    "Side View": { x: 0.2, y: 16, z: -2, fov: 31 },
     "Current": { x: 5, y: 8, z: 5, fov: 40 },
   };
 
@@ -75,36 +75,36 @@ export function CameraControlGUI() {
       {/* Position Sliders */}
       <div className="space-y-2 mb-3">
         <div>
-          <label className="text-xs text-gray-600">X: {position.x}</label>
+          <label className="text-xs text-gray-600">X: {position.x.toFixed(1)}</label>
           <input
             type="range"
             min="-30"
             max="30"
-            step="0.5"
+            step="0.1"
             value={-position.x}
             onChange={(e) => updateCameraPosition({ x: -parseFloat(e.target.value) })}
             className="w-full"
           />
         </div>
         <div>
-          <label className="text-xs text-gray-600">Y: {position.y}</label>
+          <label className="text-xs text-gray-600">Y: {position.y.toFixed(1)}</label>
           <input
             type="range"
             min="1"
             max="40"
-            step="0.5"
+            step="0.1"
             value={position.y}
             onChange={(e) => updateCameraPosition({ y: parseFloat(e.target.value) })}
             className="w-full"
           />
         </div>
         <div>
-          <label className="text-xs text-gray-600">Z: {position.z}</label>
+          <label className="text-xs text-gray-600">Z: {position.z.toFixed(1)}</label>
           <input
             type="range"
             min="-30"
             max="30"
-            step="0.5"
+            step="0.1"
             value={position.z}
             onChange={(e) => updateCameraPosition({ z: parseFloat(e.target.value) })}
             className="w-full"

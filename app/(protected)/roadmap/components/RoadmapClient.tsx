@@ -9,7 +9,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { CameraController } from "./CameraController";
 import { RoadmapModel } from "./RoadmapModel";
 import { MilestoneModal } from "./MilestoneModal";
-import { CameraControlGUI } from "./CameraControlGUI";
+import { CameraView } from "./CameraViewSelector";
 import { useUserMilestonesWithPolling } from "@/hooks/queries/useRoadmapQueries";
 import {
   CameraAnimation,
@@ -35,9 +35,10 @@ const DESKTOP_CAMERA_ANIMATION: CameraAnimation = {
 
 interface RoadmapClientProps {
   onEmptyPositionClick?: (positionNumber: number) => void;
+  selectedCameraView?: CameraView | null;
 }
 
-export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {}) {
+export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: RoadmapClientProps = {}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,6 +47,8 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
   );
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
+  const [cameraViewAnimation, setCameraViewAnimation] =
+    useState<CameraAnimation | null>(null);
   const [hasOpenedFromQuery, setHasOpenedFromQuery] = useState(false);
 
   const isMobile = useMemo(() => {
@@ -53,17 +56,25 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
     return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }, []);
 
+  // Default camera view (top view vertical)
+  const DEFAULT_CAMERA_VIEW: CameraView = {
+    id: "top-vertical",
+    name: "Top View",
+    position: [0.3, 15, 0],
+    fov: 31,
+  };
+
   // Camera positions optimized for each device type
   const cameraSettings = useMemo(() => {
     if (isMobile) {
       return {
         // 🔧 MOBILE CAMERA POSITION ADJUSTMENT [X, Y, Z]
         // X: Left(-) / Right(+) | Y: Down(-) / Up(+) | Z: Away(-) / Closer(+)
-        position: [0, 12, 15] as [number, number, number], // Higher angle for better top-down view
+        position: DEFAULT_CAMERA_VIEW.position, // Use default view position
 
         // 🔧 MOBILE FIELD OF VIEW ADJUSTMENT
         // Smaller number = zoomed in, Larger number = zoomed out
-        fov: 55, // Balanced FOV for mobile visibility
+        fov: DEFAULT_CAMERA_VIEW.fov, // Use default view fov
 
         introAnimation: null, // No intro animation for mobile
       };
@@ -72,7 +83,13 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
       return {
         position: [0, 5, 15] as [number, number, number], // Starting position for desktop animation
         fov: 55, // Standard FOV for desktop
-        introAnimation: DESKTOP_CAMERA_ANIMATION,
+        introAnimation: {
+          ...DESKTOP_CAMERA_ANIMATION,
+          to: {
+            position: DEFAULT_CAMERA_VIEW.position,
+            fov: DEFAULT_CAMERA_VIEW.fov,
+          },
+        },
       };
     }
   }, [isMobile]);
@@ -117,8 +134,12 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
       const offsetX = x > 0 ? 1.2 : -1.2; // Reduced horizontal offset
       const offsetZ = z > 0 ? 1.2 : -1.2; // Reduced depth offset
 
-      const fromPosition: [number, number, number] = isMobile ? cameraSettings.position : [5, 8, 5];
-      const fromFov = isMobile ? cameraSettings.fov : 40;
+      // Get current camera position if available
+      const camera = (window as any).__camera;
+      const fromPosition: [number, number, number] = camera ?
+        [camera.position.x, camera.position.y, camera.position.z] :
+        DEFAULT_CAMERA_VIEW.position;
+      const fromFov = camera ? camera.fov : DEFAULT_CAMERA_VIEW.fov;
 
       return {
         from: {
@@ -133,7 +154,7 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
         delay: 0,
       };
     },
-    [isMobile, cameraSettings],
+    [isMobile, DEFAULT_CAMERA_VIEW],
   );
 
   // Auto-open milestone modal from query parameter
@@ -168,6 +189,38 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
     hasOpenedFromQuery,
     createMilestoneZoom,
   ]);
+
+  // Handle camera view changes
+  useEffect(() => {
+    if (selectedCameraView) {
+      const camera = (window as any).__camera;
+      if (camera) {
+        // Get current camera position
+        const currentPosition: [number, number, number] = [
+          camera.position.x,
+          camera.position.y,
+          camera.position.z,
+        ];
+        const currentFov = camera.fov;
+
+        // Create animation to new view
+        const viewAnimation: CameraAnimation = {
+          from: {
+            position: currentPosition,
+            fov: currentFov,
+          },
+          to: {
+            position: selectedCameraView.position,
+            fov: selectedCameraView.fov,
+          },
+          duration: 600,
+          delay: 0,
+        };
+
+        setCameraViewAnimation(viewAnimation);
+      }
+    }
+  }, [selectedCameraView]);
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
     const milestone = milestones.find((m) => m.id === interaction.milestoneId);
@@ -212,41 +265,9 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
   };
 
 
-  // Camera position tracking for finding optimal views
+  // Cleanup on unmount
   React.useEffect(() => {
-    // Function to log current camera position
-    (window as any).logCameraPos = () => {
-      const camera = (window as any).__camera;
-      if (camera) {
-        const pos = camera.position;
-        const target = camera.controls?.target || { x: 0, y: 0, z: 0 };
-        console.log(`Camera Position: [${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)}]`);
-        console.log(`Camera Target: [${target.x.toFixed(2)}, ${target.y.toFixed(2)}, ${target.z.toFixed(2)}]`);
-        console.log(`Camera FOV: ${camera.fov}`);
-        console.log('Copy this for your settings:');
-        console.log(`position: [${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)}]`);
-      }
-    };
-
-    // Auto-tracking function
-    let trackingInterval: NodeJS.Timeout;
-    (window as any).trackCamera = () => {
-      console.log('🎥 Starting camera position tracking...');
-      trackingInterval = setInterval(() => {
-        (window as any).logCameraPos();
-      }, 2000);
-    };
-
-    (window as any).stopTracking = () => {
-      console.log('⏹️ Stopping camera tracking');
-      clearInterval(trackingInterval);
-    };
-
     return () => {
-      clearInterval(trackingInterval);
-      delete (window as any).logCameraPos;
-      delete (window as any).trackCamera;
-      delete (window as any).stopTracking;
       delete (window as any).__camera;
     };
   }, []);
@@ -276,11 +297,16 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
           {...canvasWebGLSettings}
           onClick={handleCanvasClick}
         >
-          {/* CameraController for camera reference storage only */}
+          {/* CameraController for animations and camera reference */}
           <CameraController
-            introAnimation={null}
-            milestoneAnimation={null}
+            introAnimation={cameraSettings.introAnimation}
+            milestoneAnimation={milestoneAnimation || cameraViewAnimation}
             isMobile={isMobile}
+            onAnimationComplete={() => {
+              if (cameraViewAnimation) {
+                setCameraViewAnimation(null);
+              }
+            }}
           />
           {/* Optimized lighting setup for mobile performance */}
           {/* eslint-disable-next-line react/no-unknown-property */}
@@ -313,15 +339,10 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
             - maxPolarAngle: lower values prevent looking from below
           */}
           <OrbitControls
-            enableDamping={true}
-            dampingFactor={0.05}
-            enablePan={true}
-            enableRotate={true}
-            enableZoom={true}
-            minDistance={5}
-            maxDistance={50}
-            maxPolarAngle={Math.PI}
-            minPolarAngle={0}
+            enableDamping={false}
+            enablePan={false}
+            enableRotate={false}
+            enableZoom={false}
           />
         </Canvas>
       </div>
@@ -333,8 +354,8 @@ export function RoadmapClient({ onEmptyPositionClick }: RoadmapClientProps = {})
         onMilestoneUpdated={handleMilestoneUpdated}
       />
 
-      {/* Camera Control GUI for position testing */}
-      <CameraControlGUI />
+      {/* Camera Control GUI for debugging - hidden for production */}
+      {/* <CameraControlGUI /> */}
     </>
   );
 }

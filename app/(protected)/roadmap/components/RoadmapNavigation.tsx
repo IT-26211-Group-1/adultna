@@ -5,12 +5,15 @@ import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { CameraViewSelector, CameraView } from "./CameraViewSelector";
 
 interface RoadmapNavigationProps {
   onAddMilestone?: () => void;
+  onCameraViewChange?: (view: CameraView) => void;
+  currentCameraView?: string;
 }
 
-export function RoadmapNavigation({ onAddMilestone }: RoadmapNavigationProps) {
+export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentCameraView }: RoadmapNavigationProps) {
   const router = useRouter();
 
   const handleDashboardClick = () => {
@@ -55,8 +58,17 @@ export function RoadmapNavigation({ onAddMilestone }: RoadmapNavigationProps) {
               </div>
             </div>
 
-            {/* Right Section - Add Milestone Button */}
-            <div className="flex items-center">
+            {/* Right Section - Camera View Selector and Add Milestone Button */}
+            <div className="flex items-center space-x-3">
+              {/* Camera View Selector */}
+              {onCameraViewChange && (
+                <CameraViewSelector
+                  onViewChange={onCameraViewChange}
+                  currentView={currentCameraView}
+                />
+              )}
+
+              {/* Add Milestone Button */}
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-150 border-0"
                 size="sm"
