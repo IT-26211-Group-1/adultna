@@ -1,6 +1,6 @@
 "use client";
 import { CategoriesUpload } from "./CategoriesUpload";
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { Button, Switch, useDisclosure } from "@heroui/react";
 import { useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -24,20 +24,26 @@ interface UploadDocumentProps {
   onClose?: () => void;
 }
 
+interface FileUploadStatus {
+  file: File;
+  status: "pending" | "uploading" | "success" | "error" | "duplicate";
+  error?: string;
+}
+
+const MAX_FILES = 10;
+
 export function UploadDocument({ onClose }: UploadDocumentProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
+  const [files, setFiles] = useState<FileUploadStatus[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [pendingUpload, setPendingUpload] = useState<UploadDocumentForm | null>(
-    null,
+    null
   );
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
-  const {
-    isOpen: isReplaceOpen,
-    onOpen: onReplaceOpen,
-    onClose: onReplaceClose,
-  } = useDisclosure();
+  const { isOpen: isReplaceOpen, onClose: onReplaceClose } = useDisclosure();
 
   const { data: quotaResponse } = useFileboxQuota();
   const quota = quotaResponse?.data;
@@ -58,8 +64,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
   const watchedFile = watch("file");
 
-  // Validate storage quota when file is selected
-  const validateStorageQuota = (file: File): boolean => {
+  // Validate storage quota for multiple files
+  const validateStorageQuota = (filesToValidate: File[]): boolean => {
     if (!quota) {
       setStorageError("Unable to check storage quota");
 
@@ -68,15 +74,17 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
     if (quota.isQuotaExceeded) {
       setStorageError(
-        "Storage quota exceeded. Please delete some files to free up space.",
+        "Storage quota exceeded. Please delete some files to free up space."
       );
 
       return false;
     }
 
-    if (file.size > quota.remainingStorageBytes) {
+    const totalSize = filesToValidate.reduce((sum, file) => sum + file.size, 0);
+
+    if (totalSize > quota.remainingStorageBytes) {
       setStorageError(
-        `File size (${formatFileSize(file.size)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`,
+        `Total file size (${formatFileSize(totalSize)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`
       );
 
       return false;
@@ -90,17 +98,64 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     fileInputRef.current?.click();
   };
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const addFiles = (newFiles: File[]) => {
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-    if (file) {
-      if (validateStorageQuota(file)) {
-        setValue("file", file, { shouldValidate: true });
-      } else {
-        // Clear the file input
-        event.target.value = "";
+    // Filter out duplicates and files that are too large
+    const validFiles = newFiles.filter((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        addToast({
+          title: `${file.name} is too large (max ${formatFileSize(MAX_FILE_SIZE)})`,
+          color: "warning",
+        });
+
+        return false;
       }
+
+      if (
+        files.some(
+          (f) => f.file.name === file.name && f.file.size === file.size
+        )
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (files.length + validFiles.length > MAX_FILES) {
+      addToast({
+        title: `Maximum ${MAX_FILES} files allowed`,
+        color: "warning",
+      });
+
+      return;
     }
+
+    const newFileStatuses: FileUploadStatus[] = validFiles.map((file) => ({
+      file,
+      status: "pending",
+    }));
+
+    const allFiles = [...files, ...newFileStatuses];
+
+    setFiles(allFiles);
+
+    // Validate storage quota
+    validateStorageQuota(allFiles.map((f) => f.file));
+
+    // Set first file to the form for validation compatibility
+    if (allFiles.length > 0 && !watchedFile) {
+      setValue("file", allFiles[0].file, { shouldValidate: true });
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files || []);
+
+    addFiles(selectedFiles);
+    // Reset input to allow selecting the same files again
+    event.target.value = "";
   };
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -116,20 +171,25 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     setIsDragOver(false);
-    const file = event.dataTransfer.files?.[0];
+    const droppedFiles = Array.from(event.dataTransfer.files);
 
-    if (file) {
-      if (validateStorageQuota(file)) {
-        setValue("file", file, { shouldValidate: true });
-      }
-    }
+    addFiles(droppedFiles);
   };
 
-  const handleRemoveFile = () => {
-    setValue("file", null as any);
+  const handleRemoveFile = (index: number) => {
+    const updatedFiles = files.filter((_, i) => i !== index);
+
+    setFiles(updatedFiles);
     setStorageError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+
+    if (updatedFiles.length > 0) {
+      validateStorageQuota(updatedFiles.map((f) => f.file));
+      setValue("file", updatedFiles[0].file, { shouldValidate: true });
+    } else {
+      setValue("file", null as any);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -147,8 +207,17 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   };
 
   const onSubmit = async (data: UploadDocumentForm) => {
+    if (files.length === 0) {
+      addToast({
+        title: "Please select at least one file",
+        color: "warning",
+      });
+
+      return;
+    }
+
     // Final validation before upload
-    if (!validateStorageQuota(data.file)) {
+    if (!validateStorageQuota(files.map((f) => f.file))) {
       addToast({
         title: storageError || "Storage quota exceeded",
         color: "danger",
@@ -157,72 +226,133 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       return;
     }
 
-    // Create AbortController for this upload
-    const controller = new AbortController();
+    setIsUploading(true);
 
-    setAbortController(controller);
+    let successCount = 0;
+    let errorCount = 0;
+    let duplicateCount = 0;
 
-    try {
-      const result = await uploadMutation.mutateAsync({
-        file: data.file,
-        category: data.category,
-        isSecure: data.isSecure || false,
-        replaceDuplicate: false,
-        signal: controller.signal,
+    // Upload files sequentially
+    for (let i = 0; i < files.length; i++) {
+      const fileStatus = files[i];
+
+      if (fileStatus.status !== "pending") {
+        continue;
+      }
+
+      // Create AbortController for this upload
+      const controller = new AbortController();
+
+      setAbortController(controller);
+
+      setFiles((prev) =>
+        prev.map((f, idx) => (idx === i ? { ...f, status: "uploading" } : f))
+      );
+
+      try {
+        const result = await uploadMutation.mutateAsync({
+          file: fileStatus.file,
+          category: data.category,
+          isSecure: data.isSecure || false,
+          replaceDuplicate: false,
+          signal: controller.signal,
+        });
+
+        if (result.statusCode === 409) {
+          // Duplicate file
+          duplicateCount++;
+          setFiles((prev) =>
+            prev.map((f, idx) =>
+              idx === i
+                ? { ...f, status: "duplicate", error: "File already exists" }
+                : f
+            )
+          );
+        } else if (result.success) {
+          successCount++;
+          setFiles((prev) =>
+            prev.map((f, idx) => (idx === i ? { ...f, status: "success" } : f))
+          );
+        } else {
+          errorCount++;
+          setFiles((prev) =>
+            prev.map((f, idx) =>
+              idx === i
+                ? {
+                    ...f,
+                    status: "error",
+                    error: result.message || "Upload failed",
+                  }
+                : f
+            )
+          );
+        }
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          (error.name === "AbortError" || error.message === "Upload cancelled")
+        ) {
+          addToast({
+            title: "Upload cancelled",
+            color: "warning",
+          });
+          setIsUploading(false);
+
+          return;
+        }
+
+        errorCount++;
+        logger.error("Upload error:", error);
+
+        const errorMessage =
+          error instanceof ApiError
+            ? error.message
+            : "An unexpected error occurred";
+
+        setFiles((prev) =>
+          prev.map((f, idx) =>
+            idx === i ? { ...f, status: "error", error: errorMessage } : f
+          )
+        );
+      }
+    }
+
+    setIsUploading(false);
+    setAbortController(null);
+
+    // Show summary toast
+    const totalFiles = files.length;
+
+    if (successCount === totalFiles) {
+      addToast({
+        title: `Successfully uploaded ${successCount} ${successCount === 1 ? "file" : "files"}`,
+        color: "success",
       });
+      onClose?.();
+    } else if (successCount > 0) {
+      const message = [];
 
-      if (result.statusCode === 409) {
-        setPendingUpload(data);
-        onReplaceOpen();
+      if (successCount > 0) message.push(`${successCount} uploaded`);
+      if (duplicateCount > 0)
+        message.push(
+          `${duplicateCount} duplicate${duplicateCount > 1 ? "s" : ""}`
+        );
+      if (errorCount > 0) message.push(`${errorCount} failed`);
 
-        return;
-      }
-
-      if (result.success) {
-        addToast({
-          title: "Document uploaded successfully",
-          color: "success",
-        });
-
-        onClose?.();
-      }
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 409) {
-        // Duplicate file detected - show modal
-        setPendingUpload(data);
-        onReplaceOpen();
-
-        return;
-      }
-
-      // Check if error is due to cancellation
-      if (
-        error instanceof Error &&
-        (error.name === "AbortError" || error.message === "Upload cancelled")
-      ) {
-        addToast({
-          title: "Upload cancelled",
-          color: "warning",
-        });
-
-        return;
-      }
-
-      logger.error("Upload error:", error);
-
-      if (error instanceof ApiError) {
-        addToast({
-          title: error.message || "Failed to upload document",
-          color: "danger",
-        });
-      } else {
-        addToast({
-          title: "An unexpected error occurred",
-          color: "danger",
-        });
-      }
-    } finally {
-      setAbortController(null);
+      addToast({
+        title: message.join(", "),
+        color: "warning",
+      });
+    } else if (duplicateCount > 0 && errorCount === 0) {
+      addToast({
+        title: `${duplicateCount} file${duplicateCount > 1 ? "s" : ""} already exist${duplicateCount === 1 ? "s" : ""}`,
+        color: "warning",
+      });
+    } else {
+      addToast({
+        title: `Failed to upload ${errorCount} file${errorCount > 1 ? "s" : ""}`,
+        color: "danger",
+      });
     }
   };
 
@@ -363,7 +493,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
               className={`border-2 border-dashed rounded-xl p-12 transition-all duration-200 cursor-pointer ${
                 isDragOver
                   ? "border-blue-400 bg-blue-50"
-                  : watchedFile
+                  : files.length > 0
                     ? "border-green-400 bg-green-50"
                     : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
               }`}
@@ -380,54 +510,35 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
                 }
               }}
             >
-              {watchedFile ? (
-                // File uploaded state
-                <div className="space-y-4">
-                  <div className="text-green-500">
-                    <Upload className="mx-auto h-12 w-12" />
-                  </div>
-                  <div>
-                    <p className="text-lg font-medium text-gray-900">
-                      {watchedFile.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {(watchedFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="bordered"
-                    onPress={() => handleRemoveFile()}
-                  >
-                    Remove
-                  </Button>
+              <div className="space-y-4">
+                <div
+                  className={
+                    files.length > 0 ? "text-green-500" : "text-gray-400"
+                  }
+                >
+                  <Upload className="mx-auto h-12 w-12" />
                 </div>
-              ) : (
-                // Default upload state
-                <div className="space-y-4">
-                  <div className="text-gray-400">
-                    <Upload className="mx-auto h-12 w-12" />
-                  </div>
-                  <div>
-                    <p className="text-lg font-medium text-gray-700">
-                      {isDragOver
-                        ? "Drop your document here"
-                        : "Choose a file or drag & drop it here"}
-                    </p>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    PDF, DOC, JPG, PNG up to 10MB
+                <div>
+                  <p className="text-lg font-medium text-gray-700">
+                    {isDragOver
+                      ? "Drop your documents here"
+                      : files.length > 0
+                        ? `${files.length} file${files.length > 1 ? "s" : ""} selected`
+                        : "Choose files or drag & drop them here"}
                   </p>
-                  <Button
-                    className="bg-white"
-                    size="md"
-                    variant="bordered"
-                    onPress={() => handleBrowseClick()}
-                  >
-                    Browse File
-                  </Button>
                 </div>
-              )}
+                <p className="text-sm text-gray-500">
+                  PDF, DOC, JPG, PNG up to 10MB each (max {MAX_FILES} files)
+                </p>
+                <Button
+                  className="bg-white"
+                  size="md"
+                  variant="bordered"
+                  onPress={() => handleBrowseClick()}
+                >
+                  {files.length > 0 ? "Add More Files" : "Browse Files"}
+                </Button>
+              </div>
             </div>
 
             {/* Hidden file input */}
@@ -437,6 +548,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
               render={({ field: _field }) => (
                 <input
                   ref={fileInputRef}
+                  multiple
                   accept=".pdf,.docx,.doc,.jpg,.png"
                   className="hidden"
                   id="file-upload"
@@ -446,6 +558,57 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
               )}
             />
           </div>
+
+          {/* Selected Files List */}
+          {files.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-900">
+                Selected Files ({files.length}/{MAX_FILES})
+              </p>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {files.map((fileItem, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-between p-3 rounded-lg border ${
+                      fileItem.status === "success"
+                        ? "bg-green-50 border-green-200"
+                        : fileItem.status === "error"
+                          ? "bg-red-50 border-red-200"
+                          : fileItem.status === "duplicate"
+                            ? "bg-yellow-50 border-yellow-200"
+                            : fileItem.status === "uploading"
+                              ? "bg-blue-50 border-blue-200"
+                              : "bg-gray-50 border-gray-200"
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {fileItem.file.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {(fileItem.file.size / 1024 / 1024).toFixed(2)} MB
+                        {fileItem.status === "uploading" && " - Uploading..."}
+                        {fileItem.status === "success" && " - ✓ Uploaded"}
+                        {fileItem.status === "error" &&
+                          ` - Error: ${fileItem.error}`}
+                        {fileItem.status === "duplicate" && " - Already exists"}
+                      </p>
+                    </div>
+                    {fileItem.status === "pending" && (
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        onPress={() => handleRemoveFile(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <hr className="border-gray-200" />
 
@@ -509,7 +672,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
           {/* Action Buttons - Right aligned */}
           <div className="flex justify-end gap-3 pt-4">
-            {uploadMutation.isPending ? (
+            {isUploading ? (
               <>
                 <Button
                   className="px-6 text-red-600 border-red-600 hover:bg-red-50"
@@ -526,7 +689,8 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
                   size="md"
                   type="button"
                 >
-                  Uploading...
+                  Uploading {files.filter((f) => f.status === "success").length}
+                  /{files.length}
                 </Button>
               </>
             ) : (
@@ -541,11 +705,11 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
                 </Button>
                 <Button
                   className="bg-adult-green hover:bg-adult-green/90 text-white px-6"
-                  isDisabled={!isValid || !!storageError}
+                  isDisabled={!isValid || !!storageError || files.length === 0}
                   size="md"
                   type="submit"
                 >
-                  Upload
+                  Upload {files.length > 0 ? `(${files.length})` : ""}
                 </Button>
               </>
             )}

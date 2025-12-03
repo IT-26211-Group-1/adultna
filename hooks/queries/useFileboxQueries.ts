@@ -137,6 +137,42 @@ const fileboxApi = {
       {},
       API_CONFIG.API_URL,
     ),
+
+  // Archive file (soft delete)
+  archiveFile: (
+    fileId: string,
+  ): Promise<{ success: boolean; message: string }> =>
+    ApiClient.post(
+      `/filebox/files/${fileId}/archive`,
+      {},
+      {},
+      API_CONFIG.API_URL,
+    ),
+
+  // Restore archived file
+  restoreFile: (
+    fileId: string,
+  ): Promise<{ success: boolean; message: string }> =>
+    ApiClient.post(
+      `/filebox/files/${fileId}/restore`,
+      {},
+      {},
+      API_CONFIG.API_URL,
+    ),
+
+  // Permanently delete file
+  permanentDeleteFile: (
+    fileId: string,
+  ): Promise<{ success: boolean; message: string }> =>
+    ApiClient.delete(
+      `/filebox/files/${fileId}/permanent`,
+      {},
+      API_CONFIG.API_URL,
+    ),
+
+  // List archived files
+  listArchivedFiles: (): Promise<ListFilesResponse> =>
+    ApiClient.get("/filebox/archived", {}, API_CONFIG.API_URL),
 };
 
 // Query Hooks
@@ -631,5 +667,140 @@ export function useVerifyDocumentOTP() {
       return response;
     },
     retry: false, // Don't retry OTP verification
+  });
+}
+
+/**
+ * Hook to archive a file (soft delete)
+ */
+export function useFileboxArchive() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (fileId: string) => {
+      const response = await fileboxApi.archiveFile(fileId);
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to archive file",
+          400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.status === 404 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to restore an archived file
+ */
+export function useFileboxRestore() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (fileId: string) => {
+      const response = await fileboxApi.restoreFile(fileId);
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to restore file",
+          400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.status === 404 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to permanently delete a file
+ */
+export function useFileboxPermanentDelete() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (fileId: string) => {
+      const response = await fileboxApi.permanentDeleteFile(fileId);
+
+      if (!response.success) {
+        throw new ApiError(
+          response.message || "Failed to permanently delete file",
+          400,
+          null,
+        );
+      }
+
+      return response;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.all,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.filebox.quota(),
+      });
+    },
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.status === 404 || error.status === 400) {
+          return false;
+        }
+      }
+
+      return failureCount < 1;
+    },
+  });
+}
+
+/**
+ * Hook to fetch archived files
+ */
+export function useFileboxArchivedFiles() {
+  return useQuery({
+    queryKey: ["filebox", "archived"],
+    queryFn: fileboxApi.listArchivedFiles,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError) {
+        if (error.isUnauthorized || error.isForbidden) {
+          return false;
+        }
+      }
+
+      return failureCount < API_CONFIG.RETRY.MAX_ATTEMPTS;
+    },
   });
 }

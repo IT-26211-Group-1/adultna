@@ -85,11 +85,29 @@ export default function SummaryForm({
     }
   }, [resumeData.summary, form]);
 
-  const getWordCount = (text: string): number => {
-    if (!text || text.trim() === "") return 0;
+  // Summary limits
+  const SUMMARY_LIMITS = {
+    maxWords: 250,
+    maxCharacters: 1500,
+    warningThreshold: 0.9,
+  } as const;
 
-    return text.trim().split(/\s+/).length;
-  };
+  const summaryStats = useMemo(() => {
+    const charCount = summaryText.length;
+    const wordCount = summaryText.trim()
+      ? summaryText.trim().split(/\s+/).length
+      : 0;
+
+    return {
+      charCount,
+      wordCount,
+      isCharLimitNear:
+        charCount >=
+        SUMMARY_LIMITS.maxCharacters * SUMMARY_LIMITS.warningThreshold,
+      isWordLimitNear:
+        wordCount >= SUMMARY_LIMITS.maxWords * SUMMARY_LIMITS.warningThreshold,
+    };
+  }, [summaryText]);
 
   const handleApplySummary = (summary: string) => {
     setSummaryText(summary);
@@ -175,16 +193,45 @@ export default function SummaryForm({
           </div>
         )}
 
-        <Textarea
-          description={`${summaryText ? `${getWordCount(summaryText)} / 250 words` : "Maximum 250 words"}`}
-          errorMessage={form.formState.errors.summary?.message}
-          isInvalid={!!form.formState.errors.summary}
-          label="Professional Summary"
-          minRows={4}
-          size="sm"
-          value={summaryText}
-          onChange={(e) => setSummaryText(e.target.value)}
-        />
+        <div className="space-y-2">
+          <Textarea
+            errorMessage={form.formState.errors.summary?.message}
+            isInvalid={!!form.formState.errors.summary}
+            label="Professional Summary"
+            minRows={4}
+            size="sm"
+            value={summaryText}
+            onChange={(e) => {
+              const newValue = e.target.value;
+
+              if (newValue.length <= SUMMARY_LIMITS.maxCharacters) {
+                setSummaryText(newValue);
+              }
+            }}
+          />
+          <div className="flex items-center justify-between gap-4">
+            <span
+              className={`text-xs font-medium transition-colors ${
+                summaryStats.isCharLimitNear
+                  ? "text-amber-600"
+                  : "text-gray-500"
+              }`}
+            >
+              {summaryStats.charCount.toLocaleString()} /{" "}
+              {SUMMARY_LIMITS.maxCharacters.toLocaleString()} characters
+            </span>
+            <span
+              className={`text-xs font-medium transition-colors ${
+                summaryStats.isWordLimitNear
+                  ? "text-amber-600"
+                  : "text-gray-500"
+              }`}
+            >
+              {summaryStats.wordCount.toLocaleString()} /{" "}
+              {SUMMARY_LIMITS.maxWords.toLocaleString()} words
+            </span>
+          </div>
+        </div>
 
         {aiSuggestions.length > 0 && (
           <AISuggestions

@@ -48,7 +48,7 @@ export const contactSchema = z.object({
     }),
   city: z
     .string()
-    .max(50, "City must be less than 50 characters")
+    .max(80, "City must be less than 80 characters")
     .refine((val) => !val || (val.trim() === val && val.trim().length > 0), {
       message: "City cannot have leading or trailing spaces",
     })
@@ -132,6 +132,7 @@ export const workSchema = z.object({
           isCurrentlyWorkingHere: z.boolean().optional(),
           description: z
             .string()
+            .max(800, "Description must be less than 800 characters")
             .optional()
             .refine((value) => {
               if (!value) return true;
@@ -229,6 +230,7 @@ export const skillSchema = z.object({
         order: z.number().optional(),
       }),
     )
+    .max(15, "You can add up to 15 skills maximum")
     .optional(),
 });
 export type SkillFormData = z.infer<typeof skillSchema>;
@@ -236,6 +238,7 @@ export type SkillFormData = z.infer<typeof skillSchema>;
 export const summarySchema = z.object({
   summary: z
     .string()
+    .max(1500, "Summary must be less than 1500 characters")
     .optional()
     .refine((value) => {
       if (!value) return true;

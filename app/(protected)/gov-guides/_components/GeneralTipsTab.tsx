@@ -13,7 +13,7 @@ export default function GeneralTipsTab({ tips }: GeneralTipsTabProps) {
 
   const translations = {
     en: {
-      noTips: "No general tips available yet.",
+      noTips: "Tips are not available.",
       title: "General Tips for Smooth Processing",
       description:
         "The following tips are based on government policies, public service guidelines, and official practices to help you when transacting with government offices.",
@@ -22,7 +22,7 @@ export default function GeneralTipsTab({ tips }: GeneralTipsTabProps) {
       additionalReminders: "Additional Important Reminders",
     },
     fil: {
-      noTips: "Walang available na pangkalahatang mga tip.",
+      noTips: "Hindi available ang mga tip.",
       title: "Mga Pangkalahatang Tip para sa Maayos na Proseso",
       description:
         "Ang mga sumusunod na tip ay batay sa mga patakaran ng pamahalaan, mga alituntunin sa serbisyo publiko, at mga opisyal na gawain upang tulungan ka kapag nakikipag-transaksyon sa mga tanggapan ng gobyerno.",

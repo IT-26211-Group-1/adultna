@@ -3,6 +3,7 @@
 import { Search } from "./Search";
 import { Categories } from "./Categories";
 import { Button } from "@heroui/button";
+import { Archive } from "lucide-react";
 
 type SearchBarProps = {
   searchTerm: string;
@@ -10,6 +11,7 @@ type SearchBarProps = {
   onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onUploadClick: () => void;
+  onArchivedClick: () => void;
 };
 
 export function SearchBar({
@@ -18,6 +20,7 @@ export function SearchBar({
   onSearchChange,
   onCategoryChange,
   onUploadClick,
+  onArchivedClick,
 }: SearchBarProps) {
   return (
     <div className="mb-6">
@@ -32,6 +35,15 @@ export function SearchBar({
             selectedCategory={selectedCategory}
             onSelectionChange={onCategoryChange}
           />
+
+          <Button
+            className="text-gray-700 hover:bg-gray-100 border border-gray-300 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+            startContent={<Archive className="w-4 h-4" />}
+            variant="bordered"
+            onPress={onArchivedClick}
+          >
+            Archived
+          </Button>
 
           <Button
             className="bg-[#11553F] text-white hover:bg-[#0e4634] px-4 py-2 rounded-lg font-medium text-sm transition-colors"
