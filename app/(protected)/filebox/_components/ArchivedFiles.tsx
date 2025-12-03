@@ -114,8 +114,8 @@ export function ArchivedFiles({ isOpen, onClose }: ArchivedFilesProps) {
     <>
       <Modal
         isOpen={isOpen}
-        size="4xl"
         scrollBehavior="inside"
+        size="4xl"
         onClose={onClose}
       >
         <ModalContent>
@@ -167,9 +167,9 @@ export function ArchivedFiles({ isOpen, onClose }: ArchivedFilesProps) {
                               <DropdownTrigger>
                                 <Button
                                   isIconOnly
+                                  className="text-gray-600"
                                   size="sm"
                                   variant="light"
-                                  className="text-gray-600"
                                 >
                                   <EllipsisVertical className="w-4 h-4" />
                                 </Button>
@@ -215,8 +215,8 @@ export function ArchivedFiles({ isOpen, onClose }: ArchivedFilesProps) {
       {/* Restore Confirmation Modal */}
       <Modal
         isOpen={showRestoreConfirm}
-        onOpenChange={setShowRestoreConfirm}
         size="md"
+        onOpenChange={setShowRestoreConfirm}
       >
         <ModalContent>
           {(onCloseConfirm) => (
@@ -258,8 +258,8 @@ export function ArchivedFiles({ isOpen, onClose }: ArchivedFilesProps) {
       {/* Permanent Delete Confirmation Modal */}
       <Modal
         isOpen={showDeleteConfirm}
-        onOpenChange={setShowDeleteConfirm}
         size="md"
+        onOpenChange={setShowDeleteConfirm}
       >
         <ModalContent>
           {(onCloseConfirm) => (

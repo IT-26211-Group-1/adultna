@@ -79,10 +79,10 @@ export function FileboxContainer() {
             <SearchBar
               searchTerm={searchTerm}
               selectedCategory={selectedCategory}
+              onArchivedClick={() => setShowArchived(true)}
               onCategoryChange={setSelectedCategory}
               onSearchChange={setSearchTerm}
               onUploadClick={() => setShowUpload(true)}
-              onArchivedClick={() => setShowArchived(true)}
             />
 
             {filesLoading && <LoadingState viewType={viewType} />}

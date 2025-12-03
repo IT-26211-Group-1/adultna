@@ -1,6 +1,6 @@
 "use client";
 import { CategoriesUpload } from "./CategoriesUpload";
-import { Upload, X, FileIcon } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { Button, Switch, useDisclosure } from "@heroui/react";
 import { useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -43,11 +43,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   );
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
-  const {
-    isOpen: isReplaceOpen,
-    onOpen: onReplaceOpen,
-    onClose: onReplaceClose,
-  } = useDisclosure();
+  const { isOpen: isReplaceOpen, onClose: onReplaceClose } = useDisclosure();
 
   const { data: quotaResponse } = useFileboxQuota();
   const quota = quotaResponse?.data;
@@ -67,12 +63,12 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
   });
 
   const watchedFile = watch("file");
-  const watchedCategory = watch("category");
 
   // Validate storage quota for multiple files
   const validateStorageQuota = (filesToValidate: File[]): boolean => {
     if (!quota) {
       setStorageError("Unable to check storage quota");
+
       return false;
     }
 
@@ -80,6 +76,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       setStorageError(
         "Storage quota exceeded. Please delete some files to free up space."
       );
+
       return false;
     }
 
@@ -89,10 +86,12 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       setStorageError(
         `Total file size (${formatFileSize(totalSize)}) exceeds available storage (${formatFileSize(quota.remainingStorageBytes)})`
       );
+
       return false;
     }
 
     setStorageError(null);
+
     return true;
   };
   const handleBrowseClick = () => {
@@ -109,6 +108,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
           title: `${file.name} is too large (max ${formatFileSize(MAX_FILE_SIZE)})`,
           color: "warning",
         });
+
         return false;
       }
 
@@ -128,6 +128,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         title: `Maximum ${MAX_FILES} files allowed`,
         color: "warning",
       });
+
       return;
     }
 
@@ -137,6 +138,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     }));
 
     const allFiles = [...files, ...newFileStatuses];
+
     setFiles(allFiles);
 
     // Validate storage quota
@@ -150,6 +152,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
+
     addFiles(selectedFiles);
     // Reset input to allow selecting the same files again
     event.target.value = "";
@@ -169,11 +172,13 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
     event.preventDefault();
     setIsDragOver(false);
     const droppedFiles = Array.from(event.dataTransfer.files);
+
     addFiles(droppedFiles);
   };
 
   const handleRemoveFile = (index: number) => {
     const updatedFiles = files.filter((_, i) => i !== index);
+
     setFiles(updatedFiles);
     setStorageError(null);
 
@@ -207,6 +212,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         title: "Please select at least one file",
         color: "warning",
       });
+
       return;
     }
 
@@ -216,6 +222,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
         title: storageError || "Storage quota exceeded",
         color: "danger",
       });
+
       return;
     }
 
@@ -235,6 +242,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
       // Create AbortController for this upload
       const controller = new AbortController();
+
       setAbortController(controller);
 
       setFiles((prev) =>
@@ -289,6 +297,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
             color: "warning",
           });
           setIsUploading(false);
+
           return;
         }
 
@@ -313,6 +322,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
 
     // Show summary toast
     const totalFiles = files.length;
+
     if (successCount === totalFiles) {
       addToast({
         title: `Successfully uploaded ${successCount} ${successCount === 1 ? "file" : "files"}`,
@@ -321,6 +331,7 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
       onClose?.();
     } else if (successCount > 0) {
       const message = [];
+
       if (successCount > 0) message.push(`${successCount} uploaded`);
       if (duplicateCount > 0)
         message.push(
@@ -537,10 +548,10 @@ export function UploadDocument({ onClose }: UploadDocumentProps) {
               render={({ field: _field }) => (
                 <input
                   ref={fileInputRef}
+                  multiple
                   accept=".pdf,.docx,.doc,.jpg,.png"
                   className="hidden"
                   id="file-upload"
-                  multiple
                   type="file"
                   onChange={handleFileSelect}
                 />

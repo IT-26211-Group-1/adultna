@@ -17,7 +17,6 @@ import {
 import {
   Eye,
   Download,
-  Trash2,
   EllipsisVertical,
   Edit3,
   Lock,
@@ -216,30 +215,20 @@ export function FileActions({
     }
   };
 
-  const handleDelete = () => {
-    // Check if file is secure
-    if (file.isSecure) {
-      setSecureAction("delete");
-      setShowSecureAccess(true);
-
-      return;
-    }
-
-    onDeleteOpen();
-  };
-
   const handleArchive = async () => {
     if (!fileMetadata) {
       addToast({
         title: "File metadata not available",
         color: "danger",
       });
+
       return;
     }
 
     if (file.isSecure) {
       setSecureAction("archive");
       setShowSecureAccess(true);
+
       return;
     }
 

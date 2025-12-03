@@ -52,7 +52,7 @@ export function SecureDocument({
   // Memoize the storage key for this file+action combination
   const cooldownKey = useMemo(
     () => `otp_cooldown_${actualFileId}_${action}`,
-    [actualFileId, action]
+    [actualFileId, action],
   );
 
   const [otpValue, setOtpValue] = useState("");
@@ -64,7 +64,7 @@ export function SecureDocument({
   const [lockedUntil, setLockedUntil] = useState<Date | null>(null);
   const [lockoutSeconds, setLockoutSeconds] = useState(0);
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(
-    null
+    null,
   );
 
   const hiddenInputRef = useRef<HTMLInputElement>(null);
@@ -101,7 +101,7 @@ export function SecureDocument({
       const expiryTime = parseInt(storedExpiry, 10);
       const remainingSeconds = Math.max(
         0,
-        Math.ceil((expiryTime - Date.now()) / 1000)
+        Math.ceil((expiryTime - Date.now()) / 1000),
       );
 
       if (remainingSeconds > 0) {
@@ -126,7 +126,7 @@ export function SecureDocument({
       const now = Date.now();
       const remaining = Math.max(
         0,
-        Math.ceil((lockedUntil.getTime() - now) / 1000)
+        Math.ceil((lockedUntil.getTime() - now) / 1000),
       );
 
       setLockoutSeconds(remaining);
@@ -207,19 +207,19 @@ export function SecureDocument({
             setSecureItem(
               cooldownKey,
               expiryTime.toString(),
-              COOLDOWN_SECONDS / 60
+              COOLDOWN_SECONDS / 60,
             );
 
             resolve(COOLDOWN_SECONDS);
           },
           onError: (error: any) => {
             setErrorMessage(
-              error.message || "Failed to send OTP. Please try again."
+              error.message || "Failed to send OTP. Please try again.",
             );
             setSuccessMessage("");
             reject(error);
           },
-        }
+        },
       );
     });
   };
@@ -263,7 +263,7 @@ export function SecureDocument({
               setSuccessMessage("Access granted! You can now rename the file.");
             } else if (action === "unprotect") {
               setSuccessMessage(
-                "Access granted! Proceeding to confirmation..."
+                "Access granted! Proceeding to confirmation...",
               );
             }
 
@@ -274,7 +274,7 @@ export function SecureDocument({
           onError: (error: any) => {
             logger.error(
               `[SecureDocument] OTP verification failed for action: ${action}`,
-              error
+              error,
             );
 
             // Parse error response - could be in error.data or error.response
@@ -287,18 +287,18 @@ export function SecureDocument({
 
               setLockedUntil(lockoutDate);
               setErrorMessage(
-                `Too many failed attempts. Please wait before trying again.`
+                `Too many failed attempts. Please wait before trying again.`,
               );
             } else if (errorData.remainingAttempts !== undefined) {
               setRemainingAttempts(errorData.remainingAttempts);
               setErrorMessage(error.message || "Invalid OTP code.");
             } else {
               setErrorMessage(
-                error.message || "Invalid or expired OTP. Please try again."
+                error.message || "Invalid or expired OTP. Please try again.",
               );
             }
           },
-        }
+        },
       );
 
       return;
@@ -319,7 +319,7 @@ export function SecureDocument({
             setSuccessMessage(
               action === "delete"
                 ? "Access granted! Proceeding to delete..."
-                : "Access granted! Proceeding to archive..."
+                : "Access granted! Proceeding to archive...",
             );
             onSuccess?.("");
             onClose?.();
@@ -369,7 +369,7 @@ export function SecureDocument({
         onError: (error: any) => {
           logger.error(
             `[SecureDocument] OTP verification failed for action: ${action}`,
-            error
+            error,
           );
 
           // Parse error response - could be in error.data or error.response
@@ -382,18 +382,18 @@ export function SecureDocument({
 
             setLockedUntil(lockoutDate);
             setErrorMessage(
-              `Too many failed attempts. Please wait before trying again.`
+              `Too many failed attempts. Please wait before trying again.`,
             );
           } else if (errorData.remainingAttempts !== undefined) {
             setRemainingAttempts(errorData.remainingAttempts);
             setErrorMessage(error.message || "Invalid OTP code.");
           } else {
             setErrorMessage(
-              error.message || "Invalid or expired OTP. Please try again."
+              error.message || "Invalid or expired OTP. Please try again.",
             );
           }
         },
-      }
+      },
     );
   };
 

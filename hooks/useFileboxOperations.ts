@@ -39,7 +39,7 @@ type SortDirection = "asc" | "desc";
 export const useFileboxOperations = () => {
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [selectedRecentFile, setSelectedRecentFile] = useState<FileItem | null>(
-    null
+    null,
   );
   const [selectedMyFile, setSelectedMyFile] = useState<FileItem | null>(null);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -64,7 +64,7 @@ export const useFileboxOperations = () => {
     isLoading: filesLoading,
     error: filesError,
   } = useFileboxFiles(
-    selectedCategory === "all" ? undefined : selectedCategory
+    selectedCategory === "all" ? undefined : selectedCategory,
   );
 
   const { files, fileMetadataMap } = useMemo(() => {
@@ -212,7 +212,7 @@ export const useFileboxOperations = () => {
         const response: any = await ApiClient.get(
           `/filebox/download/${fileMetadata.id}`,
           {},
-          API_CONFIG.API_URL
+          API_CONFIG.API_URL,
         );
 
         if (response.success && response.data?.downloadUrl) {
@@ -237,7 +237,7 @@ export const useFileboxOperations = () => {
         }
       }
     },
-    [fileMetadataMap]
+    [fileMetadataMap],
   );
 
   const handleShowDetails = useCallback((file: FileItem) => {
@@ -296,7 +296,7 @@ export const useFileboxOperations = () => {
         }
       }
     },
-    [archiveMutation]
+    [archiveMutation],
   );
 
   const handleRestoreFile = useCallback(
@@ -317,7 +317,7 @@ export const useFileboxOperations = () => {
         }
       }
     },
-    [restoreMutation]
+    [restoreMutation],
   );
 
   const handlePermanentDelete = useCallback(
@@ -338,7 +338,7 @@ export const useFileboxOperations = () => {
         }
       }
     },
-    [permanentDeleteMutation]
+    [permanentDeleteMutation],
   );
 
   const closeSidebar = useCallback(() => {
@@ -371,7 +371,7 @@ export const useFileboxOperations = () => {
         setSortDirection("desc");
       }
     },
-    [sortBy, sortDirection]
+    [sortBy, sortDirection],
   );
 
   const clearAllSelections = useCallback(() => {
