@@ -276,11 +276,11 @@ export function MilestoneModal({
 
   return (
     <>
-      {/* Modal Container - Fully Transparent */}
+      {/* Modal Container - Desktop: right side, Mobile: centered */}
       <div
-        className={`fixed top-0 right-0 h-full z-50 flex items-center justify-end pr-4 pointer-events-none transition-all duration-500 ${
-          isOpen ? "" : ""
-        }`}
+        className={`fixed inset-0 z-50 flex pointer-events-none transition-all duration-500 ${
+          isOpen ? "opacity-100" : "opacity-0"
+        } md:items-center md:justify-end md:pr-4 items-center justify-center p-4`}
         style={{ backgroundColor: "transparent" }}
       >
         {/* Modal Content */}

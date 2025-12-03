@@ -22,15 +22,15 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-40 border-b border-gray-100">
-      <div className="bg-white/95 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
+    <nav className="fixed top-0 left-0 right-0 z-40">
+      <div className="bg-transparent">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Left Section - Back Button and Title */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Back Button */}
               <Button
-                className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-0 bg-transparent p-2 min-w-fit"
+                className="text-gray-700 hover:text-gray-900 border-0 bg-transparent p-2 min-w-fit transition-colors duration-200"
                 size="sm"
                 variant="light"
                 startContent={<ArrowLeft className="w-4 h-4" />}
@@ -43,24 +43,24 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
               <div className="hidden sm:block w-px h-5 bg-gray-300" />
 
               {/* Logo and Title */}
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <OptimizedImage
                   priority
                   alt="AdultNa Logo"
                   className="object-contain"
-                  height={20}
-                  sizes="20px"
+                  height={18}
+                  sizes="18px"
                   src="/AdultNa-Logo-Icon.png"
-                  width={20}
+                  width={18}
                 />
-                <h1 className="text-base font-semibold text-gray-900 tracking-tight">
+                <h1 className="text-sm sm:text-base font-semibold text-adult-green tracking-tight">
                   Roadmap
                 </h1>
               </div>
             </div>
 
             {/* Right Section - Camera View Selector and Add Milestone Button */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               {/* Camera View Selector */}
               {onCameraViewChange && (
                 <CameraViewSelector
@@ -72,9 +72,9 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
 
               {/* Add Milestone Button */}
               <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-150 border-0"
+                className="bg-adult-green hover:bg-adult-green-600 text-white font-medium text-xs sm:text-sm px-2 sm:px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-150 border-0"
                 size="sm"
-                startContent={<Plus className="w-4 h-4" />}
+                startContent={<Plus className="w-3 h-3 sm:w-4 sm:h-4" />}
                 onPress={onAddMilestone}
               >
                 <span className="hidden sm:inline">Add Milestone</span>

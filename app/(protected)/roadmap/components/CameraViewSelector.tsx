@@ -61,12 +61,13 @@ export function CameraViewSelector({ onViewChange, currentView = "top-vertical",
       <DropdownTrigger>
         <Button
           variant="flat"
-          className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-medium px-3 py-2 rounded-lg shadow-sm"
+          className="bg-gray-50/60 border border-gray-200/50 text-gray-700 hover:bg-gray-100/60 hover:text-gray-900 text-sm font-medium px-3 py-2 rounded-lg transition-all duration-200 shadow-sm"
           size="sm"
           startContent={<Camera className="w-4 h-4" />}
           endContent={<ChevronDown className="w-4 h-4" />}
         >
-          {selectedView?.name || "View"}
+          <span className="hidden sm:inline">{selectedView?.name || "View"}</span>
+          <span className="sm:hidden">{selectedView?.name?.split(" ")[0] || "View"}</span>
         </Button>
       </DropdownTrigger>
       <DropdownMenu
