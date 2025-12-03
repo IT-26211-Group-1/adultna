@@ -312,43 +312,48 @@ export default function ContactForm({
                 );
 
                 return (
-                  <DatePicker
-                    errorMessage={fieldState.error?.message as string}
-                    isInvalid={!!fieldState.error}
-                    label="Birth date"
-                    maxValue={maxDate}
-                    size="sm"
-                    value={value}
-                    onBlur={field.onBlur}
-                    onChange={handleChange}
-                  />
+                  <div className="relative flex items-center gap-2">
+                    <div className="flex-1">
+                      <DatePicker
+                        errorMessage={fieldState.error?.message as string}
+                        isInvalid={!!fieldState.error}
+                        label="Birth date"
+                        maxValue={maxDate}
+                        size="sm"
+                        value={value}
+                        onBlur={field.onBlur}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <button
+                      className="text-gray-400 hover:text-red-500 transition-colors p-1 self-center"
+                      style={{ marginTop: "12px" }}
+                      title="Remove Birth Date"
+                      type="button"
+                      onClick={() => {
+                        setShowBirthDate(false);
+                        form.setValue("birthDate", undefined);
+                        setResumeData({ ...resumeData, birthDate: undefined });
+                      }}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M6 18L18 6M6 6l12 12"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 );
               }}
             />
-            <button
-              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition-colors p-1 z-10"
-              title="Remove Birth Date"
-              type="button"
-              onClick={() => {
-                setShowBirthDate(false);
-                form.setValue("birthDate", undefined);
-                setResumeData({ ...resumeData, birthDate: undefined });
-              }}
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M6 18L18 6M6 6l12 12"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                />
-              </svg>
-            </button>
           </div>
         )}
 
