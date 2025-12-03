@@ -71,7 +71,7 @@ export default function WorkExperienceForm({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -96,7 +96,7 @@ export default function WorkExperienceForm({
         ...resumeData,
         workExperiences:
           (values.workExperiences?.filter(
-            (exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== "",
+            (exp) => exp && exp.jobTitle && exp.jobTitle.trim() !== ""
           ) as any[]) || [],
       });
 
@@ -108,7 +108,7 @@ export default function WorkExperienceForm({
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData],
+    [syncFormData]
   );
 
   useEffect(() => {
@@ -129,7 +129,7 @@ export default function WorkExperienceForm({
             exp.jobTitle?.trim() &&
             exp.employer?.trim() &&
             exp.startDate &&
-            exp.description?.trim(),
+            exp.description?.trim()
         )
       );
       const hasNoErrors = Object.keys(form.formState.errors).length === 0;
@@ -156,7 +156,7 @@ export default function WorkExperienceForm({
                 ? new CalendarDate(
                     exp.startDate.getFullYear(),
                     exp.startDate.getMonth() + 1,
-                    exp.startDate.getDate(),
+                    exp.startDate.getDate()
                   )
                 : exp.startDate,
             endDate:
@@ -164,7 +164,7 @@ export default function WorkExperienceForm({
                 ? new CalendarDate(
                     exp.endDate.getFullYear(),
                     exp.endDate.getMonth() + 1,
-                    exp.endDate.getDate(),
+                    exp.endDate.getDate()
                   )
                 : exp.endDate,
           })) as any,
@@ -198,7 +198,7 @@ export default function WorkExperienceForm({
   const [loadingIndexes, setLoadingIndexes] = useState<Set<number>>(new Set());
 
   const generateAISuggestions = useGenerateWorkDescriptionSuggestions(
-    resumeData.id || "",
+    resumeData.id || ""
   );
 
   const handleGenerateSuggestions = async (workExpIndex: number) => {
@@ -270,7 +270,7 @@ export default function WorkExperienceForm({
 
   const handleApplyDescription = (
     description: string,
-    currentIndex: number,
+    currentIndex: number
   ) => {
     const currentDescription =
       form.watch(`workExperiences.${currentIndex}.description`) || "";
@@ -281,7 +281,7 @@ export default function WorkExperienceForm({
     form.setValue(
       `workExperiences.${currentIndex}.description`,
       newDescription,
-      { shouldValidate: true, shouldDirty: true, shouldTouch: true },
+      { shouldValidate: true, shouldDirty: true, shouldTouch: true }
     );
   };
 
@@ -380,7 +380,7 @@ function WorkExperienceItem({
       ref={setNodeRef}
       className={cn(
         "space-y-2 p-4 bg-white rounded-lg shadow-sm border border-gray-100",
-        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50",
+        isDragging && "relative z-50 cursor-grab shadow-xl opacity-50"
       )}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -450,8 +450,8 @@ function WorkExperienceItem({
                   new CalendarDate(
                     val.getFullYear(),
                     val.getMonth() + 1,
-                    val.getDate(),
-                  ),
+                    val.getDate()
+                  )
                 );
               } else {
                 field.onChange(val);
@@ -488,8 +488,8 @@ function WorkExperienceItem({
                   new CalendarDate(
                     val.getFullYear(),
                     val.getMonth() + 1,
-                    val.getDate(),
-                  ),
+                    val.getDate()
+                  )
                 );
               } else {
                 field.onChange(val);
@@ -500,7 +500,7 @@ function WorkExperienceItem({
               <DatePicker
                 errorMessage={fieldState.error?.message}
                 isDisabled={form.watch(
-                  `workExperiences.${index}.isCurrentlyWorkingHere`,
+                  `workExperiences.${index}.isCurrentlyWorkingHere`
                 )}
                 isInvalid={!!fieldState.error}
                 label="End Date"
@@ -517,13 +517,13 @@ function WorkExperienceItem({
       <Checkbox
         {...form.register(`workExperiences.${index}.isCurrentlyWorkingHere`)}
         isSelected={form.watch(
-          `workExperiences.${index}.isCurrentlyWorkingHere`,
+          `workExperiences.${index}.isCurrentlyWorkingHere`
         )}
         size="sm"
         onValueChange={(value) =>
           form.setValue(
             `workExperiences.${index}.isCurrentlyWorkingHere`,
-            value,
+            value
           )
         }
       >
@@ -552,19 +552,47 @@ function WorkExperienceItem({
         <Controller
           control={form.control}
           name={`workExperiences.${index}.description`}
-          render={({ field, fieldState }) => (
-            <Textarea
-              description={`${field.value ? `${getWordCount(field.value || "")} / 100 words` : "Maximum 100 words"}`}
-              errorMessage={fieldState.error?.message}
-              isInvalid={!!fieldState.error}
-              minRows={2}
-              placeholder="Describe your key responsibilities and achievements..."
-              size="sm"
-              value={field.value || ""}
-              onBlur={field.onBlur}
-              onChange={field.onChange}
-            />
-          )}
+          render={({ field, fieldState }) => {
+            const charCount = field.value?.length || 0;
+            const wordCount = getWordCount(field.value || "");
+            const charWarning = charCount >= 720;
+            const wordWarning = wordCount >= 90;
+
+            return (
+              <div className="space-y-1">
+                <Textarea
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={!!fieldState.error}
+                  minRows={2}
+                  placeholder="Describe your key responsibilities and achievements..."
+                  size="sm"
+                  value={field.value || ""}
+                  onBlur={field.onBlur}
+                  onChange={field.onChange}
+                />
+                <div className="flex justify-between text-xs">
+                  <span
+                    className={
+                      charWarning
+                        ? "text-amber-600 font-medium"
+                        : "text-gray-500"
+                    }
+                  >
+                    {charCount} / 800 characters
+                  </span>
+                  <span
+                    className={
+                      wordWarning
+                        ? "text-amber-600 font-medium"
+                        : "text-gray-500"
+                    }
+                  >
+                    {wordCount} / 100 words
+                  </span>
+                </div>
+              </div>
+            );
+          }}
         />
       </div>
 

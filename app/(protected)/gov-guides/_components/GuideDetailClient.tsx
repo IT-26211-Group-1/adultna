@@ -32,9 +32,27 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
     useTranslatedGuide(slug, language);
   const [selectedTab, setSelectedTab] = useState("complete-guide");
 
+  // Merge translated content with original guide data
   const displayGuide =
     language === "fil" && translatedGuide && guide
-      ? ({ ...guide, ...translatedGuide } as typeof guide)
+      ? {
+          ...guide,
+          title: translatedGuide.title,
+          summary: translatedGuide.description,
+          steps: guide.steps?.map((step) => {
+            const translatedStep = translatedGuide.steps?.find(
+              (s) => s.stepNumber === step.stepNumber,
+            );
+
+            return translatedStep ? { ...step, ...translatedStep } : step;
+          }),
+          requirements: guide.requirements?.map((req, index) => {
+            const translatedReq = translatedGuide.requirements?.[index];
+
+            return translatedReq ? { ...req, ...translatedReq } : req;
+          }),
+          generalTips: translatedGuide.generalTips || guide.generalTips,
+        }
       : guide;
 
   if (isLoading || (language === "fil" && isTranslating)) {

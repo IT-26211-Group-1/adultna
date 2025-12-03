@@ -15,12 +15,18 @@ import { ConfirmationModal } from "./ConfirmationModal";
 import { FormInput } from "@/app/auth/register/_components/FormInput";
 import {
   passwordUpdateSchema,
+  setPasswordSchema,
   PasswordUpdateInput,
+  SetPasswordInput,
 } from "@/validators/profileSchema";
 import { useState, useEffect, useCallback } from "react";
 import { useUpdatePassword } from "@/hooks/queries/useProfileQueries";
+import { useAuth } from "@/hooks/useAuth";
 
 export function PasswordForm() {
+  const { user } = useAuth();
+  const hasPassword = user?.hasPassword ?? true;
+
   const {
     isOpen: isConfirmOpen,
     onOpen: onConfirmOpen,
@@ -38,14 +44,21 @@ export function PasswordForm() {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
-  } = useForm<PasswordUpdateInput>({
-    resolver: zodResolver(passwordUpdateSchema),
+  } = useForm<PasswordUpdateInput | SetPasswordInput>({
+    resolver: zodResolver(
+      hasPassword ? passwordUpdateSchema : setPasswordSchema,
+    ),
     mode: "onChange",
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
+    defaultValues: hasPassword
+      ? {
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }
+      : {
+          newPassword: "",
+          confirmPassword: "",
+        },
   });
 
   // Track changes in form values
@@ -86,18 +99,27 @@ export function PasswordForm() {
     handleSubmit(async (data) => {
       try {
         await updatePassword.mutateAsync({
-          currentPassword: data.currentPassword,
+          currentPassword: hasPassword
+            ? (data as PasswordUpdateInput).currentPassword
+            : undefined,
           newPassword: data.newPassword,
         });
 
         // Reset form immediately after success
         setTimeout(() => {
           setFormKey((prev) => prev + 1); // Force remount
-          reset({
-            currentPassword: "",
-            newPassword: "",
-            confirmPassword: "",
-          });
+          reset(
+            hasPassword
+              ? {
+                  currentPassword: "",
+                  newPassword: "",
+                  confirmPassword: "",
+                }
+              : {
+                  newPassword: "",
+                  confirmPassword: "",
+                },
+          );
           onConfirmClose();
           setHasUnsavedChanges(false);
           updatePassword.reset(); // Reset mutation state
@@ -128,15 +150,17 @@ export function PasswordForm() {
 
   return (
     <div key={formKey} className="space-y-6">
-      {/* Current Password Field */}
-      <FormInput
-        autoComplete="current-password"
-        error={errors.currentPassword?.message}
-        name="currentPassword"
-        placeholder="Current Password"
-        register={register}
-        type="password"
-      />
+      {/* Current Password Field - Only show for users with existing password */}
+      {hasPassword && (
+        <FormInput
+          autoComplete="current-password"
+          error={(errors as any).currentPassword?.message}
+          name="currentPassword"
+          placeholder="Current Password"
+          register={register}
+          type="password"
+        />
+      )}
 
       {/* New Password and Confirm Password Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,20 +213,23 @@ export function PasswordForm() {
         <ModalContent className="max-w-lg">
           <ModalHeader className="pb-1">
             <h3 className="text-lg font-semibold text-gray-900">
-              Update Password
+              {hasPassword ? "Update Password" : "Set Password"}
             </h3>
           </ModalHeader>
 
           <ModalBody className="space-y-4 pt-1">
             <p className="text-gray-600">
-              Are you sure you want to update your password?
+              {hasPassword
+                ? "Are you sure you want to update your password?"
+                : "Are you sure you want to set a password for your account?"}
             </p>
 
             <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
               <p className="text-sm text-amber-800">
-                <span className="font-semibold">Important:</span> You will need
-                to use the new password for all future logins. Make sure you
-                remember or save your new password securely.
+                <span className="font-semibold">Important:</span>{" "}
+                {hasPassword
+                  ? "You will need to use the new password for all future logins. Make sure you remember or save your new password securely."
+                  : "After setting a password, you can use either Google sign-in or email/password to log in. Make sure you remember or save your password securely."}
               </p>
             </div>
           </ModalBody>

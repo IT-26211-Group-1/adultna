@@ -48,4 +48,13 @@ export const gabayApi = {
       `/gabay/messages?sessionId=${sessionId}`,
     );
   },
+
+  /**
+   * Delete a conversation
+   */
+  deleteConversation: async (
+    sessionId: string,
+  ): Promise<{ success: boolean; message: string }> => {
+    return ApiClient.delete(`/gabay/conversations/${sessionId}`);
+  },
 };

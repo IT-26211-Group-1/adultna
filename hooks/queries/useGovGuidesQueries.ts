@@ -29,7 +29,11 @@ export type TranslatedGuideResponse = {
     name: string;
     description: string;
   }>;
-  generalTips: string;
+  generalTips: {
+    tipsToFollow?: string[];
+    tipsToAvoid?: string[];
+    importantReminders?: string[];
+  } | null;
 };
 
 const govGuidesApi = {

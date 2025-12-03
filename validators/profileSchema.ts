@@ -90,5 +90,19 @@ export const passwordUpdateSchema = z
     path: ["newPassword"],
   });
 
+export const setPasswordSchema = z
+  .object({
+    newPassword: strongPasswordSchema,
+    confirmPassword: z
+      .string()
+      .min(1, "Please confirm your password")
+      .refine((val) => !/\s/.test(val), "Password cannot contain spaces"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 export type PasswordUpdateInput = z.infer<typeof passwordUpdateSchema>;
+export type SetPasswordInput = z.infer<typeof setPasswordSchema>;
