@@ -5,7 +5,7 @@ test.describe("Forgot Password Form", () => {
         // Install clock before navigation so timers are controlled
         await page.clock.install({ time: new Date() });
 
-        await page.goto("http://localhost:3000/auth/forgot-password");
+        await page.goto("http://adultna.com/auth/forgot-password");
 
         await page.fill('input[name="email"]', "adultna.org@gmail.com");
         await page.getByRole("button", { name: "Send OTP" }).click();
@@ -22,5 +22,68 @@ test.describe("Forgot Password Form", () => {
 
         // Assert the inactivity toast is visible (use an assertion, not .isVisible() alone)
         await expect(page.getByText("You've been inactive for 10 minutes. Please try again.")).toBeVisible({ timeout: 5000 });
+    });
+
+    test("email input field only accepts valid email format", async ({ page }) => {
+        await page.goto("http://adultna.com/auth/forgot-password");
+
+        await page.fill('input[name="email"]', "aya.santosgmail.com");
+        await page.getByRole("button", { name: "Send OTP" }).click();
+
+        const errorMessage = page.locator('[data-slot="error-message"]');
+        await expect(errorMessage.filter({ hasText: "Email is Required" })).toBeVisible({ timeout: 3000 });
+    });
+
+    test("blank email input shows required error", async ({ page }) => {
+        await page.goto("http://adultna.com/auth/forgot-password");
+        await page.fill('input[name="email"]', "");
+        await page.getByRole("button", { name: "Send OTP" }).click();
+
+        const errorMessage = page.locator('[data-slot="error-message"]');
+        await expect(errorMessage.filter({ hasText: "Email is Required" })).toBeVisible({ timeout: 3000 });
+    });
+
+    test("non-existent email shows error message", async ({ page }) => {
+        await page.goto("http://adultna.com/auth/forgot-password");
+        await page.fill('input[name="email"]', "scarguez0320@gmail.com");
+        await page.getByRole("button", { name: "Send OTP" }).click();
+
+        await expect(page.getByText("User not found")).toBeVisible({ timeout: 5000 });
+    });
+
+    test("expired OTP is not accepted", async ({ page }) => {
+        // Install clock before navigation so timers are controlled
+        await page.clock.install({ time: new Date() });
+
+        await page.goto("http://adultna.com/auth/forgot-password");
+        await page.fill('input[name="email"]', "lewisdomnilo@gmail.com");
+        await page.getByRole("button", { name: "Send OTP" }).click();
+
+        // Wait for the OTP step to be mounted: wait for the Verify OTP button (stable signal)
+        await page.getByRole("button", { name: "Verify OTP" }).click();await page.getByRole('button', { name: 'OTP digit 1 of' }).click();
+        await page.getByRole('textbox').fill('123455');
+        await page.getByRole('button', { name: 'Verify OTP' }).click();
+
+        await expect(page.getByText("OTP verification failed")).toBeVisible({ timeout: 5000 });
+    });
+
+    test("limiting OTP attempts and enforce cooldown period", async ({ page }) => {
+        // Install clock before navigation so timers are controlled
+        await page.clock.install({ time: new Date() });
+
+        await page.goto("http://adultna.com/auth/forgot-password");
+        await page.fill('input[name="email"]', "lewisdomnilo@gmail.com");
+        await page.getByRole("button", { name: "Send OTP" }).click();
+
+        // Wait for the OTP step to be mounted: wait for the Verify OTP button (stable signal)
+        await page.getByRole("button", { name: "Verify OTP" }).click();await page.getByRole('button', { name: 'OTP digit 1 of' }).click();
+        await page.getByRole('textbox').fill('123455');
+        await page.getByRole('button', { name: 'Verify OTP' }).click();
+        await page.getByRole('textbox').fill('123455');
+        await page.getByRole('button', { name: 'Verify OTP' }).click();
+        await page.getByRole('textbox').fill('123455');
+        await page.getByRole('button', { name: 'Verify OTP' }).click();
+
+        await expect(page.getByText("Maximum OTP attempts exceeded")).toBeVisible({ timeout: 5000 });
     });
 });

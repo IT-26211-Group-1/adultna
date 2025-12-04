@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Onboarding Process", () => {
-    test("should see step one of onboarding after registration", async ({ page }) => {
+    test("should see step one of onboarding after registration & verification", async ({ page }) => {
         //simulate login of a user who is verified but hasn't gone through onboarding
-        await page.goto("http://localhost:3000/auth/login");
-        await page.fill('input[name="email"]', "adultna.org@gmail.com");
-        await page.fill('input[name="password"]', "QWEasd123.");
+        await page.goto("http://adultna.com/auth/login");
+        await page.fill('input[name="email"]', "lewisdominique.nilo.cics@ust.edu.ph");
+        await page.fill('input[name="password"]', "Lewis123.");
 
         await page.getByRole("button", { name: "Login" }).click();
 
@@ -16,9 +16,6 @@ test.describe("Onboarding Process", () => {
     });
 
     test("should navigate through onboarding steps", async ({ page }) => {
-    });
-
-    test("finishing onboarding redirects to dashboard", async ({ page }) => {
     });
 
     test("entering a valid display name allows proceeding to next step", async ({ page }) => {
@@ -39,4 +36,6 @@ test.describe("Onboarding Process", () => {
     test("character limit enforced in display name field", async ({ page }) => {
     });
 
+    test("finishing onboarding redirects to dashboard", async ({ page }) => {
+    });
 });
