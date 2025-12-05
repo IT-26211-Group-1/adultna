@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Register Form", () => {
   test("should display register form elements", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
     await expect(page.locator("form")).toBeVisible();
     await expect(page.locator('input[name="firstName"]')).toBeVisible();
     await expect(page.locator('input[name="lastName"]')).toBeVisible();
@@ -12,7 +12,7 @@ test.describe("Register Form", () => {
   });
 
   test("should show validation errors for empty form", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
 
     await page.fill('input[name="firstName"]', "");
     await page.fill('input[name="lastName"]', "");
@@ -30,7 +30,7 @@ test.describe("Register Form", () => {
   });
 
   test("should show error for mismatched passwords", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
 
     await page.fill('input[name="firstName"]', "Test");
     await page.fill('input[name="lastName"]', "User");
@@ -49,7 +49,7 @@ test.describe("Register Form", () => {
   });
 
   test("should register successfully with test reCAPTCHA", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
 
     await page.fill('input[name="firstName"]', "Sample");
     await page.fill('input[name="lastName"]', "User");
@@ -74,7 +74,7 @@ test.describe("Register Form", () => {
   });
 
   test("trimmed leading and trailing spaces in name and email fields", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
 
     await page.fill('input[name="firstName"]', "   Test  ");
     await page.fill('input[name="lastName"]', "  User   ");
@@ -88,7 +88,7 @@ test.describe("Register Form", () => {
   });
 
   test("no spaces in password fields", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
 
     await page.fill('input[name="firstName"]', "Test");
     await page.fill('input[name="lastName"]', "User");
@@ -105,7 +105,7 @@ test.describe("Register Form", () => {
   });
 
   test("can't register with an already used email", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
     await page.fill('input[name="firstName"]', "Test");
     await page.fill('input[name="lastName"]', "User");
     await page.fill('input[name="email"]', "adultna.org@gmail.com");
@@ -129,7 +129,7 @@ test.describe("Register Form", () => {
   });
 
   test("register button is disabled until terms are accepted", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
 
     // fill required fields so validation doesn't block the button
     await page.fill('input[name="firstName"]', "Test");
@@ -150,7 +150,7 @@ test.describe("Register Form", () => {
 });
 
   test("no special characters in name fields", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
     await page.fill('input[name="firstName"]', "T@est!");
     await page.fill('input[name="lastName"]', "Us#er$");
     await page.fill('input[name="email"]', "test@example.com");
@@ -167,7 +167,7 @@ test.describe("Register Form", () => {
   });
 
   test("names must be at least 2 characters long", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
     await page.fill('input[name="firstName"]', "A");
     await page.fill('input[name="lastName"]', "B");
     await page.fill('input[name="email"]', "test@example.com");
@@ -185,7 +185,7 @@ test.describe("Register Form", () => {
   });
 
   test("password strength requirements", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
     await page.fill('input[name="firstName"]', "Test");
     await page.fill('input[name="lastName"]', "User");
     await page.fill('input[name="email"]', "test@example.com");
@@ -201,7 +201,7 @@ test.describe("Register Form", () => {
   });
 
   test("user should be able to register with their google account", async ({ page }) => {
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
     await page.getByRole("button", { name: "Continue with Google" }).click();
 
     await page.fill('input[type="Email"]', "whistlestrife@gmail.com");
@@ -218,7 +218,7 @@ test.describe("Register Form", () => {
   // make this a standard, per page must check its load time
   test("register page loads within acceptable time", async ({ page }) => {
     const start = Date.now();
-    await page.goto("http://localhost:3001/auth/register");
+    await page.goto("http://adultna.com/auth/register");
     const loadTime = Date.now() - start;
     expect(loadTime).toBeLessThan(10000); // 10 seconds
   });

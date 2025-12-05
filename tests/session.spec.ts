@@ -8,7 +8,7 @@ test.describe("Session Management", () => {
       // Initialize clock at a specific timestamp for consistency
       await page.clock.install({ time: new Date('2024-01-01T10:00:00') });
       
-      await page.goto("http://localhost:3000/auth/login");
+      await page.goto("http://adultna.com/auth/login");
       await page.fill('input[name="email"]', "lewisdomnilo@gmail.com");
       await page.fill('input[name="password"]', "Lewis123.");
       
@@ -23,7 +23,7 @@ test.describe("Session Management", () => {
       // 3. Trigger a state change if necessary
       // Sometimes apps only check expiry on user action or focus. 
       // If the redirect doesn't happen automatically, uncomment the line below:
-      // await page.mouse.move(100, 100); 
+      await page.mouse.move(100, 100); 
 
       // Check the URL directly
       await expect(page).toHaveURL(/\/auth\/login\/?$/, { timeout: 15000 });

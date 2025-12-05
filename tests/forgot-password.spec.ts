@@ -45,10 +45,10 @@ test.describe("Forgot Password Form", () => {
 
     test("non-existent email shows error message", async ({ page }) => {
         await page.goto("http://adultna.com/auth/forgot-password");
-        await page.fill('input[name="email"]', "scarguez0320@gmail.com");
+        await page.fill('input[name="email"]', "owlosd@gmail.com");
         await page.getByRole("button", { name: "Send OTP" }).click();
 
-        await expect(page.getByText("User not found")).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText('User not found')).toBeVisible();
     });
 
     test("expired OTP is not accepted", async ({ page }) => {

@@ -70,8 +70,7 @@ test.describe("Job Board module", () => {
 
         await page.getByRole('textbox', { name: 'Search jobs' }).click();
         await page.getByRole('textbox', { name: 'Search jobs' }).fill('Project Manager');
-        
-        
+
     });
 
     test("verify actions of third party link confirmation modal", async ({ page }) => {
