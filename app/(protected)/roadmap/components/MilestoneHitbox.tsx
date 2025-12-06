@@ -42,8 +42,8 @@ export function MilestoneHitbox({
         document.body.style.cursor = "pointer";
       }}
     >
-      {/* Clickable area - flat cylinder */}
-      <cylinderGeometry args={[0.4, 0.4, 0.1, 32]} />
+      {/* Clickable area - optimized low-poly cylinder (8 segments instead of 32 for performance) */}
+      <cylinderGeometry args={[0.4, 0.4, 0.1, 8]} />
       {/* Invisible but shows faint yellow on hover */}
       <meshBasicMaterial
         transparent

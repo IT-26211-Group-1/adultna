@@ -23,6 +23,7 @@ import { ZodError } from "zod";
 interface AddMilestoneModalProps {
   isOpen: boolean;
   onClose: () => void;
+  suggestedPosition?: number;
 }
 
 const categories = [

@@ -6,7 +6,7 @@ import { Suspense, useRef } from "react";
 import { Group } from "three";
 
 function RoadmapModelMesh() {
-  const { scene } = useGLTF("/models/roadmap.glb");
+  const { scene } = useGLTF("/models/final-roadmap-draco.glb");
   const groupRef = useRef<Group>(null);
 
   useFrame((state) => {
