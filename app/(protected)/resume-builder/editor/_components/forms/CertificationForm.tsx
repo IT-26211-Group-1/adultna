@@ -99,17 +99,32 @@ export default function CertificationForm({
 
   useEffect(() => {
     if (onValidationChange) {
-      const values = form.getValues();
-      const hasAtLeastOneValidCertificate = !!(
-        values.certificates &&
-        values.certificates.some((cert) => cert.certificate?.trim())
-      );
-      const hasNoErrors = Object.keys(form.formState.errors).length === 0;
-      const isValid = hasAtLeastOneValidCertificate && hasNoErrors;
+      const subscription = form.watch((values) => {
+        const hasAtLeastOneValidCertificate = !!(
+          values.certificates &&
+          values.certificates.some((cert) => cert?.certificate?.trim())
+        );
+        const hasNoErrors = Object.keys(form.formState.errors).length === 0;
 
-      onValidationChange(isValid);
+        // Check if any field exceeds character limits
+        const hasCharacterLimitExceeded = values.certificates?.some(
+          (cert) =>
+            (cert?.certificate && cert.certificate.length > 100) ||
+            (cert?.issuingOrganization &&
+              cert.issuingOrganization.length > 100),
+        );
+
+        const isValid =
+          hasAtLeastOneValidCertificate &&
+          hasNoErrors &&
+          !hasCharacterLimitExceeded;
+
+        onValidationChange(isValid);
+      });
+
+      return () => subscription.unsubscribe();
     }
-  }, [form.formState.errors, form, onValidationChange]);
+  }, [form, onValidationChange]);
 
   useEffect(() => {
     if (resumeData.certificates && resumeData.certificates.length > 0) {
@@ -194,6 +209,20 @@ function CertificationItem({
   index,
   remove,
 }: CertificationItemProps) {
+  const CHAR_LIMITS = {
+    certificateName: 100,
+    issuingOrg: 100,
+    warningThreshold: 0.8,
+  } as const;
+
+  const certificateValue =
+    form.watch(`certificates.${index}.certificate`) || "";
+  const issuingOrgValue =
+    form.watch(`certificates.${index}.issuingOrganization`) || "";
+
+  const certCharCount = certificateValue.length;
+  const orgCharCount = issuingOrgValue.length;
+
   const {
     attributes,
     listeners,
@@ -236,31 +265,57 @@ function CertificationItem({
         </div>
       </div>
 
-      <Input
-        {...form.register(`certificates.${index}.certificate`)}
-        isRequired
-        errorMessage={
-          form.formState.errors.certificates?.[index]?.certificate?.message
-        }
-        isInvalid={!!form.formState.errors.certificates?.[index]?.certificate}
-        label="Certificate Name"
-        placeholder="AWS Certified Solutions Architect"
-        size="sm"
-      />
+      <div className="space-y-1">
+        <Input
+          {...form.register(`certificates.${index}.certificate`)}
+          isRequired
+          errorMessage={
+            form.formState.errors.certificates?.[index]?.certificate?.message
+          }
+          isInvalid={!!form.formState.errors.certificates?.[index]?.certificate}
+          label="Certificate Name"
+          placeholder="AWS Certified Solutions Architect"
+          size="sm"
+        />
+        <p
+          className={cn(
+            "text-xs text-right transition-colors",
+            certCharCount >=
+              CHAR_LIMITS.certificateName * CHAR_LIMITS.warningThreshold
+              ? "text-amber-600 font-medium"
+              : "text-gray-500",
+          )}
+        >
+          {certCharCount} / {CHAR_LIMITS.certificateName}
+        </p>
+      </div>
 
-      <Input
-        {...form.register(`certificates.${index}.issuingOrganization`)}
-        errorMessage={
-          form.formState.errors.certificates?.[index]?.issuingOrganization
-            ?.message
-        }
-        isInvalid={
-          !!form.formState.errors.certificates?.[index]?.issuingOrganization
-        }
-        label="Issuing Organization"
-        placeholder="Amazon Web Services"
-        size="sm"
-      />
+      <div className="space-y-1">
+        <Input
+          {...form.register(`certificates.${index}.issuingOrganization`)}
+          errorMessage={
+            form.formState.errors.certificates?.[index]?.issuingOrganization
+              ?.message
+          }
+          isInvalid={
+            !!form.formState.errors.certificates?.[index]?.issuingOrganization
+          }
+          label="Issuing Organization"
+          placeholder="Amazon Web Services"
+          size="sm"
+        />
+        <p
+          className={cn(
+            "text-xs text-right transition-colors",
+            orgCharCount >=
+              CHAR_LIMITS.issuingOrg * CHAR_LIMITS.warningThreshold
+              ? "text-amber-600 font-medium"
+              : "text-gray-500",
+          )}
+        >
+          {orgCharCount} / {CHAR_LIMITS.issuingOrg}
+        </p>
+      </div>
     </div>
   );
 }

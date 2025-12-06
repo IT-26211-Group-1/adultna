@@ -552,19 +552,47 @@ function WorkExperienceItem({
         <Controller
           control={form.control}
           name={`workExperiences.${index}.description`}
-          render={({ field, fieldState }) => (
-            <Textarea
-              description={`${field.value ? `${getWordCount(field.value || "")} / 100 words` : "Maximum 100 words"}`}
-              errorMessage={fieldState.error?.message}
-              isInvalid={!!fieldState.error}
-              minRows={2}
-              placeholder="Describe your key responsibilities and achievements..."
-              size="sm"
-              value={field.value || ""}
-              onBlur={field.onBlur}
-              onChange={field.onChange}
-            />
-          )}
+          render={({ field, fieldState }) => {
+            const charCount = field.value?.length || 0;
+            const wordCount = getWordCount(field.value || "");
+            const charWarning = charCount >= 720;
+            const wordWarning = wordCount >= 90;
+
+            return (
+              <div className="space-y-1">
+                <Textarea
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={!!fieldState.error}
+                  minRows={2}
+                  placeholder="Describe your key responsibilities and achievements..."
+                  size="sm"
+                  value={field.value || ""}
+                  onBlur={field.onBlur}
+                  onChange={field.onChange}
+                />
+                <div className="flex justify-between text-xs">
+                  <span
+                    className={
+                      charWarning
+                        ? "text-amber-600 font-medium"
+                        : "text-gray-500"
+                    }
+                  >
+                    {charCount} / 800 characters
+                  </span>
+                  <span
+                    className={
+                      wordWarning
+                        ? "text-amber-600 font-medium"
+                        : "text-gray-500"
+                    }
+                  >
+                    {wordCount} / 100 words
+                  </span>
+                </div>
+              </div>
+            );
+          }}
         />
       </div>
 

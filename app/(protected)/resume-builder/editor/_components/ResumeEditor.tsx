@@ -354,7 +354,23 @@ export default function ResumeEditor() {
         setStep(nextStep.key);
       };
 
-      handleSave(navigateNext);
+      // Clean up invalid data before saving
+      let dataOverrides: Partial<ResumeData> = {};
+
+      if (currentStep === "certifications") {
+        // Remove certifications that exceed character limits
+        const validCertificates = resumeData.certificates?.filter(
+          (cert) =>
+            cert.certificate &&
+            cert.certificate.length <= 100 &&
+            (!cert.issuingOrganization ||
+              cert.issuingOrganization.length <= 100),
+        );
+
+        dataOverrides = { certificates: validCertificates || [] };
+      }
+
+      handleSave(navigateNext, dataOverrides);
     }
   };
 
