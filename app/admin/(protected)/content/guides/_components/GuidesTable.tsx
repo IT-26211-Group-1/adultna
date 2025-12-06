@@ -9,6 +9,7 @@ import { formatDate } from "@/constants/format-date";
 import EditGuideModal from "./EditGuideModal";
 import PreviewGuideModal from "./PreviewGuideModal";
 import UpdateGuideStatusModal from "./UpdateGuideStatusModal";
+import { BatchGuideActions } from "./BatchGuideActions";
 import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import { addToast } from "@heroui/react";
@@ -323,6 +324,7 @@ const GuidesTable: React.FC = () => {
   const [selectedGuide, setSelectedGuide] = useState<GovGuide | null>(null);
   const [selectedGuideForStatus, setSelectedGuideForStatus] =
     useState<GovGuide | null>(null);
+  const [selectedGuideIds, setSelectedGuideIds] = useState<string[]>([]);
 
   const { user } = useAdminAuth();
 
@@ -546,8 +548,34 @@ const GuidesTable: React.FC = () => {
     [hardDeleteGuide],
   );
 
+  // Selection handler
+  const handleSelectGuide = useCallback((guideId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedGuideIds((prev) => [...prev, guideId]);
+    } else {
+      setSelectedGuideIds((prev) => prev.filter((id) => id !== guideId));
+    }
+  }, []);
+
+  // Clear selection when switching between active/archived views
+  React.useEffect(() => {
+    setSelectedGuideIds([]);
+  }, [showArchived]);
+
   const columns: Column<GovGuide>[] = useMemo(
     () => [
+      {
+        header: "",
+        accessor: (guide) => (
+          <input
+            checked={selectedGuideIds.includes(guide.id)}
+            className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
+            type="checkbox"
+            onChange={(e) => handleSelectGuide(guide.id, e.target.checked)}
+          />
+        ),
+        width: "50px",
+      },
       {
         header: "Guide Title",
         accessor: (guide) => (
@@ -643,6 +671,8 @@ const GuidesTable: React.FC = () => {
       restoringGuideId,
       permanentDeletingGuideId,
       user?.role,
+      selectedGuideIds,
+      handleSelectGuide,
     ],
   );
 
@@ -672,6 +702,14 @@ const GuidesTable: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Batch Actions */}
+      <BatchGuideActions
+        isArchiveView={showArchived}
+        selectedGuideIds={selectedGuideIds}
+        onClearSelection={() => setSelectedGuideIds([])}
+      />
+
       <Table
         columns={columns}
         data={displayGuides}
