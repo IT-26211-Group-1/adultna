@@ -12,6 +12,8 @@ interface ChatInputProps {
   isLoading?: boolean;
 }
 
+const MAX_CHARACTERS = 2000;
+
 export function ChatInput({
   onSubmit,
   disabled = false,
@@ -21,13 +23,21 @@ export function ChatInput({
 }: ChatInputProps) {
   const [input, setInput] = useState("");
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (input.trim() && !disabled) {
       onSubmit(input.trim());
       setInput("");
     }
   };
+
+  const isNearLimit = input.length > MAX_CHARACTERS * 0.8;
+  const isAtLimit = input.length >= MAX_CHARACTERS;
 
   return (
     <form className={cn("relative", className)} onSubmit={handleSubmit}>
@@ -36,12 +46,13 @@ export function ChatInput({
         <input
           className={cn(
             "w-full rounded-full border-2 border-gray-300/60 bg-white/90 backdrop-blur-md py-3 sm:py-4 pl-10 sm:pl-12 pr-12 sm:pr-14 text-sm text-gray-900 placeholder-gray-500 focus:border-adult-green focus:outline-none focus:ring-0 focus:bg-white disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200",
+            isAtLimit && "border-red-400 focus:border-red-500",
           )}
           disabled={disabled}
           placeholder={placeholder}
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleInputChange}
         />
         <button
           className={cn(
@@ -60,6 +71,23 @@ export function ChatInput({
           )}
         </button>
       </div>
+
+      {input.length > 0 && (
+        <div className="mt-2 flex justify-end">
+          <span
+            className={cn(
+              "text-xs transition-colors",
+              isAtLimit
+                ? "text-red-600 font-semibold"
+                : isNearLimit
+                  ? "text-orange-500"
+                  : "text-gray-500",
+            )}
+          >
+            {input.length} / {MAX_CHARACTERS}
+          </span>
+        </div>
+      )}
     </form>
   );
 }
