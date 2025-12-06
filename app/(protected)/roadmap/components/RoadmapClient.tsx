@@ -347,18 +347,16 @@ export function RoadmapClient({
             }}
           />
           {/* Optimized lighting setup for mobile performance */}
-          {/* eslint-disable-next-line react/no-unknown-property */}
+          {/* eslint-disable react/no-unknown-property */}
           <ambientLight intensity={isMobile ? 1.2 : 1.0} />
-          {}
-          {/* eslint-disable-next-line react/no-unknown-property */}
           <directionalLight
             intensity={isMobile ? 1.2 : 1.5}
             position={[10, 15, 10]}
           />
           {!isMobile && (
-            /* eslint-disable-next-line react/no-unknown-property */
             <hemisphereLight groundColor="#444444" intensity={0.4} />
           )}
+          {/* eslint-enable react/no-unknown-property */}
           <Suspense
             fallback={
               <mesh>
