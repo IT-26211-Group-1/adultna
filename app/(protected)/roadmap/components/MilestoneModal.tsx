@@ -276,11 +276,11 @@ export function MilestoneModal({
 
   return (
     <>
-      {/* Modal Container - Fully Transparent */}
+      {/* Modal Container - Desktop: right side, Mobile: centered */}
       <div
-        className={`fixed top-0 right-0 h-full z-50 flex items-center justify-end pr-4 pointer-events-none transition-all duration-500 ${
-          isOpen ? "" : ""
-        }`}
+        className={`fixed inset-0 z-50 flex pointer-events-none transition-all duration-500 ${
+          isOpen ? "opacity-100" : "opacity-0"
+        } md:items-center md:justify-end md:pr-4 items-center justify-center p-4`}
         style={{ backgroundColor: "transparent" }}
       >
         {/* Modal Content */}
@@ -610,69 +610,71 @@ export function MilestoneModal({
                 </p>
               </div>
 
-              {/* Delete Milestone */}
-              <div>
-                <h3 className="text-xs font-semibold text-gray-800 mb-2">
-                  Danger Zone
-                </h3>
-                {showDeleteConfirm ? (
-                  <div
-                    className="backdrop-blur-sm border border-red-300 rounded-xl p-3"
-                    style={{ backgroundColor: "rgba(239,68,68, 0.1)" }}
-                  >
-                    <p className="text-xs text-gray-700 mb-3 text-center">
-                      Delete this milestone? This cannot be undone.
-                    </p>
-                    <div className="flex gap-2">
+              {/* Delete Milestone - Only show when editing */}
+              {isEditing && (
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-800 mb-2">
+                    Danger Zone
+                  </h3>
+                  {showDeleteConfirm ? (
+                    <div
+                      className="backdrop-blur-sm border border-red-300 rounded-xl p-3"
+                      style={{ backgroundColor: "rgba(239,68,68, 0.1)" }}
+                    >
+                      <p className="text-xs text-gray-700 mb-3 text-center">
+                        Delete this milestone? This cannot be undone.
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          className="text-xs font-medium flex-1"
+                          color="default"
+                          size="sm"
+                          variant="flat"
+                          onPress={() => setShowDeleteConfirm(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="text-xs font-medium flex-1"
+                          color="danger"
+                          isDisabled={deleteMilestone.isPending}
+                          size="sm"
+                          startContent={
+                            deleteMilestone.isPending ? (
+                              <LoadingSpinner
+                                fullScreen={false}
+                                size="sm"
+                                variant="default"
+                              />
+                            ) : undefined
+                          }
+                          onPress={handleDelete}
+                        >
+                          {deleteMilestone.isPending ? "" : "Delete"}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="backdrop-blur-sm border border-red-200 rounded-xl p-3"
+                      style={{ backgroundColor: "rgba(254,202,202, 0.3)" }}
+                    >
+                      <p className="text-xs text-gray-700 mb-2">
+                        Permanently delete this milestone and all its tasks.
+                      </p>
                       <Button
-                        className="text-xs font-medium flex-1"
-                        color="default"
-                        size="sm"
-                        variant="flat"
-                        onPress={() => setShowDeleteConfirm(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        className="text-xs font-medium flex-1"
+                        className="text-xs font-medium w-full bg-red-600 hover:bg-red-700"
                         color="danger"
-                        isDisabled={deleteMilestone.isPending}
                         size="sm"
-                        startContent={
-                          deleteMilestone.isPending ? (
-                            <LoadingSpinner
-                              fullScreen={false}
-                              size="sm"
-                              variant="default"
-                            />
-                          ) : undefined
-                        }
-                        onPress={handleDelete}
+                        startContent={<Trash2 className="w-3 h-3" />}
+                        onPress={() => setShowDeleteConfirm(true)}
                       >
-                        {deleteMilestone.isPending ? "" : "Delete"}
+                        Delete Milestone
                       </Button>
                     </div>
-                  </div>
-                ) : (
-                  <div
-                    className="backdrop-blur-sm border border-red-200 rounded-xl p-3"
-                    style={{ backgroundColor: "rgba(254,202,202, 0.3)" }}
-                  >
-                    <p className="text-xs text-gray-700 mb-2">
-                      Permanently delete this milestone and all its tasks.
-                    </p>
-                    <Button
-                      className="text-xs font-medium w-full bg-red-600 hover:bg-red-700"
-                      color="danger"
-                      size="sm"
-                      startContent={<Trash2 className="w-3 h-3" />}
-                      onPress={() => setShowDeleteConfirm(true)}
-                    >
-                      Delete Milestone
-                    </Button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
