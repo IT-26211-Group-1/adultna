@@ -17,6 +17,7 @@ import EditQuestionModal from "./EditQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
 import { formatDate } from "@/constants/format-date";
 import { RetryButton } from "@/components/ui/RetryButton";
+import { BatchInterviewQuestionActions } from "./BatchInterviewQuestionActions";
 
 // Question Status Badge Component
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
@@ -343,6 +344,7 @@ const QuestionsTable: React.FC = () => {
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
     useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
 
   const { user } = useAdminAuth();
 
@@ -505,8 +507,37 @@ const QuestionsTable: React.FC = () => {
     [permanentDeleteQuestion],
   );
 
+  const handleSelectQuestion = useCallback(
+    (questionId: string, checked: boolean) => {
+      if (checked) {
+        setSelectedQuestionIds((prev) => [...prev, questionId]);
+      } else {
+        setSelectedQuestionIds((prev) =>
+          prev.filter((id) => id !== questionId),
+        );
+      }
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    setSelectedQuestionIds([]);
+  }, [showArchived]);
+
   const columns: Column<InterviewQuestion>[] = useMemo(
     () => [
+      {
+        header: "",
+        accessor: (question) => (
+          <input
+            checked={selectedQuestionIds.includes(question.id)}
+            className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
+            type="checkbox"
+            onChange={(e) => handleSelectQuestion(question.id, e.target.checked)}
+          />
+        ),
+        width: "50px",
+      },
       {
         header: "Question",
         accessor: (question) => (
@@ -676,6 +707,7 @@ const QuestionsTable: React.FC = () => {
       handleSoftDelete,
       handleRestore,
       handlePermanentDelete,
+      handleSelectQuestion,
       isUpdatingStatus,
       isDeleting,
       isRestoring,
@@ -683,6 +715,7 @@ const QuestionsTable: React.FC = () => {
       deletingQuestionId,
       restoringQuestionId,
       permanentDeletingQuestionId,
+      selectedQuestionIds,
       user?.role,
     ],
   );
@@ -725,6 +758,11 @@ const QuestionsTable: React.FC = () => {
           </button>
         </div>
       </div>
+      <BatchInterviewQuestionActions
+        isArchiveView={showArchived}
+        selectedQuestionIds={selectedQuestionIds}
+        onClearSelection={() => setSelectedQuestionIds([])}
+      />
       <Table
         className="!overflow-visible"
         columns={columns}

@@ -22,6 +22,15 @@ import type {
 } from "@/types/interview-question";
 import { logger } from "@/lib/logger";
 
+export type BatchOperationResponse = {
+  success: boolean;
+  message: string;
+  results: {
+    successful: string[];
+    failed: Array<{ questionId: string; reason: string }>;
+  };
+};
+
 // API Functions
 const questionApi = {
   list: (params?: ListQuestionsParams): Promise<ListQuestionsResponse> => {
@@ -117,6 +126,21 @@ const questionApi = {
       jobName: string;
     };
   }> => ApiClient.post("/transcribe/presigned-url", data),
+
+  batchArchiveQuestions: (
+    questionIds: string[]
+  ): Promise<BatchOperationResponse> =>
+    ApiClient.post("/admin/interview-questions/batch/archive", { questionIds }),
+
+  batchRestoreQuestions: (
+    questionIds: string[]
+  ): Promise<BatchOperationResponse> =>
+    ApiClient.post("/admin/interview-questions/batch/restore", { questionIds }),
+
+  batchPermanentDeleteQuestions: (
+    questionIds: string[]
+  ): Promise<BatchOperationResponse> =>
+    ApiClient.post("/admin/interview-questions/batch/delete", { questionIds }),
 
   // Start transcription with S3 key
   startTranscription: (data: {
@@ -268,6 +292,36 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
     },
   });
 
+  // Batch Archive Questions Mutation
+  const batchArchiveQuestionsMutation = useMutation({
+    mutationFn: questionApi.batchArchiveQuestions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "interview-questions"],
+      });
+    },
+  });
+
+  // Batch Restore Questions Mutation
+  const batchRestoreQuestionsMutation = useMutation({
+    mutationFn: questionApi.batchRestoreQuestions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "interview-questions"],
+      });
+    },
+  });
+
+  // Batch Permanent Delete Questions Mutation
+  const batchPermanentDeleteQuestionsMutation = useMutation({
+    mutationFn: questionApi.batchPermanentDeleteQuestions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "interview-questions"],
+      });
+    },
+  });
+
   return {
     // Data
     questions: questionsData?.data?.questions || [],
@@ -309,6 +363,16 @@ export function useInterviewQuestions(params?: ListQuestionsParams) {
     permanentDeleteQuestionAsync: permanentDeleteQuestionMutation.mutateAsync,
     generateAIQuestion: generateAIQuestionMutation.mutate,
     generateAIQuestionAsync: generateAIQuestionMutation.mutateAsync,
+    batchArchiveQuestions: batchArchiveQuestionsMutation.mutate,
+    batchArchiveQuestionsAsync: batchArchiveQuestionsMutation.mutateAsync,
+    isBatchArchiving: batchArchiveQuestionsMutation.isPending,
+    batchRestoreQuestions: batchRestoreQuestionsMutation.mutate,
+    batchRestoreQuestionsAsync: batchRestoreQuestionsMutation.mutateAsync,
+    isBatchRestoring: batchRestoreQuestionsMutation.isPending,
+    batchPermanentDeleteQuestions: batchPermanentDeleteQuestionsMutation.mutate,
+    batchPermanentDeleteQuestionsAsync:
+      batchPermanentDeleteQuestionsMutation.mutateAsync,
+    isBatchPermanentDeleting: batchPermanentDeleteQuestionsMutation.isPending,
     refetchQuestions,
 
     // Mutation data
