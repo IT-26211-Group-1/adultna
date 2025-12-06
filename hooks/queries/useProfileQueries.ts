@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, queryKeys } from "@/lib/apiClient";
 import { addToast } from "@heroui/toast";
 import { User } from "./useAuthQueries";
+import { logger } from "@/lib/logger";
 
 export type Profile = {
   id: string;
@@ -47,22 +48,22 @@ export type UploadProfilePictureResponse = {
 
 const profileApi = {
   updateProfile: (
-    data: UpdateProfileRequest,
+    data: UpdateProfileRequest
   ): Promise<{ success: boolean; message: string; data: Profile }> =>
     ApiClient.patch("/profile", data),
 
   updatePassword: (
-    data: UpdatePasswordRequest,
+    data: UpdatePasswordRequest
   ): Promise<{ success: boolean; message: string }> =>
     ApiClient.patch("/profile/password", data),
 
   deleteAccount: (
-    data: DeleteAccountRequest,
+    data: DeleteAccountRequest
   ): Promise<{ success: boolean; message: string }> =>
     ApiClient.delete("/profile/account", { body: JSON.stringify(data) }),
 
   uploadProfilePicture: (
-    data: UploadProfilePictureRequest,
+    data: UploadProfilePictureRequest
   ): Promise<UploadProfilePictureResponse> =>
     ApiClient.post("/profile/picture/upload", data),
 };
@@ -136,7 +137,7 @@ export function useDeleteAccount() {
       try {
         await ApiClient.post("/auth/logout");
       } catch (error) {
-        console.error("Logout call failed:", error);
+        logger.error("Logout call failed:", error);
       }
 
       // Clear all local data

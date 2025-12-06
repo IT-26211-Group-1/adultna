@@ -123,7 +123,7 @@ export function FileActions({
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL,
+        API_CONFIG.API_URL
       );
 
       if (response.success && response.data?.downloadUrl) {
@@ -557,11 +557,9 @@ export function FileActions({
             <DropdownMenu
               aria-label="File actions"
               onAction={(key) => {
-                console.log("DropdownMenu onAction called with key:", key);
                 if (key === "edit") handleRenameClick();
                 else if (key === "protection") handleToggleProtection();
                 else if (key === "archive") {
-                  console.log("Archive action triggered from dropdown");
                   handleArchive();
                 }
               }}
@@ -818,13 +816,11 @@ export function FileActions({
           <DropdownMenu
             aria-label="File actions"
             onAction={(key) => {
-              console.log("Grid DropdownMenu onAction called with key:", key);
               if (key === "view") handleView();
               else if (key === "download") handleDownload();
               else if (key === "rename") handleRenameClick();
               else if (key === "protection") handleToggleProtection();
               else if (key === "archive") {
-                console.log("Grid: Archive action triggered from dropdown");
                 handleArchive();
               }
             }}

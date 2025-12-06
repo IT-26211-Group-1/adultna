@@ -9,53 +9,59 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
-import { addToast } from "@heroui/react";
-import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
-import type { BatchOperationResponse } from "@/hooks/queries/admin/useGuidesQueries";
+import { addToast } from "@heroui/toast";
+import { useOnboardingQuestions } from "@/hooks/queries/admin/useOnboardingQueries";
+import type { BatchOperationResponse } from "@/hooks/queries/admin/useOnboardingQueries";
 import { logger } from "@/lib/logger";
 
-type BatchGuideActionsProps = {
-  selectedGuideIds: string[];
+type BatchQuestionActionsProps = {
+  selectedQuestionIds: number[];
   onClearSelection: () => void;
   isArchiveView?: boolean;
 };
 
-export function BatchGuideActions({
-  selectedGuideIds,
+export function BatchQuestionActions({
+  selectedQuestionIds,
   onClearSelection,
   isArchiveView = false,
-}: BatchGuideActionsProps) {
+}: BatchQuestionActionsProps) {
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [showPermanentDeleteModal, setShowPermanentDeleteModal] =
     useState(false);
 
   const {
-    batchArchiveGuidesAsync,
+    batchArchiveQuestionsAsync,
     isBatchArchiving,
-    batchRestoreGuidesAsync,
+    batchRestoreQuestionsAsync,
     isBatchRestoring,
-    batchPermanentDeleteGuidesAsync,
+    batchPermanentDeleteQuestionsAsync,
     isBatchPermanentDeleting,
-  } = useGuidesQueries();
+  } = useOnboardingQuestions();
 
-  const selectedCount = selectedGuideIds.length;
+  const selectedCount = selectedQuestionIds.length;
 
   const handleBatchArchive = async () => {
     try {
-      const result = (await batchArchiveGuidesAsync(
-        selectedGuideIds
+      const result = (await batchArchiveQuestionsAsync(
+        selectedQuestionIds
       )) as BatchOperationResponse;
 
       if (result.success) {
         addToast({
           title: "Batch Archive Completed",
-          description: `${result.results.successful.length} guide(s) archived successfully. ${result.results.failed.length} failed.`,
+          description: `${result.results.successful.length} question(s) archived successfully. ${result.results.failed.length} failed.`,
           color: "success",
+          timeout: 4000,
         });
 
         if (result.results.failed.length > 0) {
-          logger.error("Failed guides:", result.results.failed);
+          logger.error("Failed to archive questions:");
+          result.results.failed.forEach((failure) => {
+            logger.error(
+              `  Question ID ${failure.questionId}: ${failure.reason}`
+            );
+          });
         }
 
         onClearSelection();
@@ -63,8 +69,9 @@ export function BatchGuideActions({
     } catch {
       addToast({
         title: "Batch Archive Failed",
-        description: "An error occurred while archiving guides",
+        description: "An error occurred while archiving questions",
         color: "danger",
+        timeout: 4000,
       });
     } finally {
       setShowArchiveModal(false);
@@ -73,19 +80,25 @@ export function BatchGuideActions({
 
   const handleBatchRestore = async () => {
     try {
-      const result = (await batchRestoreGuidesAsync(
-        selectedGuideIds
+      const result = (await batchRestoreQuestionsAsync(
+        selectedQuestionIds
       )) as BatchOperationResponse;
 
       if (result.success) {
         addToast({
           title: "Batch Restore Completed",
-          description: `${result.results.successful.length} guide(s) restored successfully. ${result.results.failed.length} failed.`,
+          description: `${result.results.successful.length} question(s) restored successfully. ${result.results.failed.length} failed.`,
           color: "success",
+          timeout: 4000,
         });
 
         if (result.results.failed.length > 0) {
-          logger.error("Failed guides:", result.results.failed);
+          logger.error("Failed to archive questions:");
+          result.results.failed.forEach((failure) => {
+            logger.error(
+              `  Question ID ${failure.questionId}: ${failure.reason}`
+            );
+          });
         }
 
         onClearSelection();
@@ -93,8 +106,9 @@ export function BatchGuideActions({
     } catch {
       addToast({
         title: "Batch Restore Failed",
-        description: "An error occurred while restoring guides",
+        description: "An error occurred while restoring questions",
         color: "danger",
+        timeout: 4000,
       });
     } finally {
       setShowRestoreModal(false);
@@ -103,19 +117,25 @@ export function BatchGuideActions({
 
   const handleBatchPermanentDelete = async () => {
     try {
-      const result = (await batchPermanentDeleteGuidesAsync(
-        selectedGuideIds
+      const result = (await batchPermanentDeleteQuestionsAsync(
+        selectedQuestionIds
       )) as BatchOperationResponse;
 
       if (result.success) {
         addToast({
           title: "Batch Delete Completed",
-          description: `${result.results.successful.length} guide(s) permanently deleted. ${result.results.failed.length} failed.`,
+          description: `${result.results.successful.length} question(s) permanently deleted. ${result.results.failed.length} failed.`,
           color: "success",
+          timeout: 4000,
         });
 
         if (result.results.failed.length > 0) {
-          logger.error("Failed guides:", result.results.failed);
+          logger.error("Failed to archive questions:");
+          result.results.failed.forEach((failure) => {
+            logger.error(
+              `  Question ID ${failure.questionId}: ${failure.reason}`
+            );
+          });
         }
 
         onClearSelection();
@@ -123,8 +143,9 @@ export function BatchGuideActions({
     } catch {
       addToast({
         title: "Batch Delete Failed",
-        description: "An error occurred while permanently deleting guides",
+        description: "An error occurred while permanently deleting questions",
         color: "danger",
+        timeout: 4000,
       });
     } finally {
       setShowPermanentDeleteModal(false);
@@ -140,7 +161,7 @@ export function BatchGuideActions({
       <div className="flex items-center justify-between bg-adult-green/5 border border-adult-green/20 rounded-xl p-4 mb-4 shadow-sm">
         <div className="flex items-center gap-3">
           <span className="text-sm font-semibold text-gray-800">
-            {selectedCount} guide{selectedCount > 1 ? "s" : ""} selected
+            {selectedCount} question{selectedCount > 1 ? "s" : ""} selected
           </span>
           <button
             className="text-sm text-adult-green hover:text-adult-green/80 font-medium transition-colors duration-200"
@@ -192,10 +213,10 @@ export function BatchGuideActions({
         onClose={() => setShowArchiveModal(false)}
       >
         <ModalContent>
-          <ModalHeader>Archive Guides</ModalHeader>
+          <ModalHeader>Archive Questions</ModalHeader>
           <ModalBody>
             <p className="text-gray-700">
-              Are you sure you want to archive {selectedCount} guide
+              Are you sure you want to archive {selectedCount} question
               {selectedCount > 1 ? "s" : ""}? They can be restored later.
             </p>
           </ModalBody>
@@ -223,10 +244,10 @@ export function BatchGuideActions({
         onClose={() => setShowRestoreModal(false)}
       >
         <ModalContent>
-          <ModalHeader>Restore Guides</ModalHeader>
+          <ModalHeader>Restore Questions</ModalHeader>
           <ModalBody>
             <p className="text-gray-700">
-              Are you sure you want to restore {selectedCount} guide
+              Are you sure you want to restore {selectedCount} question
               {selectedCount > 1 ? "s" : ""}?
             </p>
           </ModalBody>
@@ -254,7 +275,7 @@ export function BatchGuideActions({
         onClose={() => setShowPermanentDeleteModal(false)}
       >
         <ModalContent>
-          <ModalHeader>Permanently Delete Guides</ModalHeader>
+          <ModalHeader>Permanently Delete Questions</ModalHeader>
           <ModalBody>
             <div className="space-y-3">
               <p className="text-gray-700 font-semibold">
@@ -262,7 +283,7 @@ export function BatchGuideActions({
               </p>
               <p className="text-gray-700">
                 Are you sure you want to permanently delete {selectedCount}{" "}
-                guide
+                question
                 {selectedCount > 1 ? "s" : ""}? This will remove them from the
                 database completely.
               </p>

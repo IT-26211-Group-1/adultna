@@ -53,7 +53,8 @@ export function GuidesTableWithBatchActions({
     setSelectedGuideIds([]);
   };
 
-  const allSelected = guides.length > 0 && selectedGuideIds.length === guides.length;
+  const allSelected =
+    guides.length > 0 && selectedGuideIds.length === guides.length;
   const someSelected = selectedGuideIds.length > 0 && !allSelected;
 
   return (
@@ -72,13 +73,13 @@ export function GuidesTableWithBatchActions({
             <tr>
               <th className="w-12 px-6 py-3">
                 <input
-                  checked={allSelected}
-                  className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
                   ref={(input) => {
                     if (input) {
                       input.indeterminate = someSelected;
                     }
                   }}
+                  checked={allSelected}
+                  className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
                   type="checkbox"
                   onChange={(e) => handleSelectAll(e.target.checked)}
                 />

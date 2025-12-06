@@ -28,7 +28,7 @@ export function TemplateCard({
         return new Date(
           dateValue.year,
           dateValue.month - 1,
-          dateValue.day,
+          dateValue.day
         ).toLocaleDateString("en-US", { year: "numeric" });
       }
       const date = new Date(dateValue);
@@ -69,11 +69,10 @@ export function TemplateCard({
       isPressable
       className={cn(
         "cursor-pointer transition-all duration-300 ease-in-out border-2 hover:border-adult-green hover:bg-gray-50/50",
-        isSelected ? "border-adult-green bg-adult-green/5" : "border-gray-200",
+        isSelected ? "border-adult-green bg-adult-green/5" : "border-gray-200"
       )}
       shadow="none"
       onPress={() => {
-        console.log("Template card clicked:", template.id);
         onSelect();
       }}
     >

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import GuideDetailClient from "../_components/GuideDetailClient";
 
 type PageProps = {
@@ -9,7 +10,7 @@ type PageProps = {
 export async function generateStaticParams() {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/guides/public`,
+      `${process.env.NEXT_PUBLIC_API}/guides/public`
     );
 
     if (!response.ok) {
@@ -23,7 +24,7 @@ export async function generateStaticParams() {
       slug: guide.slug,
     }));
   } catch (error) {
-    console.error("Error fetching guides for static generation:", error);
+    logger.error("Error fetching guides for static generation:", error);
 
     return [];
   }

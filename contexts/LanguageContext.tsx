@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { logger } from "@/lib/logger";
 
 export type Language = "en" | "fil";
 
@@ -23,7 +24,7 @@ type LanguageContextType = {
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
-  undefined,
+  undefined
 );
 
 const STORAGE_KEY = "adultna_language";
@@ -34,7 +35,7 @@ const loadTranslations = async (lang: Language): Promise<TranslationData> => {
 
     return translations.default;
   } catch (error) {
-    console.error(`Failed to load translations for ${lang}:`, error);
+    logger.error(`Failed to load translations for ${lang}:`, error);
 
     return {};
   }
@@ -61,7 +62,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         return stored;
       }
     } catch (error) {
-      console.error("Failed to read language from localStorage:", error);
+      logger.error("Failed to read language from localStorage:", error);
     }
 
     return "en";
@@ -69,7 +70,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const [language, setLanguageState] = useState<Language>(getInitialLanguage);
   const [translations, setTranslations] = useState<TranslationData | null>(
-    null,
+    null
   );
   const [isLoading, setIsLoading] = useState(true);
 
@@ -116,7 +117,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       try {
         localStorage.setItem(STORAGE_KEY, lang);
       } catch (error) {
-        console.error("Failed to save language to localStorage:", error);
+        logger.error("Failed to save language to localStorage:", error);
       }
 
       const isGovGuidesPage = pathname?.startsWith("/gov-guides");
@@ -128,7 +129,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
       }
     },
-    [pathname, searchParams, router],
+    [pathname, searchParams, router]
   );
 
   const t = useMemo(
@@ -146,7 +147,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
         return value || key;
       },
-    [translations, isLoading],
+    [translations, isLoading]
   );
 
   const value = useMemo(
@@ -156,7 +157,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       t,
       isLoading,
     }),
-    [language, setLanguage, t, isLoading],
+    [language, setLanguage, t, isLoading]
   );
 
   return (

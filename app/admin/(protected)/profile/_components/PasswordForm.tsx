@@ -11,6 +11,7 @@ import {
 } from "@/validators/profileSchema";
 import { useState, useEffect, useCallback } from "react";
 import { useUpdatePassword } from "@/hooks/queries/useProfileQueries";
+import { logger } from "@/lib/logger";
 
 export function PasswordForm() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -51,7 +52,7 @@ export function PasswordForm() {
         return "";
       }
     },
-    [hasUnsavedChanges],
+    [hasUnsavedChanges]
   );
 
   useEffect(() => {
@@ -91,7 +92,7 @@ export function PasswordForm() {
           updatePassword.reset(); // Reset mutation state
         }, 0);
       } catch (error) {
-        console.error("Failed to update password:", error);
+        logger.error("Failed to update password:", error);
       } finally {
         setIsSaving(false);
       }

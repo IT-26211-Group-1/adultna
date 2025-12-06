@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody } from "@heroui/modal";
 import { OfficeInfo } from "@/types/govguide";
 import { calculateDistance, Coordinates } from "@/utils/distance";
+import { logger } from "@/lib/logger";
 
 type OfficeMapModalProps = {
   isOpen: boolean;
@@ -36,7 +37,7 @@ export default function OfficeMapModal({
   const [locationPermissionDenied, setLocationPermissionDenied] =
     useState(false);
   const [nearestLocations, setNearestLocations] = useState<OfficeLocation[]>(
-    [],
+    []
   );
 
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function OfficeMapModal({
             enableHighAccuracy: true,
             timeout: 10000,
             maximumAge: 0,
-          },
+          }
         );
       });
     };
@@ -76,7 +77,7 @@ export default function OfficeMapModal({
         setUserLocation(location);
         setLocationPermissionDenied(false);
       } catch (err) {
-        console.warn("Could not get user location:", err);
+        logger.warn("Could not get user location:", err);
         setLocationPermissionDenied(true);
       }
     };
@@ -99,7 +100,7 @@ export default function OfficeMapModal({
         }
 
         const existingScript = document.querySelector(
-          'script[src*="maps.googleapis.com"]',
+          'script[src*="maps.googleapis.com"]'
         );
 
         if (existingScript) {
@@ -193,7 +194,7 @@ export default function OfficeMapModal({
                     } else {
                       resolve({ address: location });
                     }
-                  },
+                  }
                 );
               }
             });
@@ -259,7 +260,7 @@ export default function OfficeMapModal({
                   title: office.issuingAgency,
                 });
               }
-            },
+            }
           );
         }
 
@@ -275,7 +276,7 @@ export default function OfficeMapModal({
               if (currentZoom && currentZoom > 15) {
                 mapInstance.setZoom(15);
               }
-            },
+            }
           );
         }
 
@@ -284,7 +285,7 @@ export default function OfficeMapModal({
         }
       } catch (err) {
         if (isMounted) {
-          console.error("Map initialization error:", err);
+          logger.error("Map initialization error:", err);
           setError("Failed to load map. Please try again.");
           setIsLoading(false);
         }

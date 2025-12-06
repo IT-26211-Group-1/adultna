@@ -12,6 +12,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import { useUpdateProfile } from "@/hooks/queries/useProfileQueries";
+import { logger } from "@/lib/logger";
 
 export function ProfileForm() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -63,7 +64,7 @@ export function ProfileForm() {
         return "";
       }
     },
-    [hasUnsavedChanges],
+    [hasUnsavedChanges]
   );
 
   useEffect(() => {
@@ -93,7 +94,7 @@ export function ProfileForm() {
         reset(data);
         setHasUnsavedChanges(false);
       } catch (error) {
-        console.error("Failed to update profile:", error);
+        logger.error("Failed to update profile:", error);
       } finally {
         setIsSaving(false);
       }

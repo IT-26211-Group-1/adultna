@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Coordinates } from "@/utils/distance";
 import { OfficeLocation } from "./FindOfficeClient";
+import { logger } from "@/lib/logger";
 
 type OfficeMapProps = {
   userLocation: Coordinates | null;
@@ -37,7 +38,7 @@ export default function OfficeMap({
         }
 
         const existingScript = document.querySelector(
-          'script[src*="maps.googleapis.com"]',
+          'script[src*="maps.googleapis.com"]'
         );
 
         if (existingScript) {
@@ -94,7 +95,7 @@ export default function OfficeMap({
           });
         }
       } catch (error) {
-        console.error("Failed to initialize map:", error);
+        logger.error("Failed to initialize map:", error);
       }
     };
 

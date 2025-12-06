@@ -14,6 +14,7 @@ import {
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditOnboardingQuestionModal from "./EditOnboardingQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
+import { BatchQuestionActions } from "./BatchQuestionActions";
 import { formatDate } from "@/constants/format-date";
 import { RetryButton } from "@/components/ui/RetryButton";
 
@@ -313,6 +314,7 @@ const OnboardingQuestionsTable: React.FC = () => {
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
     useState<number | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
 
   const { user } = useAdminAuth();
 
@@ -484,8 +486,41 @@ const OnboardingQuestionsTable: React.FC = () => {
     [permanentDeleteQuestion],
   );
 
+  // Selection handler
+  const handleSelectQuestion = useCallback(
+    (questionId: number, checked: boolean) => {
+      if (checked) {
+        setSelectedQuestionIds((prev) => [...prev, questionId]);
+      } else {
+        setSelectedQuestionIds((prev) =>
+          prev.filter((id) => id !== questionId),
+        );
+      }
+    },
+    [],
+  );
+
+  // Clear selection when switching between active/archived views
+  React.useEffect(() => {
+    setSelectedQuestionIds([]);
+  }, [showArchived]);
+
   const columns: Column<OnboardingQuestion>[] = useMemo(
     () => [
+      {
+        header: "",
+        accessor: (question) => (
+          <input
+            checked={selectedQuestionIds.includes(question.id)}
+            className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
+            type="checkbox"
+            onChange={(e) =>
+              handleSelectQuestion(question.id, e.target.checked)
+            }
+          />
+        ),
+        width: "50px",
+      },
       {
         header: "Question",
         accessor: (question: OnboardingQuestion) => (
@@ -640,6 +675,8 @@ const OnboardingQuestionsTable: React.FC = () => {
       permanentDeletingQuestionId,
       user?.role,
       formatDate,
+      selectedQuestionIds,
+      handleSelectQuestion,
     ],
   );
 
@@ -678,6 +715,14 @@ const OnboardingQuestionsTable: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Batch Actions */}
+      <BatchQuestionActions
+        isArchiveView={showArchived}
+        selectedQuestionIds={selectedQuestionIds}
+        onClearSelection={() => setSelectedQuestionIds([])}
+      />
+
       <Table
         className="!overflow-visible"
         columns={columns}

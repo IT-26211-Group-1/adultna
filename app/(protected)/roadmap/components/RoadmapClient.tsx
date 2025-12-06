@@ -46,7 +46,7 @@ export function RoadmapClient({
   const searchParams = useSearchParams();
   const router = useRouter();
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
-    null,
+    null
   );
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
@@ -55,11 +55,11 @@ export function RoadmapClient({
 
   // Debug animation states
   React.useEffect(() => {
-    console.log(
+    logger.log(
       "🔄 Animation states changed - milestoneAnimation:",
       milestoneAnimation,
       "cameraViewAnimation:",
-      cameraViewAnimation,
+      cameraViewAnimation
     );
   }, [milestoneAnimation, cameraViewAnimation]);
   const [hasOpenedFromQuery, setHasOpenedFromQuery] = useState(false);
@@ -70,7 +70,7 @@ export function RoadmapClient({
     return (
       window.innerWidth <= 768 ||
       /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent,
+        navigator.userAgent
       )
     );
   }, []);
@@ -152,15 +152,15 @@ export function RoadmapClient({
   // 🎯 SIMPLIFIED: No camera animation for now - just focus on modal
   const createMilestoneZoom = useCallback(
     (milestone: Milestone): CameraAnimation | null => {
-      console.log("🔍 Milestone clicked:", milestone);
-      console.log("🔍 Milestone position:", milestone.position);
+      logger.log("🔍 Milestone clicked:", milestone);
+      logger.log("🔍 Milestone position:", milestone.position);
 
       // Return null for now to skip animation and focus on modal functionality
-      console.log("⏭️ Skipping camera animation for debugging");
+      logger.log("⏭️ Skipping camera animation for debugging");
 
       return null;
     },
-    [isMobile, DEFAULT_CAMERA_VIEW],
+    [isMobile, DEFAULT_CAMERA_VIEW]
   );
 
   // Auto-open milestone modal from query parameter
@@ -230,20 +230,20 @@ export function RoadmapClient({
   }, [selectedCameraView]);
 
   const handleMilestoneClick = (interaction: RoadmapInteraction) => {
-    console.log("🔥 MILESTONE CLICK HANDLER CALLED!", interaction);
+    logger.log("🔥 MILESTONE CLICK HANDLER CALLED!", interaction);
     logger.log("🔥 MILESTONE CLICK HANDLER CALLED!", interaction);
 
     const milestone = milestones.find((m) => m.id === interaction.milestoneId);
 
-    console.log("🔍 Found milestone:", milestone);
+    logger.log("🔍 Found milestone:", milestone);
 
     if (milestone) {
       setSelectedMilestone(milestone);
-      console.log("✅ About to create zoom animation...");
+      logger.log("✅ About to create zoom animation...");
 
       const zoomAnimation = createMilestoneZoom(milestone);
 
-      console.log("🎯 Created zoom animation:", zoomAnimation);
+      logger.log("🎯 Created zoom animation:", zoomAnimation);
 
       // Only set animation if it's not null
       if (zoomAnimation) {
@@ -251,9 +251,9 @@ export function RoadmapClient({
       }
 
       onOpen();
-      console.log("📤 Modal opened and animation set");
+      logger.log("📤 Modal opened and animation set");
     } else {
-      console.log("❌ No milestone found for ID:", interaction.milestoneId);
+      logger.log("❌ No milestone found for ID:", interaction.milestoneId);
       logger.log("❌ No milestone found for ID:", interaction.milestoneId);
     }
   };
@@ -268,11 +268,11 @@ export function RoadmapClient({
       logger.log(`🎯 Empty position ${positionNumber} clicked`);
       onEmptyPositionClick?.(positionNumber);
     },
-    [onEmptyPositionClick],
+    [onEmptyPositionClick]
   );
 
   const handleModalClose = () => {
-    console.log("🚪 Modal closing...");
+    logger.log("🚪 Modal closing...");
 
     // Simply reset milestone animation - let the camera stay where it is
     setMilestoneAnimation(null);
@@ -286,7 +286,7 @@ export function RoadmapClient({
       router.replace("/roadmap", { scroll: false });
     }
 
-    console.log("✅ Modal closed, returning to default view");
+    logger.log("✅ Modal closed, returning to default view");
   };
 
   // Fallback click handler for the Canvas element
@@ -335,11 +335,11 @@ export function RoadmapClient({
             isMobile={isMobile}
             milestoneAnimation={milestoneAnimation || cameraViewAnimation}
             onAnimationComplete={() => {
-              console.log(
+              logger.log(
                 "🏁 Animation completed! milestoneAnimation:",
                 milestoneAnimation,
                 "cameraViewAnimation:",
-                cameraViewAnimation,
+                cameraViewAnimation
               );
               if (cameraViewAnimation) {
                 setCameraViewAnimation(null);

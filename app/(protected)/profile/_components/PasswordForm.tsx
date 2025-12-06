@@ -22,6 +22,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useUpdatePassword } from "@/hooks/queries/useProfileQueries";
 import { useAuth } from "@/hooks/useAuth";
+import { logger } from "@/lib/logger";
 
 export function PasswordForm() {
   const { user } = useAuth();
@@ -46,7 +47,7 @@ export function PasswordForm() {
     reset,
   } = useForm<PasswordUpdateInput | SetPasswordInput>({
     resolver: zodResolver(
-      hasPassword ? passwordUpdateSchema : setPasswordSchema,
+      hasPassword ? passwordUpdateSchema : setPasswordSchema
     ),
     mode: "onChange",
     defaultValues: hasPassword
@@ -76,7 +77,7 @@ export function PasswordForm() {
         return "";
       }
     },
-    [hasUnsavedChanges],
+    [hasUnsavedChanges]
   );
 
   useEffect(() => {
@@ -118,14 +119,14 @@ export function PasswordForm() {
               : {
                   newPassword: "",
                   confirmPassword: "",
-                },
+                }
           );
           onConfirmClose();
           setHasUnsavedChanges(false);
           updatePassword.reset(); // Reset mutation state
         }, 0);
       } catch (error) {
-        console.error("Failed to update password:", error);
+        logger.error("Failed to update password:", error);
       } finally {
         setIsSaving(false);
       }
