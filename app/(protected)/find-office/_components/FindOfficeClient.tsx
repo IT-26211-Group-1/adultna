@@ -25,7 +25,7 @@ export default function FindOfficeClient() {
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [selectedOffice, setSelectedOffice] = useState<OfficeLocation | null>(
-    null
+    null,
   );
   const [offices, setOffices] = useState<OfficeLocation[]>([]);
   const { searchPlaces, isSearching } = usePlacesSearch();
@@ -40,7 +40,7 @@ export default function FindOfficeClient() {
               timeout: 10000,
               maximumAge: 0,
             });
-          }
+          },
         );
 
         const location = {

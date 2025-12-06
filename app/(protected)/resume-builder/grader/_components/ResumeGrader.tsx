@@ -36,7 +36,7 @@ export default function ResumeGrader({
   const [isProcessing, setIsProcessing] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
   const [gradingResult, setGradingResult] = useState<ATSGradingResult | null>(
-    null
+    null,
   );
   const [gradeSearchQuery, setGradeSearchQuery] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -344,7 +344,7 @@ export default function ResumeGrader({
 
     if (metricsCount >= 5) {
       allStrengths.push(
-        `Strong quantifiable achievements (${metricsCount} metrics found)`
+        `Strong quantifiable achievements (${metricsCount} metrics found)`,
       );
     }
 
@@ -686,7 +686,7 @@ export default function ResumeGrader({
   // Calculate score percentage for gauge
   const scorePercentage = gradingResult
     ? Math.round(
-        (gradingResult.overallScore / gradingResult.maxPossibleScore) * 100
+        (gradingResult.overallScore / gradingResult.maxPossibleScore) * 100,
       )
     : 0;
   const scoreLabel = gradingResult

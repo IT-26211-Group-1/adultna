@@ -38,7 +38,7 @@ export default function OfficeMap({
         }
 
         const existingScript = document.querySelector(
-          'script[src*="maps.googleapis.com"]'
+          'script[src*="maps.googleapis.com"]',
         );
 
         if (existingScript) {

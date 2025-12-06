@@ -44,7 +44,7 @@ export function BatchQuestionActions({
   const handleBatchArchive = async () => {
     try {
       const result = (await batchArchiveQuestionsAsync(
-        selectedQuestionIds
+        selectedQuestionIds,
       )) as BatchOperationResponse;
 
       if (result.success) {
@@ -59,7 +59,7 @@ export function BatchQuestionActions({
           logger.error("Failed to archive questions:");
           result.results.failed.forEach((failure) => {
             logger.error(
-              `  Question ID ${failure.questionId}: ${failure.reason}`
+              `  Question ID ${failure.questionId}: ${failure.reason}`,
             );
           });
         }
@@ -81,7 +81,7 @@ export function BatchQuestionActions({
   const handleBatchRestore = async () => {
     try {
       const result = (await batchRestoreQuestionsAsync(
-        selectedQuestionIds
+        selectedQuestionIds,
       )) as BatchOperationResponse;
 
       if (result.success) {
@@ -96,7 +96,7 @@ export function BatchQuestionActions({
           logger.error("Failed to archive questions:");
           result.results.failed.forEach((failure) => {
             logger.error(
-              `  Question ID ${failure.questionId}: ${failure.reason}`
+              `  Question ID ${failure.questionId}: ${failure.reason}`,
             );
           });
         }
@@ -118,7 +118,7 @@ export function BatchQuestionActions({
   const handleBatchPermanentDelete = async () => {
     try {
       const result = (await batchPermanentDeleteQuestionsAsync(
-        selectedQuestionIds
+        selectedQuestionIds,
       )) as BatchOperationResponse;
 
       if (result.success) {
@@ -133,7 +133,7 @@ export function BatchQuestionActions({
           logger.error("Failed to archive questions:");
           result.results.failed.forEach((failure) => {
             logger.error(
-              `  Question ID ${failure.questionId}: ${failure.reason}`
+              `  Question ID ${failure.questionId}: ${failure.reason}`,
             );
           });
         }

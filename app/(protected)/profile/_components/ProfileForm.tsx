@@ -81,7 +81,7 @@ export function ProfileForm() {
         return "";
       }
     },
-    [hasUnsavedChanges]
+    [hasUnsavedChanges],
   );
 
   useEffect(() => {

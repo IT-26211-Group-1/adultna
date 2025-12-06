@@ -37,7 +37,7 @@ export default function OfficeMapModal({
   const [locationPermissionDenied, setLocationPermissionDenied] =
     useState(false);
   const [nearestLocations, setNearestLocations] = useState<OfficeLocation[]>(
-    []
+    [],
   );
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function OfficeMapModal({
             enableHighAccuracy: true,
             timeout: 10000,
             maximumAge: 0,
-          }
+          },
         );
       });
     };
@@ -100,7 +100,7 @@ export default function OfficeMapModal({
         }
 
         const existingScript = document.querySelector(
-          'script[src*="maps.googleapis.com"]'
+          'script[src*="maps.googleapis.com"]',
         );
 
         if (existingScript) {
@@ -194,7 +194,7 @@ export default function OfficeMapModal({
                     } else {
                       resolve({ address: location });
                     }
-                  }
+                  },
                 );
               }
             });
@@ -260,7 +260,7 @@ export default function OfficeMapModal({
                   title: office.issuingAgency,
                 });
               }
-            }
+            },
           );
         }
 
@@ -276,7 +276,7 @@ export default function OfficeMapModal({
               if (currentZoom && currentZoom > 15) {
                 mapInstance.setZoom(15);
               }
-            }
+            },
           );
         }
 

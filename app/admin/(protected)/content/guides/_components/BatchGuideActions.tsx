@@ -44,7 +44,7 @@ export function BatchGuideActions({
   const handleBatchArchive = async () => {
     try {
       const result = (await batchArchiveGuidesAsync(
-        selectedGuideIds
+        selectedGuideIds,
       )) as BatchOperationResponse;
 
       if (result.success) {
@@ -74,7 +74,7 @@ export function BatchGuideActions({
   const handleBatchRestore = async () => {
     try {
       const result = (await batchRestoreGuidesAsync(
-        selectedGuideIds
+        selectedGuideIds,
       )) as BatchOperationResponse;
 
       if (result.success) {
@@ -104,7 +104,7 @@ export function BatchGuideActions({
   const handleBatchPermanentDelete = async () => {
     try {
       const result = (await batchPermanentDeleteGuidesAsync(
-        selectedGuideIds
+        selectedGuideIds,
       )) as BatchOperationResponse;
 
       if (result.success) {

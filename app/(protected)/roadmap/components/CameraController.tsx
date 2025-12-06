@@ -44,7 +44,7 @@ export function CameraController({
 
       const timer = setTimeout(
         () => setStartIntroAnimation(true),
-        introAnimation.delay || 0
+        introAnimation.delay || 0,
       );
 
       return () => clearTimeout(timer);
@@ -55,7 +55,7 @@ export function CameraController({
   useEffect(() => {
     logger.log(
       "🎬 CameraController received milestoneAnimation:",
-      milestoneAnimation
+      milestoneAnimation,
     );
     if (milestoneAnimation) {
       setStartMilestoneAnimation(true);
@@ -153,7 +153,7 @@ export function CameraController({
       camera.position.set(
         position.get()[0],
         position.get()[1],
-        position.get()[2]
+        position.get()[2],
       );
       if (camera instanceof PerspectiveCamera) {
         camera.fov = fov.get();

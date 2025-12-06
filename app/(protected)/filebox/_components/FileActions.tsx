@@ -123,7 +123,7 @@ export function FileActions({
       const response: any = await ApiClient.get(
         `/filebox/download/${fileMetadata.id}`,
         {},
-        API_CONFIG.API_URL
+        API_CONFIG.API_URL,
       );
 
       if (response.success && response.data?.downloadUrl) {

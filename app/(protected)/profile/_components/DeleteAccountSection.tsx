@@ -51,7 +51,7 @@ export function DeleteAccountSection() {
         setPasswordError("Incorrect password. Please try again.");
       } else if (error.status === 500) {
         setPasswordError(
-          "Server error occurred. Please try again later or contact support."
+          "Server error occurred. Please try again later or contact support.",
         );
       } else if (error.message?.toLowerCase().includes("password")) {
         setPasswordError(error.message);

@@ -323,7 +323,7 @@ function PreviewGuideModal({
                         {generalTips.importantReminders.map(
                           (reminder, index) => (
                             <li key={index}>{reminder}</li>
-                          )
+                          ),
                         )}
                       </ul>
                     </div>

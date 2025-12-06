@@ -52,7 +52,7 @@ export function PasswordForm() {
         return "";
       }
     },
-    [hasUnsavedChanges]
+    [hasUnsavedChanges],
   );
 
   useEffect(() => {

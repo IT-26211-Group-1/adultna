@@ -46,7 +46,7 @@ export function RoadmapClient({
   const searchParams = useSearchParams();
   const router = useRouter();
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(
-    null
+    null,
   );
   const [milestoneAnimation, setMilestoneAnimation] =
     useState<CameraAnimation | null>(null);
@@ -59,7 +59,7 @@ export function RoadmapClient({
       "🔄 Animation states changed - milestoneAnimation:",
       milestoneAnimation,
       "cameraViewAnimation:",
-      cameraViewAnimation
+      cameraViewAnimation,
     );
   }, [milestoneAnimation, cameraViewAnimation]);
   const [hasOpenedFromQuery, setHasOpenedFromQuery] = useState(false);
@@ -70,7 +70,7 @@ export function RoadmapClient({
     return (
       window.innerWidth <= 768 ||
       /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
+        navigator.userAgent,
       )
     );
   }, []);
@@ -160,7 +160,7 @@ export function RoadmapClient({
 
       return null;
     },
-    [isMobile, DEFAULT_CAMERA_VIEW]
+    [isMobile, DEFAULT_CAMERA_VIEW],
   );
 
   // Auto-open milestone modal from query parameter
@@ -268,7 +268,7 @@ export function RoadmapClient({
       logger.log(`🎯 Empty position ${positionNumber} clicked`);
       onEmptyPositionClick?.(positionNumber);
     },
-    [onEmptyPositionClick]
+    [onEmptyPositionClick],
   );
 
   const handleModalClose = () => {
@@ -339,7 +339,7 @@ export function RoadmapClient({
                 "🏁 Animation completed! milestoneAnimation:",
                 milestoneAnimation,
                 "cameraViewAnimation:",
-                cameraViewAnimation
+                cameraViewAnimation,
               );
               if (cameraViewAnimation) {
                 setCameraViewAnimation(null);

@@ -47,7 +47,7 @@ export function PasswordForm() {
     reset,
   } = useForm<PasswordUpdateInput | SetPasswordInput>({
     resolver: zodResolver(
-      hasPassword ? passwordUpdateSchema : setPasswordSchema
+      hasPassword ? passwordUpdateSchema : setPasswordSchema,
     ),
     mode: "onChange",
     defaultValues: hasPassword
@@ -77,7 +77,7 @@ export function PasswordForm() {
         return "";
       }
     },
-    [hasUnsavedChanges]
+    [hasUnsavedChanges],
   );
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export function PasswordForm() {
               : {
                   newPassword: "",
                   confirmPassword: "",
-                }
+                },
           );
           onConfirmClose();
           setHasUnsavedChanges(false);
