@@ -14,7 +14,12 @@ interface RoadmapNavigationProps {
   isMobile?: boolean;
 }
 
-export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentCameraView, isMobile }: RoadmapNavigationProps) {
+export function RoadmapNavigation({
+  onAddMilestone,
+  onCameraViewChange,
+  currentCameraView,
+  isMobile,
+}: RoadmapNavigationProps) {
   const router = useRouter();
 
   const handleDashboardClick = () => {
@@ -32,11 +37,13 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
               <Button
                 className="text-gray-700 hover:text-gray-900 border-0 bg-transparent p-2 min-w-fit transition-colors duration-200"
                 size="sm"
-                variant="light"
                 startContent={<ArrowLeft className="w-4 h-4" />}
+                variant="light"
                 onPress={handleDashboardClick}
               >
-                <span className="hidden sm:inline text-sm font-medium">Back</span>
+                <span className="hidden sm:inline text-sm font-medium">
+                  Back
+                </span>
               </Button>
 
               {/* Divider */}
@@ -64,9 +71,9 @@ export function RoadmapNavigation({ onAddMilestone, onCameraViewChange, currentC
               {/* Camera View Selector */}
               {onCameraViewChange && (
                 <CameraViewSelector
-                  onViewChange={onCameraViewChange}
                   currentView={currentCameraView}
                   isMobile={isMobile}
+                  onViewChange={onCameraViewChange}
                 />
               )}
 

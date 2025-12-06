@@ -25,13 +25,16 @@ export function CameraController({
   const [introComplete, setIntroComplete] = useState(isMobile); // Skip intro on mobile
 
   // Default positions based on device type
-  const defaultPosition: [number, number, number] = isMobile ? [3, 6, 8] : [5, 8, 5];
+  const defaultPosition: [number, number, number] = isMobile
+    ? [3, 6, 8]
+    : [5, 8, 5];
   const defaultFov = isMobile ? 75 : 40;
 
   // Start intro animation on mount (desktop only)
   useEffect(() => {
     if (!isMobile && introAnimation && !introComplete) {
       const { position, fov } = introAnimation.from;
+
       camera.position.set(position[0], position[1], position[2]);
       if (camera instanceof PerspectiveCamera) {
         camera.fov = fov;
@@ -49,7 +52,10 @@ export function CameraController({
 
   // Handle milestone animations
   useEffect(() => {
-    console.log("🎬 CameraController received milestoneAnimation:", milestoneAnimation);
+    console.log(
+      "🎬 CameraController received milestoneAnimation:",
+      milestoneAnimation,
+    );
     if (milestoneAnimation) {
       console.log("🎯 Starting milestone animation...");
       setStartMilestoneAnimation(true);
@@ -122,7 +128,12 @@ export function CameraController({
     onRest: () => {
       if (milestoneAnimation && startMilestoneAnimation) {
         onAnimationComplete?.();
-      } else if (!isMobile && introAnimation && startIntroAnimation && !introComplete) {
+      } else if (
+        !isMobile &&
+        introAnimation &&
+        startIntroAnimation &&
+        !introComplete
+      ) {
         setIntroComplete(true);
       }
     },
@@ -134,8 +145,9 @@ export function CameraController({
     (window as any).__camera = camera;
 
     // Only update camera position if there's an active animation
-    const hasActiveAnimation = (milestoneAnimation && startMilestoneAnimation) ||
-                              (!isMobile && introAnimation && startIntroAnimation && !introComplete);
+    const hasActiveAnimation =
+      (milestoneAnimation && startMilestoneAnimation) ||
+      (!isMobile && introAnimation && startIntroAnimation && !introComplete);
 
     if (hasActiveAnimation) {
       camera.position.set(

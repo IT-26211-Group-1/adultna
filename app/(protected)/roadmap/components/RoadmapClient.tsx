@@ -38,7 +38,10 @@ interface RoadmapClientProps {
   selectedCameraView?: CameraView | null;
 }
 
-export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: RoadmapClientProps = {}) {
+export function RoadmapClient({
+  onEmptyPositionClick,
+  selectedCameraView,
+}: RoadmapClientProps = {}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -52,13 +55,24 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
 
   // Debug animation states
   React.useEffect(() => {
-    console.log("🔄 Animation states changed - milestoneAnimation:", milestoneAnimation, "cameraViewAnimation:", cameraViewAnimation);
+    console.log(
+      "🔄 Animation states changed - milestoneAnimation:",
+      milestoneAnimation,
+      "cameraViewAnimation:",
+      cameraViewAnimation,
+    );
   }, [milestoneAnimation, cameraViewAnimation]);
   const [hasOpenedFromQuery, setHasOpenedFromQuery] = useState(false);
 
   const isMobile = useMemo(() => {
     if (typeof window === "undefined") return false;
-    return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    return (
+      window.innerWidth <= 768 ||
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      )
+    );
   }, []);
 
   // Default camera view (top view vertical)
@@ -104,7 +118,10 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
   const canvasWebGLSettings = useMemo(() => {
     const baseSettings = {
       resize: { scroll: false, debounce: { scroll: 50, resize: 100 } },
-      dpr: typeof window !== "undefined" ? Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2) : 1,
+      dpr:
+        typeof window !== "undefined"
+          ? Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2)
+          : 1,
       performance: { min: isMobile ? 0.3 : 0.5 },
       gl: {
         antialias: !isMobile,
@@ -113,7 +130,7 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
         stencil: false,
         depth: true,
         preserveDrawingBuffer: false,
-      }
+      },
     };
 
     if (isMobile) {
@@ -140,6 +157,7 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
 
       // Return null for now to skip animation and focus on modal functionality
       console.log("⏭️ Skipping camera animation for debugging");
+
       return null;
     },
     [isMobile, DEFAULT_CAMERA_VIEW],
@@ -182,6 +200,7 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
   useEffect(() => {
     if (selectedCameraView) {
       const camera = (window as any).__camera;
+
       if (camera) {
         // Get current camera position
         const currentPosition: [number, number, number] = [
@@ -215,6 +234,7 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
     logger.log("🔥 MILESTONE CLICK HANDLER CALLED!", interaction);
 
     const milestone = milestones.find((m) => m.id === interaction.milestoneId);
+
     console.log("🔍 Found milestone:", milestone);
 
     if (milestone) {
@@ -222,6 +242,7 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
       console.log("✅ About to create zoom animation...");
 
       const zoomAnimation = createMilestoneZoom(milestone);
+
       console.log("🎯 Created zoom animation:", zoomAnimation);
 
       // Only set animation if it's not null
@@ -242,10 +263,13 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
   }, [refetchMilestones]);
 
   // Handle clicks on empty positions
-  const handleEmptyPositionClick = useCallback((positionNumber: number) => {
-    logger.log(`🎯 Empty position ${positionNumber} clicked`);
-    onEmptyPositionClick?.(positionNumber);
-  }, [onEmptyPositionClick]);
+  const handleEmptyPositionClick = useCallback(
+    (positionNumber: number) => {
+      logger.log(`🎯 Empty position ${positionNumber} clicked`);
+      onEmptyPositionClick?.(positionNumber);
+    },
+    [onEmptyPositionClick],
+  );
 
   const handleModalClose = () => {
     console.log("🚪 Modal closing...");
@@ -269,7 +293,6 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
   const handleCanvasClick = (event: React.MouseEvent) => {
     logger.log("🖱️  Canvas clicked at:", event.clientX, event.clientY);
   };
-
 
   // Cleanup on unmount
   React.useEffect(() => {
@@ -298,7 +321,10 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
     <>
       <div className="w-full h-full relative">
         <Canvas
-          camera={{ position: cameraSettings.position, fov: cameraSettings.fov }}
+          camera={{
+            position: cameraSettings.position,
+            fov: cameraSettings.fov,
+          }}
           className="w-full h-full"
           {...canvasWebGLSettings}
           onClick={handleCanvasClick}
@@ -306,10 +332,15 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
           {/* CameraController for animations and camera reference */}
           <CameraController
             introAnimation={cameraSettings.introAnimation}
-            milestoneAnimation={milestoneAnimation || cameraViewAnimation}
             isMobile={isMobile}
+            milestoneAnimation={milestoneAnimation || cameraViewAnimation}
             onAnimationComplete={() => {
-              console.log("🏁 Animation completed! milestoneAnimation:", milestoneAnimation, "cameraViewAnimation:", cameraViewAnimation);
+              console.log(
+                "🏁 Animation completed! milestoneAnimation:",
+                milestoneAnimation,
+                "cameraViewAnimation:",
+                cameraViewAnimation,
+              );
               if (cameraViewAnimation) {
                 setCameraViewAnimation(null);
               }
@@ -318,25 +349,30 @@ export function RoadmapClient({ onEmptyPositionClick, selectedCameraView }: Road
           {/* Optimized lighting setup for mobile performance */}
           {/* eslint-disable-next-line react/no-unknown-property */}
           <ambientLight intensity={isMobile ? 1.2 : 1.0} />
+          {}
           {/* eslint-disable-next-line react/no-unknown-property */}
-          <directionalLight intensity={isMobile ? 1.2 : 1.5} position={[10, 15, 10]} />
+          <directionalLight
+            intensity={isMobile ? 1.2 : 1.5}
+            position={[10, 15, 10]}
+          />
           {!isMobile && (
             /* eslint-disable-next-line react/no-unknown-property */
-            <hemisphereLight intensity={0.4} groundColor="#444444" />
+            <hemisphereLight groundColor="#444444" intensity={0.4} />
           )}
           <Suspense
             fallback={
               <mesh>
+                {/* eslint-disable-next-line react/no-unknown-property */}
                 <boxGeometry args={[1, 0.1, 1]} />
                 <meshBasicMaterial color="#e5e7eb" />
               </mesh>
             }
           >
             <RoadmapModel
-              milestones={milestones}
-              onMilestoneClick={handleMilestoneClick}
               isMobile={isMobile}
+              milestones={milestones}
               onEmptyPositionClick={handleEmptyPositionClick}
+              onMilestoneClick={handleMilestoneClick}
             />
           </Suspense>
           {/*

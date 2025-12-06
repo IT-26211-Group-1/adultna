@@ -9,13 +9,21 @@ import { CameraView } from "./CameraViewSelector";
 
 export function RoadmapContainer() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [suggestedPosition, setSuggestedPosition] = useState<number | undefined>();
-  const [currentCameraView, setCurrentCameraView] = useState<string>("top-vertical");
-  const [selectedCameraView, setSelectedCameraView] = useState<CameraView | null>(null);
+  const [suggestedPosition, setSuggestedPosition] = useState<
+    number | undefined
+  >();
+  const [currentCameraView, setCurrentCameraView] =
+    useState<string>("top-vertical");
+  const [selectedCameraView, setSelectedCameraView] =
+    useState<CameraView | null>(null);
 
   // Mobile detection
-  const isMobile = typeof window !== "undefined" &&
-    (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  const isMobile =
+    typeof window !== "undefined" &&
+    (window.innerWidth <= 768 ||
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      ));
 
   const handleAddMilestone = (position?: number) => {
     setSuggestedPosition(position);
@@ -35,26 +43,26 @@ export function RoadmapContainer() {
   return (
     <>
       {/* AI Gabay Background - Clean white like chatbot */}
-      <div className="fixed inset-0 bg-white -z-10"></div>
+      <div className="fixed inset-0 bg-white -z-10" />
 
       <div className="relative z-10 flex h-screen flex-col">
         <RoadmapNavigation
-          onAddMilestone={() => handleAddMilestone()}
-          onCameraViewChange={handleCameraViewChange}
           currentCameraView={currentCameraView}
           isMobile={isMobile}
+          onAddMilestone={() => handleAddMilestone()}
+          onCameraViewChange={handleCameraViewChange}
         />
         <main className="flex-1 overflow-hidden mt-16 sm:mt-20">
           <RoadmapClient
-            onEmptyPositionClick={handleAddMilestone}
             selectedCameraView={selectedCameraView}
+            onEmptyPositionClick={handleAddMilestone}
           />
         </main>
       </div>
       <AddMilestoneModal
         isOpen={isOpen}
-        onClose={handleModalClose}
         suggestedPosition={suggestedPosition}
+        onClose={handleModalClose}
       />
     </>
   );

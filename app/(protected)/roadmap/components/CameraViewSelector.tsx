@@ -1,9 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
+import {
+  Button,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/react";
 import { ChevronDown, Camera } from "lucide-react";
-import { CameraAnimation } from "../../../../types/roadmap";
 
 export type CameraView = {
   id: string;
@@ -40,46 +45,53 @@ interface CameraViewSelectorProps {
   isMobile?: boolean;
 }
 
-export function CameraViewSelector({ onViewChange, currentView = "top-vertical", isMobile = false }: CameraViewSelectorProps) {
+export function CameraViewSelector({
+  onViewChange,
+  currentView = "top-vertical",
+  isMobile = false,
+}: CameraViewSelectorProps) {
   const [selectedViewId, setSelectedViewId] = useState(currentView);
 
   // Get device-appropriate camera views
   const CAMERA_VIEWS = createCameraViews(isMobile);
 
   const handleViewChange = (viewId: string) => {
-    const view = CAMERA_VIEWS.find(v => v.id === viewId);
+    const view = CAMERA_VIEWS.find((v) => v.id === viewId);
+
     if (view) {
       setSelectedViewId(viewId);
       onViewChange(view);
     }
   };
 
-  const selectedView = CAMERA_VIEWS.find(v => v.id === selectedViewId);
+  const selectedView = CAMERA_VIEWS.find((v) => v.id === selectedViewId);
 
   return (
     <Dropdown>
       <DropdownTrigger>
         <Button
-          variant="flat"
           className="bg-gray-50/60 border border-gray-200/50 text-gray-700 hover:bg-gray-100/60 hover:text-gray-900 text-sm font-medium px-3 py-2 rounded-lg transition-all duration-200 shadow-sm"
+          endContent={<ChevronDown className="w-4 h-4" />}
           size="sm"
           startContent={<Camera className="w-4 h-4" />}
-          endContent={<ChevronDown className="w-4 h-4" />}
+          variant="flat"
         >
-          <span className="hidden sm:inline">{selectedView?.name || "View"}</span>
-          <span className="sm:hidden">{selectedView?.name?.split(" ")[0] || "View"}</span>
+          <span className="hidden sm:inline">
+            {selectedView?.name || "View"}
+          </span>
+          <span className="sm:hidden">
+            {selectedView?.name?.split(" ")[0] || "View"}
+          </span>
         </Button>
       </DropdownTrigger>
       <DropdownMenu
         aria-label="Camera view options"
-        onAction={(key) => handleViewChange(key as string)}
         selectedKeys={[selectedViewId]}
         selectionMode="single"
+        onAction={(key) => handleViewChange(key as string)}
       >
         {CAMERA_VIEWS.map((view) => (
-          <DropdownItem key={view.id}>
-            {view.name}
-          </DropdownItem>
+          <DropdownItem key={view.id}>{view.name}</DropdownItem>
         ))}
       </DropdownMenu>
     </Dropdown>

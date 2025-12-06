@@ -22,23 +22,24 @@ export function RoadmapModel({
 }: RoadmapModelProps) {
   const { scene } = useGLTF("/models/final-roadmap-draco.glb");
 
-  // MILESTONE POSITION COORDINATES [X, Y, Z] 
+  // MILESTONE POSITION COORDINATES [X, Y, Z]
   // These coordinates define the exact position of each milestone on the roadmap
-  const positionCoordinates: Record<number, [number, number, number]> = useMemo(() => {
-    return {
-      1: [2.6, 0.1, 1.0],   // Top-right area
-      2: [1.6, 0.1, 1.1],   // Right side
-      3: [0.6, 0.1, 1.0],   // Center-right
-      4: [0.5, 0.1, 0.0],   // Center
-      5: [0.4, 0.1, -0.9],  // Center-left
-      6: [-0.6, 0.1, -1.1], // Left side
-      7: [-1.6, 0.1, -1.0], // Far left
-      8: [-1.9, 0.1, 0.1],  // Bottom-left area
-    };
-  }, []);
+  const positionCoordinates: Record<number, [number, number, number]> =
+    useMemo(() => {
+      return {
+        1: [2.6, 0.1, 1.0], // Top-right area
+        2: [1.6, 0.1, 1.1], // Right side
+        3: [0.6, 0.1, 1.0], // Center-right
+        4: [0.5, 0.1, 0.0], // Center
+        5: [0.4, 0.1, -0.9], // Center-left
+        6: [-0.6, 0.1, -1.1], // Left side
+        7: [-1.6, 0.1, -1.0], // Far left
+        8: [-1.9, 0.1, 0.1], // Bottom-left area
+      };
+    }, []);
 
-  const handleHitboxClick = useMemo(() =>
-    (milestoneId: string, positionNumber: number) => {
+  const handleHitboxClick = useMemo(
+    () => (milestoneId: string, positionNumber: number) => {
       logger.log(
         `✅ Milestone ${milestoneId} (position ${positionNumber}) clicked!`,
       );
@@ -50,11 +51,15 @@ export function RoadmapModel({
       };
 
       onMilestoneClick(interaction);
-    }, [onMilestoneClick]);
+    },
+    [onMilestoneClick],
+  );
 
   // Get all milestone positions that are occupied
-  const occupiedPositions = useMemo(() =>
-    new Set(milestones.map(m => m.positionNumber || 1)), [milestones]);
+  const occupiedPositions = useMemo(
+    () => new Set(milestones.map((m) => m.positionNumber || 1)),
+    [milestones],
+  );
 
   // Create hitboxes for existing milestones
   const milestoneHitboxes = useMemo(() => {
@@ -81,7 +86,9 @@ export function RoadmapModel({
     if (!onEmptyPositionClick) return [];
 
     const allPositions = Object.keys(positionCoordinates).map(Number);
-    const emptyPositions = allPositions.filter(pos => !occupiedPositions.has(pos));
+    const emptyPositions = allPositions.filter(
+      (pos) => !occupiedPositions.has(pos),
+    );
 
     return emptyPositions.map((positionNumber) => {
       const position = positionCoordinates[positionNumber];
@@ -100,6 +107,7 @@ export function RoadmapModel({
   const clonedScene = useMemo(() => {
     if (scene) {
       const cloned = scene.clone();
+
       cloned.traverse((child: any) => {
         if (child.isMesh) {
           child.frustumCulled = true;
@@ -109,8 +117,10 @@ export function RoadmapModel({
           }
         }
       });
+
       return cloned;
     }
+
     return scene;
   }, [scene]);
 
@@ -121,10 +131,12 @@ export function RoadmapModel({
 
   // MOBILE ROADMAP POSITION ADJUSTMENT [X, Y, Z]
   // X: Left(-) / Right(+) | Y: Down(-) / Up(+) | Z: Away(-) / Closer(+)
-  const modelPosition: [number, number, number] = isMobile ? [0, -0.8, 0] : [0, 0, 0];
+  const modelPosition: [number, number, number] = isMobile
+    ? [0, -0.8, 0]
+    : [0, 0, 0];
 
   return (
-    <group scale={modelScale} position={modelPosition}>
+    <group position={modelPosition} scale={modelScale}>
       <primitive object={clonedScene} />
       {milestoneHitboxes}
       {emptyPositionHitboxes}
