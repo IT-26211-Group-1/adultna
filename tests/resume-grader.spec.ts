@@ -10,7 +10,14 @@ test.describe("Resume Grader module", () => {
         await page.getByRole("button", { name: "Login" }).click();
 
         await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
-    });
+
+        //navigate to resume grader
+        await page.getByRole('button', { name: 'Career Center' }).click();
+        await page.getByRole('link', { name: 'Resume Builder' }).click();
+        await page.getByRole('button', { name: 'Grade Resume' }).click();
+        await page.waitForTimeout(5000);
+        await expect(page).toHaveURL(/resume-builder\/\?tab=grade/, { timeout: 15000 });    
+});
 
     test("verify that pdf file can be submitted for grading", async ({ page }) => {
         //simulate login of a user who is verified but hasn't gone through onboarding
@@ -21,6 +28,13 @@ test.describe("Resume Grader module", () => {
         await page.getByRole("button", { name: "Login" }).click();
 
         await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
+
+        //navigate to resume builder
+        await page.getByRole('button', { name: 'Career Center' }).click();
+        await page.getByRole('link', { name: 'Resume Builder' }).click();
+        await page.getByRole('link', { name: 'Grade Resume' }).click();
+        await page.waitForTimeout(5000);
+
     });
     
     test("job description is optional", async ({ page }) => {
@@ -32,6 +46,19 @@ test.describe("Resume Grader module", () => {
         await page.getByRole("button", { name: "Login" }).click();
 
         await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
+
+        //navigate to resume builder
+        await page.getByRole('button', { name: 'Career Center' }).click();
+        await page.getByRole('link', { name: 'Resume Builder' }).click();
+        await page.getByRole('link', { name: 'Grade Resume' }).click();
+        await page.waitForTimeout(5000);
+
+        await page.getByRole('button', { name: 'Choose File', exact: true }).click();
+        await page.getByRole('button', { name: 'Choose File', exact: true }).setInputFiles('Lewis Dominique Nilo_CV.pdf');
+
+        await page.getByRole('button', { name: 'Grade My Resume', exact: true }).click();
+        await page.waitForTimeout(10000);
+        await expect(page.locator('body')).toContainText('Resume Analysis Complete');
     });
 
     test("job description field input validation character limit", async ({ page }) => {
@@ -44,19 +71,14 @@ test.describe("Resume Grader module", () => {
 
         await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
 
-        //check for character limit
-        await page.getByRole('textbox', { name: 'Search jobs' }).fill('Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus');
+        //navigate to resume builder
+        await page.getByRole('button', { name: 'Career Center' }).click();
+        await page.getByRole('link', { name: 'Resume Builder' }).click();
+        await page.getByRole('link', { name: 'Grade Resume' }).click();
+        await page.waitForTimeout(5000);
 
-    });
+        await page.getByRole('textbox', { name: 'Paste the job description' }).fill('A'.repeat(5001));
 
-    test("verify that unsupported file types are not accepted", async ({ page }) => {
-        //simulate login of a user who is verified but hasn't gone through onboarding
-        await page.goto("http://adultna.com/auth/login");
-        await page.fill('input[name="email"]', "lewisdominique.nilo.cics@ust.edu.ph");
-        await page.fill('input[name="password"]', "Lewis123.");
-
-        await page.getByRole("button", { name: "Login" }).click();
-
-        await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
+        await expect(page.locator('body')).toContainText('5,000 / 5,000 characters');
     });
 });
