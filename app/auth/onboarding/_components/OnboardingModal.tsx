@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState, Suspense } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { STEPS } from "@/constants/onboarding";
 import IntroductionStep from "./IntroductionStep";
 import ProgressIndicator from "./ProgressIndicator";
@@ -9,8 +10,14 @@ import LifeStageStep from "./LifeStageStep";
 import PrioritiesStep from "./PrioritiesStep";
 import YourPathStep from "./YourPathStep";
 import { useSecureStorage } from "@/hooks/useSecureStorage";
-import Lottie from "lottie-react";
 import roadmapLoadingAnimation from "../../../../public/roadmap-loading.json";
+
+const Lottie = dynamic(() => import("lottie-react"), {
+  loading: () => (
+    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600" />
+  ),
+  ssr: false,
+});
 
 type OnboardingModalProps = {
   isOpen: boolean;
