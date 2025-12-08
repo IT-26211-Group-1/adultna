@@ -21,6 +21,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/queries/useAuthQueries";
 import { useUpdateProfile } from "@/hooks/queries/useProfileQueries";
+import { logger } from "@/lib/logger";
 
 export function ProfileForm() {
   const {
@@ -112,7 +113,7 @@ export function ProfileForm() {
         reset(data);
         setHasUnsavedChanges(false);
       } catch (error) {
-        console.error("Failed to update profile:", error);
+        logger.error("Failed to update profile:", error);
       } finally {
         setIsSaving(false);
       }

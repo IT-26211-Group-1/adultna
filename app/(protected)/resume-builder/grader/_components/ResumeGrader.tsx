@@ -85,7 +85,7 @@ export default function ResumeGrader({
 
           setGradingResult(parsedResults);
         } catch (error) {
-          console.error("Failed to parse saved grading results:", error);
+          logger.error("Failed to parse saved grading results:", error);
           // Clear invalid data
           removeSecureItem("resumeGradingResults");
         }

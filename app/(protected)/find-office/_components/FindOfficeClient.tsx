@@ -6,6 +6,7 @@ import { Coordinates } from "@/utils/distance";
 import OfficeSidebar from "./OfficeSidebar";
 import OfficeMap from "./OfficeMap";
 import { usePlacesSearch } from "../../../../hooks/usePlacesSearch";
+import { logger } from "@/lib/logger";
 
 export type OfficeLocation = {
   name: string;
@@ -49,7 +50,7 @@ export default function FindOfficeClient() {
 
         setUserLocation(location);
       } catch (error) {
-        console.warn("Could not get user location:", error);
+        logger.warn("Could not get user location:", error);
       } finally {
         setIsLoadingLocation(false);
       }

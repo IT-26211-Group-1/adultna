@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { PerspectiveCamera } from "three";
 import { useSpring } from "@react-spring/three";
 import { CameraAnimation } from "../../../../types/roadmap";
+import { logger } from "@/lib/logger";
 
 interface CameraControllerProps {
   onAnimationComplete?: () => void;
@@ -52,15 +53,14 @@ export function CameraController({
 
   // Handle milestone animations
   useEffect(() => {
-    console.log(
+    logger.log(
       "🎬 CameraController received milestoneAnimation:",
       milestoneAnimation,
     );
     if (milestoneAnimation) {
-      console.log("🎯 Starting milestone animation...");
       setStartMilestoneAnimation(true);
     } else {
-      console.log("⏹️ Stopping milestone animation");
+      logger.log("⏹️ Stopping milestone animation");
       setStartMilestoneAnimation(false);
     }
   }, [milestoneAnimation]);

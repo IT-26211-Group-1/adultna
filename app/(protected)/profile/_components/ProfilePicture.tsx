@@ -6,6 +6,7 @@ import { Camera, Loader2, Upload, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/queries/useAuthQueries";
 import { useUploadProfilePicture } from "@/hooks/queries/useProfileQueries";
 import { addToast } from "@heroui/toast";
+import { logger } from "@/lib/logger";
 
 type ProfilePictureProps = {
   onImageChange?: () => void;
@@ -89,7 +90,7 @@ export function ProfilePicture({ onImageChange }: ProfilePictureProps) {
       });
       onImageChange?.();
     } catch (error) {
-      console.error("Failed to upload profile picture:", error);
+      logger.error("Failed to upload profile picture:", error);
       if (user?.profilePictureUrl) {
         setImagePreview(user.profilePictureUrl);
       } else {

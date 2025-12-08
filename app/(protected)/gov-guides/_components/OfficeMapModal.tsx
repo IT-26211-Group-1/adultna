@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody } from "@heroui/modal";
 import { OfficeInfo } from "@/types/govguide";
 import { calculateDistance, Coordinates } from "@/utils/distance";
+import { logger } from "@/lib/logger";
 
 type OfficeMapModalProps = {
   isOpen: boolean;
@@ -76,7 +77,7 @@ export default function OfficeMapModal({
         setUserLocation(location);
         setLocationPermissionDenied(false);
       } catch (err) {
-        console.warn("Could not get user location:", err);
+        logger.warn("Could not get user location:", err);
         setLocationPermissionDenied(true);
       }
     };
@@ -284,7 +285,7 @@ export default function OfficeMapModal({
         }
       } catch (err) {
         if (isMounted) {
-          console.error("Map initialization error:", err);
+          logger.error("Map initialization error:", err);
           setError("Failed to load map. Please try again.");
           setIsLoading(false);
         }
