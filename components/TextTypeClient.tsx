@@ -8,7 +8,6 @@ import {
   useMemo,
   useCallback,
 } from "react";
-import { gsap } from "gsap";
 import { TextTypeProps } from "@/types/landing";
 
 const TextTypeClient = ({
@@ -80,13 +79,15 @@ const TextTypeClient = ({
 
   useEffect(() => {
     if (showCursor && cursorRef.current) {
-      gsap.set(cursorRef.current, { opacity: 1 });
-      gsap.to(cursorRef.current, {
-        opacity: 0,
-        duration: cursorBlinkDuration,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut",
+      import("gsap").then(({ gsap }) => {
+        gsap.set(cursorRef.current, { opacity: 1 });
+        gsap.to(cursorRef.current, {
+          opacity: 0,
+          duration: cursorBlinkDuration,
+          repeat: -1,
+          yoyo: true,
+          ease: "power2.inOut",
+        });
       });
     }
   }, [showCursor, cursorBlinkDuration]);
