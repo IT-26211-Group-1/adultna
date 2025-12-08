@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { logger } from "@/lib/logger";
 
 export type Language = "en" | "fil";
 
@@ -34,7 +35,7 @@ const loadTranslations = async (lang: Language): Promise<TranslationData> => {
 
     return translations.default;
   } catch (error) {
-    console.error(`Failed to load translations for ${lang}:`, error);
+    logger.error(`Failed to load translations for ${lang}:`, error);
 
     return {};
   }
@@ -61,7 +62,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         return stored;
       }
     } catch (error) {
-      console.error("Failed to read language from localStorage:", error);
+      logger.error("Failed to read language from localStorage:", error);
     }
 
     return "en";
@@ -116,7 +117,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       try {
         localStorage.setItem(STORAGE_KEY, lang);
       } catch (error) {
-        console.error("Failed to save language to localStorage:", error);
+        logger.error("Failed to save language to localStorage:", error);
       }
 
       const isGovGuidesPage = pathname?.startsWith("/gov-guides");

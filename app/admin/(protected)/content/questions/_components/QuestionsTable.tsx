@@ -17,6 +17,7 @@ import EditQuestionModal from "./EditQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
 import { formatDate } from "@/constants/format-date";
 import { RetryButton } from "@/components/ui/RetryButton";
+import { BatchInterviewQuestionActions } from "./BatchInterviewQuestionActions";
 
 // Question Status Badge Component
 const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
@@ -327,6 +328,24 @@ const QuestionActions = React.memo<QuestionActionsProps>(
 
 QuestionActions.displayName = "QuestionActions";
 
+// Memoized Checkbox Component
+const QuestionCheckbox = React.memo<{
+  questionId: string;
+  isSelected: boolean;
+  onSelect: (questionId: string, checked: boolean) => void;
+}>(({ questionId, isSelected, onSelect }) => {
+  return (
+    <input
+      checked={isSelected}
+      className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
+      type="checkbox"
+      onChange={(e) => onSelect(questionId, e.target.checked)}
+    />
+  );
+});
+
+QuestionCheckbox.displayName = "QuestionCheckbox";
+
 const QuestionsTable: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
@@ -343,6 +362,7 @@ const QuestionsTable: React.FC = () => {
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
     useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
 
   const { user } = useAdminAuth();
 
@@ -360,9 +380,15 @@ const QuestionsTable: React.FC = () => {
     refetchQuestions,
   } = useInterviewQuestions();
 
-  // Filter questions based on view mode
-  const activeQuestions = questions.filter((q) => !q.deletedAt);
-  const archivedQuestions = questions.filter((q) => q.deletedAt);
+  // Filter questions based on view mode (memoized to prevent pagination reset)
+  const activeQuestions = useMemo(
+    () => questions.filter((q) => !q.deletedAt),
+    [questions],
+  );
+  const archivedQuestions = useMemo(
+    () => questions.filter((q) => q.deletedAt),
+    [questions],
+  );
 
   // Select which questions to display based on toggle
   const displayQuestions = showArchived ? archivedQuestions : activeQuestions;
@@ -505,8 +531,36 @@ const QuestionsTable: React.FC = () => {
     [permanentDeleteQuestion],
   );
 
+  const handleSelectQuestion = useCallback(
+    (questionId: string, checked: boolean) => {
+      if (checked) {
+        setSelectedQuestionIds((prev) => [...prev, questionId]);
+      } else {
+        setSelectedQuestionIds((prev) =>
+          prev.filter((id) => id !== questionId),
+        );
+      }
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    setSelectedQuestionIds([]);
+  }, [showArchived]);
+
   const columns: Column<InterviewQuestion>[] = useMemo(
     () => [
+      {
+        header: "",
+        accessor: (question) => (
+          <QuestionCheckbox
+            isSelected={selectedQuestionIds.includes(question.id)}
+            questionId={question.id}
+            onSelect={handleSelectQuestion}
+          />
+        ),
+        width: "50px",
+      },
       {
         header: "Question",
         accessor: (question) => (
@@ -676,6 +730,7 @@ const QuestionsTable: React.FC = () => {
       handleSoftDelete,
       handleRestore,
       handlePermanentDelete,
+      handleSelectQuestion,
       isUpdatingStatus,
       isDeleting,
       isRestoring,
@@ -683,8 +738,14 @@ const QuestionsTable: React.FC = () => {
       deletingQuestionId,
       restoringQuestionId,
       permanentDeletingQuestionId,
+      selectedQuestionIds,
       user?.role,
     ],
+  );
+
+  const tableKey = useMemo(
+    () => `questions-table-${showArchived}`,
+    [showArchived],
   );
 
   // Error state
@@ -725,7 +786,13 @@ const QuestionsTable: React.FC = () => {
           </button>
         </div>
       </div>
+      <BatchInterviewQuestionActions
+        isArchiveView={showArchived}
+        selectedQuestionIds={selectedQuestionIds}
+        onClearSelection={() => setSelectedQuestionIds([])}
+      />
       <Table
+        key={tableKey}
         className="!overflow-visible"
         columns={columns}
         data={displayQuestions}
