@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardHeader, CardBody, Divider } from "@heroui/react";
 import {
   useAdminUsers,
   useReportStats,
@@ -20,102 +19,76 @@ export function Stats() {
   const totalReports = reportStats?.totalReports || 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5 px-20">
-      <div className="flex items-center justify-between col-span-2 py-10">
-        <h1 className="text-2xl font-semibold">
-          Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
-        </h1>
+    <div className="space-y-4">
+      {/* Welcome Section */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
+          </h2>
+          <p className="text-sm text-gray-600">Here's what's happening today</p>
+        </div>
         <DateDisplay
-          className="text-lg"
+          className="text-sm text-gray-500"
           format="datetime"
           updateInterval={1000}
         />
       </div>
-      <Card className="h-50 px-5 py-3">
-        <CardHeader className="text-xl font-bold flex items-center justify-between">
-          Registered Users
-          <button
-            aria-label="View details"
-            className="ml-2 p-1 rounded hover:bg-gray-100"
-            title="View details"
-            type="button"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9 18l6-6-6-6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </CardHeader>
-        <Divider className="my-3" />
-        <CardBody className="flex items-start justify-center h-full">
-          {isLoadingUsers ? (
-            <div className="flex items-center justify-center w-full h-full">
-              <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200" />
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-adult-green border-t-transparent absolute top-0 left-0" />
-              </div>
-            </div>
-          ) : usersError ? (
-            <p className="text-2xl font-bold text-red-500">Error</p>
-          ) : (
-            <p className="text-4xl font-bold text-adult-green">{totalUsers}</p>
-          )}
-        </CardBody>
-      </Card>
 
-      <Card className="h-50 px-5 py-3">
-        <CardHeader className="text-xl font-bold flex items-center justify-between">
-          User Reports
-          <button
-            aria-label="View details"
-            className="ml-2 p-1 rounded hover:bg-gray-100"
-            title="View details"
-            type="button"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9 18l6-6-6-6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </CardHeader>
-        <Divider className="my-3" />
-        <CardBody className="flex items-start justify-center h-full">
-          {isLoadingStats ? (
-            <div className="flex items-center justify-center w-full h-full">
-              <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200" />
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-adult-green border-t-transparent absolute top-0 left-0" />
-              </div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {/* Registered Users Card */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 relative overflow-hidden h-36 shadow-none">
+          <div className="absolute -bottom-2 -right-2 text-6xl opacity-10 pointer-events-none">
+            👥
+          </div>
+          <div className="flex justify-between items-start h-full">
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-gray-900 mb-1">
+                Registered Users
+              </h3>
+              <p className="text-gray-700 text-xs mb-2">
+                Total platform users
+              </p>
             </div>
-          ) : statsError ? (
-            <p className="text-2xl font-bold text-red-500">Error</p>
-          ) : (
-            <p className="text-4xl font-bold text-adult-green">
-              {totalReports}
-            </p>
-          )}
-        </CardBody>
-      </Card>
+            <div className="flex flex-col items-center justify-center h-full">
+              {isLoadingUsers ? (
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-adult-green border-t-transparent" />
+              ) : usersError ? (
+                <p className="text-sm font-bold text-red-500">Error</p>
+              ) : (
+                <div className="text-3xl font-bold text-adult-green">{totalUsers}</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* User Reports Card */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 relative overflow-hidden h-36 shadow-none">
+          <div className="absolute -bottom-2 -right-2 text-6xl opacity-10 pointer-events-none">
+            📊
+          </div>
+          <div className="flex justify-between items-start h-full">
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-gray-900 mb-1">
+                User Reports
+              </h3>
+              <p className="text-gray-700 text-xs mb-2">
+                Total submitted reports
+              </p>
+            </div>
+            <div className="flex flex-col items-center justify-center h-full">
+              {isLoadingStats ? (
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-adult-green border-t-transparent" />
+              ) : statsError ? (
+                <p className="text-sm font-bold text-red-500">Error</p>
+              ) : (
+                <div className="text-3xl font-bold text-adult-green">{totalReports}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

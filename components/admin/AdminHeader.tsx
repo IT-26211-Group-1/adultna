@@ -43,16 +43,6 @@ export const AdminHeader = () => {
     },
   ];
 
-  // derive simple page title from pathname
-  const title = useMemo(() => {
-    if (pathname.includes("/admin/dashboard")) return "Admin Dashboard";
-    if (pathname.includes("/admin/feedback")) return "User Feedback & Reports";
-    if (pathname.includes("/admin/management")) return "User Management";
-    if (pathname.includes("/admin/audit")) return "Audit Logs";
-    if (pathname.includes("/admin/content")) return "Content Management";
-
-    return "Admin Information Panel";
-  }, [pathname]);
 
   const handleLogout = useCallback(() => {
     const confirmed = window.confirm("Are you sure you want to logout?");
@@ -98,8 +88,7 @@ export const AdminHeader = () => {
   }, [onDocClick, onKey]);
 
   return (
-    <header className="w-full flex items-center justify-between border border-slate-200 dark:border-slate-800 rounded-md px-4 py-2 mt-0 bg-white dark:bg-slate-900">
-      <h1 className="text-2xl font-semibold">{title}</h1>
+    <header className="sticky top-0 z-40 w-full flex items-center justify-end border-b border-slate-200 dark:border-slate-800 px-6 py-3 bg-white dark:bg-slate-900">
 
       <div className="flex items-center gap-3">
         {/* Notifications dropdown */}
