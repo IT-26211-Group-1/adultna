@@ -15,15 +15,17 @@ export const addQuestionSchema = z
     customIndustry: z.string().optional(),
     source: z.enum(["manual", "ai"]).default("manual"),
     customCategory: z.string().optional(),
-    jobRoles: z.array(
-      z.object({
-        jobRoleTitle: z
-          .string()
-          .transform((val) => val.trim())
-          .refine((val) => val !== "", "Job role title cannot be empty")
-          .optional(),
-      })
-    ).optional(),
+    jobRoles: z
+      .array(
+        z.object({
+          jobRoleTitle: z
+            .string()
+            .transform((val) => val.trim())
+            .refine((val) => val !== "", "Job role title cannot be empty")
+            .optional(),
+        }),
+      )
+      .optional(),
   })
   .refine(
     (data) => {
@@ -31,12 +33,13 @@ export const addQuestionSchema = z
       if (data.industry === "other" && !data.customIndustry) {
         return false;
       }
+
       return true;
     },
     {
       message: "Please specify the industry",
       path: ["customIndustry"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -44,12 +47,13 @@ export const addQuestionSchema = z
       if (data.category === "background" && !data.customCategory) {
         return false;
       }
+
       return true;
     },
     {
       message: "Please specify the category",
       path: ["customCategory"],
-    }
+    },
   );
 
 export const editQuestionSchema = z
@@ -65,15 +69,17 @@ export const editQuestionSchema = z
     }),
     industry: z.string().min(1, "Industry is required"),
     customIndustry: z.string().optional(),
-    jobRoles: z.array(
-      z.object({
-        jobRoleTitle: z
-          .string()
-          .transform((val) => val.trim())
-          .refine((val) => val !== "", "Job role title cannot be empty")
-          .optional(),
-      })
-    ).optional(),
+    jobRoles: z
+      .array(
+        z.object({
+          jobRoleTitle: z
+            .string()
+            .transform((val) => val.trim())
+            .refine((val) => val !== "", "Job role title cannot be empty")
+            .optional(),
+        }),
+      )
+      .optional(),
   })
   .refine(
     (data) => {
@@ -81,12 +87,13 @@ export const editQuestionSchema = z
       if (data.industry === "other" && !data.customIndustry) {
         return false;
       }
+
       return true;
     },
     {
       message: "Please specify the industry",
       path: ["customIndustry"],
-    }
+    },
   );
 
 export const generateAIQuestionSchema = z
@@ -104,12 +111,13 @@ export const generateAIQuestionSchema = z
       if (data.industry === "other" && !data.customIndustry) {
         return false;
       }
+
       return true;
     },
     {
       message: "Please specify the industry",
       path: ["customIndustry"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -117,12 +125,13 @@ export const generateAIQuestionSchema = z
       if (data.category === "background" && !data.customCategory) {
         return false;
       }
+
       return true;
     },
     {
       message: "Please specify the category",
       path: ["customCategory"],
-    }
+    },
   );
 
 export type AddQuestionForm = z.infer<typeof addQuestionSchema>;

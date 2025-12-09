@@ -6,7 +6,6 @@ import { AdminTable } from "@/components/admin/AdminTable";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import type {
   InterviewQuestion,
-  QuestionStatus,
   QuestionCategory,
   QuestionSource,
 } from "@/types/interview-question";

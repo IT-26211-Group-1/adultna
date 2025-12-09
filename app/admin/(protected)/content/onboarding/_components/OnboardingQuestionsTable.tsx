@@ -16,7 +16,6 @@ import EditOnboardingQuestionModal from "./EditOnboardingQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
 import { BatchQuestionActions } from "./BatchQuestionActions";
 import { formatDate } from "@/constants/format-date";
-import { RetryButton } from "@/components/ui/RetryButton";
 
 type QuestionActionsProps = {
   question: OnboardingQuestion;
@@ -509,14 +508,16 @@ const OnboardingQuestionsTable: React.FC = () => {
           <div className="text-gray-600 text-sm whitespace-normal break-words">
             {row.original.options && row.original.options.length > 0 ? (
               <ul className="list-disc list-inside">
-                {row.original.options.map((option: AnswerOption, index: number) => (
-                  <li
-                    key={option.id || index}
-                    className="max-w-xs whitespace-normal break-words"
-                  >
-                    {option.optionText}
-                  </li>
-                ))}
+                {row.original.options.map(
+                  (option: AnswerOption, index: number) => (
+                    <li
+                      key={option.id || index}
+                      className="max-w-xs whitespace-normal break-words"
+                    >
+                      {option.optionText}
+                    </li>
+                  ),
+                )}
               </ul>
             ) : (
               <span className="text-gray-400">No options</span>
@@ -536,9 +537,12 @@ const OnboardingQuestionsTable: React.FC = () => {
             to_revise: "bg-yellow-100 text-yellow-800",
             pending: "bg-blue-100 text-blue-800",
           };
+
           return (
             <div className="flex flex-col gap-1">
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status]}`}>
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status]}`}
+              >
                 {status
                   .split("_")
                   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

@@ -91,6 +91,8 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
           </label>
           <input
             {...register("firstName")}
+            aria-describedby={errors.firstName ? "firstName-error" : undefined}
+            aria-invalid={errors.firstName ? "true" : "false"}
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.firstName
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -99,13 +101,22 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             id="firstName"
             placeholder="Enter first name"
             type="text"
-            aria-invalid={errors.firstName ? "true" : "false"}
-            aria-describedby={errors.firstName ? "firstName-error" : undefined}
           />
           {errors.firstName && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="firstName-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="firstName-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.firstName.message}
             </p>
@@ -121,6 +132,8 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
           </label>
           <input
             {...register("lastName")}
+            aria-describedby={errors.lastName ? "lastName-error" : undefined}
+            aria-invalid={errors.lastName ? "true" : "false"}
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.lastName
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -129,13 +142,22 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             id="lastName"
             placeholder="Enter last name"
             type="text"
-            aria-invalid={errors.lastName ? "true" : "false"}
-            aria-describedby={errors.lastName ? "lastName-error" : undefined}
           />
           {errors.lastName && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="lastName-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="lastName-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.lastName.message}
             </p>
@@ -151,6 +173,9 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
           </label>
           <input
             {...register("email")}
+            aria-describedby={errors.email ? "email-error" : undefined}
+            aria-invalid={errors.email ? "true" : "false"}
+            autoComplete="email"
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.email
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -159,14 +184,22 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             id="email"
             placeholder="Enter email address"
             type="email"
-            autoComplete="email"
-            aria-invalid={errors.email ? "true" : "false"}
-            aria-describedby={errors.email ? "email-error" : undefined}
           />
           {errors.email && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="email-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="email-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.email.message}
             </p>
@@ -182,14 +215,14 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
           </label>
           <select
             {...register("role")}
+            aria-describedby={errors.role ? "role-error" : undefined}
+            aria-invalid={errors.role ? "true" : "false"}
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.role
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
                 : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
             }`}
             id="role"
-            aria-invalid={errors.role ? "true" : "false"}
-            aria-describedby={errors.role ? "role-error" : undefined}
           >
             {roleOptions.map(({ value, label }) => (
               <option key={value} value={value}>
@@ -198,9 +231,20 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             ))}
           </select>
           {errors.role && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="role-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="role-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.role.message}
             </p>
@@ -209,8 +253,16 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
 
         <div className="text-sm text-gray-600 bg-blue-50 border border-blue-200 p-3 rounded-md">
           <div className="flex items-start">
-            <svg className="w-4 h-4 text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            <svg
+              className="w-4 h-4 text-blue-500 mt-0.5 mr-2 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                clipRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                fillRule="evenodd"
+              />
             </svg>
             <p>
               <strong>Note:</strong> A secure temporary password will be

@@ -45,6 +45,10 @@ export const editOnboardingQuestionSchema = z.object({
     .max(10, "Cannot have more than 10 options"),
 });
 
-export type AddOnboardingQuestionForm = z.infer<typeof addOnboardingQuestionSchema>;
-export type EditOnboardingQuestionForm = z.infer<typeof editOnboardingQuestionSchema>;
+export type AddOnboardingQuestionForm = z.infer<
+  typeof addOnboardingQuestionSchema
+>;
+export type EditOnboardingQuestionForm = z.infer<
+  typeof editOnboardingQuestionSchema
+>;
 export type OnboardingOptionForm = z.infer<typeof onboardingOptionSchema>;

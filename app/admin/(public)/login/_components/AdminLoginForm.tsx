@@ -14,11 +14,11 @@ export const AdminLoginForm = () => {
         <CardBody className="p-8 space-y-6">
           <div className="flex justify-center mb-4">
             <Image
-              src="/AdultNa-Logo.png"
               alt="AdultNa Logo"
-              width={200}
-              height={80}
               className="object-contain"
+              height={80}
+              src="/AdultNa-Logo.png"
+              width={200}
             />
           </div>
           <p className="text-center text-gray-600 text-sm">
@@ -30,31 +30,35 @@ export const AdminLoginForm = () => {
             <div>
               <Input
                 {...register("email")}
-                placeholder="Email Address"
-                type="email"
-                variant="bordered"
-                size="lg"
                 classNames={{
                   input: "focus:ring-adult-green",
-                  inputWrapper: "border-1 border-gray-400 focus-within:border-adult-green rounded-md",
+                  inputWrapper:
+                    "border-1 border-gray-400 focus-within:border-adult-green rounded-md",
                 }}
+                placeholder="Email Address"
+                size="lg"
+                type="email"
+                variant="bordered"
               />
               {errors.email?.message && (
-                <p className="text-sm text-red-500 mt-1">{errors.email?.message}</p>
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.email?.message}
+                </p>
               )}
             </div>
 
             <div>
               <Input
                 {...register("password")}
-                placeholder="Password"
-                type="password"
-                variant="bordered"
-                size="lg"
                 classNames={{
                   input: "focus:ring-adult-green",
-                  inputWrapper: "border-1 border-gray-400 focus-within:border-adult-green rounded-md",
+                  inputWrapper:
+                    "border-1 border-gray-400 focus-within:border-adult-green rounded-md",
                 }}
+                placeholder="Password"
+                size="lg"
+                type="password"
+                variant="bordered"
               />
               <div className="flex justify-between items-center mt-2">
                 <div>
@@ -74,10 +78,10 @@ export const AdminLoginForm = () => {
             </div>
 
             <Button
-              type="submit"
               className="w-full bg-adult-green text-white hover:bg-adult-green/90"
               isLoading={loading}
               size="lg"
+              type="submit"
             >
               Login
             </Button>

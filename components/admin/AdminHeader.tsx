@@ -41,7 +41,6 @@ export const AdminHeader = () => {
     },
   ];
 
-
   const handleLogout = useCallback(() => {
     const confirmed = window.confirm("Are you sure you want to logout?");
 
@@ -87,7 +86,6 @@ export const AdminHeader = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full flex items-center justify-end border-b border-slate-200 dark:border-slate-800 px-6 py-3 bg-white dark:bg-slate-900">
-
       <div className="flex items-center gap-3">
         {/* Notifications dropdown */}
         <div ref={dropdownRef} className="relative">

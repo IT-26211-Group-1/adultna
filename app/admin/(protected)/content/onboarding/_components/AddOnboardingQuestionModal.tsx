@@ -7,10 +7,11 @@ import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
 import { useOnboardingQuestions } from "@/hooks/queries/admin/useOnboardingQueries";
-import { addOnboardingQuestionSchema, AddOnboardingQuestionForm } from "@/validators/onboardingSchema";
 import {
-  AddOnboardingQuestionModalProps,
-} from "@/types/onboarding";
+  addOnboardingQuestionSchema,
+  AddOnboardingQuestionForm,
+} from "@/validators/onboardingSchema";
+import { AddOnboardingQuestionModalProps } from "@/types/onboarding";
 
 const categoryOptions = [
   { value: "life_stage", label: "Life Stage" },
@@ -107,6 +108,8 @@ export default function AddOnboardingQuestionModal({
           </label>
           <input
             {...register("question")}
+            aria-describedby={errors.question ? "question-error" : undefined}
+            aria-invalid={errors.question ? "true" : "false"}
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.question
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -116,13 +119,22 @@ export default function AddOnboardingQuestionModal({
             id="question"
             placeholder="Enter question text"
             type="text"
-            aria-invalid={errors.question ? "true" : "false"}
-            aria-describedby={errors.question ? "question-error" : undefined}
           />
           {errors.question && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="question-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="question-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.question.message}
             </p>
@@ -138,6 +150,8 @@ export default function AddOnboardingQuestionModal({
           </label>
           <select
             {...register("category")}
+            aria-describedby={errors.category ? "category-error" : undefined}
+            aria-invalid={errors.category ? "true" : "false"}
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.category
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -145,8 +159,6 @@ export default function AddOnboardingQuestionModal({
             }`}
             disabled={isLoading}
             id="category"
-            aria-invalid={errors.category ? "true" : "false"}
-            aria-describedby={errors.category ? "category-error" : undefined}
           >
             {categoryOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -155,9 +167,20 @@ export default function AddOnboardingQuestionModal({
             ))}
           </select>
           {errors.category && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="category-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="category-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.category.message}
             </p>
@@ -195,6 +218,14 @@ export default function AddOnboardingQuestionModal({
                       </label>
                       <input
                         {...register(`options.${index}.optionText`)}
+                        aria-describedby={
+                          errors.options?.[index]?.optionText
+                            ? `optionText-${index}-error`
+                            : undefined
+                        }
+                        aria-invalid={
+                          errors.options?.[index]?.optionText ? "true" : "false"
+                        }
                         className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors text-sm ${
                           errors.options?.[index]?.optionText
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -204,13 +235,22 @@ export default function AddOnboardingQuestionModal({
                         id={`option-text-${index}`}
                         placeholder="e.g., 18-25"
                         type="text"
-                        aria-invalid={errors.options?.[index]?.optionText ? "true" : "false"}
-                        aria-describedby={errors.options?.[index]?.optionText ? `optionText-${index}-error` : undefined}
                       />
                       {errors.options?.[index]?.optionText && (
-                        <p className="mt-1 text-xs text-red-600 flex items-center" id={`optionText-${index}-error`}>
-                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        <p
+                          className="mt-1 text-xs text-red-600 flex items-center"
+                          id={`optionText-${index}-error`}
+                        >
+                          <svg
+                            className="w-3 h-3 mr-1"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              clipRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                              fillRule="evenodd"
+                            />
                           </svg>
                           {errors.options[index]?.optionText?.message}
                         </p>

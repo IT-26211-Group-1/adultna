@@ -6,14 +6,20 @@ export const addUserSchema = z.object({
     .min(1, "First name is required")
     .min(2, "First name must be at least 2 characters")
     .max(50, "First name cannot exceed 50 characters")
-    .regex(/^[a-zA-Z\s'-]+$/, "First name can only contain letters, spaces, hyphens, and apostrophes")
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      "First name can only contain letters, spaces, hyphens, and apostrophes",
+    )
     .transform((val) => val.trim()),
   lastName: z
     .string()
     .min(1, "Last name is required")
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name cannot exceed 50 characters")
-    .regex(/^[a-zA-Z\s'-]+$/, "Last name can only contain letters, spaces, hyphens, and apostrophes")
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      "Last name can only contain letters, spaces, hyphens, and apostrophes",
+    )
     .transform((val) => val.trim()),
   email: z
     .string()
@@ -23,16 +29,19 @@ export const addUserSchema = z.object({
     .toLowerCase()
     .refine((email) => {
       // Additional email validation for common issues
-      const parts = email.split('@');
+      const parts = email.split("@");
+
       if (parts.length !== 2) return false;
       const [local, domain] = parts;
+
       // Local part validation
       if (local.length > 64) return false;
-      if (local.startsWith('.') || local.endsWith('.')) return false;
-      if (local.includes('..')) return false;
+      if (local.startsWith(".") || local.endsWith(".")) return false;
+      if (local.includes("..")) return false;
       // Domain validation
       if (domain.length > 253) return false;
-      if (domain.startsWith('-') || domain.endsWith('-')) return false;
+      if (domain.startsWith("-") || domain.endsWith("-")) return false;
+
       return true;
     }, "Please enter a valid email address"),
   role: z.enum(["user", "technical_admin", "verifier_admin"], {

@@ -9,7 +9,6 @@ import {
   useFeedback,
   Feedback,
   FeedbackStatus,
-  FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
 import { formatDate } from "@/constants/format-date";
@@ -298,9 +297,14 @@ const FeedbackTable: React.FC = () => {
             resolved: "bg-green-100 text-green-800",
             pending: "bg-yellow-100 text-yellow-800",
           };
+
           return (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status as keyof typeof colors]}`}>
-              {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status as keyof typeof colors]}`}
+            >
+              {status
+                ? status.charAt(0).toUpperCase() + status.slice(1)
+                : "Unknown"}
             </span>
           );
         },
@@ -310,7 +314,8 @@ const FeedbackTable: React.FC = () => {
         header: "Submitted By",
         cell: ({ row }) => (
           <div className="text-gray-900">
-            {row.getValue("submittedByEmail") && row.getValue("submittedByEmail") !== "No Email"
+            {row.getValue("submittedByEmail") &&
+            row.getValue("submittedByEmail") !== "No Email"
               ? row.getValue("submittedByEmail")
               : "No Email"}
           </div>
@@ -385,10 +390,10 @@ const FeedbackTable: React.FC = () => {
       </div>
 
       <AdminTable
-        data={feedback}
         columns={columns}
-        searchPlaceholder="Search feedback..."
+        data={feedback}
         isLoading={loading}
+        searchPlaceholder="Search feedback..."
       />
 
       {selectedFeedback && (

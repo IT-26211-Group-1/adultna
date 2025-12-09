@@ -547,7 +547,9 @@ const GuidesTable: React.FC = () => {
             checked={selectedGuideIds.includes(row.original.id)}
             className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
             type="checkbox"
-            onChange={(e) => handleSelectGuide(row.original.id, e.target.checked)}
+            onChange={(e) =>
+              handleSelectGuide(row.original.id, e.target.checked)
+            }
           />
         ),
         size: 50,
@@ -589,7 +591,9 @@ const GuidesTable: React.FC = () => {
         accessorKey: "stepsCount",
         header: "Steps",
         cell: ({ row }) => (
-          <span className="text-gray-700">{row.getValue("stepsCount")} steps</span>
+          <span className="text-gray-700">
+            {row.getValue("stepsCount")} steps
+          </span>
         ),
         size: 100,
       },
@@ -610,8 +614,11 @@ const GuidesTable: React.FC = () => {
             rejected: "Rejected",
             to_revise: "To Revise",
           };
+
           return (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusVariants[status]}`}>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${statusVariants[status]}`}
+            >
               {statusLabels[status]}
             </span>
           );
@@ -623,7 +630,9 @@ const GuidesTable: React.FC = () => {
         header: "Last Updated",
         cell: ({ row }) => (
           <div className="flex flex-col text-sm">
-            <span className="text-gray-900">{formatDate(row.getValue("updatedAt"))}</span>
+            <span className="text-gray-900">
+              {formatDate(row.getValue("updatedAt"))}
+            </span>
             {row.original.updatedByEmail && (
               <span className="text-gray-500 text-xs">
                 by {row.original.updatedByEmail}
@@ -642,7 +651,9 @@ const GuidesTable: React.FC = () => {
             isDeleting={isDeleting}
             isDeletingThisGuide={deletingGuideId === row.original.id}
             isPermanentDeleting={isPermanentDeleting}
-            isPermanentDeletingThisGuide={permanentDeletingGuideId === row.original.id}
+            isPermanentDeletingThisGuide={
+              permanentDeletingGuideId === row.original.id
+            }
             isRestoring={isRestoring}
             isRestoringThisGuide={restoringGuideId === row.original.id}
             userRole={user?.role}

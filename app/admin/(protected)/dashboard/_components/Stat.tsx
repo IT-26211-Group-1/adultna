@@ -47,9 +47,7 @@ export function Stats() {
               <h3 className="text-sm font-bold text-gray-900 mb-1">
                 Registered Users
               </h3>
-              <p className="text-gray-700 text-xs mb-2">
-                Total platform users
-              </p>
+              <p className="text-gray-700 text-xs mb-2">Total platform users</p>
             </div>
             <div className="flex flex-col items-center justify-center h-full">
               {isLoadingUsers ? (
@@ -57,7 +55,9 @@ export function Stats() {
               ) : usersError ? (
                 <p className="text-sm font-bold text-red-500">Error</p>
               ) : (
-                <div className="text-3xl font-bold text-adult-green">{totalUsers}</div>
+                <div className="text-3xl font-bold text-adult-green">
+                  {totalUsers}
+                </div>
               )}
             </div>
           </div>
@@ -83,7 +83,9 @@ export function Stats() {
               ) : statsError ? (
                 <p className="text-sm font-bold text-red-500">Error</p>
               ) : (
-                <div className="text-3xl font-bold text-adult-green">{totalReports}</div>
+                <div className="text-3xl font-bold text-adult-green">
+                  {totalReports}
+                </div>
               )}
             </div>
           </div>

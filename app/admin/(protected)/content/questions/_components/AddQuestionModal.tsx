@@ -7,7 +7,10 @@ import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
 import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestionQueries";
-import { addQuestionSchema, AddQuestionForm } from "@/validators/questionSchema";
+import {
+  addQuestionSchema,
+  AddQuestionForm,
+} from "@/validators/questionSchema";
 import type {
   QuestionCategory,
   QuestionSource,
@@ -252,6 +255,8 @@ function AddQuestionModal({
           </label>
           <textarea
             {...register("question")}
+            aria-describedby={errors.question ? "question-error" : undefined}
+            aria-invalid={errors.question ? "true" : "false"}
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.question
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -260,13 +265,22 @@ function AddQuestionModal({
             id="question"
             placeholder="Enter interview question"
             rows={4}
-            aria-invalid={errors.question ? "true" : "false"}
-            aria-describedby={errors.question ? "question-error" : undefined}
           />
           {errors.question && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="question-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="question-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.question.message}
             </p>
@@ -282,14 +296,14 @@ function AddQuestionModal({
           </label>
           <select
             {...register("category")}
+            aria-describedby={errors.category ? "category-error" : undefined}
+            aria-invalid={errors.category ? "true" : "false"}
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.category
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
                 : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
             }`}
             id="category"
-            aria-invalid={errors.category ? "true" : "false"}
-            aria-describedby={errors.category ? "category-error" : undefined}
           >
             <option disabled value="">
               -- Please select a category --
@@ -301,9 +315,20 @@ function AddQuestionModal({
             ))}
           </select>
           {errors.category && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="category-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="category-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.category.message}
             </p>
@@ -319,14 +344,14 @@ function AddQuestionModal({
           </label>
           <select
             {...register("industry")}
+            aria-describedby={errors.industry ? "industry-error" : undefined}
+            aria-invalid={errors.industry ? "true" : "false"}
             className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
               errors.industry
                 ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
                 : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
             }`}
             id="industry"
-            aria-invalid={errors.industry ? "true" : "false"}
-            aria-describedby={errors.industry ? "industry-error" : undefined}
           >
             <option disabled value="">
               -- Please select an industry --
@@ -338,9 +363,20 @@ function AddQuestionModal({
             ))}
           </select>
           {errors.industry && (
-            <p className="mt-1 text-sm text-red-600 flex items-center" id="industry-error">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="industry-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
               </svg>
               {errors.industry.message}
             </p>
@@ -357,6 +393,10 @@ function AddQuestionModal({
             </label>
             <textarea
               {...register("customIndustry")}
+              aria-describedby={
+                errors.customIndustry ? "customIndustry-error" : undefined
+              }
+              aria-invalid={errors.customIndustry ? "true" : "false"}
               className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
                 errors.customIndustry
                   ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -365,13 +405,22 @@ function AddQuestionModal({
               id="customIndustry"
               placeholder="Enter industry name"
               rows={2}
-              aria-invalid={errors.customIndustry ? "true" : "false"}
-              aria-describedby={errors.customIndustry ? "customIndustry-error" : undefined}
             />
             {errors.customIndustry && (
-              <p className="mt-1 text-sm text-red-600 flex items-center" id="customIndustry-error">
-                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              <p
+                className="mt-1 text-sm text-red-600 flex items-center"
+                id="customIndustry-error"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    clipRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    fillRule="evenodd"
+                  />
                 </svg>
                 {errors.customIndustry.message}
               </p>

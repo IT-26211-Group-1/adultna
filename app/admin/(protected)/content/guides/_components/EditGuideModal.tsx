@@ -356,6 +356,8 @@ function EditForm({
             </label>
             <input
               {...register("title")}
+              aria-describedby={errors.title ? "title-error" : undefined}
+              aria-invalid={errors.title ? "true" : "false"}
               className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
                 errors.title
                   ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -364,13 +366,22 @@ function EditForm({
               id="title"
               placeholder="e.g., How to Apply for SSS Number"
               type="text"
-              aria-invalid={errors.title ? "true" : "false"}
-              aria-describedby={errors.title ? "title-error" : undefined}
             />
             {errors.title && (
-              <p className="mt-1 text-sm text-red-600 flex items-center" id="title-error">
-                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              <p
+                className="mt-1 text-sm text-red-600 flex items-center"
+                id="title-error"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    clipRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    fillRule="evenodd"
+                  />
                 </svg>
                 {errors.title.message}
               </p>
@@ -386,6 +397,10 @@ function EditForm({
             </label>
             <input
               {...register("issuingAgency")}
+              aria-describedby={
+                errors.issuingAgency ? "issuingAgency-error" : undefined
+              }
+              aria-invalid={errors.issuingAgency ? "true" : "false"}
               className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
                 errors.issuingAgency
                   ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -394,13 +409,22 @@ function EditForm({
               id="issuingAgency"
               placeholder="e.g., SSS, PhilHealth, BIR"
               type="text"
-              aria-invalid={errors.issuingAgency ? "true" : "false"}
-              aria-describedby={errors.issuingAgency ? "issuingAgency-error" : undefined}
             />
             {errors.issuingAgency && (
-              <p className="mt-1 text-sm text-red-600 flex items-center" id="issuingAgency-error">
-                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              <p
+                className="mt-1 text-sm text-red-600 flex items-center"
+                id="issuingAgency-error"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    clipRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    fillRule="evenodd"
+                  />
                 </svg>
                 {errors.issuingAgency.message}
               </p>
@@ -416,14 +440,14 @@ function EditForm({
             </label>
             <select
               {...register("category")}
+              aria-describedby={errors.category ? "category-error" : undefined}
+              aria-invalid={errors.category ? "true" : "false"}
               className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
                 errors.category
                   ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
                   : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
               }`}
               id="category"
-              aria-invalid={errors.category ? "true" : "false"}
-              aria-describedby={errors.category ? "category-error" : undefined}
             >
               <option value="">Select a category</option>
               <option value="identification">Identification</option>
@@ -435,9 +459,20 @@ function EditForm({
               <option value="other">Other</option>
             </select>
             {errors.category && (
-              <p className="mt-1 text-sm text-red-600 flex items-center" id="category-error">
-                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              <p
+                className="mt-1 text-sm text-red-600 flex items-center"
+                id="category-error"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    clipRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    fillRule="evenodd"
+                  />
                 </svg>
                 {errors.category.message}
               </p>
@@ -454,6 +489,10 @@ function EditForm({
               </label>
               <input
                 {...register("customCategory")}
+                aria-describedby={
+                  errors.customCategory ? "customCategory-error" : undefined
+                }
+                aria-invalid={errors.customCategory ? "true" : "false"}
                 className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
                   errors.customCategory
                     ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -462,13 +501,22 @@ function EditForm({
                 id="customCategory"
                 placeholder="Enter custom category name"
                 type="text"
-                aria-invalid={errors.customCategory ? "true" : "false"}
-                aria-describedby={errors.customCategory ? "customCategory-error" : undefined}
               />
               {errors.customCategory && (
-                <p className="mt-1 text-sm text-red-600 flex items-center" id="customCategory-error">
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                <p
+                  className="mt-1 text-sm text-red-600 flex items-center"
+                  id="customCategory-error"
+                >
+                  <svg
+                    className="w-4 h-4 mr-1"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      clipRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      fillRule="evenodd"
+                    />
                   </svg>
                   {errors.customCategory.message}
                 </p>

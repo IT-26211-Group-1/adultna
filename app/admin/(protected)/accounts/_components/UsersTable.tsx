@@ -264,8 +264,11 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
             deactivated: "bg-red-100 text-red-800",
             unverified: "bg-yellow-100 text-yellow-800",
           };
+
           return (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status as keyof typeof colors]}`}>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status as keyof typeof colors]}`}
+            >
               {status}
             </span>
           );
@@ -275,11 +278,13 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         accessorKey: "emailVerified",
         header: "Email Verified",
         cell: ({ row }) => (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            row.getValue("emailVerified")
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              row.getValue("emailVerified")
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
             {row.getValue("emailVerified") ? "Yes" : "No"}
           </span>
         ),
@@ -294,6 +299,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         header: "Last Login",
         cell: ({ row }) => {
           const lastLogin = row.getValue("lastLogin") as string | null;
+
           return lastLogin ? formatDate(lastLogin) : "Never";
         },
       },
@@ -302,16 +308,21 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
         header: "Actions",
         cell: ({ row }) => (
           <UserActions
+            isUpdating={isUpdatingStatus}
             user={row.original}
             onEdit={handleEditAccount}
             onResetPassword={handleResetPassword}
             onToggleStatus={handleToggleAccountStatus}
-            isUpdating={isUpdatingStatus}
           />
         ),
       },
     ],
-    [handleEditAccount, handleResetPassword, handleToggleAccountStatus, isUpdatingStatus],
+    [
+      handleEditAccount,
+      handleResetPassword,
+      handleToggleAccountStatus,
+      isUpdatingStatus,
+    ],
   );
 
   // Error state
@@ -343,10 +354,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
       </div>
 
       <AdminTable
-        data={mappedUsers}
         columns={columns}
-        searchPlaceholder="Search users..."
+        data={mappedUsers}
         isLoading={loading}
+        searchPlaceholder="Search users..."
       />
 
       {selectedUser && (

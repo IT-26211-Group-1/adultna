@@ -16,15 +16,18 @@ export const addFeedbackSchema = z.object({
   type: z.enum(["report", "feedback"], {
     message: "Please select a valid type",
   }),
-  feature: z.enum([
-    "govmap",
-    "filebox",
-    "process_guides",
-    "ai_gabay_agent",
-    "mock_interview_coach",
-  ], {
-    message: "Please select a valid feature",
-  }),
+  feature: z.enum(
+    [
+      "govmap",
+      "filebox",
+      "process_guides",
+      "ai_gabay_agent",
+      "mock_interview_coach",
+    ],
+    {
+      message: "Please select a valid feature",
+    },
+  ),
 });
 
 export const editFeedbackSchema = z.object({
@@ -43,15 +46,18 @@ export const editFeedbackSchema = z.object({
   type: z.enum(["report", "feedback"], {
     message: "Please select a valid type",
   }),
-  feature: z.enum([
-    "govmap",
-    "filebox",
-    "process_guides",
-    "ai_gabay_agent",
-    "mock_interview_coach",
-  ], {
-    message: "Please select a valid feature",
-  }),
+  feature: z.enum(
+    [
+      "govmap",
+      "filebox",
+      "process_guides",
+      "ai_gabay_agent",
+      "mock_interview_coach",
+    ],
+    {
+      message: "Please select a valid feature",
+    },
+  ),
 });
 
 export type AddFeedbackForm = z.infer<typeof addFeedbackSchema>;

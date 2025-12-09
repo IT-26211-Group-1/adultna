@@ -48,15 +48,22 @@ export function Activity() {
     <div className="space-y-4">
       <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-none">
         <div className="mb-3">
-          <h3 className="text-lg font-bold text-gray-900 mb-1">Recent Activity</h3>
-          <p className="text-sm text-gray-600">Latest changes from audit logs</p>
+          <h3 className="text-lg font-bold text-gray-900 mb-1">
+            Recent Activity
+          </h3>
+          <p className="text-sm text-gray-600">
+            Latest changes from audit logs
+          </p>
         </div>
 
         <div className="space-y-3">
           {isLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="p-3 bg-white/50 rounded-lg animate-pulse">
+                <div
+                  key={i}
+                  className="p-3 bg-white/50 rounded-lg animate-pulse"
+                >
                   <div className="h-3 bg-gray-200 rounded w-3/4 mb-2" />
                   <div className="h-2 bg-gray-200 rounded w-1/2" />
                 </div>

@@ -30,11 +30,11 @@ export const AdminMenu = () => {
       <div className="flex items-center justify-center gap-2 mb-6">
         <Link href="/admin/dashboard">
           <Image
-            src="/AdultNa-Logo.png"
             alt="AdultNa Logo"
-            width={140}
-            height={56}
             className="object-contain"
+            height={56}
+            src="/AdultNa-Logo.png"
+            width={140}
           />
         </Link>
       </div>
