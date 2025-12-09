@@ -86,8 +86,7 @@ function EditForm({
     resolver: zodResolver(editOnboardingQuestionSchema),
     defaultValues: {
       question: question.question,
-      category: question.category,
-      options: [],
+      category: question.category as "life_stage" | "priorities",
     },
   });
 
@@ -155,7 +154,7 @@ function EditForm({
   const handleClose = useCallback(() => {
     reset({
       question: question.question,
-      category: question.category,
+      category: question.category as "life_stage" | "priorities",
     });
     onClose();
   }, [reset, question, onClose]);
@@ -166,12 +165,14 @@ function EditForm({
     currentQuestion !== question.question ||
     currentCategory !== question.category;
 
+  const handleFormSubmit = handleSubmit(onSubmit);
+
   return (
     <Modal open={open} title="Edit Onboarding Question" onClose={handleClose}>
       <form
         key={question.id}
         className="space-y-4"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleFormSubmit}
       >
         <div>
           <label

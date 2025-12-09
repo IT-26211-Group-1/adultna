@@ -9,8 +9,8 @@ export const onboardingOptionSchema = z.object({
     .transform((val) => val.trim()),
   outcomeTagName: z
     .string()
-    .optional()
-    .transform((val) => val?.trim()),
+    .transform((val) => val?.trim())
+    .optional(),
 });
 
 export const addOnboardingQuestionSchema = z.object({
@@ -42,7 +42,8 @@ export const editOnboardingQuestionSchema = z.object({
   options: z
     .array(onboardingOptionSchema)
     .min(2, "At least 2 options are required")
-    .max(10, "Cannot have more than 10 options"),
+    .max(10, "Cannot have more than 10 options")
+    .optional(),
 });
 
 export type AddOnboardingQuestionForm = z.infer<
