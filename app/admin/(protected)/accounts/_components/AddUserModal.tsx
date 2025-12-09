@@ -87,17 +87,26 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             className="block text-sm font-medium text-gray-700"
             htmlFor="firstName"
           >
-            First Name *
+            First Name <span className="text-red-500">*</span>
           </label>
           <input
             {...register("firstName")}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.firstName
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             id="firstName"
             placeholder="Enter first name"
             type="text"
+            aria-invalid={errors.firstName ? "true" : "false"}
+            aria-describedby={errors.firstName ? "firstName-error" : undefined}
           />
           {errors.firstName && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-sm text-red-600 flex items-center" id="firstName-error">
+              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
               {errors.firstName.message}
             </p>
           )}
@@ -108,17 +117,26 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             className="block text-sm font-medium text-gray-700"
             htmlFor="lastName"
           >
-            Last Name *
+            Last Name <span className="text-red-500">*</span>
           </label>
           <input
             {...register("lastName")}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.lastName
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             id="lastName"
             placeholder="Enter last name"
             type="text"
+            aria-invalid={errors.lastName ? "true" : "false"}
+            aria-describedby={errors.lastName ? "lastName-error" : undefined}
           />
           {errors.lastName && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-sm text-red-600 flex items-center" id="lastName-error">
+              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
               {errors.lastName.message}
             </p>
           )}
@@ -129,17 +147,29 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             className="block text-sm font-medium text-gray-700"
             htmlFor="email"
           >
-            Email Address *
+            Email Address <span className="text-red-500">*</span>
           </label>
           <input
             {...register("email")}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.email
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             id="email"
             placeholder="Enter email address"
             type="email"
+            autoComplete="email"
+            aria-invalid={errors.email ? "true" : "false"}
+            aria-describedby={errors.email ? "email-error" : undefined}
           />
           {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            <p className="mt-1 text-sm text-red-600 flex items-center" id="email-error">
+              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.email.message}
+            </p>
           )}
         </div>
 
@@ -148,12 +178,18 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             className="block text-sm font-medium text-gray-700"
             htmlFor="role"
           >
-            Role *
+            Role <span className="text-red-500">*</span>
           </label>
           <select
             {...register("role")}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.role
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             id="role"
+            aria-invalid={errors.role ? "true" : "false"}
+            aria-describedby={errors.role ? "role-error" : undefined}
           >
             {roleOptions.map(({ value, label }) => (
               <option key={value} value={value}>
@@ -162,16 +198,26 @@ function AddUserModal({ open = false, onClose = () => {} }: AddUserModalProps) {
             ))}
           </select>
           {errors.role && (
-            <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
+            <p className="mt-1 text-sm text-red-600 flex items-center" id="role-error">
+              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.role.message}
+            </p>
           )}
         </div>
 
-        <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
-          <p>
-            <strong>Note:</strong> A secure temporary password will be
-            automatically generated and sent to the user&apos;s email with
-            instructions to change it.
-          </p>
+        <div className="text-sm text-gray-600 bg-blue-50 border border-blue-200 p-3 rounded-md">
+          <div className="flex items-start">
+            <svg className="w-4 h-4 text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+            <p>
+              <strong>Note:</strong> A secure temporary password will be
+              automatically generated and sent to the user&apos;s email with
+              instructions to change it.
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end space-x-3 pt-4 border-t">

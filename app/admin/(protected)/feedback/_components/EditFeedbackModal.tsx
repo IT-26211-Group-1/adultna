@@ -2,6 +2,7 @@
 
 import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
@@ -11,6 +12,7 @@ import {
   FeedbackStatus,
   useFeedback,
 } from "@/hooks/queries/admin/useFeedbackQueries";
+import { editFeedbackSchema, EditFeedbackForm } from "@/validators/feedbackSchema";
 import { logger } from "@/lib/logger";
 
 interface EditFeedbackModalProps {
@@ -151,7 +153,7 @@ export default function EditFeedbackModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="title"
           >
-            Title *
+            Title <span className="text-red-500">*</span>
           </label>
           <input
             {...register("title", {
@@ -180,7 +182,7 @@ export default function EditFeedbackModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="description"
           >
-            Description *
+            Description <span className="text-red-500">*</span>
           </label>
           <textarea
             {...register("description", {
@@ -211,7 +213,7 @@ export default function EditFeedbackModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="type"
           >
-            Type *
+            Type <span className="text-red-500">*</span>
           </label>
           <select
             {...register("type", { required: "Type is required" })}
@@ -238,7 +240,7 @@ export default function EditFeedbackModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="feature"
           >
-            Feature *
+            Feature <span className="text-red-500">*</span>
           </label>
           <input
             {...register("feature", {
@@ -269,13 +271,19 @@ export default function EditFeedbackModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="status"
           >
-            Status *
+            Status <span className="text-red-500">*</span>
           </label>
           <select
             {...register("status", { required: "Status is required" })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.status
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             disabled={isLoading}
             id="status"
+            aria-invalid={errors.status ? "true" : "false"}
+            aria-describedby={errors.status ? "status-error" : undefined}
           >
             {getStatusOptions(feedback.status).map((option) => (
               <option key={option.value} value={option.value}>
@@ -284,7 +292,12 @@ export default function EditFeedbackModal({
             ))}
           </select>
           {errors.status && (
-            <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
+            <p className="mt-1 text-sm text-red-600 flex items-center" id="status-error">
+              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.status.message}
+            </p>
           )}
           <p className="text-xs text-gray-500 mt-1">
             {feedback.status === "resolved"

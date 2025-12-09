@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Bell, CircleUser, LogOut, User } from "lucide-react";
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 
@@ -14,7 +13,6 @@ type Notification = {
 };
 
 export const AdminHeader = () => {
-  const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
