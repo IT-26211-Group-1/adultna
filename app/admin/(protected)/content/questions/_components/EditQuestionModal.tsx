@@ -16,10 +16,6 @@ import type {
   QuestionCategory,
 } from "@/types/interview-question";
 
-type JobRoleField = {
-  jobRoleTitle: string;
-};
-
 type EditQuestionModalProps = {
   open: boolean;
   question: InterviewQuestion;
@@ -120,8 +116,10 @@ function EditQuestionModal({
     handleSubmit(async (data: EditQuestionForm) => {
       const jobRoles =
         data.jobRoles
-          ?.map((role) => role.jobRoleTitle.trim())
-          .filter((title) => title !== "") || [];
+          ?.map((role) => role.jobRoleTitle?.trim())
+          .filter(
+            (title): title is string => title !== undefined && title !== "",
+          ) || [];
 
       updateQuestion(
         {

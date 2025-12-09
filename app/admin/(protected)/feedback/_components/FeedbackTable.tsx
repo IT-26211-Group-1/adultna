@@ -116,7 +116,6 @@ const FeedbackTable: React.FC = () => {
 
   const {
     feedback,
-    feedbackCount,
     isLoadingFeedback: loading,
     feedbackError,
     updateFeedbackStatus,
@@ -258,6 +257,18 @@ const FeedbackTable: React.FC = () => {
     [deleteFeedback],
   );
 
+  // Sorted feedback list (by creation date, most recent first)
+  const sortedFeedback = useMemo(
+    () =>
+      [...feedback].sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+
+        return dateB - dateA;
+      }),
+    [feedback],
+  );
+
   // Table columns for @tanstack/react-table
   const columns: ColumnDef<Feedback>[] = useMemo(
     () => [
@@ -391,7 +402,7 @@ const FeedbackTable: React.FC = () => {
 
       <AdminTable
         columns={columns}
-        data={feedback}
+        data={sortedFeedback}
         isLoading={loading}
         searchPlaceholder="Search feedback..."
       />

@@ -108,7 +108,9 @@ function AddQuestionModal({
       const jobRoles =
         data.jobRoles
           ?.map((role) => role.jobRoleTitle?.trim())
-          .filter((title): title is string => title !== undefined && title !== "") || [];
+          .filter(
+            (title): title is string => title !== undefined && title !== "",
+          ) || [];
 
       const submissionData = {
         question: data.question,
