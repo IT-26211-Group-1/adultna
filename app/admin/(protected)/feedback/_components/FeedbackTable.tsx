@@ -103,7 +103,7 @@ const FeedbackActions = React.memo<{
         </button>
       }
     />
-  )
+  ),
 );
 
 FeedbackActions.displayName = "FeedbackActions";
@@ -111,7 +111,7 @@ FeedbackActions.displayName = "FeedbackActions";
 const FeedbackTable: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
-    null
+    null,
   );
 
   const {
@@ -134,7 +134,7 @@ const FeedbackTable: React.FC = () => {
         setEditModalOpen(true);
       }
     },
-    [feedback]
+    [feedback],
   );
 
   const handleFeedbackUpdated = useCallback(
@@ -143,7 +143,7 @@ const FeedbackTable: React.FC = () => {
       setEditModalOpen(false);
       setSelectedFeedback(null);
     },
-    [refetchFeedback]
+    [refetchFeedback],
   );
 
   const handleCloseEditModal = useCallback(() => {
@@ -198,14 +198,14 @@ const FeedbackTable: React.FC = () => {
                   timeout: 8000,
                 });
               },
-            }
+            },
           );
         };
 
         performUpdate();
       }
     },
-    [updateFeedbackStatus]
+    [updateFeedbackStatus],
   );
 
   const handleDeleteFeedback = useCallback(
@@ -223,7 +223,7 @@ const FeedbackTable: React.FC = () => {
 
       if (
         confirm(
-          "Are you sure you want to delete this feedback? This action cannot be undone."
+          "Are you sure you want to delete this feedback? This action cannot be undone.",
         )
       ) {
         deleteFeedback(
@@ -250,11 +250,11 @@ const FeedbackTable: React.FC = () => {
                 timeout: 8000,
               });
             },
-          }
+          },
         );
       }
     },
-    [deleteFeedback]
+    [deleteFeedback],
   );
 
   // Sorted feedback list (by creation date, most recent first)
@@ -263,9 +263,10 @@ const FeedbackTable: React.FC = () => {
       [...feedback].sort((a, b) => {
         const dateA = new Date(a.createdAt).getTime();
         const dateB = new Date(b.createdAt).getTime();
+
         return dateB - dateA;
       }),
-    [feedback]
+    [feedback],
   );
 
   // Table columns for @tanstack/react-table
@@ -361,7 +362,7 @@ const FeedbackTable: React.FC = () => {
       handleDeleteFeedback,
       isUpdatingStatus,
       isDeletingFeedback,
-    ]
+    ],
   );
 
   // Error state

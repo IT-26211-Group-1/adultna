@@ -153,7 +153,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               />
             </svg>
           ),
-        }
+        },
       );
     }
 
@@ -203,7 +203,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
               />
             </svg>
           ),
-        }
+        },
       );
     }
 
@@ -257,7 +257,7 @@ const QuestionActions = React.memo<QuestionActionsProps>(
         }
       />
     );
-  }
+  },
 );
 
 QuestionActions.displayName = "QuestionActions";
@@ -288,10 +288,10 @@ const QuestionsTable: React.FC = () => {
   const [selectedQuestionForStatus, setSelectedQuestionForStatus] =
     useState<InterviewQuestion | null>(null);
   const [deletingQuestionId, setDeletingQuestionId] = useState<string | null>(
-    null
+    null,
   );
   const [restoringQuestionId, setRestoringQuestionId] = useState<string | null>(
-    null
+    null,
   );
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
     useState<string | null>(null);
@@ -323,9 +323,10 @@ const QuestionsTable: React.FC = () => {
         .sort((a, b) => {
           const dateA = new Date(a.createdAt).getTime();
           const dateB = new Date(b.createdAt).getTime();
+
           return dateB - dateA;
         }),
-    [questions]
+    [questions],
   );
   const archivedQuestions = useMemo(
     () =>
@@ -334,9 +335,10 @@ const QuestionsTable: React.FC = () => {
         .sort((a, b) => {
           const dateA = new Date(a.createdAt).getTime();
           const dateB = new Date(b.createdAt).getTime();
+
           return dateB - dateA;
         }),
-    [questions]
+    [questions],
   );
 
   // Select which questions to display based on toggle
@@ -351,7 +353,7 @@ const QuestionsTable: React.FC = () => {
         setEditModalOpen(true);
       }
     },
-    [displayQuestions]
+    [displayQuestions],
   );
 
   const handleQuestionUpdated = useCallback(() => {
@@ -374,7 +376,7 @@ const QuestionsTable: React.FC = () => {
         setStatusModalOpen(true);
       }
     },
-    [displayQuestions]
+    [displayQuestions],
   );
 
   const handleStatusUpdated = useCallback(() => {
@@ -414,7 +416,7 @@ const QuestionsTable: React.FC = () => {
         },
       });
     },
-    [softDeleteQuestion]
+    [softDeleteQuestion],
   );
 
   const handleRestore = useCallback(
@@ -443,14 +445,14 @@ const QuestionsTable: React.FC = () => {
         },
       });
     },
-    [restoreQuestion]
+    [restoreQuestion],
   );
 
   const handlePermanentDelete = useCallback(
     (questionId: string) => {
       if (
         !confirm(
-          "Are you sure you want to permanently delete this question? This action cannot be undone!"
+          "Are you sure you want to permanently delete this question? This action cannot be undone!",
         )
       )
         return;
@@ -477,7 +479,7 @@ const QuestionsTable: React.FC = () => {
         },
       });
     },
-    [permanentDeleteQuestion]
+    [permanentDeleteQuestion],
   );
 
   const handleSelectQuestion = useCallback(
@@ -486,11 +488,11 @@ const QuestionsTable: React.FC = () => {
         setSelectedQuestionIds((prev) => [...prev, questionId]);
       } else {
         setSelectedQuestionIds((prev) =>
-          prev.filter((id) => id !== questionId)
+          prev.filter((id) => id !== questionId),
         );
       }
     },
-    []
+    [],
   );
 
   React.useEffect(() => {
@@ -749,7 +751,7 @@ const QuestionsTable: React.FC = () => {
       permanentDeletingQuestionId,
       selectedQuestionIds,
       user?.role,
-    ]
+    ],
   );
 
   // Error state

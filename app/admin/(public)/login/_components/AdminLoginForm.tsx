@@ -78,8 +78,8 @@ export const AdminLoginForm = () => {
             </div>
 
             <Button
-              className="w-full bg-adult-green text-white hover:bg-adult-green/90"
               disableAnimation
+              className="w-full bg-adult-green text-white hover:bg-adult-green/90"
               isLoading={loading}
               size="lg"
               type="submit"
