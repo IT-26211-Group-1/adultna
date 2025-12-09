@@ -3,6 +3,7 @@
 import { ProtectedRoute } from "@/components/RouteGuards";
 import UserSidebar from "@/components/ui/sidebar/UserSidebar";
 import { IdleWarningModal } from "@/components/ui/IdleWarningModal";
+import FloatingHelpWidget from "@/components/ui/FloatingHelpWidget";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/queries/useAuthQueries";
 
@@ -38,6 +39,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
         onLogout={onLogoutNow}
         onStayActive={onStayActive}
       />
+      <FloatingHelpWidget />
     </ProtectedRoute>
   );
 }

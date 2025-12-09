@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import Table, { Column } from "@/components/ui/Table";
-import Badge from "@/components/ui/Badge";
+import { type ColumnDef } from "@tanstack/react-table";
+import { AdminTable } from "@/components/admin/AdminTable";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import type {
   InterviewQuestion,
-  QuestionStatus,
   QuestionCategory,
   QuestionSource,
 } from "@/types/interview-question";
@@ -18,71 +17,6 @@ import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
 import { formatDate } from "@/constants/format-date";
 import { RetryButton } from "@/components/ui/RetryButton";
 import { BatchInterviewQuestionActions } from "./BatchInterviewQuestionActions";
-
-// Question Status Badge Component
-const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
-  ({ status }) => {
-    const variants = {
-      pending: "warning",
-      approved: "success",
-      rejected: "error",
-      to_revise: "info",
-    } as const;
-
-    const labels = {
-      pending: "Pending",
-      approved: "Approved",
-      rejected: "Rejected",
-      to_revise: "To Revise",
-    };
-
-    return (
-      <Badge size="sm" variant={variants[status]}>
-        {labels[status]}
-      </Badge>
-    );
-  },
-);
-
-QuestionStatusBadge.displayName = "QuestionStatusBadge";
-
-// Question Category Badge Component
-const QuestionCategoryBadge = React.memo<{
-  category: QuestionCategory;
-}>(({ category }) => {
-  const labels: Record<QuestionCategory, string> = {
-    behavioral: "Behavioral",
-    technical: "Technical",
-    situational: "Situational",
-    background: "Background",
-  };
-
-  return (
-    <Badge size="sm" variant="default">
-      {labels[category]}
-    </Badge>
-  );
-});
-
-QuestionCategoryBadge.displayName = "QuestionCategoryBadge";
-
-// Question Source Badge Component
-const QuestionSourceBadge = React.memo<{ source: QuestionSource }>(
-  ({ source }) => {
-    const labels: Record<QuestionSource, string> = {
-      ai: "AI Suggested",
-      manual: "Manual",
-    };
-
-    return (
-      <Badge size="sm" variant={source === "ai" ? "info" : "default"}>
-        {labels[source]}
-      </Badge>
-    );
-  },
-);
-
-QuestionSourceBadge.displayName = "QuestionSourceBadge";
 
 type QuestionActionsProps = {
   question: InterviewQuestion;
@@ -381,12 +315,29 @@ const QuestionsTable: React.FC = () => {
   } = useInterviewQuestions();
 
   // Filter questions based on view mode (memoized to prevent pagination reset)
+  // Sorted by creation date, most recent first
   const activeQuestions = useMemo(
-    () => questions.filter((q) => !q.deletedAt),
+    () =>
+      questions
+        .filter((q) => !q.deletedAt)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+
+          return dateB - dateA;
+        }),
     [questions],
   );
   const archivedQuestions = useMemo(
-    () => questions.filter((q) => q.deletedAt),
+    () =>
+      questions
+        .filter((q) => q.deletedAt)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+
+          return dateB - dateA;
+        }),
     [questions],
   );
 
@@ -548,69 +499,109 @@ const QuestionsTable: React.FC = () => {
     setSelectedQuestionIds([]);
   }, [showArchived]);
 
-  const columns: Column<InterviewQuestion>[] = useMemo(
+  // Status badge color mapping
+  const statusColors = {
+    pending: "bg-yellow-100 text-yellow-800",
+    approved: "bg-green-100 text-green-800",
+    rejected: "bg-red-100 text-red-800",
+    to_revise: "bg-blue-100 text-blue-800",
+  };
+
+  const statusLabels = {
+    pending: "Pending",
+    approved: "Approved",
+    rejected: "Rejected",
+    to_revise: "To Revise",
+  };
+
+  // Category labels
+  const categoryLabels: Record<QuestionCategory, string> = {
+    behavioral: "Behavioral",
+    technical: "Technical",
+    situational: "Situational",
+    background: "Background",
+  };
+
+  // Source labels
+  const sourceLabels: Record<QuestionSource, string> = {
+    ai: "AI Suggested",
+    manual: "Manual",
+  };
+
+  const columns: ColumnDef<InterviewQuestion>[] = useMemo(
     () => [
       {
+        id: "select",
         header: "",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <QuestionCheckbox
-            isSelected={selectedQuestionIds.includes(question.id)}
-            questionId={question.id}
+            isSelected={selectedQuestionIds.includes(row.original.id)}
+            questionId={row.original.id}
             onSelect={handleSelectQuestion}
           />
         ),
-        width: "50px",
+        size: 50,
+        enableSorting: false,
       },
       {
+        accessorKey: "question",
         header: "Question",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <div className="max-w-md whitespace-normal break-words">
             <p
               className={`font-medium ${
-                question.deletedAt
+                row.original.deletedAt
                   ? "text-gray-400 line-through"
                   : "text-gray-900"
               }`}
             >
-              {question.question}
+              {row.original.question}
             </p>
           </div>
         ),
-        width: "250px",
+        size: 250,
       },
       {
+        accessorKey: "category",
         header: "Category",
-        accessor: (question) => (
-          <QuestionCategoryBadge category={question.category} />
+        cell: ({ row }) => (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {categoryLabels[row.original.category]}
+          </span>
         ),
       },
       {
+        accessorKey: "industry",
         header: "Industry",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <div className="text-sm text-gray-700">
-            {question.industry ? (
-              <Badge size="sm" variant="default">
-                {question.industry
+            {row.original.industry ? (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {row.original.industry
                   .replace(/_/g, " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase())}
-              </Badge>
+                  .replace(/\b\w/g, (l: string) => l.toUpperCase())}
+              </span>
             ) : (
               <span className="text-gray-400 text-sm">-</span>
             )}
           </div>
         ),
-        width: "150px",
+        size: 150,
       },
       {
+        accessorKey: "jobRoles",
         header: "Job Roles",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <div className="text-sm text-gray-700">
-            {question.jobRoles && question.jobRoles.length > 0 ? (
+            {row.original.jobRoles && row.original.jobRoles.length > 0 ? (
               <div className="flex flex-wrap gap-1">
-                {question.jobRoles.map((role, index) => (
-                  <Badge key={index} size="sm" variant="default">
+                {row.original.jobRoles.map((role: string, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                  >
                     {role}
-                  </Badge>
+                  </span>
                 ))}
               </div>
             ) : (
@@ -618,76 +609,95 @@ const QuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-        width: "200px",
+        size: 200,
       },
       {
+        accessorKey: "source",
         header: "Source",
-        accessor: (question) => (
-          <QuestionSourceBadge source={question.source} />
+        cell: ({ row }) => (
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              row.original.source === "ai"
+                ? "bg-blue-100 text-blue-800"
+                : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {sourceLabels[row.original.source]}
+          </span>
         ),
       },
       {
+        accessorKey: "status",
         header: "Status",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <div className="flex flex-col gap-1">
-            <QuestionStatusBadge status={question.status} />
-            {question.deletedAt && (
-              <Badge size="sm" variant="error">
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                statusColors[row.original.status]
+              }`}
+            >
+              {statusLabels[row.original.status]}
+            </span>
+            {row.original.deletedAt && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                 Archived
-              </Badge>
+              </span>
             )}
           </div>
         ),
-        width: "120px",
+        size: 120,
       },
       {
+        accessorKey: "reason",
         header: "Reason",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <div className="max-w-xs whitespace-normal break-words">
-            {question.reason ? (
+            {row.original.reason ? (
               <p
                 className={`text-sm ${
-                  question.deletedAt ? "text-gray-400" : "text-gray-700"
+                  row.original.deletedAt ? "text-gray-400" : "text-gray-700"
                 }`}
               >
-                {question.reason}
+                {row.original.reason}
               </p>
             ) : (
               <span className="text-gray-400 text-sm">-</span>
             )}
           </div>
         ),
-        width: "200px",
+        size: 200,
       },
       {
+        accessorKey: "createdAt",
         header: "Created At",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <div className="text-gray-900 whitespace-normal">
-            {formatDate(question.createdAt)}
+            {formatDate(row.original.createdAt)}
           </div>
         ),
       },
       {
+        accessorKey: "updatedAt",
         header: "Updated At",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <div className="text-gray-600 text-sm">
-            {question.deletedAt ? (
+            {row.original.deletedAt ? (
               <>
                 <div className="text-red-600 font-medium">
-                  {formatDate(question.deletedAt)}
+                  {formatDate(row.original.deletedAt)}
                 </div>
-                {question.deletedByEmail && (
+                {row.original.deletedByEmail && (
                   <div className="text-xs text-gray-500 mt-1">
-                    Archived by: {question.deletedByEmail}
+                    Archived by: {row.original.deletedByEmail}
                   </div>
                 )}
               </>
-            ) : question.updatedAt ? (
+            ) : row.original.updatedAt ? (
               <>
-                <div>{formatDate(question.updatedAt)}</div>
-                {question.updatedByEmail && (
+                <div>{formatDate(row.original.updatedAt)}</div>
+                {row.original.updatedByEmail && (
                   <div className="text-xs text-gray-500 mt-1">
-                    by: {question.updatedByEmail}
+                    by: {row.original.updatedByEmail}
                   </div>
                 )}
               </>
@@ -696,22 +706,23 @@ const QuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-        width: "180px",
+        size: 180,
       },
       {
+        id: "actions",
         header: "",
-        accessor: (question) => (
+        cell: ({ row }) => (
           <QuestionActions
             isDeleting={isDeleting}
-            isDeletingThisQuestion={deletingQuestionId === question.id}
+            isDeletingThisQuestion={deletingQuestionId === row.original.id}
             isPermanentDeleting={isPermanentDeleting}
             isPermanentDeletingThisQuestion={
-              permanentDeletingQuestionId === question.id
+              permanentDeletingQuestionId === row.original.id
             }
             isRestoring={isRestoring}
-            isRestoringThisQuestion={restoringQuestionId === question.id}
+            isRestoringThisQuestion={restoringQuestionId === row.original.id}
             isUpdating={isUpdatingStatus}
-            question={question}
+            question={row.original}
             userRole={user?.role}
             onEdit={handleEditQuestion}
             onPermanentDelete={handlePermanentDelete}
@@ -741,11 +752,6 @@ const QuestionsTable: React.FC = () => {
       selectedQuestionIds,
       user?.role,
     ],
-  );
-
-  const tableKey = useMemo(
-    () => `questions-table-${showArchived}`,
-    [showArchived],
   );
 
   // Error state
@@ -791,22 +797,15 @@ const QuestionsTable: React.FC = () => {
         selectedQuestionIds={selectedQuestionIds}
         onClearSelection={() => setSelectedQuestionIds([])}
       />
-      <Table
-        key={tableKey}
-        className="!overflow-visible"
+      <AdminTable
         columns={columns}
         data={displayQuestions}
-        emptyMessage={
+        isLoading={loading}
+        searchPlaceholder={
           showArchived
-            ? "No archived questions found"
-            : "No interview questions found"
+            ? "Search archived questions..."
+            : "Search interview questions..."
         }
-        loading={loading}
-        pagination={{
-          enabled: true,
-          pageSize: 10,
-          pageSizeOptions: [10, 25, 50, 100],
-        }}
       />
       {selectedQuestion && (
         <EditQuestionModal

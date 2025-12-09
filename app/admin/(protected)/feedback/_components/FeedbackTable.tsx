@@ -1,61 +1,20 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import Table, { Column } from "@/components/ui/Table";
-import Badge from "@/components/ui/Badge";
+import { type ColumnDef } from "@tanstack/react-table";
+import { AdminTable } from "@/components/admin/AdminTable";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import { addToast } from "@heroui/toast";
 import {
   useFeedback,
   Feedback,
   FeedbackStatus,
-  FeedbackType,
 } from "@/hooks/queries/admin/useFeedbackQueries";
 import EditFeedbackModal from "./EditFeedbackModal";
 import { formatDate } from "@/constants/format-date";
 import { logger } from "@/lib/logger";
-import { RetryButton } from "@/components/ui/RetryButton";
-
-const FeedbackTypeBadge = React.memo<{ type: FeedbackType }>(({ type }) => {
-  const getTypeColor = (type: FeedbackType) => {
-    switch (type) {
-      case "report":
-        return "error";
-      case "feedback":
-        return "info";
-      default:
-        return "default";
-    }
-  };
-
-  return (
-    <Badge size="sm" variant={getTypeColor(type)}>
-      {type ? type.charAt(0).toUpperCase() + type.slice(1) : "Unknown"}
-    </Badge>
-  );
-});
-
-FeedbackTypeBadge.displayName = "FeedbackTypeBadge";
-
-const FeedbackStatusBadge = React.memo<{ status: FeedbackStatus }>(
-  ({ status }) => (
-    <Badge size="sm" variant={status === "resolved" ? "success" : "warning"}>
-      {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
-    </Badge>
-  ),
-);
-
-FeedbackStatusBadge.displayName = "FeedbackStatusBadge";
-
-const SubmitterInfo = React.memo<{ feedback: Feedback }>(({ feedback }) => (
-  <div className="text-gray-900">
-    {feedback.submittedByEmail && feedback.submittedByEmail !== "No Email"
-      ? feedback.submittedByEmail
-      : "No Email"}
-  </div>
-));
-
-SubmitterInfo.displayName = "SubmitterInfo";
+import { AdminAddButton } from "@/components/admin/AdminAddButton";
+import AddFeedbackModal from "./AddFeedbackModal";
 
 const FeedbackActions = React.memo<{
   feedback: Feedback;
@@ -157,7 +116,6 @@ const FeedbackTable: React.FC = () => {
 
   const {
     feedback,
-    feedbackCount,
     isLoadingFeedback: loading,
     feedbackError,
     updateFeedbackStatus,
@@ -299,55 +257,96 @@ const FeedbackTable: React.FC = () => {
     [deleteFeedback],
   );
 
-  const columns: Column<Feedback>[] = useMemo(
+  // Sorted feedback list (by creation date, most recent first)
+  const sortedFeedback = useMemo(
+    () =>
+      [...feedback].sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+
+        return dateB - dateA;
+      }),
+    [feedback],
+  );
+
+  // Table columns for @tanstack/react-table
+  const columns: ColumnDef<Feedback>[] = useMemo(
     () => [
       {
+        accessorKey: "feature",
         header: "Feature",
-        accessor: (feedback) => (
+        cell: ({ row }) => (
           <div className="text-gray-900 font-medium whitespace-normal break-words">
-            {feedback.feature}
+            {row.getValue("feature")}
           </div>
         ),
       },
       {
+        accessorKey: "title",
         header: "Title",
-        accessor: (feedback) => (
+        cell: ({ row }) => (
           <div className="text-gray-900 font-medium whitespace-normal break-words">
-            {feedback.title}
+            {row.getValue("title")}
           </div>
         ),
       },
       {
+        accessorKey: "description",
         header: "Description",
-        accessor: (feedback) => (
+        cell: ({ row }) => (
           <div className="text-gray-600 text-sm whitespace-normal break-words max-w-md">
-            {feedback.description}
+            {row.getValue("description")}
           </div>
         ),
       },
       {
+        accessorKey: "status",
         header: "Status",
-        accessor: (feedback) => (
-          <FeedbackStatusBadge status={feedback.status} />
-        ),
+        cell: ({ row }) => {
+          const status = row.getValue("status") as FeedbackStatus;
+          const colors = {
+            resolved: "bg-green-100 text-green-800",
+            pending: "bg-yellow-100 text-yellow-800",
+          };
+
+          return (
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status as keyof typeof colors]}`}
+            >
+              {status
+                ? status.charAt(0).toUpperCase() + status.slice(1)
+                : "Unknown"}
+            </span>
+          );
+        },
       },
       {
+        accessorKey: "submittedByEmail",
         header: "Submitted By",
-        accessor: (feedback) => <SubmitterInfo feedback={feedback} />,
-      },
-      {
-        header: "Date",
-        accessor: (feedback) => (
-          <div className="text-gray-900 whitespace-normal">
-            {formatDate(feedback.createdAt)}
+        cell: ({ row }) => (
+          <div className="text-gray-900">
+            {row.getValue("submittedByEmail") &&
+            row.getValue("submittedByEmail") !== "No Email"
+              ? row.getValue("submittedByEmail")
+              : "No Email"}
           </div>
         ),
       },
       {
+        accessorKey: "createdAt",
+        header: "Date",
+        cell: ({ row }) => (
+          <div className="text-gray-900 whitespace-normal">
+            {formatDate(row.getValue("createdAt"))}
+          </div>
+        ),
+      },
+      {
+        id: "actions",
         header: "Actions",
-        accessor: (feedback) => (
+        cell: ({ row }) => (
           <FeedbackActions
-            feedback={feedback}
+            feedback={row.original}
             isDeleting={isDeletingFeedback}
             isUpdating={isUpdatingStatus}
             onDelete={handleDeleteFeedback}
@@ -355,11 +354,9 @@ const FeedbackTable: React.FC = () => {
             onToggleStatus={handleToggleStatus}
           />
         ),
-        align: "center" as const,
       },
     ],
     [
-      formatDate,
       handleEditFeedback,
       handleToggleStatus,
       handleDeleteFeedback,
@@ -375,13 +372,18 @@ const FeedbackTable: React.FC = () => {
         <p className="text-red-600 mb-4">
           Failed to load feedback. Please try again.
         </p>
-        <RetryButton onRetry={refetchFeedback} />
+        <button
+          className="px-4 py-2 bg-adult-green text-white rounded-md hover:bg-adult-green/90"
+          onClick={() => refetchFeedback()}
+        >
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
@@ -391,21 +393,18 @@ const FeedbackTable: React.FC = () => {
             Manage user feedback and feature requests
           </p>
         </div>
-        <div className="text-sm text-gray-500">
-          {loading ? "Loading..." : `${feedbackCount} feedback items`}
-        </div>
+        <AdminAddButton
+          label="Add Feedback"
+          modalComponent={<AddFeedbackModal />}
+          variant="green"
+        />
       </div>
 
-      <Table
+      <AdminTable
         columns={columns}
-        data={feedback.filter((item) => item?.id)}
-        emptyMessage="No feedback found"
-        loading={loading}
-        pagination={{
-          enabled: true,
-          pageSize: 10,
-          pageSizeOptions: [10, 25, 50, 100],
-        }}
+        data={sortedFeedback}
+        isLoading={loading}
+        searchPlaceholder="Search feedback..."
       />
 
       {selectedFeedback && (

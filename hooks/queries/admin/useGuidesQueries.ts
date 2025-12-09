@@ -157,6 +157,7 @@ const guidesApi = {
     search?: string;
     page?: number;
     limit?: number;
+    includeDeleted?: boolean;
   }): Promise<GuidesListResponse> => {
     const queryParams = new URLSearchParams();
 
@@ -165,6 +166,7 @@ const guidesApi = {
     if (params?.search) queryParams.append("search", params.search);
     if (params?.page) queryParams.append("page", params.page.toString());
     if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.includeDeleted) queryParams.append("includeDeleted", "true");
 
     const queryString = queryParams.toString();
 
@@ -231,6 +233,7 @@ export function useGuidesQueries() {
     search?: string;
     page?: number;
     limit?: number;
+    includeDeleted?: boolean;
   }) => {
     return useQuery({
       queryKey: ["admin", "guides", "list", params],
