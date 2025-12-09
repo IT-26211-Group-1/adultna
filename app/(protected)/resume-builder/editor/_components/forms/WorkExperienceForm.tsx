@@ -208,6 +208,18 @@ export default function WorkExperienceForm({
       return;
     }
 
+    // Check if resume ID exists
+    if (!resumeData.id) {
+      addToast({
+        title: "Resume not saved",
+        description:
+          "Please save your resume first before generating AI suggestions",
+        color: "warning",
+      });
+
+      return;
+    }
+
     const currentDescription = workExp.description?.trim();
 
     if (!currentDescription && !workExp.jobTitle && !workExp.employer) {
