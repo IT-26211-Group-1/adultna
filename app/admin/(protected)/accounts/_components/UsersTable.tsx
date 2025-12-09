@@ -214,28 +214,34 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     [updateUserStatus],
   );
 
-  // Memoized user list
+  // Memoized user list (sorted by creation date, most recent first)
   const mappedUsers: User[] = useMemo(
     () =>
-      users.map((user) => ({
-        id: user.id,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        status: user.status as "active" | "deactivated" | "unverified",
-        createdAt:
-          typeof user.createdAt === "string"
-            ? user.createdAt
-            : user.createdAt.toISOString(),
-        lastLogin: user.lastLogin
-          ? typeof user.lastLogin === "string"
-            ? user.lastLogin
-            : user.lastLogin.toISOString()
-          : null,
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        displayName: user.displayName,
-        roleName: user.roleName || "",
-      })),
+      users
+        .map((user) => ({
+          id: user.id,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          status: user.status as "active" | "deactivated" | "unverified",
+          createdAt:
+            typeof user.createdAt === "string"
+              ? user.createdAt
+              : user.createdAt.toISOString(),
+          lastLogin: user.lastLogin
+            ? typeof user.lastLogin === "string"
+              ? user.lastLogin
+              : user.lastLogin.toISOString()
+            : null,
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          displayName: user.displayName,
+          roleName: user.roleName || "",
+        }))
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        }),
     [users],
   );
 

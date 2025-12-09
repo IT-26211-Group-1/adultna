@@ -26,7 +26,9 @@ export function Stats() {
           <h2 className="text-lg font-semibold text-gray-800">
             Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
           </h2>
-          <p className="text-sm text-gray-600">Here's what's happening today</p>
+          <p className="text-sm text-gray-600">
+            Here&apos;s what&apos;s happening today
+          </p>
         </div>
         <DateDisplay
           className="text-sm text-gray-500"
