@@ -114,9 +114,10 @@ function AddQuestionModal({
 
       const submissionData = {
         question: data.question,
-        category: data.category === "background" && data.customCategory
-          ? (data.customCategory as QuestionCategory)
-          : data.category,
+        category:
+          data.category === "background" && data.customCategory
+            ? (data.customCategory as QuestionCategory)
+            : data.category,
         industry:
           data.industry === "other" && data.customIndustry
             ? data.customIndustry
