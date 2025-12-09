@@ -30,7 +30,7 @@ export default function AddOnboardingQuestionModal({
     handleSubmit,
     reset,
     control,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<AddOnboardingQuestionForm>({
     resolver: zodResolver(addOnboardingQuestionSchema) as any,
     defaultValues: {
@@ -189,9 +189,14 @@ export default function AddOnboardingQuestionModal({
 
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="block text-sm font-medium text-gray-700">
-              Answer Options <span className="text-red-500">*</span>
-            </span>
+            <div>
+              <span className="block text-sm font-medium text-gray-700">
+                Answer Options <span className="text-red-500">*</span>
+              </span>
+              <span className="text-xs text-gray-500">
+                At least 2 options are required
+              </span>
+            </div>
             <button
               className="text-sm text-adult-green hover:text-adult-green/80 font-medium"
               disabled={isLoading}
@@ -201,6 +206,38 @@ export default function AddOnboardingQuestionModal({
               + Add Option
             </button>
           </div>
+          {errors.options?.root && (
+            <p className="text-sm text-red-600 flex items-center mb-2">
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              {errors.options.root.message}
+            </p>
+          )}
+          {errors.options && typeof errors.options.message === 'string' && (
+            <p className="text-sm text-red-600 flex items-center mb-2">
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              {errors.options.message}
+            </p>
+          )}
           <div className="space-y-3">
             {fields.map((field, index) => (
               <div
@@ -317,7 +354,7 @@ export default function AddOnboardingQuestionModal({
           </button>
           <LoadingButton
             className="px-4 py-2 text-sm font-medium text-white bg-adult-green border border-transparent rounded-md hover:bg-adult-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green disabled:opacity-50"
-            disabled={!isDirty || isLoading}
+            disabled={!isDirty || !isValid || isLoading}
             loading={isLoading}
             type="submit"
           >
