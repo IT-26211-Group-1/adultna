@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import Table from "@/components/ui/Table";
+import { type ColumnDef } from "@tanstack/react-table";
+import { AdminTable } from "@/components/admin/AdminTable";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import { User, UsersTableProps } from "@/types/admin";
 import { addToast } from "@heroui/toast";
 import { useAdminUsers } from "@/hooks/queries/admin/useAdminQueries";
 import EditUserModal from "./EditUserModal";
-import { getUsersTableColumns } from "@/constants/admin-tables";
 import { formatDate } from "@/constants/format-date";
 import { RetryButton } from "@/components/ui/RetryButton";
+import { AdminAddButton } from "@/components/admin/AdminAddButton";
+import AddUserModal from "./AddUserModal";
 
 // Memoized actions dropdown
 const UserActions = React.memo<{
@@ -212,44 +214,117 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
     [updateUserStatus],
   );
 
-  // Memoized user list
+  // Memoized user list (sorted by creation date, most recent first)
   const mappedUsers: User[] = useMemo(
     () =>
-      users.map((user) => ({
-        id: user.id,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        status: user.status as "active" | "deactivated" | "unverified",
-        createdAt:
-          typeof user.createdAt === "string"
-            ? user.createdAt
-            : user.createdAt.toISOString(),
-        lastLogin: user.lastLogin
-          ? typeof user.lastLogin === "string"
-            ? user.lastLogin
-            : user.lastLogin.toISOString()
-          : null,
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        displayName: user.displayName,
-        roleName: user.roleName || "",
-      })),
+      users
+        .map((user) => ({
+          id: user.id,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          status: user.status as "active" | "deactivated" | "unverified",
+          createdAt:
+            typeof user.createdAt === "string"
+              ? user.createdAt
+              : user.createdAt.toISOString(),
+          lastLogin: user.lastLogin
+            ? typeof user.lastLogin === "string"
+              ? user.lastLogin
+              : user.lastLogin.toISOString()
+            : null,
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          displayName: user.displayName,
+          roleName: user.roleName || "",
+        }))
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+
+          return dateB - dateA;
+        }),
     [users],
   );
 
-  // Memoized table columns
-  const columns = useMemo(
-    () =>
-      getUsersTableColumns(
-        formatDate,
-        handleEditAccount,
-        handleResetPassword,
-        handleToggleAccountStatus,
-        isUpdatingStatus,
-        UserActions,
-      ),
+  // Table columns for @tanstack/react-table
+  const columns: ColumnDef<User>[] = useMemo(
+    () => [
+      {
+        accessorKey: "email",
+        header: "Email",
+        cell: ({ row }) => (
+          <div>
+            <div className="font-medium">{row.getValue("email")}</div>
+            <div className="text-xs text-gray-500">
+              {row.original.firstName} {row.original.lastName}
+            </div>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.getValue("status") as string;
+          const colors = {
+            active: "bg-green-100 text-green-800",
+            deactivated: "bg-red-100 text-red-800",
+            unverified: "bg-yellow-100 text-yellow-800",
+          };
+
+          return (
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status as keyof typeof colors]}`}
+            >
+              {status}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "emailVerified",
+        header: "Email Verified",
+        cell: ({ row }) => (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              row.getValue("emailVerified")
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {row.getValue("emailVerified") ? "Yes" : "No"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Created",
+        cell: ({ row }) => formatDate(row.getValue("createdAt")),
+      },
+      {
+        accessorKey: "lastLogin",
+        header: "Last Login",
+        cell: ({ row }) => {
+          const lastLogin = row.getValue("lastLogin") as string | null;
+
+          return lastLogin ? formatDate(lastLogin) : "Never";
+        },
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <UserActions
+            isUpdating={isUpdatingStatus}
+            user={row.original}
+            onEdit={handleEditAccount}
+            onResetPassword={handleResetPassword}
+            onToggleStatus={handleToggleAccountStatus}
+          />
+        ),
+      },
+    ],
     [
-      formatDate,
       handleEditAccount,
       handleResetPassword,
       handleToggleAccountStatus,
@@ -270,7 +345,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">User Accounts</h2>
@@ -278,21 +353,18 @@ const UsersTable: React.FC<UsersTableProps> = ({ onEditUser }) => {
             Manage user accounts and permissions
           </p>
         </div>
-        <div className="text-sm text-gray-500">
-          {loading ? "Loading..." : `${users.length} users`}
-        </div>
+        <AdminAddButton
+          label="Add User"
+          modalComponent={<AddUserModal />}
+          variant="green"
+        />
       </div>
 
-      <Table
+      <AdminTable
         columns={columns}
         data={mappedUsers}
-        emptyMessage="No users found"
-        loading={loading}
-        pagination={{
-          enabled: true,
-          pageSize: 10,
-          pageSizeOptions: [5, 10, 25, 50, 100],
-        }}
+        isLoading={loading}
+        searchPlaceholder="Search users..."
       />
 
       {selectedUser && (

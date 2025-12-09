@@ -2,28 +2,19 @@
 
 import React, { memo, useMemo, useCallback, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
 import { useInterviewQuestions } from "@/hooks/queries/admin/useInterviewQuestionQueries";
+import {
+  addQuestionSchema,
+  AddQuestionForm,
+} from "@/validators/questionSchema";
 import type {
   QuestionCategory,
   QuestionSource,
 } from "@/types/interview-question";
-
-type JobRoleField = {
-  jobRoleTitle: string;
-};
-
-type AddQuestionForm = {
-  question: string;
-  category: QuestionCategory;
-  industry: string;
-  customIndustry?: string;
-  source: QuestionSource;
-  customCategory?: string;
-  jobRoles: JobRoleField[];
-};
 
 type AddQuestionModalProps = {
   open?: boolean;
@@ -70,12 +61,13 @@ function AddQuestionModal({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty, isValid },
     reset,
     setValue,
     watch,
     control,
   } = useForm<AddQuestionForm>({
+    resolver: zodResolver(addQuestionSchema),
     defaultValues: {
       question: "",
       category: "" as QuestionCategory,
@@ -104,16 +96,27 @@ function AddQuestionModal({
     [fields.length, remove],
   );
 
+  const handleClose = useCallback(() => {
+    reset();
+    setShowConfirmation(false);
+    setIsAIGenerated(false);
+    onClose();
+  }, [reset, onClose]);
+
   const onSubmit = useCallback(
-    handleSubmit(async (data: AddQuestionForm) => {
+    async (data: AddQuestionForm) => {
       const jobRoles =
         data.jobRoles
-          ?.map((role) => role.jobRoleTitle.trim())
-          .filter((title) => title !== "") || [];
+          ?.map((role) => role.jobRoleTitle?.trim())
+          .filter(
+            (title): title is string => title !== undefined && title !== "",
+          ) || [];
 
       const submissionData = {
         question: data.question,
-        category: data.category,
+        category: data.category === "background" && data.customCategory
+          ? (data.customCategory as QuestionCategory)
+          : data.category,
         industry:
           data.industry === "other" && data.customIndustry
             ? data.customIndustry
@@ -144,16 +147,9 @@ function AddQuestionModal({
           });
         },
       });
-    }),
-    [createQuestion, handleSubmit, isAIGenerated],
+    },
+    [createQuestion, isAIGenerated, handleClose],
   );
-
-  const handleClose = useCallback(() => {
-    reset();
-    setShowConfirmation(false);
-    setIsAIGenerated(false);
-    onClose();
-  }, [reset, onClose]);
 
   const handleGenerateClick = useCallback(() => {
     if (!selectedCategory) {
@@ -249,29 +245,43 @@ function AddQuestionModal({
 
   return (
     <Modal open={open} title="Add New Question" onClose={handleClose}>
-      <form className="space-y-4" onSubmit={onSubmit}>
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label
             className="block text-sm font-medium text-gray-700"
             htmlFor="question"
           >
-            Question *
+            Question <span className="text-red-500">*</span>
           </label>
           <textarea
-            {...register("question", {
-              required: "Question is required",
-              minLength: {
-                value: 10,
-                message: "Question must be at least 10 characters",
-              },
-            })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            {...register("question")}
+            aria-describedby={errors.question ? "question-error" : undefined}
+            aria-invalid={errors.question ? "true" : "false"}
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.question
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             id="question"
             placeholder="Enter interview question"
             rows={4}
           />
           {errors.question && (
-            <p className="mt-1 text-sm text-red-600">
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="question-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
               {errors.question.message}
             </p>
           )}
@@ -282,11 +292,17 @@ function AddQuestionModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="category"
           >
-            Category *
+            Category <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("category", { required: "Category is required" })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            {...register("category")}
+            aria-describedby={errors.category ? "category-error" : undefined}
+            aria-invalid={errors.category ? "true" : "false"}
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.category
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             id="category"
           >
             <option disabled value="">
@@ -299,7 +315,21 @@ function AddQuestionModal({
             ))}
           </select>
           {errors.category && (
-            <p className="mt-1 text-sm text-red-600">
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="category-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
               {errors.category.message}
             </p>
           )}
@@ -310,11 +340,17 @@ function AddQuestionModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="industry"
           >
-            Industry *
+            Industry <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("industry", { required: "Industry is required" })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            {...register("industry")}
+            aria-describedby={errors.industry ? "industry-error" : undefined}
+            aria-invalid={errors.industry ? "true" : "false"}
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.industry
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             id="industry"
           >
             <option disabled value="">
@@ -327,7 +363,21 @@ function AddQuestionModal({
             ))}
           </select>
           {errors.industry && (
-            <p className="mt-1 text-sm text-red-600">
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="industry-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
               {errors.industry.message}
             </p>
           )}
@@ -339,27 +389,86 @@ function AddQuestionModal({
               className="block text-sm font-medium text-gray-700"
               htmlFor="customIndustry"
             >
-              Specify Industry *
+              Specify Industry <span className="text-red-500">*</span>
             </label>
             <textarea
-              {...register("customIndustry", {
-                required:
-                  selectedIndustry === "other"
-                    ? "Please specify the industry"
-                    : false,
-                minLength: {
-                  value: 3,
-                  message: "Industry must be at least 3 characters",
-                },
-              })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+              {...register("customIndustry")}
+              aria-describedby={
+                errors.customIndustry ? "customIndustry-error" : undefined
+              }
+              aria-invalid={errors.customIndustry ? "true" : "false"}
+              className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+                errors.customIndustry
+                  ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                  : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+              }`}
               id="customIndustry"
               placeholder="Enter industry name"
               rows={2}
             />
             {errors.customIndustry && (
-              <p className="mt-1 text-sm text-red-600">
+              <p
+                className="mt-1 text-sm text-red-600 flex items-center"
+                id="customIndustry-error"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    clipRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    fillRule="evenodd"
+                  />
+                </svg>
                 {errors.customIndustry.message}
+              </p>
+            )}
+          </div>
+        )}
+
+        {selectedCategory === "background" && (
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="customCategory"
+            >
+              Please specify the category{" "}
+              <span className="text-red-500">*</span>
+            </label>
+            <input
+              {...register("customCategory")}
+              aria-describedby={
+                errors.customCategory ? "customCategory-error" : undefined
+              }
+              aria-invalid={errors.customCategory ? "true" : "false"}
+              className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+                errors.customCategory
+                  ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                  : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+              }`}
+              id="customCategory"
+              placeholder="Enter custom category"
+              type="text"
+            />
+            {errors.customCategory && (
+              <p
+                className="mt-1 text-sm text-red-600 flex items-center"
+                id="customCategory-error"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    clipRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    fillRule="evenodd"
+                  />
+                </svg>
+                {errors.customCategory.message}
               </p>
             )}
           </div>
@@ -459,7 +568,8 @@ function AddQuestionModal({
             Cancel
           </button>
           <LoadingButton
-            disabled={isCreatingQuestion}
+            className="px-4 py-2 text-sm font-medium text-white bg-adult-green border border-transparent rounded-md hover:bg-adult-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green disabled:opacity-50"
+            disabled={!isValid || isCreatingQuestion}
             loading={isCreatingQuestion}
             type="submit"
           >
