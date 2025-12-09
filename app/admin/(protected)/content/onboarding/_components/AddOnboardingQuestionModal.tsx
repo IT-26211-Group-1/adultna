@@ -31,7 +31,7 @@ export default function AddOnboardingQuestionModal({
     control,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<AddOnboardingQuestionForm>({
-    resolver: zodResolver(addOnboardingQuestionSchema),
+    resolver: zodResolver(addOnboardingQuestionSchema) as any,
     defaultValues: {
       question: "",
       category: "life_stage",
