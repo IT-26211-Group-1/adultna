@@ -1,0 +1,25 @@
+.scrollbarThin {
+  height: calc(100% - 40px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  overflow-y: auto;
+}
+
+.scrollbarThin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbarThin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbarThin::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.scrollbarThin::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}

@@ -73,7 +73,6 @@ export function TemplateCard({
       )}
       shadow="none"
       onPress={() => {
-        console.log("Template card clicked:", template.id);
         onSelect();
       }}
     >

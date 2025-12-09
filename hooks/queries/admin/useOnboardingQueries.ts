@@ -104,6 +104,15 @@ export type PermanentDeleteQuestionResponse = {
   message: string;
 };
 
+export type BatchOperationResponse = {
+  success: boolean;
+  message: string;
+  results: {
+    successful: number[];
+    failed: Array<{ questionId: number; reason: string }>;
+  };
+};
+
 export type QuestionsListResponse = {
   success: boolean;
   data: OnboardingQuestion[];
@@ -159,6 +168,25 @@ const onboardingApi = {
     data: PermanentDeleteQuestionRequest,
   ): Promise<PermanentDeleteQuestionResponse> =>
     ApiClient.delete(`/admin/onboarding/questions/${data.questionId}/delete`),
+
+  batchArchiveQuestions: (
+    questionIds: number[],
+  ): Promise<BatchOperationResponse> =>
+    ApiClient.post("/admin/onboarding/questions/batch/archive", {
+      questionIds,
+    }),
+
+  batchRestoreQuestions: (
+    questionIds: number[],
+  ): Promise<BatchOperationResponse> =>
+    ApiClient.post("/admin/onboarding/questions/batch/restore", {
+      questionIds,
+    }),
+
+  batchPermanentDeleteQuestions: (
+    questionIds: number[],
+  ): Promise<BatchOperationResponse> =>
+    ApiClient.post("/admin/onboarding/questions/batch/delete", { questionIds }),
 };
 
 // Onboarding Questions Management Hook
@@ -250,6 +278,33 @@ export function useOnboardingQuestions() {
     },
   });
 
+  const batchArchiveQuestionsMutation = useMutation({
+    mutationFn: onboardingApi.batchArchiveQuestions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+    },
+  });
+
+  const batchRestoreQuestionsMutation = useMutation({
+    mutationFn: onboardingApi.batchRestoreQuestions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+    },
+  });
+
+  const batchPermanentDeleteQuestionsMutation = useMutation({
+    mutationFn: onboardingApi.batchPermanentDeleteQuestions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.onboarding?.all || ["admin", "onboarding"],
+      });
+    },
+  });
+
   return {
     questions: questionsData?.data || [],
     questionsCount: questionsData?.count || 0,
@@ -283,6 +338,16 @@ export function useOnboardingQuestions() {
     restoreQuestionAsync: restoreQuestionMutation.mutateAsync,
     permanentDeleteQuestion: permanentDeleteQuestionMutation.mutate,
     permanentDeleteQuestionAsync: permanentDeleteQuestionMutation.mutateAsync,
+    batchArchiveQuestions: batchArchiveQuestionsMutation.mutate,
+    batchArchiveQuestionsAsync: batchArchiveQuestionsMutation.mutateAsync,
+    isBatchArchiving: batchArchiveQuestionsMutation.isPending,
+    batchRestoreQuestions: batchRestoreQuestionsMutation.mutate,
+    batchRestoreQuestionsAsync: batchRestoreQuestionsMutation.mutateAsync,
+    isBatchRestoring: batchRestoreQuestionsMutation.isPending,
+    batchPermanentDeleteQuestions: batchPermanentDeleteQuestionsMutation.mutate,
+    batchPermanentDeleteQuestionsAsync:
+      batchPermanentDeleteQuestionsMutation.mutateAsync,
+    isBatchPermanentDeleting: batchPermanentDeleteQuestionsMutation.isPending,
     refetchQuestions,
 
     createQuestionData: createQuestionMutation.data,

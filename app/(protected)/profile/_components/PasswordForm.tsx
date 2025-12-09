@@ -22,6 +22,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useUpdatePassword } from "@/hooks/queries/useProfileQueries";
 import { useAuth } from "@/hooks/useAuth";
+import { logger } from "@/lib/logger";
 
 export function PasswordForm() {
   const { user } = useAuth();
@@ -125,7 +126,7 @@ export function PasswordForm() {
           updatePassword.reset(); // Reset mutation state
         }, 0);
       } catch (error) {
-        console.error("Failed to update password:", error);
+        logger.error("Failed to update password:", error);
       } finally {
         setIsSaving(false);
       }

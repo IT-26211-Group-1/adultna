@@ -15,6 +15,7 @@ import {
 } from "@heroui/modal";
 import { Button } from "@heroui/react";
 import { LoadingSpinner } from "../LoadingSpinner";
+import { logger } from "@/lib/logger";
 
 interface SidebarUserProfileProps {
   isCollapsed: boolean;
@@ -45,7 +46,7 @@ export default function SidebarUserProfile({
       logout();
       onClose();
     } catch (error) {
-      console.error("Logout error:", error);
+      logger.error("Logout error:", error);
     }
   };
 
