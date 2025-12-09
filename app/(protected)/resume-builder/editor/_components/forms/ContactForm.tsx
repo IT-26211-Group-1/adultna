@@ -64,7 +64,7 @@ export default function ContactForm({
 
       setTimeout(() => {
         isSyncingRef.current = false;
-      }, 100);
+      }, 500); // Extended to cover 300ms debounce + 200ms buffer
     }
   }, [form, resumeData, setResumeData]);
 
@@ -76,10 +76,25 @@ export default function ContactForm({
   useEffect(() => {
     const { unsubscribe } = form.watch(() => {
       debouncedSync();
+
+      // Trigger validation check whenever form values change
+      if (onValidationChange) {
+        const values = form.getValues();
+        const hasRequiredFields = !!(
+          values.firstName &&
+          values.lastName &&
+          values.email &&
+          values.phone
+        );
+        const hasNoErrors = Object.keys(form.formState.errors).length === 0;
+        const isValid = hasRequiredFields && hasNoErrors;
+
+        onValidationChange(isValid);
+      }
     });
 
     return unsubscribe;
-  }, [form, debouncedSync]);
+  }, [form, debouncedSync, onValidationChange]);
 
   useEffect(() => {
     if (onValidationChange) {
