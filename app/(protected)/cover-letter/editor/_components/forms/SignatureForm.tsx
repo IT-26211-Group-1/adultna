@@ -1,7 +1,7 @@
 "use client";
 
 import { Textarea, Button } from "@heroui/react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { debounce } from "@/lib/utils/debounce";
 import type { CoverLetterSection } from "@/types/cover-letter";
 
@@ -22,21 +22,34 @@ export default function SignatureForm({
   isLoading,
   onValidationChange,
 }: SignatureFormProps) {
+  const previousDataRef = useRef<string>("");
   const [content, setContent] = useState<string>(section?.content || "");
+
+  // Initialize previousDataRef on mount
+  useEffect(() => {
+    if (previousDataRef.current === "" && section?.content !== undefined) {
+      previousDataRef.current = section.content;
+    }
+  }, []);
 
   // Update local state when section content changes from parent
   useEffect(() => {
-    if (section?.content !== undefined && section?.content !== content) {
-      setContent(section.content);
+    if (section?.content !== undefined) {
+      const currentData = section.content;
+
+      if (previousDataRef.current !== currentData) {
+        setContent(currentData);
+        previousDataRef.current = currentData;
+      }
     }
-  }, [section?.content, content]);
+  }, [section?.content]);
 
   const debouncedSync = useMemo(
     () =>
       debounce((newContent: string) => {
         onSectionChange(newContent);
       }, 300),
-    [onSectionChange],
+    [onSectionChange]
   );
 
   useEffect(() => {
@@ -44,6 +57,24 @@ export default function SignatureForm({
       debouncedSync(content);
     }
   }, [content, section?.content, debouncedSync]);
+
+  // Function to flush pending changes immediately
+  const flushChanges = useCallback(() => {
+    if (content !== section?.content) {
+      debouncedSync.cancel();
+      onSectionChange(content);
+    }
+  }, [content, section?.content, debouncedSync, onSectionChange]);
+
+  // Handle finish with immediate sync
+  const handleFinishClick = useCallback(() => {
+    flushChanges();
+    if (onFinish) {
+      setTimeout(() => {
+        onFinish();
+      }, 0);
+    }
+  }, [flushChanges, onFinish]);
 
   const CHARACTER_LIMIT = 100;
 
@@ -105,7 +136,7 @@ export default function SignatureForm({
             isDisabled={isOverLimit || isLoading}
             isLoading={isLoading}
             size="md"
-            onPress={onFinish}
+            onPress={handleFinishClick}
           >
             {isLoading
               ? "Saving..."

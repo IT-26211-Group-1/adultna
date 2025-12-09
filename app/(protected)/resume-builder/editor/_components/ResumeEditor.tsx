@@ -30,6 +30,7 @@ export default function ResumeEditor() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const currentStep = searchParams.get("step") || steps[0].key;
+  const stepParamValue = searchParams.get("step");
   const templateId = searchParams.get("templateId") as TemplateId | null;
   const resumeId = searchParams.get("resumeId") || null;
 
@@ -58,12 +59,11 @@ export default function ResumeEditor() {
       setLoadedResumeId(existingResume.id);
       setCurrentResumeId(existingResume.id);
 
-      // Check if resume is already completed and show completion page
-      if (existingResume.status === "completed") {
+      if (existingResume.status === "completed" && !stepParamValue) {
         setIsCompleted(true);
       }
     }
-  }, [existingResume, loadedResumeId]);
+  }, [existingResume, loadedResumeId, stepParamValue]);
 
   // Reset completion state when step changes (for Edit Resume functionality)
   const previousStepRef = useRef<string | null>(null);
@@ -73,10 +73,9 @@ export default function ResumeEditor() {
       if (isCompleted) {
         setIsCompleted(false);
       }
-      // Reset validation state when changing steps
       setIsCurrentFormValid(true);
+      previousStepRef.current = currentStep;
     }
-    previousStepRef.current = currentStep;
   }, [currentStep, isCompleted]);
 
   const createResume = useCreateResume();
@@ -195,12 +194,23 @@ export default function ResumeEditor() {
 
             newParams.delete("templateId");
             newParams.set("resumeId", newResume.id);
-            routerRef.current.replace(
-              `/resume-builder/editor?${newParams.toString()}`,
-              {
-                scroll: false,
-              },
+
+            // Preserve the current step parameter
+            const currentStepParam = searchParamsRef.current.get("step");
+
+            if (currentStepParam) {
+              newParams.set("step", currentStepParam);
+            }
+
+            // Use window.history.replaceState to avoid triggering a page reload
+            const newUrl = `/resume-builder/editor?${newParams.toString()}`;
+
+            window.history.replaceState(
+              { ...window.history.state, as: newUrl, url: newUrl },
+              "",
+              newUrl,
             );
+
             if (onSuccessCallback) {
               onSuccessCallback();
             }
