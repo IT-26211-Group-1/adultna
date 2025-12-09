@@ -372,13 +372,27 @@ const GuidesTable: React.FC = () => {
   const isPermanentDeleting =
     isHardDeletingGuide || permanentDeletingGuideId !== null;
 
-  // Filter guides into active and archived
+  // Filter guides into active and archived, sorted by creation date (most recent first)
   const activeGuides = useMemo(
-    () => guides.filter((g) => g.isActive),
+    () =>
+      guides
+        .filter((g) => g.isActive)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        }),
     [guides],
   );
   const archivedGuides = useMemo(
-    () => guides.filter((g) => !g.isActive),
+    () =>
+      guides
+        .filter((g) => !g.isActive)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        }),
     [guides],
   );
 

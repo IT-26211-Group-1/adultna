@@ -315,12 +315,27 @@ const QuestionsTable: React.FC = () => {
   } = useInterviewQuestions();
 
   // Filter questions based on view mode (memoized to prevent pagination reset)
+  // Sorted by creation date, most recent first
   const activeQuestions = useMemo(
-    () => questions.filter((q) => !q.deletedAt),
+    () =>
+      questions
+        .filter((q) => !q.deletedAt)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        }),
     [questions]
   );
   const archivedQuestions = useMemo(
-    () => questions.filter((q) => q.deletedAt),
+    () =>
+      questions
+        .filter((q) => q.deletedAt)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        }),
     [questions]
   );
 

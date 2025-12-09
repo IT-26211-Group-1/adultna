@@ -292,9 +292,29 @@ const OnboardingQuestionsTable: React.FC = () => {
     refetchQuestions,
   } = useOnboardingQuestions();
 
-  // Filter questions based on view mode
-  const activeQuestions = questions.filter((q) => !q.deletedAt);
-  const archivedQuestions = questions.filter((q) => q.deletedAt);
+  // Filter questions based on view mode and sort by creation date (most recent first)
+  const activeQuestions = useMemo(
+    () =>
+      questions
+        .filter((q) => !q.deletedAt)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        }),
+    [questions]
+  );
+  const archivedQuestions = useMemo(
+    () =>
+      questions
+        .filter((q) => q.deletedAt)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        }),
+    [questions]
+  );
 
   // Select which questions to display based on toggle
   const displayQuestions = showArchived ? archivedQuestions : activeQuestions;
