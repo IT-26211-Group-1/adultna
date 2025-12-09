@@ -79,6 +79,7 @@ export const AdminLoginForm = () => {
 
             <Button
               className="w-full bg-adult-green text-white hover:bg-adult-green/90"
+              disableAnimation
               isLoading={loading}
               size="lg"
               type="submit"
