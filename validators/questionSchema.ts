@@ -13,7 +13,7 @@ export const addQuestionSchema = z
     }),
     industry: z.string().min(1, "Industry is required"),
     customIndustry: z.string().optional(),
-    source: z.enum(["manual", "ai"]).default("manual"),
+    source: z.enum(["manual", "ai"]),
     customCategory: z.string().optional(),
     jobRoles: z
       .array(

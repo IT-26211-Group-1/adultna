@@ -16,10 +16,6 @@ import type {
   QuestionSource,
 } from "@/types/interview-question";
 
-type JobRoleField = {
-  jobRoleTitle: string;
-};
-
 type AddQuestionModalProps = {
   open?: boolean;
   onClose?: () => void;
@@ -100,12 +96,19 @@ function AddQuestionModal({
     [fields.length, remove],
   );
 
+  const handleClose = useCallback(() => {
+    reset();
+    setShowConfirmation(false);
+    setIsAIGenerated(false);
+    onClose();
+  }, [reset, onClose]);
+
   const onSubmit = useCallback(
-    handleSubmit(async (data: AddQuestionForm) => {
+    async (data: AddQuestionForm) => {
       const jobRoles =
         data.jobRoles
-          ?.map((role) => role.jobRoleTitle.trim())
-          .filter((title) => title !== "") || [];
+          ?.map((role) => role.jobRoleTitle?.trim())
+          .filter((title): title is string => title !== undefined && title !== "") || [];
 
       const submissionData = {
         question: data.question,
@@ -140,16 +143,9 @@ function AddQuestionModal({
           });
         },
       });
-    }),
-    [createQuestion, handleSubmit, isAIGenerated],
+    },
+    [createQuestion, isAIGenerated, handleClose],
   );
-
-  const handleClose = useCallback(() => {
-    reset();
-    setShowConfirmation(false);
-    setIsAIGenerated(false);
-    onClose();
-  }, [reset, onClose]);
 
   const handleGenerateClick = useCallback(() => {
     if (!selectedCategory) {
@@ -245,7 +241,7 @@ function AddQuestionModal({
 
   return (
     <Modal open={open} title="Add New Question" onClose={handleClose}>
-      <form className="space-y-4" onSubmit={onSubmit}>
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label
             className="block text-sm font-medium text-gray-700"
