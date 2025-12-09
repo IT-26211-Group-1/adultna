@@ -183,11 +183,17 @@ export function useFeedback() {
 
         if (!featureName && item.featureId) {
           const featureMap: Record<string, string> = {
-            "1": "GovMap",
-            "2": "FileBox",
-            "3": "Process Guides",
-            "4": "AI Gabay Agent",
-            "5": "Mock Interview Coach",
+            "1": "Overview / Dashboard",
+            "2": "Roadmap",
+            "3": "AI Gabay Agent",
+            "4": "GovGuides",
+            "5": "Adulting Filebox",
+            "6": "Resume Builder",
+            "7": "Cover Letter Helper",
+            "8": "Mock Interview Coach",
+            "9": "Job Board",
+            "10": "Profile Settings",
+            "11": "General / Other",
           };
 
           featureName =

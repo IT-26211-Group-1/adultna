@@ -222,7 +222,7 @@ export default function AddOnboardingQuestionModal({
               {errors.options.root.message}
             </p>
           )}
-          {errors.options && typeof errors.options.message === 'string' && (
+          {errors.options && typeof errors.options.message === "string" && (
             <p className="text-sm text-red-600 flex items-center mb-2">
               <svg
                 className="w-4 h-4 mr-1"

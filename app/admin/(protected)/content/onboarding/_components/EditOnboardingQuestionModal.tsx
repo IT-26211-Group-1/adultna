@@ -169,11 +169,7 @@ function EditForm({
 
   return (
     <Modal open={open} title="Edit Onboarding Question" onClose={handleClose}>
-      <form
-        key={question.id}
-        className="space-y-4"
-        onSubmit={handleFormSubmit}
-      >
+      <form key={question.id} className="space-y-4" onSubmit={handleFormSubmit}>
         <div>
           <label
             className="block text-sm font-medium text-gray-700"
