@@ -260,7 +260,7 @@ export default function FeedbackModal({
             Cancel
           </Button>
           <Button
-            color="primary"
+            className="bg-adult-green text-white"
             isDisabled={isLoading}
             isLoading={isLoading}
             onPress={onSubmit}
