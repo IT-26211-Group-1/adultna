@@ -82,7 +82,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       if (urlLang !== language) {
         setLanguageState(urlLang);
       }
-    } else if (isGovGuidesPage && pathname && typeof window !== "undefined") {
+    } else if (
+      isGovGuidesPage &&
+      pathname &&
+      typeof window !== "undefined" &&
+      !urlLang
+    ) {
       const params = new URLSearchParams(searchParams?.toString());
 
       params.set("lang", language);
