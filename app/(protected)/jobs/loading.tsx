@@ -1,4 +1,4 @@
-import JobCardSkeleton from "./_components/JobCardSkeleton";
+import JobCardSkeleton from "@/app/(protected)/jobs/_components/JobCardSkeleton";
 
 export default function Loading() {
   const JOBS_PER_PAGE = 9;
