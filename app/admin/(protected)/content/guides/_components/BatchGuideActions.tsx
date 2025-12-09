@@ -9,7 +9,7 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
 import type { BatchOperationResponse } from "@/hooks/queries/admin/useGuidesQueries";
 import { logger } from "@/lib/logger";
@@ -44,13 +44,13 @@ export function BatchGuideActions({
   const handleBatchArchive = async () => {
     try {
       const result = (await batchArchiveGuidesAsync(
-        selectedGuideIds,
+        selectedGuideIds
       )) as BatchOperationResponse;
 
       if (result.success) {
         addToast({
           title: "Batch Archive Completed",
-          description: `${result.results.successful.length} guide(s) archived successfully. ${result.results.failed.length} failed.`,
+          description: `${result.results.successful.length} guide(s) archived successfully.`,
           color: "success",
         });
 
@@ -74,13 +74,13 @@ export function BatchGuideActions({
   const handleBatchRestore = async () => {
     try {
       const result = (await batchRestoreGuidesAsync(
-        selectedGuideIds,
+        selectedGuideIds
       )) as BatchOperationResponse;
 
       if (result.success) {
         addToast({
           title: "Batch Restore Completed",
-          description: `${result.results.successful.length} guide(s) restored successfully. ${result.results.failed.length} failed.`,
+          description: `${result.results.successful.length} guide(s) restored successfully.`,
           color: "success",
         });
 
@@ -104,13 +104,13 @@ export function BatchGuideActions({
   const handleBatchPermanentDelete = async () => {
     try {
       const result = (await batchPermanentDeleteGuidesAsync(
-        selectedGuideIds,
+        selectedGuideIds
       )) as BatchOperationResponse;
 
       if (result.success) {
         addToast({
           title: "Batch Delete Completed",
-          description: `${result.results.successful.length} guide(s) permanently deleted. ${result.results.failed.length} failed.`,
+          description: `${result.results.successful.length} guide(s) permanently deleted.`,
           color: "success",
         });
 

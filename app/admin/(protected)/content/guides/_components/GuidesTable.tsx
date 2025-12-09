@@ -12,7 +12,7 @@ import UpdateGuideStatusModal from "./UpdateGuideStatusModal";
 import { BatchGuideActions } from "./BatchGuideActions";
 import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
-import { addToast } from "@heroui/react";
+import { addToast } from "@heroui/toast";
 
 type GuideActionsProps = {
   guide: GovGuide;
@@ -312,7 +312,7 @@ const GuidesTable: React.FC = () => {
     isRestoringGuide,
     isHardDeletingGuide,
   } = useGuidesQueries();
-  const { data, isLoading } = useListGuides();
+  const { data, isLoading } = useListGuides({ includeDeleted: true });
 
   const guides: GovGuide[] = useMemo(() => {
     if (!data?.success || !data?.data?.guides) return [];
