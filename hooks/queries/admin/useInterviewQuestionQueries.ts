@@ -128,17 +128,17 @@ const questionApi = {
   }> => ApiClient.post("/transcribe/presigned-url", data),
 
   batchArchiveQuestions: (
-    questionIds: string[]
+    questionIds: string[],
   ): Promise<BatchOperationResponse> =>
     ApiClient.post("/admin/interview-questions/batch/archive", { questionIds }),
 
   batchRestoreQuestions: (
-    questionIds: string[]
+    questionIds: string[],
   ): Promise<BatchOperationResponse> =>
     ApiClient.post("/admin/interview-questions/batch/restore", { questionIds }),
 
   batchPermanentDeleteQuestions: (
-    questionIds: string[]
+    questionIds: string[],
   ): Promise<BatchOperationResponse> =>
     ApiClient.post("/admin/interview-questions/batch/delete", { questionIds }),
 

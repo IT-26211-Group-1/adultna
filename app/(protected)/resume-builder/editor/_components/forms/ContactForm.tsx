@@ -17,7 +17,7 @@ export default function ContactForm({
   const isSyncingRef = useRef(false);
   const previousDataRef = useRef<string>("");
   const [showJobPosition, setShowJobPosition] = useState(
-    !!resumeData.jobPosition
+    !!resumeData.jobPosition,
   );
   const [showBirthDate, setShowBirthDate] = useState(!!resumeData.birthDate);
   const [showLinkedIn, setShowLinkedIn] = useState(!!resumeData.linkedin);
@@ -40,7 +40,7 @@ export default function ContactForm({
           ? new CalendarDate(
               resumeData.birthDate.getFullYear(),
               resumeData.birthDate.getMonth() + 1,
-              resumeData.birthDate.getDate()
+              resumeData.birthDate.getDate(),
             )
           : undefined,
       linkedin: resumeData.linkedin || "",
@@ -70,7 +70,7 @@ export default function ContactForm({
 
   const debouncedSync = useMemo(
     () => debounce(syncFormData, 300),
-    [syncFormData]
+    [syncFormData],
   );
 
   useEffect(() => {
@@ -141,7 +141,7 @@ export default function ContactForm({
               ? new CalendarDate(
                   resumeData.birthDate.getFullYear(),
                   resumeData.birthDate.getMonth() + 1,
-                  resumeData.birthDate.getDate()
+                  resumeData.birthDate.getDate(),
                 )
               : undefined,
           linkedin: resumeData.linkedin || "",
@@ -311,8 +311,8 @@ export default function ContactForm({
                       new CalendarDate(
                         val.getFullYear(),
                         val.getMonth() + 1,
-                        val.getDate()
-                      )
+                        val.getDate(),
+                      ),
                     );
                   } else {
                     field.onChange(val);
@@ -323,7 +323,7 @@ export default function ContactForm({
                 const maxDate = new CalendarDate(
                   today.getFullYear(),
                   today.getMonth() + 1,
-                  today.getDate()
+                  today.getDate(),
                 );
 
                 return (

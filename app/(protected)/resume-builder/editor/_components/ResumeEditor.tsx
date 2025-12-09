@@ -35,13 +35,13 @@ export default function ResumeEditor() {
   const resumeId = searchParams.get("resumeId") || null;
 
   const { data: existingResume, isLoading: isLoadingResume } = useResume(
-    resumeId || undefined
+    resumeId || undefined,
   );
 
   const [loadedResumeId, setLoadedResumeId] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(
-    resumeId
+    resumeId,
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const lastSavedDataRef = useRef<ResumeData | null>(null);
@@ -82,11 +82,11 @@ export default function ResumeEditor() {
   const updateResume = useUpdateResume(currentResumeId || "");
 
   const FormComponent = steps.find(
-    (step) => step.key === currentStep
+    (step) => step.key === currentStep,
   )?.component;
   const currentStepIndex = steps.findIndex((step) => step.key === currentStep);
   const currentStepTitle = steps.find(
-    (step) => step.key === currentStep
+    (step) => step.key === currentStep,
   )?.title;
   const isLastStep = currentStepIndex === steps.length - 1;
   const isContactForm = currentStep === "contact";
@@ -114,7 +114,7 @@ export default function ResumeEditor() {
             exp.jobTitle?.trim() &&
             exp.employer?.trim() &&
             exp.startDate &&
-            exp.description?.trim()
+            exp.description?.trim(),
         );
       case "education":
         // Check if there's at least one education item with required fields filled
@@ -130,7 +130,7 @@ export default function ResumeEditor() {
             edu.schoolName?.trim() &&
             edu.degree?.trim() &&
             edu.fieldOfStudy?.trim() &&
-            edu.graduationDate
+            edu.graduationDate,
         );
       case "certifications":
         // Check if there's at least one certification with certificate name filled
@@ -169,7 +169,7 @@ export default function ResumeEditor() {
   const handleSave = useCallback(
     async (
       onSuccessCallback?: () => void,
-      dataOverrides?: Partial<ResumeData & { status?: "draft" | "completed" }>
+      dataOverrides?: Partial<ResumeData & { status?: "draft" | "completed" }>,
     ) => {
       const dataToSave = { ...resumeData, ...dataOverrides };
 
@@ -197,16 +197,18 @@ export default function ResumeEditor() {
 
             // Preserve the current step parameter
             const currentStepParam = searchParamsRef.current.get("step");
+
             if (currentStepParam) {
               newParams.set("step", currentStepParam);
             }
 
             // Use window.history.replaceState to avoid triggering a page reload
             const newUrl = `/resume-builder/editor?${newParams.toString()}`;
+
             window.history.replaceState(
               { ...window.history.state, as: newUrl, url: newUrl },
               "",
-              newUrl
+              newUrl,
             );
 
             if (onSuccessCallback) {
@@ -246,7 +248,7 @@ export default function ResumeEditor() {
         }
       }
     },
-    [currentResumeId, templateId, resumeData, createResume, updateResume]
+    [currentResumeId, templateId, resumeData, createResume, updateResume],
   );
 
   const handleSaveRef = useRef(handleSave);
@@ -260,7 +262,7 @@ export default function ResumeEditor() {
       if (!isInitialMount.current) {
         handleSaveRef.current();
       }
-    }, 1000)
+    }, 1000),
   );
 
   useEffect(() => {
@@ -372,7 +374,7 @@ export default function ResumeEditor() {
             cert.certificate &&
             cert.certificate.length <= 100 &&
             (!cert.issuingOrganization ||
-              cert.issuingOrganization.length <= 100)
+              cert.issuingOrganization.length <= 100),
         );
 
         dataOverrides = { certificates: validCertificates || [] };
@@ -384,7 +386,7 @@ export default function ResumeEditor() {
 
   const handleEditTitle = () => {
     setTempTitle(
-      resumeData.title || existingResume?.title || "Untitled Resume"
+      resumeData.title || existingResume?.title || "Untitled Resume",
     );
     setIsEditingTitle(true);
   };
