@@ -86,21 +86,17 @@ test.describe("Job Board module", () => {
         await page.getByRole('button', { name: 'Career Center' }).click();
         await page.getByRole('link', { name: 'Job Board' }).click();
         await expect(page).toHaveURL(/\/jobs\/?$/, { timeout: 15000 });
-
-
-        await page.getByRole('textbox', { name: 'Search jobs' }).click();
         
         await page.getByRole('textbox', { name: 'Search jobs' }).fill('Project Manager');
-
         await page.getByRole('button', { name: 'View Listing' }).first().click();
-        
-        await page.getByRole('button', { name: 'View Listing' }).first().click();
+        await page.waitForTimeout(10000); //wait for modal animation
         await expect(page.getByRole('heading', { name: 'You are leaving AdultNa' })).toBeVisible();
 
         await page.getByRole('button', { name: 'Cancel' }).click();
         await expect(page.getByRole('heading', { name: 'You are leaving AdultNa' })).not.toBeVisible();
 
         await page.getByRole('button', { name: 'View Listing' }).first().click();
+        await page.waitForTimeout(10000); //wait for modal animation    
         await page.getByRole('button', { name: 'Continue' }).click();
 
         // Since the link opens in a new tab, we can only verify that the modal is closed

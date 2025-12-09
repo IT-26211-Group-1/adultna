@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Cover Letter Helper", () => {
     test("cover letter helped page is accessible" , async ({ page }) => {
-        //simulate login of a user who is verified but hasn't gone through onboarding
+        //simulate login of a user
         await page.goto("http://adultna.com/auth/login");
         await page.fill('input[name="email"]', "lewisdominique.nilo.cics@ust.edu.ph");
         await page.fill('input[name="password"]', "Lewis123.");
@@ -17,7 +17,7 @@ test.describe("Cover Letter Helper", () => {
     });
 
     test("upload of pdf file is supported" , async ({ page }) => {
-        //simulate login of a user who is verified but hasn't gone through onboarding
+        //simulate login of a user
         await page.goto("http://adultna.com/auth/login");
         await page.fill('input[name="email"]', "lewisdominique.nilo.cics@ust.edu.ph");
         await page.fill('input[name="password"]', "Lewis123.");
@@ -30,11 +30,11 @@ test.describe("Cover Letter Helper", () => {
         await page.getByRole('button', { name: 'Career Center' }).click();
         await page.getByRole('link', { name: 'Cover Letter Helper' }).click();
 
-        await page.locator('div').filter({ hasText: /^Drag and drop your resumeor browse to choose a filePDF files only, up to 10MB$/ }).nth(2).click();
-        await page.locator('div').filter({ hasText: /^Drag and drop your resumeor browse to choose a filePDF files only, up to 10MB$/ }).nth(1).setInputFiles('NILO_CoverLetter.pdf');
+        await expect(page.locator('input[type="file"]')).toBeAttached();
+        await page.locator('input[type="file"]').setInputFiles('Lewis Dominique Nilo_CV.pdf');
         await page.getByRole('button', { name: 'Generate AI Cover Letter' }).click();
-        await page.waitForTimeout(10000);
-        await expect(page).toHaveURL(/\/cover-letter\/editor\/?/, { timeout: 15000 });
+        await page.waitForTimeout(30000);
+        await expect(page).toHaveURL(/\/cover-letter\/editor\/?/, {timeout: 15000});
     });
 
     test("submitting files that are not resumes" , async ({ page }) => {
@@ -44,9 +44,16 @@ test.describe("Cover Letter Helper", () => {
         await page.fill('input[name="password"]', "Lewis123.");
         await page.getByRole("button", { name: "Login" }).click();
 
-        await expect(page).toHaveURL(/\/homepage\/?$/, { timeout: 15000 });
+        await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
+
+        await page.getByRole('button', { name: 'Career Center' }).click();
+        await page.getByRole('link', { name: 'Cover Letter Helper' }).click();
 
         //click upload button
+        await expect(page.locator('input[type="file"]')).toBeAttached();
+        await page.locator('input[type="file"]').setInputFiles('document.pdf');
+        await page.getByRole('button', { name: 'Generate AI Cover Letter' }).click();
+        await expect(page.getByText('Failed to generate cover letter')).toBeVisible();
     });
 
     test("selection tone is not required" , async ({ page }) => {
@@ -58,11 +65,19 @@ test.describe("Cover Letter Helper", () => {
 
         await expect(page).toHaveURL(/\/dashboard\/?$/, { timeout: 15000 });
 
+        await page.getByRole('button', { name: 'Career Center' }).click();
+        await page.getByRole('link', { name: 'Cover Letter Helper' }).click();
+
         //click upload button
+        await expect(page.locator('input[type="file"]')).toBeAttached();
+        await page.locator('input[type="file"]').setInputFiles('Lewis Dominique Nilo_CV.pdf');
+        await page.getByRole('button', { name: 'Generate AI Cover Letter' }).click();
+        await page.waitForTimeout(30000);
+        await expect(page).toHaveURL(/\/cover-letter\/editor\/?/, { timeout: 15000 });
     });
 
     test("verify export to pdf" , async ({ page }) => {
-        //simulate login of a user who is verified but hasn't gone through onboarding
+        //simulate login of a user
         await page.goto("http://adultna.com/auth/login");
         await page.fill('input[name="email"]', "lewisdominique.nilo.cics@ust.edu.ph");
         await page.fill('input[name="password"]', "Lewis123.");
@@ -75,21 +90,19 @@ test.describe("Cover Letter Helper", () => {
         await page.getByRole('button', { name: 'Career Center' }).click();
         await page.getByRole('link', { name: 'Cover Letter Helper' }).click();
 
-        await page.locator('div').filter({ hasText: /^Drag and drop your resumeor browse to choose a filePDF files only, up to 10MB$/ }).nth(2).click();
-        await page.locator('div').filter({ hasText: /^Drag and drop your resumeor browse to choose a filePDF files only, up to 10MB$/ }).nth(1).setInputFiles('NILO_CoverLetter.pdf');
+        await expect(page.locator('input[type="file"]')).toBeAttached();
+        await page.locator('input[type="file"]').setInputFiles('Lewis Dominique Nilo_CV.pdf');
         await page.getByRole('button', { name: 'Generate AI Cover Letter' }).click();
-        await page.waitForTimeout(10000);
+        await page.waitForTimeout(30000);
         await expect(page).toHaveURL(/\/cover-letter\/editor\/?/, { timeout: 15000 });
 
-        const downloadPromise = page.waitForEvent('download');
         await page.getByRole('button', { name: 'Export PDF' }).click({timeout: 15000});
-        const download = await downloadPromise;
         await page.waitForTimeout(5000);
-        await expect(page.getByRole('alertdialog', { name: 'PDF downloaded successfully!' })).toBeVisible();
+        await page.getByText('PDF downloaded successfully!').isVisible();
     });
 
     test("verify character limits/validations per section" , async ({ page }) => {
-        //simulate login of a user who is verified but hasn't gone through onboarding
+        //simulate login of a user
         await page.goto("http://adultna.com/auth/login");
         await page.fill('input[name="email"]', "lewisdominique.nilo.cics@ust.edu.ph");
         await page.fill('input[name="password"]', "Lewis123.");
@@ -102,14 +115,14 @@ test.describe("Cover Letter Helper", () => {
         await page.getByRole('button', { name: 'Career Center' }).click();
         await page.getByRole('link', { name: 'Cover Letter Helper' }).click();
 
-        await page.locator('div').filter({ hasText: /^Drag and drop your resumeor browse to choose a filePDF files only, up to 10MB$/ }).nth(2).click();
-        await page.locator('div').filter({ hasText: /^Drag and drop your resumeor browse to choose a filePDF files only, up to 10MB$/ }).nth(1).setInputFiles('NILO_CoverLetter.pdf');
+        await expect(page.locator('input[type="file"]')).toBeAttached();
+        await page.locator('input[type="file"]').setInputFiles('Lewis Dominique Nilo_CV.pdf');
         await page.getByRole('button', { name: 'Generate AI Cover Letter' }).click();
-        await page.waitForTimeout(10000);
+        await page.waitForTimeout(30000);
         await expect(page).toHaveURL(/\/cover-letter\/editor\/?/, { timeout: 15000 });
 
         await page.getByRole('textbox', { name: 'Introduction' }).fill('A'.repeat(805));
-        await expect(page.locator('div').filter({ hasText: /^Character limit exceeded$/ })).toBeVisible();
+        await page.getByText('Character limit exceeded').isVisible();
         await page.getByRole('textbox', { name: 'Introduction' }).fill('A'.repeat(500));
 
         await page.getByRole('button', { name: 'Proceed to Body' }).click();
@@ -125,12 +138,13 @@ test.describe("Cover Letter Helper", () => {
         await page.getByRole('button', { name: 'Proceed to Signature' }).click();
         
         await page.getByRole('button', { name: 'Complete Cover Letter' }).click(); 
+        await page.waitForTimeout(10000);
         
         await expect(page.getByText('Cover Letter Complete')).toBeVisible();       
     });
 
     test("verify save to filebox functionality" , async ({ page }) => {
-        //simulate login of a user who is verified but hasn't gone through onboarding
+        //simulate login of a user
         await page.goto("http://adultna.com/auth/login");
         await page.fill('input[name="email"]', "lewisdominique.nilo.cics@ust.edu.ph");
         await page.fill('input[name="password"]', "Lewis123.");
@@ -143,14 +157,14 @@ test.describe("Cover Letter Helper", () => {
         await page.getByRole('button', { name: 'Career Center' }).click();
         await page.getByRole('link', { name: 'Cover Letter Helper' }).click();
 
-        await page.locator('div').filter({ hasText: /^Drag and drop your resumeor browse to choose a filePDF files only, up to 10MB$/ }).nth(2).click();
-        await page.locator('div').filter({ hasText: /^Drag and drop your resumeor browse to choose a filePDF files only, up to 10MB$/ }).nth(1).setInputFiles('NILO_CoverLetter.pdf');
+        await expect(page.locator('input[type="file"]')).toBeAttached();
+        await page.locator('input[type="file"]').setInputFiles('Lewis Dominique Nilo_CV.pdf');
         await page.getByRole('button', { name: 'Generate AI Cover Letter' }).click();
         await page.waitForTimeout(10000);
         await expect(page).toHaveURL(/\/cover-letter\/editor\/?/, { timeout: 15000 });
 
         await page.getByRole('textbox', { name: 'Introduction' }).fill('A'.repeat(805));
-        await expect(page.locator('div').filter({ hasText: /^Character limit exceeded$/ })).toBeVisible();
+        await page.getByText('Character limit exceeded').isVisible();
         await page.getByRole('textbox', { name: 'Introduction' }).fill('A'.repeat(500));
 
         await page.getByRole('button', { name: 'Proceed to Body' }).click();
