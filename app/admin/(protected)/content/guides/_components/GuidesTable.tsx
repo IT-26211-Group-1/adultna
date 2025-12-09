@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import Table, { Column } from "@/components/ui/Table";
-import Badge from "@/components/ui/Badge";
+import { type ColumnDef } from "@tanstack/react-table";
+import { AdminTable } from "@/components/admin/AdminTable";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import type { GovGuide, GuideStatus } from "@/types/govguide";
 import { formatDate } from "@/constants/format-date";
@@ -13,32 +13,6 @@ import { BatchGuideActions } from "./BatchGuideActions";
 import { useGuidesQueries } from "@/hooks/queries/admin/useGuidesQueries";
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import { addToast } from "@heroui/react";
-
-// Guide Status Badge Component
-
-const GuideStatusBadge = React.memo<{ status: GuideStatus }>(({ status }) => {
-  const variants = {
-    pending: "warning",
-    accepted: "success",
-    rejected: "error",
-    to_revise: "info",
-  } as const;
-
-  const labels = {
-    pending: "Pending",
-    accepted: "Accepted",
-    rejected: "Rejected",
-    to_revise: "To Revise",
-  };
-
-  return (
-    <Badge size="sm" variant={variants[status]}>
-      {labels[status]}
-    </Badge>
-  );
-});
-
-GuideStatusBadge.displayName = "GuideStatusBadge";
 
 type GuideActionsProps = {
   guide: GovGuide;
@@ -398,13 +372,29 @@ const GuidesTable: React.FC = () => {
   const isPermanentDeleting =
     isHardDeletingGuide || permanentDeletingGuideId !== null;
 
-  // Filter guides into active and archived
+  // Filter guides into active and archived, sorted by creation date (most recent first)
   const activeGuides = useMemo(
-    () => guides.filter((g) => g.isActive),
+    () =>
+      guides
+        .filter((g) => g.isActive)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+
+          return dateB - dateA;
+        }),
     [guides],
   );
   const archivedGuides = useMemo(
-    () => guides.filter((g) => !g.isActive),
+    () =>
+      guides
+        .filter((g) => !g.isActive)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+
+          return dateB - dateA;
+        }),
     [guides],
   );
 
@@ -562,23 +552,28 @@ const GuidesTable: React.FC = () => {
     setSelectedGuideIds([]);
   }, [showArchived]);
 
-  const columns: Column<GovGuide>[] = useMemo(
+  // Table columns for @tanstack/react-table
+  const columns: ColumnDef<GovGuide>[] = useMemo(
     () => [
       {
+        id: "select",
         header: "",
-        accessor: (guide) => (
+        cell: ({ row }) => (
           <input
-            checked={selectedGuideIds.includes(guide.id)}
+            checked={selectedGuideIds.includes(row.original.id)}
             className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
             type="checkbox"
-            onChange={(e) => handleSelectGuide(guide.id, e.target.checked)}
+            onChange={(e) =>
+              handleSelectGuide(row.original.id, e.target.checked)
+            }
           />
         ),
-        width: "50px",
+        size: 50,
       },
       {
+        accessorKey: "title",
         header: "Guide Title",
-        accessor: (guide) => (
+        cell: ({ row }) => (
           <div className="flex items-start gap-2">
             <svg
               className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0"
@@ -592,58 +587,91 @@ const GuidesTable: React.FC = () => {
               />
             </svg>
             <span className="font-medium text-gray-900 line-clamp-2">
-              {guide.title}
+              {row.getValue("title")}
             </span>
           </div>
         ),
-        width: "300px",
+        size: 300,
       },
       {
+        accessorKey: "issuingAgency",
         header: "Agency",
-        accessor: (guide) => (
+        cell: ({ row }) => (
           <span className="font-medium text-gray-900">
-            {guide.issuingAgency}
+            {row.getValue("issuingAgency")}
           </span>
         ),
-        width: "120px",
+        size: 120,
       },
       {
+        accessorKey: "stepsCount",
         header: "Steps",
-        accessor: (guide) => (
-          <span className="text-gray-700">{guide.stepsCount} steps</span>
+        cell: ({ row }) => (
+          <span className="text-gray-700">
+            {row.getValue("stepsCount")} steps
+          </span>
         ),
-        width: "100px",
+        size: 100,
       },
       {
+        accessorKey: "status",
         header: "Status",
-        accessor: (guide) => <GuideStatusBadge status={guide.status} />,
-        width: "120px",
+        cell: ({ row }) => {
+          const status = row.getValue("status") as GuideStatus;
+          const statusVariants = {
+            pending: "bg-yellow-100 text-yellow-800",
+            accepted: "bg-green-100 text-green-800",
+            rejected: "bg-red-100 text-red-800",
+            to_revise: "bg-blue-100 text-blue-800",
+          };
+          const statusLabels = {
+            pending: "Pending",
+            accepted: "Accepted",
+            rejected: "Rejected",
+            to_revise: "To Revise",
+          };
+
+          return (
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${statusVariants[status]}`}
+            >
+              {statusLabels[status]}
+            </span>
+          );
+        },
+        size: 120,
       },
       {
+        accessorKey: "updatedAt",
         header: "Last Updated",
-        accessor: (guide) => (
+        cell: ({ row }) => (
           <div className="flex flex-col text-sm">
-            <span className="text-gray-900">{formatDate(guide.updatedAt)}</span>
-            {guide.updatedByEmail && (
+            <span className="text-gray-900">
+              {formatDate(row.getValue("updatedAt"))}
+            </span>
+            {row.original.updatedByEmail && (
               <span className="text-gray-500 text-xs">
-                by {guide.updatedByEmail}
+                by {row.original.updatedByEmail}
               </span>
             )}
           </div>
         ),
-        width: "180px",
+        size: 180,
       },
       {
+        id: "actions",
         header: "",
-        accessor: (guide) => (
+        cell: ({ row }) => (
           <GuideActions
-            guide={guide}
+            guide={row.original}
             isDeleting={isDeleting}
-            isDeletingThisGuide={deletingGuideId === guide.id}
+            isDeletingThisGuide={deletingGuideId === row.original.id}
             isPermanentDeleting={isPermanentDeleting}
-            isPermanentDeletingThisGuide={permanentDeletingGuideId === guide.id}
+            isPermanentDeletingThisGuide={
+              permanentDeletingGuideId === row.original.id
+            }
             isRestoring={isRestoring}
-            isRestoringThisGuide={restoringGuideId === guide.id}
+            isRestoringThisGuide={restoringGuideId === row.original.id}
             userRole={user?.role}
             onDelete={handleDeleteGuide}
             onEdit={handleEditGuide}
@@ -653,11 +681,10 @@ const GuidesTable: React.FC = () => {
             onUpdateStatus={handleUpdateStatus}
           />
         ),
-        width: "80px",
+        size: 80,
       },
     ],
     [
-      formatDate,
       handleEditGuide,
       handlePreviewGuide,
       handleDeleteGuide,
@@ -710,18 +737,15 @@ const GuidesTable: React.FC = () => {
         onClearSelection={() => setSelectedGuideIds([])}
       />
 
-      <Table
+      <AdminTable
         columns={columns}
         data={displayGuides}
-        emptyMessage={
-          showArchived ? "No archived guides found" : "No data available."
+        isLoading={loading}
+        searchPlaceholder={
+          showArchived
+            ? "Search archived guides..."
+            : "Search government guides..."
         }
-        loading={loading}
-        pagination={{
-          enabled: true,
-          pageSize: 10,
-          pageSizeOptions: [10, 25, 50, 100],
-        }}
       />
 
       {/* Edit Modal */}
