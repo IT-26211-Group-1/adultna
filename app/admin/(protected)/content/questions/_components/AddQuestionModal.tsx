@@ -61,7 +61,7 @@ function AddQuestionModal({
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty, isValid },
+    formState: { errors, isValid },
     reset,
     setValue,
     watch,
