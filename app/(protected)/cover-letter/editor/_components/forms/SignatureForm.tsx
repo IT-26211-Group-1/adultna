@@ -49,7 +49,7 @@ export default function SignatureForm({
       debounce((newContent: string) => {
         onSectionChange(newContent);
       }, 300),
-    [onSectionChange]
+    [onSectionChange],
   );
 
   useEffect(() => {
