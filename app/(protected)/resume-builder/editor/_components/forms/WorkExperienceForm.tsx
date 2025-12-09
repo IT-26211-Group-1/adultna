@@ -137,7 +137,7 @@ export default function WorkExperienceForm({
 
       onValidationChange(isValid);
     }
-  }, [form.formState.errors, form, onValidationChange]);
+  }, [form.formState.errors, fields, form, onValidationChange]);
 
   useEffect(() => {
     if (
@@ -205,6 +205,18 @@ export default function WorkExperienceForm({
     const workExp = form.watch(`workExperiences.${workExpIndex}`);
 
     if (!workExp) {
+      return;
+    }
+
+    // Check if resume ID exists
+    if (!resumeData.id) {
+      addToast({
+        title: "Resume not saved",
+        description:
+          "Please save your resume first before generating AI suggestions",
+        color: "warning",
+      });
+
       return;
     }
 
