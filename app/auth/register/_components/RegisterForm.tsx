@@ -18,7 +18,6 @@ const LazyRecaptcha = dynamic(() => import("@/components/ui/LazyRecaptcha"), {
 // Component imports
 import { UserAuthTitle } from "../_components/UserAuthTitle";
 import { FormInput } from "../_components/FormInput";
-import { CheckboxField } from "../_components/CheckboxField";
 import { AuthButton } from "../_components/AuthButton";
 import { GoogleSignInButton } from "../_components/GoogleSignInButton";
 import { ImageContainer } from "../_components/ImageContainer";
@@ -126,12 +125,32 @@ export const RegisterForm = () => {
             </div>
 
             {/* Terms and Conditions */}
-            <CheckboxField
-              error={errors.acceptedTerms?.message}
-              label="I accept the terms and conditions"
-              name="acceptedTerms"
-              register={register}
-            />
+            <div className="mb-10">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  {...register("acceptedTerms")}
+                  className="mt-1 h-4 w-4 text-adult-green border-gray-300 rounded focus:ring-adult-green focus:ring-2"
+                />
+                <span className="text-sm text-gray-700">
+                  I accept the{" "}
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    className="text-adult-green hover:underline cursor-pointer"
+                  >
+                    terms and conditions
+                  </Link>
+                </span>
+              </div>
+              {errors.acceptedTerms && (
+                <p className="text-xs text-red-500 mt-1 ml-7">
+                  {errors.acceptedTerms.message?.includes("required")
+                    ? "You must accept the terms and conditions to continue"
+                    : errors.acceptedTerms.message}
+                </p>
+              )}
+            </div>
 
             {/* reCAPTCHA */}
             {showCaptcha && (
