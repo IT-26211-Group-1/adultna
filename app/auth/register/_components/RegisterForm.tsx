@@ -135,9 +135,9 @@ export const RegisterForm = () => {
                 <span className="text-sm text-gray-700">
                   I accept the{" "}
                   <Link
+                    className="text-adult-green hover:underline cursor-pointer"
                     href="/terms"
                     target="_blank"
-                    className="text-adult-green hover:underline cursor-pointer"
                   >
                     terms and conditions
                   </Link>
