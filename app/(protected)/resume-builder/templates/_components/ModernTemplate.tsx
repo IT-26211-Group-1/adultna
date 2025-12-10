@@ -7,6 +7,8 @@ import {
   Globe,
   Briefcase,
   GraduationCap,
+  Link,
+  Cake,
 } from "lucide-react";
 
 type TemplateProps = {
@@ -19,6 +21,26 @@ export default function ModernTemplate({
   formatDate,
 }: TemplateProps) {
   const accentColor = resumeData.colorHex || "#4A5568";
+
+  const formatBirthDate = (dateValue: any): string => {
+    if (!dateValue) return "";
+    try {
+      if (dateValue && typeof dateValue === "object" && "year" in dateValue) {
+        return new Date(
+          dateValue.year,
+          dateValue.month - 1,
+          dateValue.day,
+        ).toLocaleDateString("en-US");
+      }
+      const date = new Date(dateValue);
+
+      if (isNaN(date.getTime())) return "Invalid Date";
+
+      return date.toLocaleDateString("en-US");
+    } catch {
+      return "Invalid Date";
+    }
+  };
 
   return (
     <div className="bg-white flex h-full text-black">
@@ -52,12 +74,26 @@ export default function ModernTemplate({
                 </span>
               </div>
             )}
+            {resumeData.linkedin && (
+              <div className="flex items-start gap-2">
+                <Link className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span className="break-all">
+                  {resumeData.linkedin.replace(/^https?:\/\/(www\.)?/, "")}
+                </span>
+              </div>
+            )}
             {resumeData.portfolio && (
               <div className="flex items-start gap-2">
                 <Globe className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                 <span className="break-all">
                   {resumeData.portfolio.replace(/^https?:\/\/(www\.)?/, "")}
                 </span>
+              </div>
+            )}
+            {resumeData.birthDate && (
+              <div className="flex items-start gap-2">
+                <Cake className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                <span>{formatBirthDate(resumeData.birthDate)}</span>
               </div>
             )}
           </div>
@@ -225,6 +261,29 @@ export default function ModernTemplate({
                 <p className="text-xs">{edu.schoolName}</p>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Certifications */}
+        {resumeData.certificates && resumeData.certificates.length > 0 && (
+          <div className="space-y-3 relative pl-12">
+            <div
+              className="absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center text-white z-10"
+              style={{ backgroundColor: accentColor }}
+            >
+              <GraduationCap className="w-4 h-4" />
+            </div>
+            <h2 className="font-bold uppercase text-sm tracking-wide">
+              CERTIFICATIONS
+            </h2>
+            <ul className="text-xs list-disc pl-4 space-y-1">
+              {resumeData.certificates.map((cert, index) => (
+                <li key={index}>
+                  <span className="font-semibold">{cert.certificate}</span>
+                  {cert.issuingOrganization && ` - ${cert.issuingOrganization}`}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

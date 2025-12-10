@@ -12,6 +12,7 @@ import {
 } from "@heroui/modal";
 import { useDeleteAccount } from "@/hooks/queries/useProfileQueries";
 import { Trash2, Lock, Eye, EyeOff } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 export function DeleteAccountSection() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -43,7 +44,7 @@ export function DeleteAccountSection() {
     try {
       await deleteAccount.mutateAsync({ password });
     } catch (error: any) {
-      console.error("Failed to delete account:", error);
+      logger.error("Failed to delete account:", error);
 
       // Handle specific error cases
       if (error.status === 401) {

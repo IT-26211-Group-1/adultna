@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiClient, queryKeys } from "@/lib/apiClient";
 import { addToast } from "@heroui/toast";
 import { User } from "./useAuthQueries";
+import { logger } from "@/lib/logger";
 
 export type Profile = {
   id: string;
@@ -24,7 +25,7 @@ export type UpdateProfileRequest = {
 };
 
 export type UpdatePasswordRequest = {
-  currentPassword: string;
+  currentPassword?: string;
   newPassword: string;
 };
 
@@ -136,7 +137,7 @@ export function useDeleteAccount() {
       try {
         await ApiClient.post("/auth/logout");
       } catch (error) {
-        console.error("Logout call failed:", error);
+        logger.error("Logout call failed:", error);
       }
 
       // Clear all local data

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MenuIcon, Trash2Icon, MoreVerticalIcon } from "lucide-react";
 import { ChatMessage } from "./ChatMessage";
@@ -11,6 +11,9 @@ import { ConversationSidebar } from "./ConversationSidebar";
 import {
   useGabayChat,
   useRenameConversation,
+  useDeleteConversation,
+  useGabayConversations,
+  useGabayConversationMessages,
 } from "@/hooks/queries/useGabayQueries";
 import {
   Modal,
@@ -29,144 +32,81 @@ const INITIAL_SUGGESTIONS = [
   "How do I apply for SSS?",
 ];
 
-const STORAGE_KEY = "gabay_conversations";
-
-interface StoredConversation {
-  id: string;
-  title: string;
-  messages: ConversationMessage[];
-  lastActivityAt: string;
-}
-
-// Helper to sync localStorage
-const saveToStorage = (conversations: StoredConversation[]) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
-  } catch (e) {
-    logger.error("Failed to save conversations", e);
-  }
-};
-
-const loadFromStorage = (): StoredConversation[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-
-    return stored ? JSON.parse(stored) : [];
-  } catch (e) {
-    logger.error("Failed to load conversations", e);
-
-    return [];
-  }
-};
-
 export function ChatContainer() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Initialize from localStorage synchronously
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [conversations, setConversations] = useState<StoredConversation[]>(() =>
-    loadFromStorage(),
-  );
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
-    () => {
-      // First check URL parameter
-      const urlConversationId = searchParams.get("c");
-
-      if (urlConversationId) {
-        return urlConversationId;
-      }
-
-      // Only default to most recent if no URL parameter is present
-      const stored = loadFromStorage();
-
-      if (stored.length > 0) {
-        const mostRecent = stored.sort(
-          (a, b) =>
-            new Date(b.lastActivityAt).getTime() -
-            new Date(a.lastActivityAt).getTime(),
-        )[0];
-
-        return mostRecent.id;
-      }
-
-      return undefined;
-    },
+    () => searchParams.get("c") || undefined,
   );
-  const [messages, setMessages] = useState<ConversationMessage[]>(() => {
-    const stored = loadFromStorage();
-    const current = stored.find((c) => c.id === currentSessionId);
-
-    return (
-      current?.messages.map((m) => ({
-        ...m,
-        timestamp: new Date(m.timestamp),
-      })) || []
-    );
-  });
-
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const optionsMenuRef = useRef<HTMLDivElement>(null);
+  const isCreatingConversationRef = useRef(false);
 
-  // Ref callback for auto-scroll
+  const {
+    data: conversationsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch: refetchConversations,
+  } = useGabayConversations();
+
+  const { data: loadedMessages } =
+    useGabayConversationMessages(currentSessionId);
+
+  const [localMessages, setLocalMessages] = useState<ConversationMessage[]>([]);
+
+  const messages = useMemo(() => {
+    // Always prioritize local messages if they exist (ongoing conversation)
+    if (localMessages.length > 0) {
+      return localMessages;
+    }
+
+    // Otherwise show loaded history
+    if (loadedMessages && loadedMessages.length > 0) {
+      return loadedMessages.map(
+        (m, index): ConversationMessage => ({
+          id: `${currentSessionId}-${index}`,
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.timestamp),
+        }),
+      );
+    }
+
+    return [];
+  }, [localMessages, loadedMessages, currentSessionId]);
+
   const messagesEndCallback = useCallback((node: HTMLDivElement | null) => {
     if (node) {
       node.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
 
-  // Scroll handler
   const handleScroll = useCallback(
     (_e: React.UIEvent<HTMLDivElement>) => {},
     [],
   );
 
-  // Update conversation in state AND localStorage
-  const updateConversation = useCallback(
-    (conversationId: string, newMessages: ConversationMessage[]) => {
-      setConversations((prev) => {
-        const existing = prev.find((c) => c.id === conversationId);
-        const title =
-          existing?.title ||
-          newMessages.find((m) => m.role === "user")?.content.slice(0, 50) ||
-          "New Chat";
-
-        const updated = {
-          id: conversationId,
-          title,
-          messages: newMessages,
-          lastActivityAt: new Date().toISOString(),
-        };
-
-        const newConversations = existing
-          ? prev.map((c) => (c.id === conversationId ? updated : c))
-          : [updated, ...prev];
-
-        // Sync to localStorage immediately
-        saveToStorage(newConversations);
-
-        return newConversations;
-      });
-    },
-    [],
-  );
-
   const { renameConversation } = useRenameConversation({
-    onSuccess: (sessionId, newTopic) => {
-      setConversations((prev) => {
-        const updated = prev.map((c) =>
-          c.id === sessionId ? { ...c, title: newTopic } : c,
-        );
-
-        saveToStorage(updated);
-
-        return updated;
-      });
+    onSuccess: () => {
+      refetchConversations();
     },
     onError: (error) => {
       logger.error("[GABAY] Failed to rename conversation:", error);
+    },
+  });
+
+  const { deleteConversation } = useDeleteConversation({
+    onSuccess: () => {
+      refetchConversations();
+    },
+    onError: (error) => {
+      logger.error("[GABAY] Failed to delete conversation:", error);
     },
   });
 
@@ -180,24 +120,27 @@ export function ChatContainer() {
           timestamp: new Date(),
         };
 
-        const newMessages = [...messages, aiMessage];
+        setLocalMessages((prev) => [...prev, aiMessage]);
 
-        setMessages(newMessages);
-
-        // Update session - backend returns sessionId
         const sessionId = response.sessionId || currentSessionId;
 
         if (sessionId) {
-          updateConversation(sessionId, newMessages);
-          setCurrentSessionId(sessionId);
-
-          // Update URL if this is a new conversation
+          // For new conversations, update URL and state together
           if (!currentSessionId && sessionId) {
-            router.push(`/ai-gabay?c=${sessionId}`);
+            isCreatingConversationRef.current = true;
+            setCurrentSessionId(sessionId);
+            router.replace(`/ai-gabay?c=${sessionId}`, { scroll: false });
+            // Reset flag after navigation completes
+            setTimeout(() => {
+              isCreatingConversationRef.current = false;
+            }, 100);
+          } else if (currentSessionId !== sessionId) {
+            setCurrentSessionId(sessionId);
           }
+
+          refetchConversations();
         }
 
-        // Auto-scroll after message
         requestAnimationFrame(() => {
           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         });
@@ -213,7 +156,7 @@ export function ChatContainer() {
           error: response.blockReason || response.error,
         };
 
-        setMessages((prev) => [...prev, errorMessage]);
+        setLocalMessages((prev) => [...prev, errorMessage]);
       }
     },
     onError: (error) => {
@@ -225,7 +168,7 @@ export function ChatContainer() {
         error: error.message,
       };
 
-      setMessages((prev) => [...prev, errorMessage]);
+      setLocalMessages((prev) => [...prev, errorMessage]);
     },
   });
 
@@ -238,46 +181,48 @@ export function ChatContainer() {
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, userMessage]);
+      setLocalMessages((prev) => {
+        if (prev.length === 0 && loadedMessages && loadedMessages.length > 0) {
+          const historyMessages = loadedMessages.map(
+            (m, index): ConversationMessage => ({
+              id: `${currentSessionId}-${index}`,
+              role: m.role,
+              content: m.content,
+              timestamp: new Date(m.timestamp),
+            }),
+          );
 
-      // Send to API with sessionId (backend loads history from S3)
+          return [...historyMessages, userMessage];
+        }
+
+        return [...prev, userMessage];
+      });
+
       sendMessage({
         message: text,
         sessionId: currentSessionId,
       });
 
-      // Auto-scroll
       requestAnimationFrame(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       });
     },
-    [currentSessionId, sendMessage],
+    [currentSessionId, sendMessage, loadedMessages],
   );
 
   const handleNewConversation = useCallback(() => {
     setCurrentSessionId(undefined);
-    setMessages([]);
-    // Remove conversation parameter from URL
+    setLocalMessages([]);
     router.push("/ai-gabay");
   }, [router]);
 
   const handleSelectConversation = useCallback(
     (id: string) => {
-      const conversation = conversations.find((c) => c.id === id);
-
-      if (conversation) {
-        setCurrentSessionId(id);
-        setMessages(
-          conversation.messages.map((m) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          })),
-        );
-        // Update URL to include conversation parameter
-        router.push(`/ai-gabay?c=${id}`);
-      }
+      setCurrentSessionId(id);
+      setLocalMessages([]);
+      router.push(`/ai-gabay?c=${id}`);
     },
-    [conversations, router],
+    [router],
   );
 
   const handleRenameConversation = useCallback(
@@ -289,18 +234,12 @@ export function ChatContainer() {
 
   const handleDeleteConversation = useCallback(
     (id: string) => {
-      setConversations((prev) => {
-        const updated = prev.filter((c) => c.id !== id);
-
-        saveToStorage(updated);
-
-        return updated;
-      });
+      deleteConversation(id);
       if (currentSessionId === id) {
         handleNewConversation();
       }
     },
-    [currentSessionId, handleNewConversation],
+    [deleteConversation, currentSessionId, handleNewConversation],
   );
 
   const handleDeleteConfirm = useCallback(() => {
@@ -328,32 +267,36 @@ export function ChatContainer() {
     setShowDeleteModal(true);
   }, []);
 
-  // Handle URL changes (browser back/forward)
   useEffect(() => {
+    // Skip if we're in the middle of creating a new conversation
+    if (isCreatingConversationRef.current) {
+      return;
+    }
+
     const urlConversationId = searchParams.get("c");
 
     if (urlConversationId !== currentSessionId) {
       if (urlConversationId) {
-        const conversation = conversations.find(
-          (c) => c.id === urlConversationId,
-        );
-
-        if (conversation) {
-          setCurrentSessionId(urlConversationId);
-          setMessages(
-            conversation.messages.map((m) => ({
-              ...m,
-              timestamp: new Date(m.timestamp),
-            })),
-          );
+        // Switching to a different existing conversation
+        if (currentSessionId && currentSessionId !== urlConversationId) {
+          setIsLoadingHistory(true);
+          setLocalMessages([]);
         }
-      } else {
-        // No conversation in URL, go to start page
+        setCurrentSessionId(urlConversationId);
+      } else if (currentSessionId) {
+        // Going back to home (no conversation)
         setCurrentSessionId(undefined);
-        setMessages([]);
+        setLocalMessages([]);
       }
     }
-  }, [searchParams, conversations, currentSessionId]);
+  }, [searchParams, currentSessionId]);
+
+  // Reset loading state when messages are loaded
+  useEffect(() => {
+    if (loadedMessages && isLoadingHistory) {
+      setIsLoadingHistory(false);
+    }
+  }, [loadedMessages, isLoadingHistory]);
 
   // Handle click outside options menu
   useEffect(() => {
@@ -375,13 +318,16 @@ export function ChatContainer() {
     }
   }, [showOptionsMenu]);
 
-  const conversationList: Conversation[] = conversations.map((c) => ({
-    id: c.id,
-    title: c.title,
-    lastMessage: c.messages[c.messages.length - 1]?.content,
-    lastActivityAt: new Date(c.lastActivityAt),
-    messageCount: c.messages.length,
-  }));
+  const conversationList: Conversation[] =
+    conversationsData?.pages
+      .flatMap((page) => page.conversations)
+      .map((c) => ({
+        id: c.sessionId,
+        title: c.topic,
+        lastMessage: c.lastMessage,
+        lastActivityAt: new Date(c.startedAt),
+        messageCount: c.messageCount,
+      })) || [];
 
   // Get current conversation title
   const currentConversation = conversationList.find(
@@ -396,8 +342,11 @@ export function ChatContainer() {
       <ConversationSidebar
         conversations={conversationList}
         currentConversationId={currentSessionId}
+        hasMore={hasNextPage}
+        isLoading={isFetchingNextPage}
         isOpen={isSidebarOpen}
         onDeleteConversation={handleDeleteConversation}
+        onLoadMore={fetchNextPage}
         onNewConversation={handleNewConversation}
         onRenameConversation={handleRenameConversation}
         onSelectConversation={handleSelectConversation}

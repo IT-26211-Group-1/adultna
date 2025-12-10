@@ -2,14 +2,16 @@
 
 import React, { useCallback } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
 import { useOnboardingQuestions } from "@/hooks/queries/admin/useOnboardingQueries";
 import {
-  AddOnboardingQuestionModalProps,
-  AddQuestionForm,
-} from "@/types/onboarding";
+  addOnboardingQuestionSchema,
+  AddOnboardingQuestionForm,
+} from "@/validators/onboardingSchema";
+import { AddOnboardingQuestionModalProps } from "@/types/onboarding";
 
 const categoryOptions = [
   { value: "life_stage", label: "Life Stage" },
@@ -28,8 +30,9 @@ export default function AddOnboardingQuestionModal({
     handleSubmit,
     reset,
     control,
-    formState: { errors, isSubmitting },
-  } = useForm<AddQuestionForm>({
+    formState: { errors, isSubmitting, isDirty, isValid },
+  } = useForm<AddOnboardingQuestionForm>({
+    resolver: zodResolver(addOnboardingQuestionSchema) as any,
     defaultValues: {
       question: "",
       category: "life_stage",
@@ -52,7 +55,7 @@ export default function AddOnboardingQuestionModal({
   );
 
   const onSubmit = useCallback(
-    async (data: AddQuestionForm) => {
+    async (data: AddOnboardingQuestionForm) => {
       try {
         createQuestion(data, {
           onSuccess: (response) => {
@@ -101,24 +104,38 @@ export default function AddOnboardingQuestionModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="question"
           >
-            Question *
+            Question <span className="text-red-500">*</span>
           </label>
           <input
-            {...register("question", {
-              required: "Question is required",
-              minLength: {
-                value: 5,
-                message: "Question must be at least 5 characters",
-              },
-            })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            {...register("question")}
+            aria-describedby={errors.question ? "question-error" : undefined}
+            aria-invalid={errors.question ? "true" : "false"}
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.question
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             disabled={isLoading}
             id="question"
             placeholder="Enter question text"
             type="text"
           />
           {errors.question && (
-            <p className="mt-1 text-sm text-red-600">
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="question-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
               {errors.question.message}
             </p>
           )}
@@ -129,11 +146,17 @@ export default function AddOnboardingQuestionModal({
             className="block text-sm font-medium text-gray-700"
             htmlFor="category"
           >
-            Category *
+            Category <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("category", { required: "Category is required" })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            {...register("category")}
+            aria-describedby={errors.category ? "category-error" : undefined}
+            aria-invalid={errors.category ? "true" : "false"}
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.category
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             disabled={isLoading}
             id="category"
           >
@@ -144,7 +167,21 @@ export default function AddOnboardingQuestionModal({
             ))}
           </select>
           {errors.category && (
-            <p className="mt-1 text-sm text-red-600">
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="category-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
               {errors.category.message}
             </p>
           )}
@@ -152,9 +189,14 @@ export default function AddOnboardingQuestionModal({
 
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="block text-sm font-medium text-gray-700">
-              Answer Options *
-            </span>
+            <div>
+              <span className="block text-sm font-medium text-gray-700">
+                Answer Options <span className="text-red-500">*</span>
+              </span>
+              <span className="text-xs text-gray-500">
+                At least 2 options are required
+              </span>
+            </div>
             <button
               className="text-sm text-adult-green hover:text-adult-green/80 font-medium"
               disabled={isLoading}
@@ -164,6 +206,38 @@ export default function AddOnboardingQuestionModal({
               + Add Option
             </button>
           </div>
+          {errors.options?.root && (
+            <p className="text-sm text-red-600 flex items-center mb-2">
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              {errors.options.root.message}
+            </p>
+          )}
+          {errors.options && typeof errors.options.message === "string" && (
+            <p className="text-sm text-red-600 flex items-center mb-2">
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              {errors.options.message}
+            </p>
+          )}
           <div className="space-y-3">
             {fields.map((field, index) => (
               <div
@@ -177,20 +251,44 @@ export default function AddOnboardingQuestionModal({
                         className="block text-xs font-medium text-gray-600 mb-1"
                         htmlFor={`option-text-${index}`}
                       >
-                        Option Text *
+                        Option Text <span className="text-red-500">*</span>
                       </label>
                       <input
-                        {...register(`options.${index}.optionText`, {
-                          required: "Option text is required",
-                        })}
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green text-sm"
+                        {...register(`options.${index}.optionText`)}
+                        aria-describedby={
+                          errors.options?.[index]?.optionText
+                            ? `optionText-${index}-error`
+                            : undefined
+                        }
+                        aria-invalid={
+                          errors.options?.[index]?.optionText ? "true" : "false"
+                        }
+                        className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors text-sm ${
+                          errors.options?.[index]?.optionText
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                            : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+                        }`}
                         disabled={isLoading}
                         id={`option-text-${index}`}
                         placeholder="e.g., 18-25"
                         type="text"
                       />
                       {errors.options?.[index]?.optionText && (
-                        <p className="mt-1 text-xs text-red-600">
+                        <p
+                          className="mt-1 text-xs text-red-600 flex items-center"
+                          id={`optionText-${index}-error`}
+                        >
+                          <svg
+                            className="w-3 h-3 mr-1"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              clipRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                              fillRule="evenodd"
+                            />
+                          </svg>
                           {errors.options[index]?.optionText?.message}
                         </p>
                       )}
@@ -254,7 +352,12 @@ export default function AddOnboardingQuestionModal({
           >
             Cancel
           </button>
-          <LoadingButton disabled={isLoading} loading={isLoading} type="submit">
+          <LoadingButton
+            className="px-4 py-2 text-sm font-medium text-white bg-adult-green border border-transparent rounded-md hover:bg-adult-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green disabled:opacity-50"
+            disabled={!isDirty || !isValid || isLoading}
+            loading={isLoading}
+            type="submit"
+          >
             Create Question
           </LoadingButton>
         </div>

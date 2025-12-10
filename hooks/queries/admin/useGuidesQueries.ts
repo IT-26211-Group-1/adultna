@@ -121,6 +121,15 @@ export type DeleteGuideResponse = {
   message: string;
 };
 
+export type BatchOperationResponse = {
+  success: boolean;
+  message: string;
+  results: {
+    successful: string[];
+    failed: Array<{ guideId: string; reason: string }>;
+  };
+};
+
 export type GuidesListResponse = {
   success: boolean;
   message: string;
@@ -148,6 +157,7 @@ const guidesApi = {
     search?: string;
     page?: number;
     limit?: number;
+    includeDeleted?: boolean;
   }): Promise<GuidesListResponse> => {
     const queryParams = new URLSearchParams();
 
@@ -156,6 +166,7 @@ const guidesApi = {
     if (params?.search) queryParams.append("search", params.search);
     if (params?.page) queryParams.append("page", params.page.toString());
     if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.includeDeleted) queryParams.append("includeDeleted", "true");
 
     const queryString = queryParams.toString();
 
@@ -195,6 +206,20 @@ const guidesApi = {
   // Restore guide
   restoreGuide: (guideId: string): Promise<DeleteGuideResponse> =>
     ApiClient.post(`/guides/restore/${guideId}`, {}),
+
+  // Batch archive guides
+  batchArchiveGuides: (guideIds: string[]): Promise<BatchOperationResponse> =>
+    ApiClient.post("/guides/batch/archive", { guideIds }),
+
+  // Batch restore guides
+  batchRestoreGuides: (guideIds: string[]): Promise<BatchOperationResponse> =>
+    ApiClient.post("/guides/batch/restore", { guideIds }),
+
+  // Batch permanent delete guides
+  batchPermanentDeleteGuides: (
+    guideIds: string[],
+  ): Promise<BatchOperationResponse> =>
+    ApiClient.post("/guides/batch/delete/permanent", { guideIds }),
 };
 
 // Custom Hook
@@ -208,6 +233,7 @@ export function useGuidesQueries() {
     search?: string;
     page?: number;
     limit?: number;
+    includeDeleted?: boolean;
   }) => {
     return useQuery({
       queryKey: ["admin", "guides", "list", params],
@@ -331,6 +357,58 @@ export function useGuidesQueries() {
     },
   });
 
+  // Batch archive guides mutation
+  const batchArchiveGuidesMutation = useMutation({
+    mutationFn: (guideIds: string[]) => guidesApi.batchArchiveGuides(guideIds),
+    onSuccess: (data) => {
+      logger.info("Batch archive completed", {
+        successful: data.results.successful.length,
+        failed: data.results.failed.length,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "guides"],
+      });
+    },
+    onError: (error) => {
+      logger.error("Failed to batch archive guides", { error });
+    },
+  });
+
+  // Batch restore guides mutation
+  const batchRestoreGuidesMutation = useMutation({
+    mutationFn: (guideIds: string[]) => guidesApi.batchRestoreGuides(guideIds),
+    onSuccess: (data) => {
+      logger.info("Batch restore completed", {
+        successful: data.results.successful.length,
+        failed: data.results.failed.length,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "guides"],
+      });
+    },
+    onError: (error) => {
+      logger.error("Failed to batch restore guides", { error });
+    },
+  });
+
+  // Batch permanent delete guides mutation
+  const batchPermanentDeleteGuidesMutation = useMutation({
+    mutationFn: (guideIds: string[]) =>
+      guidesApi.batchPermanentDeleteGuides(guideIds),
+    onSuccess: (data) => {
+      logger.info("Batch permanent delete completed", {
+        successful: data.results.successful.length,
+        failed: data.results.failed.length,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "guides"],
+      });
+    },
+    onError: (error) => {
+      logger.error("Failed to batch permanently delete guides", { error });
+    },
+  });
+
   return {
     useListGuides,
     useGetGuide,
@@ -352,5 +430,15 @@ export function useGuidesQueries() {
     restoreGuide: restoreGuideMutation.mutate,
     restoreGuideAsync: restoreGuideMutation.mutateAsync,
     isRestoringGuide: restoreGuideMutation.isPending,
+    batchArchiveGuides: batchArchiveGuidesMutation.mutate,
+    batchArchiveGuidesAsync: batchArchiveGuidesMutation.mutateAsync,
+    isBatchArchiving: batchArchiveGuidesMutation.isPending,
+    batchRestoreGuides: batchRestoreGuidesMutation.mutate,
+    batchRestoreGuidesAsync: batchRestoreGuidesMutation.mutateAsync,
+    isBatchRestoring: batchRestoreGuidesMutation.isPending,
+    batchPermanentDeleteGuides: batchPermanentDeleteGuidesMutation.mutate,
+    batchPermanentDeleteGuidesAsync:
+      batchPermanentDeleteGuidesMutation.mutateAsync,
+    isBatchPermanentDeleting: batchPermanentDeleteGuidesMutation.isPending,
   };
 }

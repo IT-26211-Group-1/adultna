@@ -2,14 +2,16 @@
 
 import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/Modal";
 import { LoadingButton } from "@/components/ui/Button";
 import { addToast } from "@heroui/toast";
 import { useOnboardingQuestions } from "@/hooks/queries/admin/useOnboardingQueries";
 import {
-  EditOnboardingQuestionModalProps,
-  EditQuestionForm,
-} from "@/types/onboarding";
+  editOnboardingQuestionSchema,
+  EditOnboardingQuestionForm,
+} from "@/validators/onboardingSchema";
+import { EditOnboardingQuestionModalProps } from "@/types/onboarding";
 
 const categoryOptions = [
   { value: "life_stage", label: "Life Stage" },
@@ -79,11 +81,12 @@ function EditForm({
     handleSubmit,
     watch,
     reset,
-    formState: { errors, isSubmitting },
-  } = useForm<EditQuestionForm>({
+    formState: { errors, isSubmitting, isDirty },
+  } = useForm<EditOnboardingQuestionForm>({
+    resolver: zodResolver(editOnboardingQuestionSchema),
     defaultValues: {
       question: question.question,
-      category: question.category,
+      category: question.category as "life_stage" | "priorities",
     },
   });
 
@@ -91,7 +94,7 @@ function EditForm({
   const currentCategory = watch("category");
 
   const onSubmit = useCallback(
-    async (data: EditQuestionForm) => {
+    async (data: EditOnboardingQuestionForm) => {
       try {
         const hasChanges =
           data.question !== question.question ||
@@ -151,7 +154,7 @@ function EditForm({
   const handleClose = useCallback(() => {
     reset({
       question: question.question,
-      category: question.category,
+      category: question.category as "life_stage" | "priorities",
     });
     onClose();
   }, [reset, question, onClose]);
@@ -162,36 +165,48 @@ function EditForm({
     currentQuestion !== question.question ||
     currentCategory !== question.category;
 
+  const handleFormSubmit = handleSubmit(onSubmit);
+
   return (
     <Modal open={open} title="Edit Onboarding Question" onClose={handleClose}>
-      <form
-        key={question.id}
-        className="space-y-4"
-        onSubmit={handleSubmit(onSubmit)}
-      >
+      <form key={question.id} className="space-y-4" onSubmit={handleFormSubmit}>
         <div>
           <label
             className="block text-sm font-medium text-gray-700"
             htmlFor="question"
           >
-            Question *
+            Question <span className="text-red-500">*</span>
           </label>
           <input
-            {...register("question", {
-              required: "Question is required",
-              minLength: {
-                value: 5,
-                message: "Question must be at least 5 characters",
-              },
-            })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            {...register("question")}
+            aria-describedby={errors.question ? "question-error" : undefined}
+            aria-invalid={errors.question ? "true" : "false"}
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.question
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             disabled={isLoading}
             id="question"
             placeholder="Enter question text"
             type="text"
           />
           {errors.question && (
-            <p className="mt-1 text-sm text-red-600">
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="question-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
               {errors.question.message}
             </p>
           )}
@@ -202,11 +217,17 @@ function EditForm({
             className="block text-sm font-medium text-gray-700"
             htmlFor="category"
           >
-            Category *
+            Category <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("category", { required: "Category is required" })}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-adult-green focus:border-adult-green"
+            {...register("category")}
+            aria-describedby={errors.category ? "category-error" : undefined}
+            aria-invalid={errors.category ? "true" : "false"}
+            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${
+              errors.category
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                : "border-gray-300 focus:ring-adult-green focus:border-adult-green"
+            }`}
             disabled={isLoading}
             id="category"
           >
@@ -217,7 +238,21 @@ function EditForm({
             ))}
           </select>
           {errors.category && (
-            <p className="mt-1 text-sm text-red-600">
+            <p
+              className="mt-1 text-sm text-red-600 flex items-center"
+              id="category-error"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  fillRule="evenodd"
+                />
+              </svg>
               {errors.category.message}
             </p>
           )}
@@ -267,7 +302,8 @@ function EditForm({
             Cancel
           </button>
           <LoadingButton
-            disabled={isLoading || !hasChanges}
+            className="px-4 py-2 text-sm font-medium text-white bg-adult-green border border-transparent rounded-md hover:bg-adult-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-adult-green disabled:opacity-50"
+            disabled={!isDirty || isLoading || !hasChanges}
             loading={isLoading}
             type="submit"
           >

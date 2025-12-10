@@ -5,6 +5,7 @@ import { Button, Input } from "@heroui/react";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { useDeleteAccount } from "@/hooks/queries/useProfileQueries";
 import { Trash2 } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 export function DeleteAccountSection() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -35,7 +36,7 @@ export function DeleteAccountSection() {
     try {
       await deleteAccount.mutateAsync({ password });
     } catch (error) {
-      console.error("Failed to delete account:", error);
+      logger.error("Failed to delete account:", error);
     }
   };
 

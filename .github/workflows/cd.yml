@@ -47,7 +47,7 @@ jobs:
           echo "WebP variants: $webp_count"
           echo "AVIF variants: $avif_count"
 
-      - name: Deploy to S3 (Optimized for SEA + Lighthouse 90+)
+      - name: Deploy to S3
         run: |
           # Upload AVIF images with correct MIME type and long cache
           aws s3 sync ./out s3://adultna \

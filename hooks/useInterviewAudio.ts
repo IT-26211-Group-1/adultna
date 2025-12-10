@@ -100,9 +100,23 @@ export function useInterviewAudio(
     async (audioBlob: Blob, jobRole?: string): Promise<string | null> => {
       setIsTranscribing(true);
       try {
-        const result = await originalTranscribeAndPoll(audioBlob, jobRole);
+        // Add timeout to prevent infinite loading
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(
+            () => reject(new Error("Transcription timeout after 60 seconds")),
+            60000,
+          );
+        });
+
+        const result = await Promise.race([
+          originalTranscribeAndPoll(audioBlob, jobRole),
+          timeoutPromise,
+        ]);
 
         return result;
+      } catch (error) {
+        logger.error("[transcribeAndPoll] Error:", error);
+        throw error;
       } finally {
         setIsTranscribing(false);
       }

@@ -43,6 +43,7 @@ export type FileMetadata = {
   uploadDate: string;
   lastModified: string;
   isSecure: boolean;
+  archivedDate?: string;
 };
 
 export type UserQuota = {
@@ -128,7 +129,8 @@ export type OTPAction =
   | "download"
   | "delete"
   | "rename"
-  | "unprotect";
+  | "unprotect"
+  | "archive";
 
 export type RequestDocumentOTPRequest = {
   action?: OTPAction;

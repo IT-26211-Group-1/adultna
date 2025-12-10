@@ -43,9 +43,7 @@ const LoadingSpinnerComponent = ({
       default:
         return (
           <div className={`${sizeMap[size]} relative ${className}`}>
-            <div className="absolute inset-0 rounded-full border-4 border-[#11553F] border-t-transparent animate-spin [animation-duration:1s]" />
-            <div className="absolute inset-1 rounded-full border-2 border-transparent border-r-[#11553F] animate-spin opacity-70 [animation-duration:1.5s] [animation-direction:reverse]" />
-            <div className="absolute inset-2 rounded-full border border-transparent border-b-[#11553F] animate-spin opacity-40 [animation-duration:2.5s]" />
+            <div className="absolute inset-0 rounded-full border-4 border-gray-200/30 border-t-[#11553F] animate-spin [animation-duration:0.8s] will-change-transform" />
           </div>
         );
     }

@@ -1,6 +1,5 @@
 "use client";
 
-import { Input } from "@heroui/react";
 import { useState, useRef, useEffect } from "react";
 import { useUpdateTitle } from "@/hooks/queries/useCoverLetterQueries";
 
@@ -17,9 +16,24 @@ export default function InlineEditableTitle({
 }: InlineEditableTitleProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(currentTitle);
-  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const updateTitle = useUpdateTitle(coverLetterId);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
+  const handleEditTitle = () => {
+    setTitle(currentTitle);
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setTitle(currentTitle);
+    setIsEditing(false);
+  };
 
   useEffect(() => {
     setTitle(currentTitle);
@@ -36,7 +50,6 @@ export default function InlineEditableTitle({
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
-      setError("Title is required");
       setTitle(currentTitle);
       setIsEditing(false);
 
@@ -44,7 +57,6 @@ export default function InlineEditableTitle({
     }
 
     if (trimmedTitle.length > 100) {
-      setError("Title must be less than 100 characters");
       setTitle(currentTitle);
       setIsEditing(false);
 
@@ -60,65 +72,99 @@ export default function InlineEditableTitle({
     try {
       await updateTitle.mutateAsync(trimmedTitle);
       onTitleChange(trimmedTitle);
-      setError(null);
       setIsEditing(false);
     } catch {
-      setError("Failed to update title");
       setTitle(currentTitle);
       setIsEditing(false);
     }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSave();
-    } else if (e.key === "Escape") {
-      setTitle(currentTitle);
-      setError(null);
-      setIsEditing(false);
-    }
-  };
-
-  const handleBlur = () => {
-    handleSave();
   };
 
   if (isEditing) {
     return (
-      <div className="flex flex-col max-w-md">
-        <Input
+      <div className="flex items-center gap-2">
+        <input
           ref={inputRef}
-          disableAnimation
-          aria-label="Cover letter title"
-          classNames={{
-            input: "text-lg font-semibold",
-            inputWrapper: "border-2 border-[#11553F]",
-          }}
-          errorMessage={error}
-          isInvalid={!!error}
-          placeholder="Untitled Cover Letter"
-          size="md"
+          className="text-sm font-medium text-gray-900 bg-white border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 min-w-48"
+          placeholder="Enter cover letter title"
+          type="text"
           value={title}
-          onBlur={handleBlur}
           onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSave();
+            if (e.key === "Escape") handleCancelEdit();
+          }}
         />
+        <button
+          className="text-emerald-600 hover:text-emerald-800 transition-colors p-1"
+          title="Save title"
+          onClick={handleSave}
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 13l4 4L19 7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
+          </svg>
+        </button>
+        <button
+          className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+          title="Cancel editing"
+          onClick={handleCancelEdit}
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M6 18L18 6M6 6l12 12"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
+          </svg>
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <button
-        className="text-lg font-semibold cursor-pointer hover:bg-[#11553F]/10 px-2 py-1 rounded transition-colors text-left"
-        type="button"
-        onClick={() => setIsEditing(true)}
+    <div className="flex items-center">
+      <span
+        aria-current="page"
+        className="text-gray-900 font-medium whitespace-nowrap"
       >
         {currentTitle || "Untitled Cover Letter"}
+      </span>
+      <button
+        className="text-gray-400 hover:text-emerald-600 transition-colors p-1 ml-1"
+        title="Edit cover letter title"
+        onClick={handleEditTitle}
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+          />
+        </svg>
       </button>
       {updateTitle.isPending && (
-        <span className="text-sm text-[#11553F]">Saving...</span>
+        <span className="text-xs text-gray-500 ml-2">Saving...</span>
       )}
     </div>
   );

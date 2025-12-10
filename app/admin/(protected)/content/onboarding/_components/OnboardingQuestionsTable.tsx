@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useCallback, useMemo } from "react";
-import Table, { Column } from "@/components/ui/Table";
-import Badge from "@/components/ui/Badge";
+import { type ColumnDef } from "@tanstack/react-table";
+import { AdminTable } from "@/components/admin/AdminTable";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import { addToast } from "@heroui/toast";
 import {
@@ -14,47 +14,8 @@ import {
 import { useAdminAuth } from "@/hooks/queries/admin/useAdminQueries";
 import EditOnboardingQuestionModal from "./EditOnboardingQuestionModal";
 import UpdateQuestionStatusModal from "./UpdateQuestionStatusModal";
+import { BatchQuestionActions } from "./BatchQuestionActions";
 import { formatDate } from "@/constants/format-date";
-import { RetryButton } from "@/components/ui/RetryButton";
-
-const QuestionStatusBadge = React.memo<{ status: QuestionStatus }>(
-  ({ status }) => {
-    const getStatusColor = (status: QuestionStatus) => {
-      switch (status) {
-        case "accepted":
-          return "success";
-        case "rejected":
-          return "error";
-        case "to_revise":
-          return "warning";
-        case "pending":
-        default:
-          return "info";
-      }
-    };
-
-    return (
-      <Badge size="sm" variant={getStatusColor(status)}>
-        {status
-          .split("_")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ")}
-      </Badge>
-    );
-  },
-);
-
-QuestionStatusBadge.displayName = "QuestionStatusBadge";
-
-const QuestionCategoryBadge = React.memo<{ category: string }>(
-  ({ category }) => (
-    <Badge size="sm" variant="default">
-      {category.charAt(0).toUpperCase() + category.slice(1)}
-    </Badge>
-  ),
-);
-
-QuestionCategoryBadge.displayName = "QuestionCategoryBadge";
 
 type QuestionActionsProps = {
   question: OnboardingQuestion;
@@ -313,6 +274,7 @@ const OnboardingQuestionsTable: React.FC = () => {
   const [permanentDeletingQuestionId, setPermanentDeletingQuestionId] =
     useState<number | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
 
   const { user } = useAdminAuth();
 
@@ -330,9 +292,31 @@ const OnboardingQuestionsTable: React.FC = () => {
     refetchQuestions,
   } = useOnboardingQuestions();
 
-  // Filter questions based on view mode
-  const activeQuestions = questions.filter((q) => !q.deletedAt);
-  const archivedQuestions = questions.filter((q) => q.deletedAt);
+  // Filter questions based on view mode and sort by creation date (most recent first)
+  const activeQuestions = useMemo(
+    () =>
+      questions
+        .filter((q) => !q.deletedAt)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+
+          return dateB - dateA;
+        }),
+    [questions],
+  );
+  const archivedQuestions = useMemo(
+    () =>
+      questions
+        .filter((q) => q.deletedAt)
+        .sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+
+          return dateB - dateA;
+        }),
+    [questions],
+  );
 
   // Select which questions to display based on toggle
   const displayQuestions = showArchived ? archivedQuestions : activeQuestions;
@@ -484,112 +468,171 @@ const OnboardingQuestionsTable: React.FC = () => {
     [permanentDeleteQuestion],
   );
 
-  const columns: Column<OnboardingQuestion>[] = useMemo(
+  // Selection handler
+  const handleSelectQuestion = useCallback(
+    (questionId: number, checked: boolean) => {
+      if (checked) {
+        setSelectedQuestionIds((prev) => [...prev, questionId]);
+      } else {
+        setSelectedQuestionIds((prev) =>
+          prev.filter((id) => id !== questionId),
+        );
+      }
+    },
+    [],
+  );
+
+  // Clear selection when switching between active/archived views
+  React.useEffect(() => {
+    setSelectedQuestionIds([]);
+  }, [showArchived]);
+
+  // Table columns for @tanstack/react-table
+  const columns: ColumnDef<OnboardingQuestion>[] = useMemo(
     () => [
       {
+        id: "select",
+        header: "",
+        cell: ({ row }) => (
+          <input
+            checked={selectedQuestionIds.includes(row.original.id)}
+            className="rounded border-gray-300 text-adult-green focus:ring-adult-green"
+            type="checkbox"
+            onChange={(e) =>
+              handleSelectQuestion(row.original.id, e.target.checked)
+            }
+          />
+        ),
+        size: 50,
+      },
+      {
+        accessorKey: "question",
         header: "Question",
-        accessor: (question: OnboardingQuestion) => (
+        cell: ({ row }) => (
           <div className="max-w-md whitespace-normal break-words">
             <p
               className={`font-medium ${
-                question.deletedAt
+                row.original.deletedAt
                   ? "text-gray-400 line-through"
                   : "text-gray-900"
               }`}
             >
-              {question.question}
+              {row.getValue("question")}
             </p>
           </div>
         ),
-        width: "250px",
+        size: 250,
       },
       {
+        id: "options",
         header: "Answer Options",
-        accessor: (question: OnboardingQuestion) => (
+        cell: ({ row }) => (
           <div className="text-gray-600 text-sm whitespace-normal break-words">
-            {question.options && question.options.length > 0 ? (
+            {row.original.options && row.original.options.length > 0 ? (
               <ul className="list-disc list-inside">
-                {question.options.map((option: AnswerOption, index: number) => (
-                  <li
-                    key={option.id || index}
-                    className="max-w-xs whitespace-normal break-words"
-                  >
-                    {option.optionText}
-                  </li>
-                ))}
+                {row.original.options.map(
+                  (option: AnswerOption, index: number) => (
+                    <li
+                      key={option.id || index}
+                      className="max-w-xs whitespace-normal break-words"
+                    >
+                      {option.optionText}
+                    </li>
+                  ),
+                )}
               </ul>
             ) : (
               <span className="text-gray-400">No options</span>
             )}
           </div>
         ),
-        width: "200px",
+        size: 200,
       },
-
       {
+        accessorKey: "status",
         header: "Status",
-        accessor: (question: OnboardingQuestion) => (
-          <div className="flex flex-col gap-1">
-            <QuestionStatusBadge status={question.status} />
-            {question.deletedAt && (
-              <Badge size="sm" variant="error">
-                Archived
-              </Badge>
-            )}
-          </div>
-        ),
-        width: "120px",
+        cell: ({ row }) => {
+          const status = row.getValue("status") as QuestionStatus;
+          const statusColors = {
+            accepted: "bg-green-100 text-green-800",
+            rejected: "bg-red-100 text-red-800",
+            to_revise: "bg-yellow-100 text-yellow-800",
+            pending: "bg-blue-100 text-blue-800",
+          };
+
+          return (
+            <div className="flex flex-col gap-1">
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status]}`}
+              >
+                {status
+                  .split("_")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ")}
+              </span>
+              {row.original.deletedAt && (
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  Archived
+                </span>
+              )}
+            </div>
+          );
+        },
+        size: 120,
       },
       {
+        accessorKey: "reason",
         header: "Notes/Reason",
-        accessor: (question: OnboardingQuestion) => (
+        cell: ({ row }) => (
           <div className="text-gray-600 text-sm max-w-[250px] whitespace-normal break-words">
-            {question.reason ? (
+            {row.getValue("reason") ? (
               <div className="italic break-words break-all whitespace-normal">
-                {question.reason}
+                {row.getValue("reason")}
               </div>
             ) : (
               <span className="text-gray-400">-</span>
             )}
           </div>
         ),
-        width: "250px",
+        size: 250,
       },
       {
+        accessorKey: "createdAt",
         header: "Created At",
-        accessor: (question: OnboardingQuestion) => (
+        cell: ({ row }) => (
           <div className="text-gray-600 text-sm">
-            <div>{formatDate(question.createdAt)}</div>
-            {question.createdByEmail && (
+            <div>{formatDate(row.getValue("createdAt"))}</div>
+            {row.original.createdByEmail && (
               <div className="text-xs text-gray-500 mt-1">
-                by: {question.createdByEmail}
+                by: {row.original.createdByEmail}
               </div>
             )}
           </div>
         ),
-        width: "180px",
+        size: 180,
       },
       {
+        accessorKey: "updatedAt",
         header: "Updated At",
-        accessor: (question: OnboardingQuestion) => (
+        cell: ({ row }) => (
           <div className="text-gray-600 text-sm">
-            {question.deletedAt ? (
+            {row.original.deletedAt ? (
               <>
                 <div className="text-red-600 font-medium">
-                  {formatDate(question.deletedAt)}
+                  {formatDate(row.original.deletedAt)}
                 </div>
-                {question.deletedByEmail && (
+                {row.original.deletedByEmail && (
                   <div className="text-xs text-gray-500 mt-1">
-                    Archived by: {question.deletedByEmail}
+                    Archived by: {row.original.deletedByEmail}
                   </div>
                 )}
               </>
-            ) : question.updatedAt ? (
+            ) : row.getValue("updatedAt") ? (
               <>
-                <div>{formatDate(question.updatedAt)}</div>
-                {question.updatedByEmail && (
+                <div>{formatDate(row.getValue("updatedAt"))}</div>
+                {row.original.updatedByEmail && (
                   <div className="text-xs text-gray-500 mt-1">
-                    by: {question.updatedByEmail}
+                    by: {row.original.updatedByEmail}
                   </div>
                 )}
               </>
@@ -598,22 +641,23 @@ const OnboardingQuestionsTable: React.FC = () => {
             )}
           </div>
         ),
-        width: "180px",
+        size: 180,
       },
       {
+        id: "actions",
         header: "",
-        accessor: (question: OnboardingQuestion) => (
+        cell: ({ row }) => (
           <QuestionActions
             isDeleting={isDeleting}
-            isDeletingThisQuestion={deletingQuestionId === question.id}
+            isDeletingThisQuestion={deletingQuestionId === row.original.id}
             isPermanentDeleting={isPermanentDeleting}
             isPermanentDeletingThisQuestion={
-              permanentDeletingQuestionId === question.id
+              permanentDeletingQuestionId === row.original.id
             }
             isRestoring={isRestoring}
-            isRestoringThisQuestion={restoringQuestionId === question.id}
+            isRestoringThisQuestion={restoringQuestionId === row.original.id}
             isUpdating={isUpdatingStatus}
-            question={question}
+            question={row.original}
             userRole={user?.role}
             onDelete={handleDelete}
             onEdit={handleEditQuestion}
@@ -622,7 +666,7 @@ const OnboardingQuestionsTable: React.FC = () => {
             onUpdateStatus={handleUpdateStatus}
           />
         ),
-        width: "80px",
+        size: 80,
       },
     ],
     [
@@ -639,7 +683,8 @@ const OnboardingQuestionsTable: React.FC = () => {
       restoringQuestionId,
       permanentDeletingQuestionId,
       user?.role,
-      formatDate,
+      selectedQuestionIds,
+      handleSelectQuestion,
     ],
   );
 
@@ -647,7 +692,12 @@ const OnboardingQuestionsTable: React.FC = () => {
     return (
       <div className="text-center py-8">
         <p className="text-red-600 mb-4">Error loading questions</p>
-        <RetryButton onRetry={refetchQuestions} />
+        <button
+          className="px-4 py-2 bg-adult-green text-white rounded-md hover:bg-adult-green/90"
+          onClick={() => refetchQuestions()}
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -678,21 +728,23 @@ const OnboardingQuestionsTable: React.FC = () => {
           </button>
         </div>
       </div>
-      <Table
-        className="!overflow-visible"
+
+      {/* Batch Actions */}
+      <BatchQuestionActions
+        isArchiveView={showArchived}
+        selectedQuestionIds={selectedQuestionIds}
+        onClearSelection={() => setSelectedQuestionIds([])}
+      />
+
+      <AdminTable
         columns={columns}
         data={displayQuestions}
-        emptyMessage={
+        isLoading={loading}
+        searchPlaceholder={
           showArchived
-            ? "No archived questions found"
-            : "No onboarding questions found"
+            ? "Search archived questions..."
+            : "Search onboarding questions..."
         }
-        loading={loading}
-        pagination={{
-          enabled: true,
-          pageSize: 10,
-          pageSizeOptions: [10, 25, 50, 100],
-        }}
       />
       {selectedQuestion && (
         <EditOnboardingQuestionModal

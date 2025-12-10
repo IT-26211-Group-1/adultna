@@ -85,11 +85,29 @@ export default function SummaryForm({
     }
   }, [resumeData.summary, form]);
 
-  const getWordCount = (text: string): number => {
-    if (!text || text.trim() === "") return 0;
+  // Summary limits
+  const SUMMARY_LIMITS = {
+    maxWords: 250,
+    maxCharacters: 1500,
+    warningThreshold: 0.9,
+  } as const;
 
-    return text.trim().split(/\s+/).length;
-  };
+  const summaryStats = useMemo(() => {
+    const charCount = summaryText.length;
+    const wordCount = summaryText.trim()
+      ? summaryText.trim().split(/\s+/).length
+      : 0;
+
+    return {
+      charCount,
+      wordCount,
+      isCharLimitNear:
+        charCount >=
+        SUMMARY_LIMITS.maxCharacters * SUMMARY_LIMITS.warningThreshold,
+      isWordLimitNear:
+        wordCount >= SUMMARY_LIMITS.maxWords * SUMMARY_LIMITS.warningThreshold,
+    };
+  }, [summaryText]);
 
   const handleApplySummary = (summary: string) => {
     setSummaryText(summary);
@@ -148,17 +166,17 @@ export default function SummaryForm({
   };
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h2 className="text-2xl font-semibold">Professional Summary</h2>
-        <p className="text-sm text-default-500">
+    <div className="mx-auto max-w-xl space-y-3">
+      <div className="space-y-1 text-center mb-6">
+        <h2 className="text-xl font-semibold">Professional Summary</h2>
+        <p className="text-xs text-default-500">
           {hasRequiredDataForAI
             ? "Write a short introduction for your resume. Don't worry! Our AI will help you out and give recommendations."
             : "Write a short introduction for your resume. Add a job position and work experience to unlock AI-powered suggestions."}
         </p>
       </div>
 
-      <form className="space-y-6">
+      <form className="space-y-3">
         {hasRequiredDataForAI && (
           <div className="flex justify-center">
             <Button
@@ -175,15 +193,45 @@ export default function SummaryForm({
           </div>
         )}
 
-        <Textarea
-          description={`${summaryText ? `${getWordCount(summaryText)} / 250 words` : "Maximum 250 words"}`}
-          errorMessage={form.formState.errors.summary?.message}
-          isInvalid={!!form.formState.errors.summary}
-          label="Professional Summary"
-          minRows={4}
-          value={summaryText}
-          onChange={(e) => setSummaryText(e.target.value)}
-        />
+        <div className="space-y-2">
+          <Textarea
+            errorMessage={form.formState.errors.summary?.message}
+            isInvalid={!!form.formState.errors.summary}
+            label="Professional Summary"
+            minRows={4}
+            size="sm"
+            value={summaryText}
+            onChange={(e) => {
+              const newValue = e.target.value;
+
+              if (newValue.length <= SUMMARY_LIMITS.maxCharacters) {
+                setSummaryText(newValue);
+              }
+            }}
+          />
+          <div className="flex items-center justify-between gap-4">
+            <span
+              className={`text-xs font-medium transition-colors ${
+                summaryStats.isCharLimitNear
+                  ? "text-amber-600"
+                  : "text-gray-500"
+              }`}
+            >
+              {summaryStats.charCount.toLocaleString()} /{" "}
+              {SUMMARY_LIMITS.maxCharacters.toLocaleString()} characters
+            </span>
+            <span
+              className={`text-xs font-medium transition-colors ${
+                summaryStats.isWordLimitNear
+                  ? "text-amber-600"
+                  : "text-gray-500"
+              }`}
+            >
+              {summaryStats.wordCount.toLocaleString()} /{" "}
+              {SUMMARY_LIMITS.maxWords.toLocaleString()} words
+            </span>
+          </div>
+        </div>
 
         {aiSuggestions.length > 0 && (
           <AISuggestions

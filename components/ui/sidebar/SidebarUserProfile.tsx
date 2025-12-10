@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Settings, LogOut, User, ChevronUp, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuth as useAuthData } from "@/hooks/queries/useAuthQueries";
@@ -15,6 +16,7 @@ import {
 } from "@heroui/modal";
 import { Button } from "@heroui/react";
 import { LoadingSpinner } from "../LoadingSpinner";
+import { logger } from "@/lib/logger";
 
 interface SidebarUserProfileProps {
   isCollapsed: boolean;
@@ -45,7 +47,7 @@ export default function SidebarUserProfile({
       logout();
       onClose();
     } catch (error) {
-      console.error("Logout error:", error);
+      logger.error("Logout error:", error);
     }
   };
 
@@ -80,8 +82,18 @@ export default function SidebarUserProfile({
           className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors duration-200"
           onClick={toggleDropdown}
         >
-          <div className="w-8 h-8 rounded-full bg-adult-green flex items-center justify-center">
-            <User className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-adult-green flex items-center justify-center relative">
+            {user?.profilePictureUrl ? (
+              <Image
+                fill
+                alt={user.displayName || "User profile"}
+                className="object-cover"
+                sizes="32px"
+                src={user.profilePictureUrl}
+              />
+            ) : (
+              <User className="w-4 h-4 text-white" />
+            )}
           </div>
         </button>
 
@@ -116,8 +128,18 @@ export default function SidebarUserProfile({
           className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors duration-200"
           onClick={toggleDropdown}
         >
-          <div className="w-8 h-8 rounded-full bg-adult-green flex items-center justify-center flex-shrink-0">
-            <User className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-adult-green flex items-center justify-center flex-shrink-0 relative">
+            {user?.profilePictureUrl ? (
+              <Image
+                fill
+                alt={user.displayName || "User profile"}
+                className="object-cover"
+                sizes="32px"
+                src={user.profilePictureUrl}
+              />
+            ) : (
+              <User className="w-4 h-4 text-white" />
+            )}
           </div>
           <div className="flex-1 text-left min-w-0">
             <div className="text-sm font-medium text-gray-700 truncate">

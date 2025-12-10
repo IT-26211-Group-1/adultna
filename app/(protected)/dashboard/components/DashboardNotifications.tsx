@@ -9,6 +9,7 @@ import {
 } from "@/hooks/queries/useDashboardQueries";
 import { formatDistanceToNow } from "date-fns";
 import type { DashboardNotification } from "@/types/dashboard";
+import styles from "@/styles/scrollbar.module.css";
 
 function DashboardNotifications() {
   const { data: notifications = [], isLoading } = useDashboardNotifications(10);
@@ -59,35 +60,7 @@ function DashboardNotifications() {
         )}
       </div>
 
-      <div
-        className="overflow-y-auto scrollbar-thin"
-        style={{
-          height: "calc(100% - 40px)",
-          scrollbarWidth: "thin",
-          scrollbarColor: "rgba(156, 163, 175, 0.5) transparent",
-          WebkitOverflowScrolling: "touch" as any,
-          overscrollBehavior: "contain",
-        }}
-      >
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-            .scrollbar-thin::-webkit-scrollbar {
-              width: 6px;
-            }
-            .scrollbar-thin::-webkit-scrollbar-track {
-              background: transparent;
-            }
-            .scrollbar-thin::-webkit-scrollbar-thumb {
-              background: rgba(156, 163, 175, 0.5);
-              border-radius: 3px;
-            }
-            .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-              background: rgba(156, 163, 175, 0.7);
-            }
-          `,
-          }}
-        />
+      <div className={styles.scrollbarThin}>
         {isLoading ? (
           <div className="space-y-3 pr-2">
             {[1, 2, 3].map((i) => (

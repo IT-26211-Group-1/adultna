@@ -11,6 +11,7 @@ import type {
   OfficeInfo,
   GeneralTips,
 } from "@/hooks/queries/admin/useGuidesQueries";
+import { logger } from "@/lib/logger";
 
 interface PreviewGuideModalProps {
   open?: boolean;
@@ -31,7 +32,7 @@ function PreviewGuideModal({
         ? JSON.parse(guide.offices)
         : guide.offices;
     } catch (error) {
-      console.error("Error parsing offices:", error);
+      logger.error("Error parsing offices:", error);
 
       return null;
     }
@@ -44,7 +45,7 @@ function PreviewGuideModal({
         ? JSON.parse(guide.steps)
         : guide.steps;
     } catch (error) {
-      console.error("Error parsing steps:", error);
+      logger.error("Error parsing steps:", error);
 
       return [];
     }
@@ -57,7 +58,7 @@ function PreviewGuideModal({
         ? JSON.parse(guide.requirements)
         : guide.requirements;
     } catch (error) {
-      console.error("Error parsing requirements:", error);
+      logger.error("Error parsing requirements:", error);
 
       return [];
     }
@@ -70,7 +71,7 @@ function PreviewGuideModal({
         ? JSON.parse(guide.generalTips)
         : guide.generalTips;
     } catch (error) {
-      console.error("Error parsing generalTips:", error);
+      logger.error("Error parsing generalTips:", error);
 
       return null;
     }

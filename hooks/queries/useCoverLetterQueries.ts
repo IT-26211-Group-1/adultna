@@ -205,7 +205,6 @@ export function useUpdateSection(coverLetterId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coverLetters.detail(coverLetterId),
-        refetchType: "none",
       });
     },
   });
@@ -242,7 +241,6 @@ export function useUpdateSections(coverLetterId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coverLetters.detail(coverLetterId),
-        refetchType: "none",
       });
     },
   });

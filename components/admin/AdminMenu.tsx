@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
@@ -25,16 +26,17 @@ export const AdminMenu = () => {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <aside className="w-64 h-screen bg-white border-r dark:bg-slate-900 dark:border-slate-800 px-4 py-6 flex-shrink-0 text-adult-green">
+    <aside className="w-64 h-screen bg-white border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 px-4 py-6 flex-shrink-0 text-adult-green">
       <div className="flex items-center justify-center gap-2 mb-6">
-        <div>
-          <Link
-            className="text-3xl font-semibold font-playfair"
-            href="/admin/dashboard"
-          >
-            AdultNa.
-          </Link>
-        </div>
+        <Link href="/admin/dashboard">
+          <Image
+            alt="AdultNa Logo"
+            className="object-contain"
+            height={56}
+            src="/AdultNa-Logo.png"
+            width={140}
+          />
+        </Link>
       </div>
 
       <nav className="space-y-4 text-sm">
