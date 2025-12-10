@@ -196,9 +196,6 @@ export const Footer = () => {
             <Link as={NextLink} className="text-white text-xs" href="/privacy">
               Privacy Policy
             </Link>
-            <Link as={NextLink} className="text-white text-xs" href="/cookies">
-              Cookie Policy
-            </Link>
           </div>
         </div>
       </div>
