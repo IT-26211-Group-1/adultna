@@ -131,7 +131,7 @@ export default function EducationForm({
 
       onValidationChange(isValid);
     }
-  }, [form.formState.errors, form, onValidationChange]);
+  }, [form.formState.errors, fields, form, onValidationChange]);
 
   useEffect(() => {
     if (

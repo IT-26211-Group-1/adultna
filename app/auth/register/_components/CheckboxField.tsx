@@ -1,11 +1,12 @@
 import { Checkbox } from "@heroui/react";
 import { UseFormRegister, Path } from "react-hook-form";
 import { FieldValues } from "react-hook-form";
+import { ReactNode } from "react";
 
 type CheckboxFieldProps<FormData extends FieldValues> = {
   register: UseFormRegister<FormData>;
   name: Path<FormData>;
-  label: string;
+  label: string | ReactNode;
   error?: string;
 };
 
