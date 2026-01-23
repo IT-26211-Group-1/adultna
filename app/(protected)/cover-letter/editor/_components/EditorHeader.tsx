@@ -1,7 +1,13 @@
 "use client";
 
-import { Button } from "@heroui/react";
-import { Download, ChevronRight } from "lucide-react";
+import {
+  Button,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/react";
+import { Download, ChevronRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { SaveStatusIndicator } from "./SaveStatusIndicator";
 import InlineEditableTitle from "./InlineEditableTitle";
@@ -12,6 +18,7 @@ type EditorHeaderProps = {
   hasSaved: boolean;
   hasUnsavedChanges: boolean;
   onExport: () => void;
+  onExportDocx: () => void;
   isExporting: boolean;
   coverLetterId: string;
   onTitleChange: (newTitle: string) => void;
@@ -23,6 +30,7 @@ export default function EditorHeader({
   hasSaved,
   hasUnsavedChanges,
   onExport,
+  onExportDocx,
   isExporting,
   coverLetterId,
   onTitleChange,
@@ -116,16 +124,38 @@ export default function EditorHeader({
               </div>
 
               <div className="flex items-center gap-3">
-                <Button
-                  disableAnimation
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2 shadow-lg"
-                  isLoading={isExporting}
-                  size="sm"
-                  startContent={isExporting ? null : <Download size={16} />}
-                  onPress={onExport}
-                >
-                  {isExporting ? "Exporting..." : "Export PDF"}
-                </Button>
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      disableAnimation
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2 shadow-lg"
+                      endContent={
+                        isExporting ? null : <ChevronDown size={14} />
+                      }
+                      isLoading={isExporting}
+                      size="sm"
+                      startContent={isExporting ? null : <Download size={16} />}
+                    >
+                      {isExporting ? "Exporting..." : "Export"}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu aria-label="Export options">
+                    <DropdownItem
+                      key="pdf"
+                      startContent={<Download size={16} />}
+                      onPress={onExport}
+                    >
+                      Export as PDF
+                    </DropdownItem>
+                    <DropdownItem
+                      key="docx"
+                      startContent={<Download size={16} />}
+                      onPress={onExportDocx}
+                    >
+                      Export as Word
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
               </div>
             </div>
           </div>

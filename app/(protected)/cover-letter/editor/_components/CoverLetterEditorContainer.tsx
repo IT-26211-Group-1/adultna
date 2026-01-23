@@ -7,6 +7,7 @@ import {
   useCoverLetter,
   useUpdateSections,
   useExportCoverLetter,
+  useExportCoverLetterDocx,
 } from "@/hooks/queries/useCoverLetterQueries";
 import { addToast } from "@heroui/toast";
 import type { CoverLetterSection, SectionType } from "@/types/cover-letter";
@@ -34,6 +35,7 @@ export function CoverLetterEditorContainer() {
   const { data: coverLetter, isLoading: isCoverLetterLoading } =
     useCoverLetter(coverLetterId);
   const exportCoverLetter = useExportCoverLetter();
+  const exportCoverLetterDocx = useExportCoverLetterDocx();
   const updateSections = useUpdateSections(coverLetterId);
 
   const [currentSectionType, setCurrentSectionType] =
@@ -240,6 +242,21 @@ export function CoverLetterEditorContainer() {
     }
   };
 
+  const handleDownloadDocx = async () => {
+    try {
+      await exportCoverLetterDocx.mutateAsync(coverLetterId);
+      addToast({
+        title: "Word document downloaded successfully!",
+        color: "success",
+      });
+    } catch {
+      addToast({
+        title: "Failed to download Word document",
+        color: "danger",
+      });
+    }
+  };
+
   const sortedSections =
     Object.values(sectionData)
       .filter((s): s is CoverLetterSection => !!s)
@@ -352,10 +369,13 @@ export function CoverLetterEditorContainer() {
         coverLetterId={coverLetterId}
         hasSaved={hasSaved}
         hasUnsavedChanges={hasUnsavedChanges}
-        isExporting={exportCoverLetter.isPending}
+        isExporting={
+          exportCoverLetter.isPending || exportCoverLetterDocx.isPending
+        }
         isSaving={isSaving}
         title={title}
         onExport={handleDownloadPDF}
+        onExportDocx={handleDownloadDocx}
         onTitleChange={handleTitleChange}
       />
 

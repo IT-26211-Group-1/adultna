@@ -123,6 +123,39 @@ export function useExportResume() {
   });
 }
 
+export function useExportResumeDocx() {
+  return useMutation({
+    mutationFn: async (resumeId: string) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API}/resumes/${resumeId}/export-docx`,
+        {
+          method: "GET",
+          credentials: "include",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export resume as Word document");
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch ? filenameMatch[1] : "resume.docx";
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
+  });
+}
+
 export function useAddWorkExperience(resumeId: string) {
   const queryClient = useQueryClient();
 
