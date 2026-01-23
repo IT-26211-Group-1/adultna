@@ -41,10 +41,11 @@ export default function PrivacyPage() {
                 Introduction
               </h2>
               <p className="mb-4 text-base leading-relaxed">
-                AdultNa (&quot;we&quot;, &quot;our&quot;, &quot;the platform&quot;) is committed to protecting
-                the privacy and security of your personal data in accordance
-                with the Data Privacy Act of 2012 (RA 10173), its Implementing
-                Rules and Regulations (IRR), and all applicable National Privacy
+                AdultNa (&quot;we&quot;, &quot;our&quot;, &quot;the
+                platform&quot;) is committed to protecting the privacy and
+                security of your personal data in accordance with the Data
+                Privacy Act of 2012 (RA 10173), its Implementing Rules and
+                Regulations (IRR), and all applicable National Privacy
                 Commission (NPC) issuances. This Privacy Policy explains what
                 information we collect, how we use it, how we protect it, and
                 the rights of data subjects.

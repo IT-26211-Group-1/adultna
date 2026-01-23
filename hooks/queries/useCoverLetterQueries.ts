@@ -101,6 +101,39 @@ export function useExportCoverLetter() {
   });
 }
 
+export function useExportCoverLetterDocx() {
+  return useMutation({
+    mutationFn: async (coverLetterId: string) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API}/cover-letters/${coverLetterId}/export-docx`,
+        {
+          method: "GET",
+          credentials: "include",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export cover letter as Word document");
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch ? filenameMatch[1] : "cover-letter.docx";
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
+  });
+}
+
 export function useGenerateUploadUrl() {
   return useMutation({
     mutationFn: async (data: {

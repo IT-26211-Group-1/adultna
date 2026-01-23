@@ -4,11 +4,12 @@ import ResumePreview from "./ResumePreview";
 import { ResumeData } from "@/validators/resumeSchema";
 import {
   useExportResume,
+  useExportResumeDocx,
   useSaveToFilebox,
 } from "@/hooks/queries/useResumeQueries";
 import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
-import { Download, FileText, Save } from "lucide-react";
+import { Download, FileText, Save, FileDown } from "lucide-react";
 
 interface CompletedProps {
   resumeData: ResumeData;
@@ -18,6 +19,7 @@ interface CompletedProps {
 export default function Completed({ resumeData }: CompletedProps) {
   const router = useRouter();
   const exportResume = useExportResume();
+  const exportResumeDocx = useExportResumeDocx();
   const saveToFilebox = useSaveToFilebox(resumeData.id || "");
 
   const handleExportToPDF = () => {
@@ -32,6 +34,26 @@ export default function Completed({ resumeData }: CompletedProps) {
         onError: (error: any) => {
           addToast({
             title: "Failed to export resume",
+            description: error?.message || "Please try again",
+            color: "danger",
+          });
+        },
+      });
+    }
+  };
+
+  const handleExportToDocx = () => {
+    if (resumeData.id) {
+      exportResumeDocx.mutate(resumeData.id, {
+        onSuccess: () => {
+          addToast({
+            title: "Word document exported successfully",
+            color: "success",
+          });
+        },
+        onError: (error: any) => {
+          addToast({
+            title: "Failed to export Word document",
             description: error?.message || "Please try again",
             color: "danger",
           });
@@ -117,6 +139,23 @@ export default function Completed({ resumeData }: CompletedProps) {
                         <>
                           <Download className="h-4 w-4" />
                           Download PDF
+                        </>
+                      )}
+                    </div>
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+                    disabled={exportResumeDocx.isPending}
+                    onClick={handleExportToDocx}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      {exportResumeDocx.isPending ? (
+                        "Preparing Word..."
+                      ) : (
+                        <>
+                          <FileDown className="h-4 w-4" />
+                          Download Word
                         </>
                       )}
                     </div>

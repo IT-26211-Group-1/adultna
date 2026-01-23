@@ -34,14 +34,15 @@ export default function TermsPage() {
 
           <div className="prose prose-lg max-w-none text-gray-800">
             <p className="mb-6 text-base leading-relaxed">
-              These Terms and Conditions (&quot;Terms&quot;) govern your access to and use
-              of AdultNa (the &quot;Platform&quot;), a career-readiness and adulting
-              support system operated by the AdultNa Development Team, College
-              of Information and Computing Sciences, University of Santo Tomas
-              (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). By creating an account, accessing any
-              feature, or using the Platform in any capacity, you agree to be
-              bound by these Terms. If you do not agree, you must discontinue
-              use immediately.
+              These Terms and Conditions (&quot;Terms&quot;) govern your access
+              to and use of AdultNa (the &quot;Platform&quot;), a
+              career-readiness and adulting support system operated by the
+              AdultNa Development Team, College of Information and Computing
+              Sciences, University of Santo Tomas (&quot;we,&quot;
+              &quot;us,&quot; or &quot;our&quot;). By creating an account,
+              accessing any feature, or using the Platform in any capacity, you
+              agree to be bound by these Terms. If you do not agree, you must
+              discontinue use immediately.
             </p>
 
             <section className="mb-8">
@@ -87,10 +88,11 @@ export default function TermsPage() {
                 </li>
               </ul>
               <p className="text-base leading-relaxed">
-                Users below 18 years old (&quot;Minors&quot;) may use the Platform only
-                with the consent and supervision of a parent/guardian. By
-                allowing a minor to use the Platform, the parent/guardian
-                accepts responsibility for the minor&apos;s account and activities.
+                Users below 18 years old (&quot;Minors&quot;) may use the
+                Platform only with the consent and supervision of a
+                parent/guardian. By allowing a minor to use the Platform, the
+                parent/guardian accepts responsibility for the minor&apos;s
+                account and activities.
               </p>
             </section>
 
@@ -383,7 +385,8 @@ export default function TermsPage() {
                 8. Disclaimer of Warranties
               </h2>
               <p className="mb-4 text-base leading-relaxed">
-                AdultNa is provided &quot;as is&quot; and &quot;as available.&quot;
+                AdultNa is provided &quot;as is&quot; and &quot;as
+                available.&quot;
               </p>
               <p className="mb-4 text-base leading-relaxed">
                 We do not guarantee:

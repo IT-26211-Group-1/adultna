@@ -4,11 +4,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   useCoverLetter,
   useExportCoverLetter,
+  useExportCoverLetterDocx,
   useSaveToFilebox,
 } from "@/hooks/queries/useCoverLetterQueries";
 import { CoverLetterPreview } from "../../_components/CoverLetterPreview";
 import { addToast } from "@heroui/toast";
-import { Download, Copy, Save, FileText } from "lucide-react";
+import { Download, Copy, Save, FileText, FileDown } from "lucide-react";
 import type { CoverLetterSection } from "@/types/cover-letter";
 
 export default function ReviewContainer() {
@@ -17,6 +18,7 @@ export default function ReviewContainer() {
   const coverLetterId = searchParams.get("id") || "";
   const { data: coverLetter, isLoading } = useCoverLetter(coverLetterId);
   const exportCoverLetter = useExportCoverLetter();
+  const exportCoverLetterDocx = useExportCoverLetterDocx();
   const saveToFilebox = useSaveToFilebox(coverLetterId);
 
   if (isLoading) {
@@ -53,6 +55,18 @@ export default function ReviewContainer() {
       addToast({ title: "PDF downloaded successfully!", color: "success" });
     } catch {
       addToast({ title: "Failed to download PDF", color: "danger" });
+    }
+  };
+
+  const handleDownloadDocx = async () => {
+    try {
+      await exportCoverLetterDocx.mutateAsync(coverLetterId);
+      addToast({
+        title: "Word document downloaded successfully!",
+        color: "success",
+      });
+    } catch {
+      addToast({ title: "Failed to download Word document", color: "danger" });
     }
   };
 
@@ -130,6 +144,23 @@ export default function ReviewContainer() {
                         <>
                           <Download className="h-4 w-4" />
                           Download PDF
+                        </>
+                      )}
+                    </div>
+                  </button>
+
+                  <button
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+                    disabled={exportCoverLetterDocx.isPending}
+                    onClick={handleDownloadDocx}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      {exportCoverLetterDocx.isPending ? (
+                        "Preparing Word..."
+                      ) : (
+                        <>
+                          <FileDown className="h-4 w-4" />
+                          Download Word
                         </>
                       )}
                     </div>
