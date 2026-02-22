@@ -161,7 +161,7 @@ export default function GuideCard({
 
               <Link
                 className="inline-flex items-center gap-1 text-adult-green hover:text-green-600 font-medium text-xs transition-colors group"
-                href={`/gov-guides/${guide.slug}`}
+                href={`/gov-guides?guide=${guide.slug}`}
               >
                 {t("common.viewDetails")}
                 <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
