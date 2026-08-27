@@ -126,7 +126,7 @@ export default function GuideDetailClient({ slug }: GuideDetailClientProps) {
               "group-data-[selected=true]:text-adult-green group-data-[selected=true]:font-semibold",
           }}
           selectedKey={selectedTab}
-          onSelectionChange={(key) => setSelectedTab(key as string)}
+          onSelectionChange={(key: React.Key) => setSelectedTab(String(key))}
         >
           <Tab key="complete-guide" title="Complete Guide">
             <div className="py-4">
