@@ -219,7 +219,7 @@ export default function HybridTemplate({
             <h2 className="text-sm font-bold">Additional Skills</h2>
           </div>
           <div className="space-y-2">
-            {resumeData.skills.slice(0, 6).map((skillItem, index) => {
+            {resumeData.skills.map((skillItem, index) => {
               const proficiency = skillItem.proficiency ?? 0;
 
               return (

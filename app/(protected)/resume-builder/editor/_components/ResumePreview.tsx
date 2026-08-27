@@ -8,6 +8,7 @@ import ReverseChronologicalTemplate from "../../templates/_components/ReverseChr
 import ModernTemplate from "../../templates/_components/ModernTemplate";
 import SkillBasedTemplate from "../../templates/_components/SkillBasedTemplate";
 import HybridTemplate from "../../templates/_components/HybridTemplate";
+import HarvardTemplate from "../../templates/_components/HarvardTemplate";
 import { TemplateId } from "@/constants/templates";
 import { logger } from "@/lib/logger";
 
@@ -71,6 +72,8 @@ function ResumePreview({ resumeData, className }: ResumePreviewProps) {
         return <SkillBasedTemplate {...props} />;
       case "hybrid":
         return <HybridTemplate {...props} />;
+      case "harvard":
+        return <HarvardTemplate {...props} />;
       default:
         return <ReverseChronologicalTemplate {...props} />;
     }

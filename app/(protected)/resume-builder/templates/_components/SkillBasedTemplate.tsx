@@ -158,7 +158,14 @@ export default function SkillBasedTemplate({
                 )}
               </h3>
               {work.description && (
-                <p className="text-xs leading-relaxed">{work.description}</p>
+                <ul className="text-xs leading-relaxed list-disc pl-5 space-y-0.5 mt-1">
+                  {work.description
+                    .split("\n")
+                    .filter((line) => line.trim())
+                    .map((line, i) => (
+                      <li key={i}>{line.trim()}</li>
+                    ))}
+                </ul>
               )}
             </div>
           ))}

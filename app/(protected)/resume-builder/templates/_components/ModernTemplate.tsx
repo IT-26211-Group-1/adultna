@@ -113,32 +113,6 @@ export default function ModernTemplate({
           </div>
         )}
 
-        {/* Languages Section */}
-        <div className="space-y-3">
-          <h2 className="font-bold uppercase text-sm tracking-wide border-b-2 border-gray-300 pb-2">
-            LANGUAGES
-          </h2>
-          <ul className="space-y-1.5 list-disc pl-4">
-            <li>English (Fluent)</li>
-          </ul>
-        </div>
-
-        {/* Reference Section */}
-        <div className="space-y-3">
-          <h2 className="font-bold uppercase text-sm tracking-wide border-b-2 border-gray-300 pb-2">
-            REFERENCE
-          </h2>
-          <div className="space-y-1">
-            <p className="font-bold">Estelle Darcy</p>
-            <p className="text-xs">Wardiere Inc. / CTO</p>
-            <p className="text-xs">
-              Phone: {resumeData.phone || "+124-4236-7894"}
-            </p>
-            <p className="text-xs break-all">
-              Email: {resumeData.email || "hello@ahmedd saaahh.com"}
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Right Column - 65% */}

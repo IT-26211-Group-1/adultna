@@ -2,7 +2,8 @@ export type TemplateId =
   | "reverse-chronological"
   | "modern"
   | "skill-based"
-  | "hybrid";
+  | "hybrid"
+  | "harvard";
 
 export type LayoutType = "single-column" | "two-column" | "asymmetric";
 
@@ -53,6 +54,15 @@ export const TEMPLATES: Record<TemplateId, Template> = {
     fontFamily: "Arial, sans-serif",
     previewImageUrl: "/templates/Hybrid.png",
   },
+  harvard: {
+    id: "harvard",
+    name: "Harvard",
+    description: "Clean, minimal academic style with bold section headers and classic serif typography",
+    layoutType: "single-column",
+    colorScheme: "#000000",
+    fontFamily: "Georgia, serif",
+    previewImageUrl: "/templates/Harvard.png",
+  },
 };
 
 export const TEMPLATE_IDS: TemplateId[] = [
@@ -60,6 +70,7 @@ export const TEMPLATE_IDS: TemplateId[] = [
   "modern",
   "skill-based",
   "hybrid",
+  "harvard",
 ];
 
 export const TEMPLATE_LIST: Template[] = TEMPLATE_IDS.map(
